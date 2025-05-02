@@ -31,10 +31,10 @@ preparations_tests:
     - ip prefix-list p1 seq 1 permit 1.1.1.1/1
     - ip prefix-list p2 seq 2 permit 2.2.2.2/2
   init_vrf:
-    - "ip vrf {{vrf_1 }}"
-    - "ip vrf {{vrf_2 }}"
-    - "ip vrf {{vrf_5 }}"
-    - "ip vrf {{vrf_6 }}"
+    - "ip vrf {{ vrf_1 }}"
+    - "ip vrf {{ vrf_2 }}"
+    - "ip vrf {{ vrf_5 }}"
+    - "ip vrf {{ vrf_6 }}"
   init_bgp:
     - bgp_as: "{{ bgp_as_1 }}"
       router_id: 111.2.2.41
@@ -72,12 +72,12 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
-               encrypted: true
+              pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+              encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
-               enabled: false
-               multihop_ttl: 2
+              enabled: false
+              multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
             local_address: '1::1'
@@ -91,6 +91,7 @@ deleted_tests:
             disable_connected_check: false
             shutdown_msg: "msg2"
             ttl_security: 8
+            extended_link_bandwidth: true
       - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "{{ vrf_1 }}"
         neighbors:
@@ -301,6 +302,7 @@ deleted_tests:
         peer_group:
           - name: SPINE1
           - name: SPINE3
+
   - name: test_case_del_08
     description: Delete neighbors/peer-group with no properties
     state: deleted
@@ -364,9 +366,12 @@ merged_tests:
               dynamic: true
               extended_nexthop: true
           - neighbor: 192.168.1.4
+            extended_link_bandwidth: true
           - neighbor: 2::2
+            extended_link_bandwidth: false
           - neighbor: "{{ interface1 }}"
           - neighbor: 192.168.1.5
+            extended_link_bandwidth: true
             remote_as:
               peer_as: 6
             peer_group: SPINE
@@ -484,6 +489,7 @@ merged_tests:
               peer_as: "{{ peer_as_6 }}"
             local_as:
                as: "{{ local_as_6 }}"
+
   - name: test_case_02
     description: Update BGP NEIGHBORS properties
     state: merged
@@ -533,6 +539,7 @@ merged_tests:
               dynamic: false
               extended_nexthop: false
           - neighbor: 192.168.1.4
+            extended_link_bandwidth: false
           - neighbor: "{{ interface1 }}"
           - neighbor: 192.168.1.5
             remote_as:
@@ -652,6 +659,7 @@ merged_tests:
               peer_as: "{{ peer_as_6_dot }}"
             local_as:
                as: "{{ local_as_6_dot }}"
+
   - name: test_case_03
     description: BGP NEIGHBORS ipv6 properties
     state: merged
@@ -663,6 +671,7 @@ merged_tests:
               peer_as: 1123
         neighbors:
           - neighbor: 2::2
+            extended_link_bandwidth: true
           - neighbor: 11::11
             remote_as:
               peer_type: external
@@ -710,6 +719,7 @@ merged_tests:
               connect_retry: 10
             capability:
               dynamic: true
+
   - name: test_case_04
     description: BGP NEIGHBORS remote-as properties
     state: merged
@@ -793,6 +803,7 @@ merged_tests:
               peer_as: "{{ peer_as_5 }}"
             local_as:
               as: "{{ local_as_6 }}"
+
   - name: test_case_05
     description: BGP NEIGHBORS remote-as properties
     state: merged
@@ -827,6 +838,7 @@ merged_tests:
           - neighbor: 67.1.1.1
             remote_as:
               peer_as: 1123
+
   - name: test_case_06
     description: BGP NEIGHBORS configure additional attributes
     state: merged
@@ -892,6 +904,7 @@ merged_tests:
             nbr_description: 'description 2'
             strict_capability_match: true
             v6only: true
+
   - name: test_case_07
     description: BGP NEIGHBORS modify additional attributes
     state: merged
@@ -948,6 +961,7 @@ merged_tests:
             nbr_description: 'description 3'
             strict_capability_match: false
             v6only: false
+
   - name: test_case_08
     description: Configure BGP peer-group prefix-list attributes
     state: merged
@@ -983,6 +997,7 @@ merged_tests:
                   safi: evpn
                   prefix_list_in: p1
                   prefix_list_out: p2
+
   - name: test_case_09
     description: Modify BGP peer-group prefix-list attributes
     state: merged
@@ -1036,6 +1051,7 @@ replaced_tasks:
             advertisement_interval: 10
         neighbors:
           - neighbor: "{{ interface3 }}"
+            extended_link_bandwidth: true
             remote_as:
               peer_as: 15
             peer_group: SPINE3
@@ -1064,6 +1080,7 @@ replaced_tasks:
                   safi: unicast
                   allowas_in:
                     origin: true
+
   - name: test_case_replace_02
     description: Replace BGP neighbor
     state: replaced
@@ -1130,6 +1147,7 @@ overridden_tasks:
                   prefix_list_out: p1
         neighbors:
           - neighbor: "{{ interface1 }}"
+            extended_link_bandwidth: false
             remote_as:
               peer_as: 1234
           - neighbor: 11::11
@@ -1145,6 +1163,7 @@ overridden_tasks:
         vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
+
   - name: test_case_over_02
     description: Override BGP Neighbors properties
     state: overridden
@@ -1162,3 +1181,31 @@ overridden_tasks:
                     send_default_route: false
                   prefix_list_in: p2
                   prefix_list_out: p1
+        neighbors:
+          - neighbor: "{{ interface1 }}"
+            extended_link_bandwidth: true
+            remote_as:
+              peer_as: 1234
+
+  - name: test_case_over_03
+    description: Override BGP Neighbors properties
+    state: overridden
+    input:
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_2 }}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+        neighbors:
+          - neighbor: "{{ interface1 }}"
+            remote_as:
+              peer_as: 1234
+ 

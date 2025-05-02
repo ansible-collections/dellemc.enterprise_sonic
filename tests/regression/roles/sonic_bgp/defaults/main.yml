@@ -22,13 +22,12 @@ bgp_as_7_dot: "0.300"
 
 preparations_tests:
   init_vrf:
-    - "ip vrf {{vrf_1}}"
-    - "ip vrf {{vrf_2}}"
-    - "ip vrf {{vrf_3}}"
-    - "ip vrf {{vrf_5}}"
-    - "ip vrf {{vrf_6}}"
-    - "ip vrf {{vrf_7}}"
-
+    - "ip vrf {{ vrf_1 }}"
+    - "ip vrf {{ vrf_2 }}"
+    - "ip vrf {{ vrf_3 }}"
+    - "ip vrf {{ vrf_5 }}"
+    - "ip vrf {{ vrf_6 }}"
+    - "ip vrf {{ vrf_7 }}"
 
 tests_cli:
   - name: cli_test_case_01
@@ -40,14 +39,14 @@ tests_cli:
         rt_delay: 10
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-            multipath_relax: True
-            multipath_relax_as_set: True
-          compare_routerid: True
+            confed: true
+            ignore: true
+            multipath_relax: true
+            multipath_relax_as_set: true
+          compare_routerid: true
           med:
-            confed: True
-            missing_as_worst: True
+            confed: true
+            missing_as_worst: true
         max_med:
           on_startup:
             timer: 667
@@ -55,17 +54,17 @@ tests_cli:
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         rt_delay: 20
-        vrf_name: "{{vrf_1}}"
+        vrf_name: "{{ vrf_1 }}"
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-            multipath_relax: True
-            multipath_relax_as_set: True
-          compare_routerid: True
+            confed: true
+            ignore: true
+            multipath_relax: true
+            multipath_relax_as_set: true
+          compare_routerid: true
           med:
-            confed: True
-            missing_as_worst: True
+            confed: true
+            missing_as_worst: true
         max_med:
           on_startup:
             timer: 889
@@ -79,24 +78,27 @@ tests:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
         rt_delay: 10
+        bestpath:
+          bandwidth: DEFAULT_WT
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         rt_delay: 20
-        vrf_name: "{{vrf_1}}"
+        vrf_name: "{{ vrf_1 }}"
       - bgp_as: "{{ bgp_as_5_dot }}"
         router_id: 120.2.2.5
         rt_delay: 50
-        vrf_name: "{{vrf_5}}"
+        vrf_name: "{{ vrf_5 }}"
       - bgp_as: "{{ bgp_as_6 }}"
         router_id: 130.2.2.6
         rt_delay: 60
-        vrf_name: "{{vrf_6}}"
+        vrf_name: "{{ vrf_6 }}"
         as_notation: "asdot"
       - bgp_as: "{{ bgp_as_7 }}"
         router_id: 140.2.2.7
         rt_delay: 70
-        vrf_name: "{{vrf_7}}"
+        vrf_name: "{{ vrf_7 }}"
         as_notation: "asdot+"
+        
   - name: test_case_02
     description: Updates BGP properties
     state: merged
@@ -104,21 +106,22 @@ tests:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.30
         rt_delay: 12
-        log_neighbor_changes: True
+        log_neighbor_changes: true
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.31
         rt_delay: 22
-        vrf_name: "{{vrf_1}}"
-        log_neighbor_changes: True
+        vrf_name: "{{ vrf_1 }}"
+        log_neighbor_changes: true
       - bgp_as: "{{ bgp_as_5_dot }}"
-        vrf_name: "{{vrf_5}}"
+        vrf_name: "{{ vrf_5 }}"
         as_notation: "asdot"
       - bgp_as: "{{ bgp_as_6 }}"
-        vrf_name: "{{vrf_6}}"
+        vrf_name: "{{ vrf_6 }}"
         as_notation: "asdot+"
       - bgp_as: "{{ bgp_as_7 }}"
-        vrf_name: "{{vrf_7}}"
+        vrf_name: "{{ vrf_7 }}"
         as_notation: "asdot"
+
   - name: test_case_03
     description: Deletes BGP properties
     state: deleted
@@ -126,18 +129,19 @@ tests:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.30
         rt_delay: 12
-        log_neighbor_changes: True
+        log_neighbor_changes: true
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.31
         rt_delay: 22
-        vrf_name: "{{vrf_1}}"
-        log_neighbor_changes: True
+        vrf_name: "{{ vrf_1 }}"
+        log_neighbor_changes: true
       - bgp_as: "{{ bgp_as_6 }}"
-        vrf_name: "{{vrf_6}}"
+        vrf_name: "{{ vrf_6 }}"
         as_notation: "asdot+"
       - bgp_as: "{{ bgp_as_7_dot }}"
-        vrf_name: "{{vrf_7}}"
+        vrf_name: "{{ vrf_7 }}"
         as_notation: "asdot"
+
   - name: test_case_04
     description: creates bestpath BGP properties
     state: merged
@@ -147,14 +151,15 @@ tests:
         rt_delay: 10
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-            multipath_relax: True
-            multipath_relax_as_set: True
-          compare_routerid: True
+            confed: true
+            ignore: true
+            multipath_relax: true
+            multipath_relax_as_set: true
+          bandwidth: DEFAULT_WT
+          compare_routerid: true
           med:
-            confed: True
-            missing_as_worst: True
+            confed: true
+            missing_as_worst: true
         max_med:
           on_startup:
             timer: 889
@@ -162,21 +167,23 @@ tests:
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         rt_delay: 20
-        vrf_name: "{{vrf_1}}"
+        vrf_name: "{{ vrf_1 }}"
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-            multipath_relax: True
-            multipath_relax_as_set: True
-          compare_routerid: True
+            confed: true
+            ignore: true
+            multipath_relax: true
+            multipath_relax_as_set: true
+          bandwidth: IGNORE_LB
+          compare_routerid: true
           med:
-            confed: True
-            missing_as_worst: True
+            confed: true
+            missing_as_worst: true
         max_med:
           on_startup:
             timer: 556
             med_val: 5567
+
   - name: test_case_05
     description: Update bestpath BGP properties
     state: merged
@@ -186,11 +193,12 @@ tests:
         rt_delay: 50
         bestpath:
           as_path:
-            confed: False
-            ignore: False
-          compare_routerid: False
+            confed: false
+            ignore: false
+          bandwidth: IGNORE_LB
+          compare_routerid: false
           med:
-            confed: False
+            confed: false
         max_med:
           on_startup:
             timer: 776
@@ -198,18 +206,20 @@ tests:
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         rt_delay: 100
-        vrf_name: "{{vrf_1}}"
+        vrf_name: "{{ vrf_1 }}"
         bestpath:
           as_path:
-            multipath_relax: False
-            multipath_relax_as_set: False
-          compare_routerid: False
+            multipath_relax: false
+            multipath_relax_as_set: false
+          bandwidth: DEFAULT_WT
+          compare_routerid: false
           med:
-            missing_as_worst: False
+            missing_as_worst: false
         max_med:
           on_startup:
             timer: 445
             med_val: 4458
+
   - name: test_case_06
     description: Update1 bestpath BGP properties
     state: merged
@@ -218,21 +228,24 @@ tests:
         router_id: 110.2.2.51
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-          compare_routerid: True
+            confed: true
+            ignore: true
+          bandwidth: SKIP_MISSING
+          compare_routerid: true
           med:
-            confed: True
+            confed: true
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         vrf_name: "{{ vrf_1 }}"
         bestpath:
           as_path:
-            multipath_relax: True
-            multipath_relax_as_set: True
-          compare_routerid: True
+            multipath_relax: true
+            multipath_relax_as_set: true
+          bandwidth: SKIP_MISSING
+          compare_routerid: true
           med:
-            missing_as_worst: True
+            missing_as_worst: true
+
   - name: test_case_07
     description: Deletes BGP properties
     state: deleted
@@ -240,28 +253,30 @@ tests:
       - bgp_as: "{{ bgp_as_1 }}"
         bestpath:
           as_path:
-            confed: False
-            ignore: False
-          compare_routerid: False
+            confed: false
+            ignore: false
+          bandwidth: SKIP_MISSING
+          compare_routerid: false
           med:
-            confed: False
+            confed: false
         max_med:
           on_startup:
             timer: 889
             med_val: 8854
       - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{vrf_1}}"
+        vrf_name: "{{ vrf_1 }}"
         bestpath:
           as_path:
-            multipath_relax: True
-            multipath_relax_as_set: False
-          compare_routerid: True
+            multipath_relax: true
+            multipath_relax_as_set: false
+          compare_routerid: true
           med:
-            missing_as_worst: False
+            missing_as_worst: false
         max_med:
           on_startup:
             timer: 889
             med_val: 8854
+
   - name: test_case_08
     description: Update1 bestpath BGP properties
     state: merged
@@ -270,37 +285,42 @@ tests:
         router_id: 110.2.2.51
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-          compare_routerid: True
+            confed: true
+            ignore: true
+          bandwidth: SKIP_MISSING
+          compare_routerid: true
           med:
-            confed: True
+            confed: true
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.52
         vrf_name: "{{ vrf_1 }}"
         bestpath:
           as_path:
-            multipath_relax: True
-            multipath_relax_as_set: True
-          compare_routerid: True
+            multipath_relax: true
+            multipath_relax_as_set: true
+          bandwidth: IGNORE_LB
+          compare_routerid: true
           med:
-            missing_as_worst: True
+            missing_as_worst: true
       - bgp_as: "{{ bgp_as_3 }}"
         router_id: 120.2.2.52
         vrf_name: "{{ vrf_2 }}"
         bestpath:
           as_path:
-            multipath_relax: True
-            multipath_relax_as_set: True
-          compare_routerid: True
+            multipath_relax: true
+            multipath_relax_as_set: true
+          bandwidth: DEFAULT_WT
+          compare_routerid: true
           med:
-            missing_as_worst: True
+            missing_as_worst: true
+
   - name: test_case_09
-    description: Deletes BGP properties
+    description: Deletes entire BGP property
     state: deleted
     input:
       - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{vrf_1}}"
+        vrf_name: "{{ vrf_1 }}"
+
   - name: test_case_10
     description: Replaces BGP properties
     state: replaced
@@ -310,31 +330,37 @@ tests:
         rt_delay: 15
         bestpath:
           as_path:
-            confed: True
-          compare_routerid: False
+            confed: true
+          bandwidth: DEFAULT_WT
+          compare_routerid: false
           med:
-            always_compare_med: True
+            always_compare_med: true
         max_med:
           on_startup:
             timer: 890
             med_val: 8854
       - bgp_as: "{{ bgp_as_2 }}"
-        vrf_name: "{{vrf_1}}"
+        vrf_name: "{{ vrf_1 }}"
         router_id: 110.2.2.52
         bestpath:
           as_path:
-            confed: True
+            confed: true
           med:
-            confed: True
+            confed: true
         timers:
           holdtime: 90
           keepalive_interval: 30
       - bgp_as: "{{ bgp_as_5 }}"
         router_id: 120.2.2.155
-        vrf_name: "{{vrf_5}}"
+        vrf_name: "{{ vrf_5 }}"
         as_notation: "asdot+"
+        bestpath:
+          bandwidth: IGNORE_LB
       - bgp_as: "{{ bgp_as_6_dot }}"
-        vrf_name: "{{vrf_6}}"
+        vrf_name: "{{ vrf_6 }}"
+        bestpath:
+          bandwidth: DEFAULT_WT
+
   - name: test_case_11
     description: Overrides BGP properties
     state: overridden
@@ -343,29 +369,31 @@ tests:
         router_id: 110.2.2.51
         bestpath:
           as_path:
-            confed: True
-          compare_routerid: True
+            confed: true
+          bandwidth: IGNORE_LB
+          compare_routerid: true
           med:
-            confed: True
+            confed: true
         timers:
           holdtime: 90
           keepalive_interval: 30
       - bgp_as: "{{ bgp_as_3 }}"
-        vrf_name: "{{vrf_3}}"
+        vrf_name: "{{ vrf_3 }}"
         router_id: 110.2.2.52
         rt_delay: 15
         bestpath:
           as_path:
-            multipath_relax: True
-            multipath_relax_as_set: True
+            multipath_relax: true
+            multipath_relax_as_set: true
           med:
-            missing_as_worst: True
+            missing_as_worst: true
       - bgp_as: "{{ bgp_as_5 }}"
-        vrf_name: "{{vrf_5}}"
+        vrf_name: "{{ vrf_5 }}"
       - bgp_as: "{{ bgp_as_7_dot }}"
         router_id: 140.2.2.177
-        vrf_name: "{{vrf_7}}"
+        vrf_name: "{{ vrf_7 }}"
         as_notation: "asdot+"
+
   - name: test_case_12
     description: Deletes all BGP properties
     state: deleted
