@@ -228,7 +228,7 @@ class Bgp(ConfigBase):
                         if cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == as_val:
                             command['max_med'] = cfg['max_med']
                             break
-
+ 
             commands.extend(update_states(add_commands, 'replaced'))
             requests.extend(self.get_modify_bgp_requests(add_commands, have))
 
@@ -253,7 +253,6 @@ class Bgp(ConfigBase):
             for command in add_commands:
                 as_val = command['bgp_as']
                 vrf_name = command['vrf_name']
-
                 # max_med -> on_startup options are modified or deleted at once.
                 # Diff will not reflect the correct commands if only one of
                 # them is modified. So, update the command with want value.
@@ -363,6 +362,11 @@ class Bgp(ConfigBase):
                 requests.append({'path': multi_paths_del_path + "allow-multiple-as", 'method': DELETE})
             if as_path.get('multipath_relax_as_set', None) is not None and match_as_path.get('multipath_relax_as_set', None):
                 requests.append({'path': multi_paths_del_path + "as-set", 'method': DELETE})
+        
+        match_bandwidth = match_bestpath.get('bandwidth', None)
+        bandwidth = bestpath.get('bandwidth', None)
+        if bandwidth and match_bandwidth: 
+            requests.append({'path': route_selection_del_path + "compare-linkbw", 'method': DELETE})
 
         match_med = match_bestpath.get('med', None)
         med = bestpath.get('med', None)
@@ -495,9 +499,9 @@ class Bgp(ConfigBase):
 
         return request
 
-    def get_modify_route_selection_req(self, vrf_name, compare_routerid, as_path, med):
+    def get_modify_route_selection_req(self, vrf_name, compare_routerid, as_path, med, bandwidth):
         requests = []
-        if compare_routerid is None and not as_path and not med:
+        if compare_routerid is None and not as_path and not med and not bandwidth:
             return requests
 
         route_selection_cfg = {}
@@ -520,6 +524,9 @@ class Bgp(ConfigBase):
             if as_path_ignore is not None:
                 route_selection_cfg['ignore-as-path-length'] = as_path_ignore
 
+        if bandwidth:
+            route_selection_cfg['compare-linkbw'] = bandwidth
+
         if med:
             med_confed = med.get('confed', None)
             med_missing_as_worst = med.get('missing_as_worst', None)
@@ -532,6 +539,7 @@ class Bgp(ConfigBase):
                 route_selection_cfg['always-compare-med'] = always_compare_med
         method = PATCH
         payload = {'route-selection-options': {'config': route_selection_cfg}}
+
 
         if payload:
             url = '%s=%s/%s/global/route-selection-options' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
@@ -547,12 +555,12 @@ class Bgp(ConfigBase):
 
         compare_routerid = bestpath.get('compare_routerid', None)
         as_path = bestpath.get('as_path', None)
+        bandwidth = bestpath.get('bandwidth', None)
         med = bestpath.get('med', None)
 
-        route_selection_req = self.get_modify_route_selection_req(vrf_name, compare_routerid, as_path, med)
+        route_selection_req = self.get_modify_route_selection_req(vrf_name, compare_routerid, as_path, med, bandwidth)
         if route_selection_req:
             requests.extend(route_selection_req)
-
         multi_paths_req = self.get_modify_multi_paths_req(vrf_name, as_path)
         if multi_paths_req:
             requests.append(multi_paths_req)
@@ -737,9 +745,11 @@ class Bgp(ConfigBase):
                 if keepalive_req:
                     requests.append(keepalive_req)
 
-            bestpath_reqs = self.get_modify_bestpath_requests(vrf_name, bestpath)
-            if bestpath_reqs:
-                requests.extend(bestpath_reqs)
+            if bestpath:
+                bestpath_reqs = self.get_modify_bestpath_requests(vrf_name, bestpath)
+                if bestpath_reqs:
+                    requests.extend(bestpath_reqs)
+
             if max_med:
                 max_med_reqs = self.get_modify_max_med_requests(vrf_name, max_med)
                 if max_med_reqs:
@@ -820,6 +830,13 @@ class Bgp(ConfigBase):
 
                     if as_path_command:
                         bestpath_command['as_path'] = as_path_command
+
+                if bestpath.get('bandwidth'):
+                    bandwidth = bestpath['bandwidth']
+                    match_bandwidth = match_bestpath.get('bandwidth', {})
+                    if bandwidth != match_bandwidth or bandwidth and (match_bandwidth is None):
+                        bestpath_command['bandwidth'] = bandwidth
+ 
 
                 if bestpath.get('compare_routerid') and match_bestpath.get('compare_routerid') is None:
                     bestpath_command['compare_routerid'] = True
