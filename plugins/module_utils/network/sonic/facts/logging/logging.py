@@ -122,6 +122,8 @@ class LoggingFacts(object):
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
+            if 'Resource not found' in str(exc):
+                return logging_config
             self._module.fail_json(msg=str(exc), code=exc.code)
         if 'openconfig-system-ext:config' in response[0][1]:
             raw_syslog_data = response[0][1]['openconfig-system-ext:config']

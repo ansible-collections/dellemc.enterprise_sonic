@@ -321,8 +321,8 @@ class Logging(ConfigBase):
         replaced_config = dict()
         replaced_servers = []
 
-        if 'security_profile' in have and 'security_profile' in want:
-            replaced_config['security_profile'] = want['security_profile']
+        if have.get('security_profile') and want.get('security_profile'):
+            replaced_config['security_profile'] = have['security_profile']
 
         if 'remote_servers' in have and 'remote_servers' in want:
             for server in want['remote_servers']:
