@@ -835,7 +835,7 @@ class Bgp(ConfigBase):
                     match_bandwidth = match_bestpath.get('bandwidth', {})
                     if bandwidth != match_bandwidth or bandwidth and (match_bandwidth is None):
                         bestpath_command['bandwidth'] = bandwidth
- 
+
                 if bestpath.get('compare_routerid') and match_bestpath.get('compare_routerid') is None:
                     bestpath_command['compare_routerid'] = True
 

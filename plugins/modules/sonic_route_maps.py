@@ -291,9 +291,9 @@ options:
                 type: list
                 elements: str
               bandwidth:
+                type: dict
                 description:
                   - Link bandwidth extended community
-                type: dict
                 suboptions:
                   bandwidth_value:
                     description:
