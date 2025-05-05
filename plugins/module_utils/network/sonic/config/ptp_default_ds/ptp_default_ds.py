@@ -287,6 +287,7 @@ class Ptp_default_ds(ConfigBase):
 
         return commands, requests
 
+# The order of PTP default ds modify requests are to be retained to avoid rest failures
     def get_modify_specific_ptp_default_ds_param_requests(self, command):
         """Get requests to modify specific PTP default ds configurations
         based on the command specified for the interface
@@ -373,6 +374,7 @@ class Ptp_default_ds(ConfigBase):
 
         return requests
 
+# The order of PTP default ds delett requests are to be retained to avoid rest failures
     def get_delete_specific_ptp_default_ds_param_requests(self, command, config):
         """Get requests to delete specific PTP default ds configurations
         based on the command specified for the interface
