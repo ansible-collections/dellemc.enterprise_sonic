@@ -301,7 +301,6 @@ EXAMPLES = """
 #         mbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
 # ----------------------------------------------------------------------
 
-
 - name: Delete sshkey for existing users
   dellemc.enterprise_sonic.sonic_users:
     config:
