@@ -117,6 +117,8 @@ options:
       - lst
       - fbs_classifiers
       - br_l2pt
+      - dcbx
+      - mirroring
 """
 
 EXAMPLES = """

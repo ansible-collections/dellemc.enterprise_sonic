@@ -75,7 +75,65 @@ merged_02:
       method: 'post'
       data:
         openconfig-qos-private:input:
-          operation: 'CLEAR'        
+          operation: 'CLEAR'
+
+merged_03:
+  module_args:
+    config:
+      buffer_profiles:
+        - name: profile1
+          size: 45
+          static_threshold: 20
+          pause_threshold: 55000
+        - name: profile2
+          size: 80
+          dynamic_threshold: -1
+  existing_qos_buffer_config:
+    - path: '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch/buffer_mode_lossless'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
+      response:
+        code: 200
+        value:
+          openconfig-qos-buffer:buffer:
+            buffer-pools:
+              buffer-pool:
+                - name: 'ingress_lossless_pool'
+                  config:
+                    name: 'ingress_lossless_pool'
+                    xoff: '2500000'
+            buffer-profiles:
+              buffer-profile:
+                - name: 'profile1'
+                  config:
+                    pool: 'ingress_lossless_pool'
+                    size: '40'
+                    static-threshold: '20'
+                    pause-threshold: '50000'
+                - name: 'profile2'
+                  config:
+                    pool: 'egress_lossless_pool'
+                    size: '75'
+                    dynamic-threshold: -1
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
+      method: 'patch'
+      data:
+        openconfig-qos-buffer:buffer:
+          buffer-profiles:
+            buffer-profile:
+              - name: 'profile1'
+                config:
+                  name: 'profile1'
+                  size: '45'
+                  static-threshold: '20'
+                  pause-threshold: '55000'
+              - name: 'profile2'
+                config:
+                  name: 'profile2'
+                  size: '80'
+                  dynamic-threshold: -1
 
 deleted_01:
   module_args:
