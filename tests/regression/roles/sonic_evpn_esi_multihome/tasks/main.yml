@@ -1,0 +1,14 @@
+---
+- name: "Debug"
+  debug:
+    msg: "sonic_evpn_esi_multihome tests started ..."
+
+- name: Preparation test
+  include_tasks: preparation_tests.yml
+
+- name: "Test {{ module_name }} started ..."
+  include_tasks: tasks_template.yml
+  loop: "{{ tests }}"
+
+- name: "Cleanup started ..."
+  include_tasks: cleanup_tests.yml
