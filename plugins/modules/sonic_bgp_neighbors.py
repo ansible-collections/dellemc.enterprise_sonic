@@ -446,7 +446,7 @@ options:
             type: bool
           extended_link_bandwidth:
             description:
-              - Configure Extended Link Bandwidth for BGP neighbors .
+              - Configure Extended Link Bandwidth for BGP neighbors.
             type: bool
           local_address:
             description:

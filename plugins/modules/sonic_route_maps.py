@@ -297,9 +297,9 @@ options:
                 suboptions:
                   bandwidth_value:
                     description:
-                      - Options are one of the following values:
-                      - <1..4294967295>  Cumulative bandwidth of all multipaths (outbound-only)
-                      - num-multipaths   Internally computed bandwidth based on number of multipaths (outbound-only)
+                      - "Options are one of the following values"
+                      - "<1..4294967295>  Cumulative bandwidth of all multipaths (outbound-only)"
+                      - "num-multipaths   Internally computed bandwidth based on number of multipaths (outbound-only)"
                     type: str
                   transitive_value:
                     description:
