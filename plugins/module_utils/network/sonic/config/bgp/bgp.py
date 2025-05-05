@@ -228,7 +228,7 @@ class Bgp(ConfigBase):
                         if cfg['vrf_name'] == vrf_name and cfg['bgp_as'] == as_val:
                             command['max_med'] = cfg['max_med']
                             break
- 
+
             commands.extend(update_states(add_commands, 'replaced'))
             requests.extend(self.get_modify_bgp_requests(add_commands, have))
 
@@ -362,10 +362,10 @@ class Bgp(ConfigBase):
                 requests.append({'path': multi_paths_del_path + "allow-multiple-as", 'method': DELETE})
             if as_path.get('multipath_relax_as_set', None) is not None and match_as_path.get('multipath_relax_as_set', None):
                 requests.append({'path': multi_paths_del_path + "as-set", 'method': DELETE})
-        
+
         match_bandwidth = match_bestpath.get('bandwidth', None)
         bandwidth = bestpath.get('bandwidth', None)
-        if bandwidth and match_bandwidth: 
+        if bandwidth and match_bandwidth:
             requests.append({'path': route_selection_del_path + "compare-linkbw", 'method': DELETE})
 
         match_med = match_bestpath.get('med', None)
@@ -539,7 +539,6 @@ class Bgp(ConfigBase):
                 route_selection_cfg['always-compare-med'] = always_compare_med
         method = PATCH
         payload = {'route-selection-options': {'config': route_selection_cfg}}
-
 
         if payload:
             url = '%s=%s/%s/global/route-selection-options' % (self.network_instance_path, vrf_name, self.protocol_bgp_path)
@@ -837,7 +836,6 @@ class Bgp(ConfigBase):
                     if bandwidth != match_bandwidth or bandwidth and (match_bandwidth is None):
                         bestpath_command['bandwidth'] = bandwidth
  
-
                 if bestpath.get('compare_routerid') and match_bestpath.get('compare_routerid') is None:
                     bestpath_command['compare_routerid'] = True
 

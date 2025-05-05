@@ -98,7 +98,7 @@ tests:
         rt_delay: 70
         vrf_name: "{{ vrf_7 }}"
         as_notation: "asdot+"
-        
+
   - name: test_case_02
     description: Updates BGP properties
     state: merged

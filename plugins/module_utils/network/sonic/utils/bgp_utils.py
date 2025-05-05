@@ -685,7 +685,7 @@ def get_bgp_bandwidth(module, vrf_name):
     if "openconfig-network-instance:config" in resp and 'as' in resp['openconfig-network-instance:config']:
         as_val = resp['openconfig-network-instance:config']['as']
     return as_val
-    
+
 
 def get_bgp_neighbors(module, vrf_name):
     neighbors_data = None

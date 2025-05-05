@@ -293,17 +293,18 @@ options:
               bandwidth:
                 description:
                   - Link bandwidth extended community
+                type: dict
+                suboptions:
                   bandwidth_value:
                     description:
-                    - Options are one of the following values:
-                    - <1..4294967295>  Cumulative bandwidth of all multipaths (outbound-only)
-                    - num-multipaths   Internally computed bandwidth based on number of multipaths (outbound-only)
-                  type: str
+                      - Options are one of the following values:
+                      - <1..4294967295>  Cumulative bandwidth of all multipaths (outbound-only)
+                      - num-multipaths   Internally computed bandwidth based on number of multipaths (outbound-only)
+                    type: str
                   transitive_value:
                     description:
-                    - True for transitive, false for non-transitive
+                      - True for transitive, false for non-transitive
                     type: bool
-                type: dict
           ip_next_hop:
             description:
               - IPv4 next hop address attributes to set into a matching route

@@ -457,7 +457,7 @@ tests:
             native: true
           local_preference: 635
           metric:
-              rtt_action: add
+            rtt_action: add
           origin: egp
           weight: 93471
           tag: 83540
@@ -652,7 +652,7 @@ tests:
             native: true
           local_preference: 635
           metric:
-              rtt_action: add
+            rtt_action: add
           origin: egp
           weight: 93471
           tag: 83540
@@ -706,7 +706,7 @@ tests:
         action: deny
         sequence_num: 285
         match:
-           local_preference: 14783
+          local_preference: 14783
         set:
           comm_list_delete: bgp_comm_list1
   - name: test_case_17_deleted_route_map_statement
@@ -828,7 +828,7 @@ tests:
             native: true
           local_preference: 635
           metric:
-              rtt_action: add
+            rtt_action: add
           origin: egp
           weight: 93471
           tag: 83540
@@ -950,12 +950,12 @@ tests:
             address: 10.48.16.18
             native: true
           ipv6_next_hop:
-              global_addr: 30::30
-              prefer_global: false
-              native: true
+            global_addr: 30::30
+            prefer_global: false
+            native: true
           local_preference: 635
           metric:
-              rtt_action: add
+            rtt_action: add
           origin: egp
           weight: 93471
           tag: 83540
@@ -1187,3 +1187,4 @@ tests:
     description: Delete all route map configuration
     state: deleted
     input: []
+    

@@ -1420,7 +1420,8 @@ class Route_maps(ConfigBase):
                                 transitive_string = "transitive"
                             else:
                                 transitive_string = "non-transitive"
-                            if bandwidth_value == cmd_set_top['extcommunity'][extcomm_type].get("bandwidth_value") or transitive_value == cmd_set_top['extcommunity'][extcomm_type].get("transitive_value"):
+                            if bandwidth_value == cmd_set_top['extcommunity'][extcomm_type].get("bandwidth_value") \
+                                or transitive_value == cmd_set_top['extcommunity'][extcomm_type].get("transitive_value"):
                                 set_extcommunity_delete_attrs.append(self.set_extcomm_rest_names[extcomm_type] + bandwidth_value + ":" + transitive_string)
                         else:
                             for extcomm_number in cmd_set_top['extcommunity'][extcomm_type]:
@@ -2185,9 +2186,8 @@ class Route_maps(ConfigBase):
                             if "bandwidth_value" in extcomm_number:
                                 bandwidth_value_found = cfg_set_top.get('extcommunity').get(extcomm_type).get(extcomm_number)
                                 if bandwidth_value_found and transitive_value_found:
-                                    set_extcommunity_delete_attrs.append(
-                                        self.set_extcomm_rest_names[extcomm_type]
-                                         + bandwidth_value_found + ":" + transitive_value_found)
+                                    bandwidth_string = self.set_extcomm_rest_names[extcomm_type] + bandwidth_value_found + ":" + transitive_value_found
+                                    set_extcommunity_delete_attrs.append(bandwidth_string)
                                     bandwidth_value_found = ""
                                     transitive_value_found = ""
                             elif "transitive_value" in extcomm_number:
@@ -2196,9 +2196,8 @@ class Route_maps(ConfigBase):
                                 else:
                                     transitive_value_found = "non-transitive"
                                 if bandwidth_value_found and transitive_value_found:
-                                    set_extcommunity_delete_attrs.append(
-                                        self.set_extcomm_rest_names[extcomm_type]
-                                         + bandwidth_value_found + ":" + transitive_value_found)
+                                    bandwidth_string = self.set_extcomm_rest_names[extcomm_type] + bandwidth_value_found + ":" + transitive_value_found
+                                    set_extcommunity_delete_attrs.append(bandwidth_string)
                                     bandwidth_value_found = ""
                                     transitive_value_found = ""
                             else:
