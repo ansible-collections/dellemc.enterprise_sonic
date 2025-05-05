@@ -43,7 +43,7 @@ version_added: '3.1.0'
 short_description: Manage L2PT configurations on SONiC
 description:
   - This module provides configuration management of L2PT parameters
-    in devices running SONiC. 
+    in devices running SONiC.
 author: 'allen.ting@dell.com'
 options:
   config:
@@ -73,7 +73,7 @@ options:
     description:
       - The state specifies the type of configuration update to be performed on the device.
       - If the state is "merged", merge specified attributes with existing configured attributes.
-      - For "deleted", delete the specified attributes from existing configuration. 
+      - For "deleted", delete the specified attributes from existing configuration.
     type: str
     choices:
       - merged

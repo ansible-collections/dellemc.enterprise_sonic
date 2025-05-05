@@ -34,19 +34,35 @@ class Br_l2ptArgs(object):  # pylint: disable=R0903
     def __init__(self, **kwargs):
         pass
 
-    argument_spec = {'config': {'elements': 'dict',
-            'options': {'bridge_l2pt_params': {'elements': 'dict',
-                                               'options': {'protocol': {'choices': ['LLDP',
-                                                                                    'LACP',
-                                                                                    'STP',
-                                                                                    'CDP'],
-                                                                        'required': True,
-                                                                        'type': 'str'},
-                                                           'vlan_ids': {'elements': 'str',
-                                                                        'type': 'list'}},
-                                               'type': 'list'},
-                        'name': {'required': True, 'type': 'str'}},
-            'type': 'list'},
- 'state': {'choices': ['merged', 'deleted', 'replaced', 'overridden'],
-           'default': 'merged',
-           'type': 'str'}}  # pylint: disable=C0301
+    argument_spec = {
+        'config': {
+            'elements': 'dict',
+            'options': {
+                'bridge_l2pt_params': {
+                    'elements': 'dict',
+                    'options': {
+                        'protocol': {
+                            'choices': ['LLDP', 'LACP', 'STP', 'CDP'],
+                            'required': True,
+                            'type': 'str'
+                        },
+                        'vlan_ids': {
+                            'elements': 'str',
+                            'type': 'list'
+                        }
+                    },
+                    'type': 'list'
+                },
+                'name': {
+                    'required': True,
+                    'type': 'str'
+                }
+            },
+            'type': 'list'
+        },
+        'state': {
+            'choices': ['merged', 'deleted', 'replaced', 'overridden'],
+            'default': 'merged',
+            'type': 'str'
+        }
+    }  # pylint: disable=C0301

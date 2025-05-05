@@ -27,6 +27,7 @@ from ansible.module_utils.connection import ConnectionError
 
 GET = 'get'
 
+
 class Br_l2ptFacts(object):
     """ The sonic br_l2pt fact class
     """
@@ -75,7 +76,7 @@ class Br_l2ptFacts(object):
         :returns: The generated config
         """
         return conf
-    
+
     def get_all_l2pt_interfaces(self):
         """ Get all br_l2pt configurations
         :rtype: list
@@ -88,7 +89,7 @@ class Br_l2ptFacts(object):
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
-        
+
         resp = response[0][1].get('openconfig-interfaces:interfaces')
         l2pt_interface_configs = []
         if resp:
@@ -97,7 +98,7 @@ class Br_l2ptFacts(object):
                 name = interface.get('name', [])
                 if not name or not re.search('Eth', interface['name']):
                     continue
-                config = interface.get('openconfig-interfaces-ext:bridge-l2pt-params',{}).get('bridge-l2pt-param',[])
+                config = interface.get('openconfig-interfaces-ext:bridge-l2pt-params', {}).get('bridge-l2pt-param', [])
                 if config:
                     l2pt_intf_data = {'name': name, 'bridge_l2pt_params': []}
                     for proto_config in config:
@@ -117,8 +118,8 @@ class Br_l2ptFacts(object):
         new_vlan_ids = []
         for vid in vlan_ids:
             if isinstance(vid, str) and ".." in vid:
-                temp = vid.replace("..","-")
+                temp = vid.replace("..", "-")
             else:
                 temp = int(vid)
-            new_vlan_ids.append(temp)            
+            new_vlan_ids.append(temp)
         return new_vlan_ids
