@@ -1,5 +1,5 @@
 ---
-- name: Delete all evpn_esi_multihome"
+- name: "Delete all evpn_esi_multihome"
   vars:
     ansible_connection: httpapi
   dellemc.enterprise_sonic.sonic_evpn_esi_multihome:

@@ -93,7 +93,7 @@ EXAMPLES = """
 # Using deleted
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration evpn-mh
 #
@@ -101,29 +101,29 @@ EXAMPLES = """
 #  mac-holdtime 1080
 #  neigh-holdtime 1080
 #  startup-delay 300
-# 
+#
 
 - name: Delete soecific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
-        mac-holdtime: 1080
+      mac-holdtime: 1080
     state: deleted
 
 # After State:
-#--------------
+# --------------
 #
 # show running-configuration evpn-mh
 #
 # evpn esi-multihoming
 #  neigh-holdtime 1080
 #  startup-delay 300
-# 
+#
 
 
 # Using deleted
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration evpn-mh
 #
@@ -139,18 +139,18 @@ EXAMPLES = """
     state: deleted
 
 # After State:
-#--------------
+# --------------
 #
 # show running-configuration evpn-mh
 #
 #
-# 
+#
 
 
 # Using Merged
 #
 # Before state:
-#---------------
+# ---------------
 #
 # show running-configuration evpn-mh
 #
@@ -158,13 +158,13 @@ EXAMPLES = """
 
 - name: Merge specific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
-      config:
-          startup-delay: 300
-          es-activation-delay: 3000
-      state: merged
+    config:
+      startup-delay: 300
+      es-activation-delay: 3000
+    state: merged
 
 # After State:
-#--------------
+# --------------
 #
 # show running-configuration evpn-mh
 #
@@ -176,7 +176,7 @@ EXAMPLES = """
 # Using replaced
 #
 # Before state:
-#----------------
+# ----------------
 #
 # show running-configuration evpn-mh
 #
@@ -189,12 +189,12 @@ EXAMPLES = """
 - name: Replace specific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
-        neigh-holdtime: 200
-        df-election-time: 600
+      neigh-holdtime: 200
+      df-election-time: 600
     state: replaced
 
 # After State:
-#--------------
+# --------------
 #
 # show running-configuration evpn-mh
 #
@@ -206,7 +206,7 @@ EXAMPLES = """
 # Using overridden
 #
 # Before state:
-#----------------
+# ----------------
 #
 # show running-configuration evpn-mh
 #
@@ -214,24 +214,23 @@ EXAMPLES = """
 #  mac-holdtime 1080
 #  neigh-holdtime 1080
 #  startup-delay 300
-# 
+#
 
 - name: Override specific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
-        startup-delay: 200
-        mac_holdtime: 500
+      startup-delay: 200
+      mac_holdtime: 500
     state: overridden
 
 # After State:
-#--------------
+# --------------
 #
 # show running-configuration evpn-mh
 #
 # evpn esi-multihoming
 #  startup-delay 200
 #  mac_holdtime: 500
-
 
 """
 RETURN = """
