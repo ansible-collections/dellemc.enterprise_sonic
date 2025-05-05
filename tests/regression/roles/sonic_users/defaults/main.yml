@@ -116,6 +116,3 @@ tests:
     description: Delete all users configurations
     state: deleted
     input: []
-
-
-
