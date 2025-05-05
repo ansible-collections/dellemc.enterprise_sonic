@@ -52,7 +52,7 @@ class UsersArgs(object):  # pylint: disable=R0903
                     'default': 'always',
                     'type': 'str'
                 },
-                'ssh_key': {'type': 'str', 'no_log': True},
+                'ssh_key': {'type': 'str'},
             },
             'type': 'list'
         },

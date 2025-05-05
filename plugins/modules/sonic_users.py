@@ -269,13 +269,13 @@ EXAMPLES = """
 
 - name: Configure user sshkey
   dellemc.enterprise_sonic.sonic_users:
-     config:
-       - name: user1
-         ssh_key: >
-              ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc
-              /iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5y
-              bjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic
-     state: merged
+    config:
+      - name: user1
+        ssh_key: >
+          ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc
+          /iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5y
+          bjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic
+    state: merged
 
 # After state:
 # ------------
@@ -297,15 +297,15 @@ EXAMPLES = """
 # sonic# show users sshKey
 # User: user1
 # SSH Key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRr
-#         A2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqM
-#         mbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
+#          A2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqM
+#          mbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
 # ----------------------------------------------------------------------
 
 - name: Delete sshkey for existing users
   dellemc.enterprise_sonic.sonic_users:
     config:
       - name: user1
-        ssh_key: 
+        ssh_key:
     state: deleted
 
 # After state:
