@@ -286,9 +286,6 @@ replaced_01:
                 severity: CRITICAL
                 vrf-name:
     - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
-      method: "delete"
-      data:
-    - path: "data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile"
       method: "patch"
       data:
         openconfig-system-ext:security-profile: 'spl'
