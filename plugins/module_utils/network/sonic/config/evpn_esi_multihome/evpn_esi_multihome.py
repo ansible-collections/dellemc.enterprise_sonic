@@ -35,6 +35,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 PATCH = "patch"
 DELETE = "delete"
 
+
 class Evpn_esi_multihome(ConfigBase):
     """
     The sonic_evpn_esi_multihome class
@@ -140,7 +141,6 @@ class Evpn_esi_multihome(ConfigBase):
             commands, requests = self._state_replaced(want, have)
         return commands, requests
 
-
     def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
@@ -201,7 +201,7 @@ class Evpn_esi_multihome(ConfigBase):
     def _state_overridden(self, want, have):
         """ The command generator when state is overridden
 
-        :rtype: Two lists 
+        :rtype: Two lists
         :returns: the commands and requests necessary to migrate the current configuration
                   to the desired configuration
         """
@@ -436,5 +436,5 @@ class Evpn_esi_multihome(ConfigBase):
             startup_delay_url = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
             startup_delay_request = {'path': startup_delay_url, 'method': DELETE}
             requests.append(startup_delay_request)
-        
+
         return requests

@@ -231,8 +231,8 @@ EXAMPLES = """
 # evpn esi-multihoming
 #  startup-delay 200
 #  mac_holdtime: 500
-
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.

@@ -9,7 +9,6 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
-import re
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -24,6 +23,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible.module_utils.connection import ConnectionError
+
 
 class Evpn_esi_multihomeFacts(object):
     """ The sonic evpn_esi_multihome fact class
@@ -75,13 +75,13 @@ class Evpn_esi_multihomeFacts(object):
         """
         path = "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
         method = "GET"
-        request = {{"path": path, "method": method}}
+        request = {"path": path, "method": method}
 
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
-                self._module.fail_json(msg=str(exc), code=exc.code)
-        
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
         evpn_esi_mh_dict = dict()
         if len(response) == 0 or len(response[0]) == 0:
             return evpn_esi_mh_dict
@@ -108,7 +108,6 @@ class Evpn_esi_multihomeFacts(object):
             startup_delay = response_evpn_esi.get('startup-delay', None)
             if startup_delay:
                 evpn_esi_mh_dict.update({'startup_delay': startup_delay})
-
 
     def render_config(self, spec, conf):
         """
