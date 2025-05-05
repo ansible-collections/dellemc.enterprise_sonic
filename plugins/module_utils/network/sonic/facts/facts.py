@@ -150,7 +150,7 @@ FACT_RESOURCE_SUBSETS = dict(
     ssh=SshFacts,
     lst=LstFacts,
     fbs_classifiers=Fbs_classifiersFacts,
-    br_l2pt=Br_l2ptFacts
+    br_l2pt=Br_l2ptFacts,
     mirroring=MirroringFacts,
     dcbx=DcbxFacts
 )

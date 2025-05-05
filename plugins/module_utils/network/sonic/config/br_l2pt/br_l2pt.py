@@ -41,7 +41,8 @@ PUT = 'put'
 DELETE = 'delete'
 
 TEST_KEYS = [
-    {'config': {'name': ''}}
+    {'config': {'name': ''}},
+    {'bridge_l2pt_params': {'protocol': ''}}
 ]
 
 TEST_KEYS_generate_config_merged = [
