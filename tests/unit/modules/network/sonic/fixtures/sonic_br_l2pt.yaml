@@ -307,11 +307,11 @@ replaced_01: # Replace configs for one interface
       method: 'put'
       data:
         openconfig-interfaces-ext:bridge-l2pt-param:
-        - protocol: LLDP
-          config:
-            protocol: LLDP
-            vlan-ids:
-              - 100
+          - protocol: LLDP
+            config:
+              protocol: LLDP
+              vlan-ids:
+                - 100
     - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
       method: 'put'
       data:
@@ -572,29 +572,29 @@ overridden_02: # Override interface and add the other, some configs remain the s
       method: 'put'
       data:
         openconfig-interfaces-ext:bridge-l2pt-param:
-        - protocol: LLDP
-          config:
-            protocol: LLDP
-            vlan-ids:
-              - 10
-              - 12
-        - protocol: LACP
-          config:
-            protocol: LACP
-            vlan-ids:
-              - 10..12
-        - protocol: STP
-          config:
-            protocol: STP
-            vlan-ids:
-              - 20..21
-              - 25..27
-        - protocol: CDP
-          config:
-            protocol: CDP
-            vlan-ids:
-              - 20
-              - 40..60
+          - protocol: LLDP
+            config:
+              protocol: LLDP
+              vlan-ids:
+                - 10
+                - 12
+          - protocol: LACP
+            config:
+              protocol: LACP
+              vlan-ids:
+                - 10..12
+          - protocol: STP
+            config:
+              protocol: STP
+              vlan-ids:
+                - 20..21
+                - 25..27
+          - protocol: CDP
+            config:
+              protocol: CDP
+              vlan-ids:
+                - 20
+                - 40..60
     - path: 'data/openconfig-interfaces:interfaces/interface=Ethernet8/openconfig-interfaces-ext:bridge-l2pt-params/bridge-l2pt-param'
       method: 'put'
       data:
