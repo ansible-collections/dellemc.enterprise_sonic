@@ -467,19 +467,19 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
-  sample: >
-    The configuration returned will always be in the same format
-     of the parameters above.
+  type: list
 after:
-  description: The resulting configuration model invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
-  sample: >
-    The configuration returned will always be in the same format
-     of the parameters above.
+  type: list
+after(generated):
+  description: The configuration that would result from non-check-mode module invocation.
+  returned: when C(check_mode)
+  type: list
 commands:
-  description: The set of commands pushed to the remote device.
+  description: The set of commands pushed to the remote device. In C(check_mode) the needed commands are displayed, but not pushed to the device.
   returned: always
   type: list
   sample: ['command 1', 'command 2', 'command 3']
