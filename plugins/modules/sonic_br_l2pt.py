@@ -462,8 +462,6 @@ EXAMPLES = """
 #  switchport l2proto-tunnel cdp Vlan 20,40-60
 #  switchport l2proto-tunnel lacp Vlan 10-12
 #  switchport l2proto-tunnel stp Vlan 25-26
-
-
 """
 RETURN = """
 before:
