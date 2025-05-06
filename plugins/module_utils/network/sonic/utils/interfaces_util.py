@@ -177,6 +177,7 @@ def retrieve_valid_intf_speed(module, intf_name):
     else:
         module.fail_json(msg="Unable to retrieve valid port speeds for the interface {0}".format(intf_name))
 
+
 def get_port_num(module, interface):
     port_num = 65535
     method = "get"
