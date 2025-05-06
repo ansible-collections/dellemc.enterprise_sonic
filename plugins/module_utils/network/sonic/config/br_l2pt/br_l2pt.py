@@ -81,8 +81,8 @@ class Br_l2pt(ConfigBase):
     def get_br_l2pt_facts(self):
         """ Get the 'facts' (the current configuration)
 
-        :rtype: A dictionary
-        :returns: The current configuration as a dictionary
+        :rtype: A list
+        :returns: The current configuration as a list
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         br_l2pt_facts = facts['ansible_network_resources'].get('br_l2pt')
@@ -97,7 +97,6 @@ class Br_l2pt(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_br_l2pt_facts = self.get_br_l2pt_facts()
@@ -135,7 +134,7 @@ class Br_l2pt(ConfigBase):
 
     def set_config(self, existing_br_l2pt_facts):
         """ Collect the configuration from the args passed to the module,
-            collect the current configuration (as a dict from facts)
+            collect the current configuration (as a list from facts)
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -149,8 +148,8 @@ class Br_l2pt(ConfigBase):
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
 
-        :param want: the desired configuration as a dictionary
-        :param have: the current configuration as a dictionary
+        :param want: the desired configuration as a list
+        :param have: the current configuration as a list
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -307,6 +306,8 @@ class Br_l2pt(ConfigBase):
                         temp = {"protocol": single_proto_config['protocol']}
                         temp['config'] = {"protocol": single_proto_config['protocol'], "vlan-ids": self.replace_ranges(single_proto_config['vlan_ids'])}
                         payload[self.payload_header].append(temp)
+                    else:
+                        self._module.fail_json('Protocol in config not supported: {}'.format(single_proto_config['protocol']))
 
                 # Either replace or merge config
                 if replace:
