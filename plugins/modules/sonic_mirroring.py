@@ -363,15 +363,15 @@ RETURN = """
 before:
   description: The configuration prior to the module invocation.
   returned: always
-  type: dict
+  type: list
 after:
   description: The configuration resulting from module invocation.
   returned: when changed
-  type: dict
+  type: list
 after(generated):
   description: The configuration that would result from non-check-mode module invocation.
   returned: when C(check_mode)
-  type: dict
+  type: list
 commands:
   description: The set of commands pushed to the remote device. In C(check_mode) the needed commands are displayed, but not pushed to the device.
   returned: always
