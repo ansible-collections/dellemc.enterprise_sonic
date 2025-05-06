@@ -1,0 +1,53 @@
+---
+ansible_connection: httpapi
+module_name: sonic_evpn_esi_multihome
+
+tests:
+  - name: test_case_01_merged_df_election_time
+    description: Add df_election_time option
+    state: merged
+    input:
+      df_election_time: 1080
+
+  - name: test_case_02_merged_es_activation_delay
+    description: Add es_activation_delay option
+    state: merged
+    input:
+      es_activation_delay: 300
+
+  - name: test_case_03_merged_mac_holdtime_and_startup_delay
+    description: Add mac_holdtime and startup_delay options
+    state: merged
+    input:
+      mac_holdtime: 1080
+      startup_delay: 300
+
+  - name: test_case_04_replaced_df_election_time
+    description: Replace df_election_time option value with a new one
+    state: replaced
+    input:
+      df_election_time: 3000
+
+  - name: test_case_05_overridden_es_activation_delay
+    description: Override the value of es_activation_delay option
+    state: overridden
+    input:
+      es_activation_delay: 3000
+
+  - name: test_case_06_deleted_df_election_time
+    description: Delete the df_election_time option
+    state: deleted
+    input:
+      df_election_time: 1080
+
+  - name: test_case_07_deleted_es_activation_delay
+    description: Delete any existing es_activation_delay option
+    state: deleted
+    input:
+      es_activation_delay:
+
+  - name: test_case_08_deleted_mac_holdtime_and_startup_delay
+    description: Delete any existing mac_holdtime and startup_delay options
+    state: deleted
+    input: {}
+    

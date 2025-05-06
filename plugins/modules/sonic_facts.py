@@ -118,6 +118,7 @@ options:
       - fbs_classifiers
       - dcbx
       - mirroring
+      - evpn_esi_multihome
 """
 
 EXAMPLES = """
