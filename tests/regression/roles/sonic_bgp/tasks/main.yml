@@ -1,6 +1,6 @@
-- debug: msg="sonic_interfaces Test started ..."
+- debug: msg="sonic_bgp Test started ..."
 
-- set_fact: 
+- set_fact:
     base_cfg_path: "{{ role_path + '/' + 'templates/' }}"
 
 - name: Preparations test

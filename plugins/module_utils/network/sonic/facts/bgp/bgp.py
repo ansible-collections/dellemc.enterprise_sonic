@@ -41,6 +41,7 @@ class BgpFacts(object):
         'as_path_ignore': ['route-selection-options', 'ignore-as-path-length'],
         'as_path_multipath_relax': ['use-multiple-paths', 'ebgp', 'config', 'allow-multiple-as'],
         'as_path_multipath_relax_as_set': ['use-multiple-paths', 'ebgp', 'config', 'as-set'],
+        'bandwidth': ['route-selection-options', 'compare-linkbw'],
         'compare_routerid': ['route-selection-options', 'external-compare-router-id'],
         'med_confed': ['route-selection-options', 'med-confed'],
         'med_missing_as_worst': ['route-selection-options', 'med-missing-as-worst'],
@@ -122,6 +123,7 @@ class BgpFacts(object):
             timers['holdtime'] = conf.get('holdtime', None)
             timers['keepalive_interval'] = conf.get('keepalive_interval', None)
             conf['timers'] = timers
+            bestpath['bandwidth'] = conf.get('bandwidth')
             bestpath['compare_routerid'] = conf.get('compare_routerid', False)
 
             conf['bestpath'] = bestpath
@@ -137,7 +139,7 @@ class BgpFacts(object):
                 'as_path_confed', 'as_path_ignore', 'as_path_multipath_relax', 'as_path_multipath_relax_as_set',
                 'med_confed', 'med_missing_as_worst', 'always_compare_med', 'max_med_val', 'holdtime',
                 'keepalive_interval', 'compare_routerid', 'admin_max_med', 'max_med_on_startup_timer',
-                'max_med_on_startup_med_val',
+                'max_med_on_startup_med_val', 'bandwidth'
             ]
             for key in keys:
                 if key in conf:
