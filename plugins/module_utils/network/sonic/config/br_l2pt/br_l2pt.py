@@ -307,7 +307,7 @@ class Br_l2pt(ConfigBase):
                         temp['config'] = {"protocol": single_proto_config['protocol'], "vlan-ids": self.replace_ranges(single_proto_config['vlan_ids'])}
                         payload[self.payload_header].append(temp)
                     else:
-                        self._module.fail_json('Protocol in config not supported: {}'.format(single_proto_config['protocol']))
+                        self._module.fail_json(msg="Protocol in config not supported: {}".format(single_proto_config['protocol']))
 
                 # Either replace or merge config
                 if replace:
