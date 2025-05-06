@@ -83,7 +83,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_classifiers.fbs_classifiers import Fbs_classifiersFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mirroring.mirroring import MirroringFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ptp_port_ds.ptp_port_ds import Ptp_port_dsFacts
-
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx.dcbx import DcbxFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -152,6 +152,7 @@ FACT_RESOURCE_SUBSETS = dict(
     fbs_classifiers=Fbs_classifiersFacts,
     mirroring=MirroringFacts,
     ptp_port_ds=Ptp_port_dsFacts,
+    dcbx=DcbxFacts
 )
 
 

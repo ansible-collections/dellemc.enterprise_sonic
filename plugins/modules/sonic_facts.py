@@ -117,6 +117,7 @@ options:
       - lst
       - ptp_port_ds
       - fbs_classifiers
+      - dcbx
       - mirroring
 """
 
