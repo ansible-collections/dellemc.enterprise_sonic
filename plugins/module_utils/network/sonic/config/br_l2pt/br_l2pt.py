@@ -347,6 +347,7 @@ class Br_l2pt(ConfigBase):
                 for single_proto_config in want_proto_config:
                     proto = single_proto_config['protocol']
                     match_proto_config = next((h for h in have_proto_config if h['protocol'] == proto), None)
+                    
                     if match_proto_config:
                         if not single_proto_config.get('vlan_ids', []):
                             # Delete all VLAN IDs for protocol
@@ -362,7 +363,7 @@ class Br_l2pt(ConfigBase):
                                                                            'vlan_ids': [str(vrng[0]) if len(vrng) == 1 else f"{vrng[0]}-{vrng[-1]}"
                                                                                         for vrng in get_ranges_in_list(vlans_to_delete)]})
                 # Add commands for this interface
-                if command_dict['bridge_l2pt_params']:
+                if command_dict['bridge_l2pt_params'] or not want_proto_config:
                     commands.append(command_dict)
 
         return commands
