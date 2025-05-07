@@ -63,6 +63,7 @@ options:
       - bgp_as_paths
       - bgp_communities
       - bgp_ext_communities
+      - dcbx
       - ospfv2_interfaces
       - ospfv2
       - mclag

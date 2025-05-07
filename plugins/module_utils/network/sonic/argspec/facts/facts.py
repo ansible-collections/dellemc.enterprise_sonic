@@ -23,6 +23,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'all',
         'aaa',
         'acl_interfaces',
+        'dcbx',
         'bfd',
         'bgp',
         'bgp_af',
