@@ -91,6 +91,7 @@ options:
       - l2_acls
       - l3_acls
       - lldp_global
+      - ptp_default_ds
       - mac
       - bfd
       - copp
