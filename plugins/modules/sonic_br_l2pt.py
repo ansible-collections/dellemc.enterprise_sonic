@@ -8,11 +8,13 @@
 The module file for sonic_br_l2pt
 """
 
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 DOCUMENTATION = """
 ---
 module: sonic_br_l2pt
 version_added: '3.1.0'
-author: "Allen Ting (allen.ting@dell.com)"
 notes:
   - Tested against Enterprise SONiC Distribution by Dell Technologies.
   - Supports C(check_mode).
@@ -20,6 +22,7 @@ short_description: Manage L2PT configurations on SONiC
 description:
   - This module provides configuration management of L2PT parameters
     in devices running SONiC.
+author: "Allen Ting (@allenkting)"
 options:
   config:
     description: A list of L2PT configurations.
