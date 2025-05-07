@@ -5,8 +5,8 @@
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
 The sonic_br_l2pt class
-It is in this file where the current configuration (as dict)
-is compared to the provided configuration (as dict) and the command set
+It is in this file where the current configuration (as list)
+is compared to the provided configuration (as list) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
@@ -129,7 +129,6 @@ class Br_l2pt(ConfigBase):
                                                        new_config,
                                                        self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_br_l2pt_facts):
@@ -340,7 +339,7 @@ class Br_l2pt(ConfigBase):
         commands = []
         for intf in want:
             name = intf['name']
-            want_proto_config = intf['bridge_l2pt_params']
+            want_proto_config = intf.get('bridge_l2pt_params', [])
             have_proto_config = next((h['bridge_l2pt_params'] for h in have if h['name'] == name), [])
             if have_proto_config:
                 # Compare desired vs. existing configuration per protocol
@@ -348,7 +347,7 @@ class Br_l2pt(ConfigBase):
                 for single_proto_config in want_proto_config:
                     proto = single_proto_config['protocol']
                     match_proto_config = next((h for h in have_proto_config if h['protocol'] == proto), None)
-                    
+
                     if match_proto_config:
                         if not single_proto_config.get('vlan_ids', []):
                             # Delete all VLAN IDs for protocol

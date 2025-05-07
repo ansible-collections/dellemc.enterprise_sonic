@@ -120,3 +120,10 @@ class TestSonicBrL2PTModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['deleted_03']['config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
+
+    def test_sonic_br_l2pt_deleted_04(self):
+        set_module_args(self.fixture_data['deleted_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_04']['facts_get_requests'])
+        self.initialize_config_requests(self.fixture_data['deleted_04']['config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()

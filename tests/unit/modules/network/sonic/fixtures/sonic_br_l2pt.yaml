@@ -796,7 +796,7 @@ deleted_03: # Delete interface config
       method: 'delete'
       data:
 
-deleted_03: # Delete all configs
+deleted_04: # Delete all configs
   module_args:
     state: 'deleted'
     config:
