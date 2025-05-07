@@ -526,7 +526,8 @@ class Bgp(ConfigBase):
 
         if bandwidth:
             # Do the translation for the values here from cli format to REST format
-            route_selection_cfg['compare-linkbw'] = bandwidth.replace("default_weight", "DEFAULT_WT").replace("ignore_weight", "IGNORE_LB").replace("skip_missing", "SKIP_MISSING")
+            bandwidth = bandwidth.replace("default_weight", "DEFAULT_WT").replace("ignore_weight", "IGNORE_LB").replace("skip_missing", "SKIP_MISSING")
+            route_selection_cfg['compare-linkbw'] = bandwidth
 
         if med:
             med_confed = med.get('confed', None)

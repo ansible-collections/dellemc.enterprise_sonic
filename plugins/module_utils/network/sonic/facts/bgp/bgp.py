@@ -125,7 +125,10 @@ class BgpFacts(object):
             conf['timers'] = timers
             # Do the translation for the values here from REST api to cli format
             if conf.get("bandwidth"):
-                bestpath['bandwidth'] = conf.get('bandwidth').replace("DEFAULT_WT", "default_weight").replace("IGNORE_LB", "ignore_weight").replace("SKIP_MISSING", "skip_missing")
+                bandwidth = conf.get('bandwidth').replace("DEFAULT_WT", "default_weight")
+                bandwidth = bandwidth.replace("IGNORE_LB", "ignore_weight")
+                bandwidth = bandwidth.replace("SKIP_MISSING", "skip_missing")
+                bestpath['bandwidth'] = bandwidth
             bestpath['compare_routerid'] = conf.get('compare_routerid', False)
 
             conf['bestpath'] = bestpath
