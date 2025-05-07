@@ -11,13 +11,9 @@ necessary to bring the current configuration to it's desired end-state is
 created
 """
 from __future__ import absolute_import, division, print_function
-import base64
-import secrets
-import string
 __metaclass__ = type
 
 from copy import deepcopy
-
 from ansible.module_utils.connection import ConnectionError
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import ConfigBase
@@ -373,11 +369,14 @@ class Snmp(ConfigBase):
             requests.append(location_request)
 
         if config.get('user'):
+            requests = self.delete_user(config, requests, have)
+        
             user_path = "data/ietf-snmp:snmp/usm/local/user"
             payload = self.build_create_user_payload(config)
             users_request = {'path': user_path, "method": method, 'data': payload}
             requests.append(users_request)
-            vacm_path = "data/ietf-snmp:snmp/vacm/group"
+            
+            vacm_path = "data/ietf-snmp:snmp/vacm"
             vacm_payload = self.build_create_vacm_payload(config)
             users_request = {'path': vacm_path, "method": method, 'data': vacm_payload}
             requests.append(users_request)
@@ -388,6 +387,18 @@ class Snmp(ConfigBase):
             views_request = {'path': views_path, 'method': method, 'data': payload}
             requests.append(views_request)
 
+        return requests
+
+    def delete_user(self, config, requests, have):
+        """ Send the requests necessary to delete any existing users that match the users in config
+        """
+        if have.get('user') is None:
+            return requests
+        for user in config.get('user'):
+            user_name = user.get('name')
+            have_user_name = next((each_user for each_user in have.get('user') if each_user['name'] == user_name), None)
+            if have_user_name is not None:
+                requests.append(self.get_delete_snmp_request({'user': have_user_name}, have))
         return requests
 
     def build_create_agentaddress_payload(self, config):
@@ -453,10 +464,13 @@ class Snmp(ConfigBase):
 
         for conf in community:
             group_dict = dict()
-            security_model = list()
-            security_model.append('v2c')
             group_dict['name'] = conf.get('group')
-            group_dict['member'] = [{'security-model': security_model, 'security-name': conf.get('name')}]
+            member_dict = dict()
+            member_dict['security-model'] = ['v2c']
+            member_dict['security-name'] = conf.get('name')
+            member_dict_list = list()
+            member_dict_list.append(member_dict)
+            group_dict['member'] = member_dict_list
 
             community_list.append(group_dict)
 
@@ -489,32 +503,20 @@ class Snmp(ConfigBase):
 
         for conf in user:
             user_dict = dict()
-
-            characters = string.ascii_letters + string.digits
-            random_auth_key = ''.join(secrets.choice(characters) for a in range(55))
-            encoded_auth_key = base64.b64encode(random_auth_key.encode()).decode()
-
-            characters = string.ascii_letters + string.digits
-            random_priv_key = ''.join(secrets.choice(characters) for a in range(55))
-            encoded_priv_key = base64.b64encode(random_priv_key.encode()).decode()
-            auth_key = dict()
-            priv_key = dict()
             auth_dict = dict()
             priv_dict = dict()
+
             auth_type = conf['auth'].get('auth_type')
             priv_type = conf['priv'].get('priv_type')
-            auth_key['key'] = encoded_auth_key
-            priv_key['key'] = encoded_priv_key
 
-            auth_dict[auth_type] = auth_key
-            priv_dict[priv_type] = priv_key
-            priv_key = conf['priv'].get('priv_type') + "Key"
+            auth_dict[auth_type] = {'key': conf['auth'].get('key')}
+            priv_dict[priv_type] = {'key': conf['priv'].get('key')}
             user_dict['auth'] = auth_dict
             user_dict['priv'] = priv_dict
             user_dict['name'] = conf.get('name')
 
             if conf.get('encryption') is None:
-                user_dict['ietf-snmp-ext:encrypted'] = True
+                user_dict['ietf-snmp-ext:encrypted'] = False
             else:
                 user_dict['ietf-snmp-ext:encrypted'] = conf.get('encryption')
             user_list.append(user_dict)
@@ -541,8 +543,8 @@ class Snmp(ConfigBase):
             group_dict['member'] = member
             group_dict['name'] = conf.get('group')
 
-            group_list.append(group_dict)
-        payload_url['group'] = group_list
+            
+        payload_url['ietf-snmp:vacm'] = {'group': group_list}
         return payload_url
 
     def build_create_view_payload(self, config):

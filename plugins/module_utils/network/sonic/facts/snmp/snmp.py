@@ -178,13 +178,14 @@ class SnmpFacts(object):
 
         if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not snmp_list.get('usm').get('local').get('user'):
             return user_list
-        if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('group'):
+        if not snmp_list.get('ietf-snmp:vacm') or not snmp_list.get('ietf-snmp:vacm').get('group'):
             return user_list
 
         user_config = snmp_list.get('usm').get('local').get('user')
-        group_config = snmp_list['vacm']['group']
+        group_config = snmp_list['ietf-snmp:vacm']['group']
 
         for user in user_config:
+            user_dict = dict()
             auth_type = "md5"
             auth_key = "md5Key"
             if user.get("auth").get(auth_type) is None:
@@ -197,12 +198,22 @@ class SnmpFacts(object):
                 priv_type = "des"
                 priv_key = "des"
 
-            matched_user = next((each_snmp for each_snmp in group_config if each_snmp['security-name'] == user['name']), None)
-            user_list.append({"group": matched_user.get("name"),
-                              "name": user.get("name"), "auth": {"auth_type": auth_type,
-                                                                 "key": auth_key},
-                                                        "priv": {"priv_type": priv_type,
-                                                                 "key": priv_key}, "encryption": user.get('ietf-snmp-ext:encrypted')})
+            matched_user = None
+            group_name = ""
+            for group in group_config:
+                if group.get('member') is not None:
+                    matched_user = next((member for member in group['member'] if member['security-name'] == user['name']), None)
+                    if matched_user is not None:
+                        group_name = group['name']
+                        break
+            user_dict['group'] = group_name
+            user_dict['name'] = user.get('name')
+            user_dict['auth'] = {'auth_type': auth_type, 'key': auth_key}
+            user_dict['priv'] = {'priv_type': priv_type, 'key': priv_key}
+            user_dict['encrypted'] = user.get('ietf-snmp-ext:encrypted')
+
+            user_list.append(user_dict)
+
 
         return user_list
 

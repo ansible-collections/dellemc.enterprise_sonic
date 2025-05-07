@@ -4,13 +4,24 @@ module_name: sonic_snmp
 
 tests:
   - name: test_case_01_merged
-    description: Merge snmp enable_trap and contact configuration
+    description: Merge snmp enable_trap contact, engine, user and location configuration
     state: merged
     input:
       enable_trap:
         - bgp
-      contact: 'Dell Support'
-  - name: test_case_02_merged_group_community
+      contact: Dell Support
+      engine: 80:00:01:37:03:e8:b5:d0:cc:0f:cc
+      user:
+        - name: user2
+          auth:
+            auth_type: sha
+            key: shakey5
+          priv:
+            priv_type: aes
+            key: aes-128
+          encrypted: false
+      location: 'Lab1, Rack-10'
+  - name: test_case_02_merged_group_community_view
     description: Merge some of the snmp configuration
     state: merged
     input:
@@ -25,7 +36,11 @@ tests:
       community:
         - group: group-lab
           name: comm1
-  - name: test_case_03_merge_host
+      view:
+        - name: view2
+          excluded:
+            -  1.2.3.4.5.6.7.8.9.2
+  - name: test_case_03_merge_host_and_agentaddress
     description: Merge SNMP host
     state: merged
     input:
@@ -34,6 +49,10 @@ tests:
           timeout: 300
           tag: inform
           retries: 20
+      agentaddress:
+        - ip: 1.2.3.5
+          port: 1024
+          interface: Eth1/30
   - name: test_case_04_replaced_group
     description: Replace some of a snmp group
     state: replaced
@@ -56,7 +75,7 @@ tests:
           tag: inform
           retries: 20
   - name: test_case_06_overridden_host
-    description: Override agentaddress
+    description: Override host and group
     state: overridden
     input:
       host:
@@ -72,7 +91,7 @@ tests:
               write_view: w_view
               notify_view: n_view
   - name: test_case_07_deleted
-    description: Delete all SNMP server configuration for the "community" sub-option
+    description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted
     input:
       group: []
