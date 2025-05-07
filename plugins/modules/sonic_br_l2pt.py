@@ -22,7 +22,7 @@ short_description: Manage L2PT configurations on SONiC
 description:
   - This module provides configuration management of L2PT parameters
     in devices running SONiC.
-author: 'allen.ting@dell.com'
+author: Allen Ting (allen.ting@dell.com)
 options:
   config:
     description: A list of L2PT configurations.
