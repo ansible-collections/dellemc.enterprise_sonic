@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 #
 # -*- coding: utf-8 -*-
 # Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
@@ -35,8 +37,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 import re
 from copy import deepcopy
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
 
 PATCH = 'patch'
 PUT = 'put'

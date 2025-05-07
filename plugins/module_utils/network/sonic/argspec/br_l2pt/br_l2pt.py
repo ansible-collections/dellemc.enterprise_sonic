@@ -1,3 +1,5 @@
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 #
 # -*- coding: utf-8 -*-
 # Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
@@ -7,8 +9,7 @@
 """
 The arg spec for the sonic_br_l2pt module
 """
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
+
 
 class Br_l2ptArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_br_l2pt module

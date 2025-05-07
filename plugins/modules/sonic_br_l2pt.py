@@ -8,9 +8,6 @@
 The module file for sonic_br_l2pt
 """
 
-from __future__ import absolute_import, division, print_function
-__metaclass__ = type
-
 DOCUMENTATION = """
 ---
 module: sonic_br_l2pt
