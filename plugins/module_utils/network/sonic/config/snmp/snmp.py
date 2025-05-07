@@ -370,12 +370,11 @@ class Snmp(ConfigBase):
 
         if config.get('user'):
             requests = self.delete_user(config, requests, have)
-        
             user_path = "data/ietf-snmp:snmp/usm/local/user"
             payload = self.build_create_user_payload(config)
             users_request = {'path': user_path, "method": method, 'data': payload}
             requests.append(users_request)
-            
+
             vacm_path = "data/ietf-snmp:snmp/vacm"
             vacm_payload = self.build_create_vacm_payload(config)
             users_request = {'path': vacm_path, "method": method, 'data': vacm_payload}
@@ -543,7 +542,6 @@ class Snmp(ConfigBase):
             group_dict['member'] = member
             group_dict['name'] = conf.get('group')
 
-            
         payload_url['ietf-snmp:vacm'] = {'group': group_list}
         return payload_url
 

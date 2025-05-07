@@ -214,7 +214,6 @@ class SnmpFacts(object):
 
             user_list.append(user_dict)
 
-
         return user_list
 
     def get_snmp_view(self, snmp_list):
