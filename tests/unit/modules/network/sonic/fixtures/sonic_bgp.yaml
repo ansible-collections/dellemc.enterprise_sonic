@@ -16,7 +16,7 @@ merged_01:
             ignore: True
             multipath_relax: False
             multipath_relax_as_set: True
-          bandwidth: "DEFAULT_WT"
+          bandwidth: default_weight
           compare_routerid: True
           med:
             confed: True
@@ -115,7 +115,7 @@ deleted_01:
             ignore: True
             multipath_relax: False
             multipath_relax_as_set: True
-          bandwidth: "DEFAULT_WT"
+          bandwidth: default_weight
           compare_routerid: True
           med:
             confed: True
@@ -264,7 +264,7 @@ replaced_01:
             timer: 776
             med_val: 8787
         bestpath:
-          bandwidth: 'IGNORE_LB'
+          bandwidth: ignore_weight
     state: replaced
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -403,7 +403,7 @@ overridden_01:
           as_path:
             confed: True
             ignore: True
-          bandwidth: "IGNORE_LB"
+          bandwidth: ignore_weight
           compare_routerid: True
           med:
             confed: True
