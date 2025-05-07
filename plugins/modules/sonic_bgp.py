@@ -112,11 +112,12 @@ options:
                 type: bool
           bandwidth:
             description:
-              - "Link Bandwidth attribute for the bestpath selection process"
-              - "Options are as follows"
-              - "DEFAULT_WT - aka default-weight - Assign a low default weight (value 1) to paths not having link bandwidth"
-              - "IGNORE_LB - aka ignore-weight - Ignore link bandwidth (i.e., do regular ECMP, not weighted)"
-              - "SKIP_MISSING - aka skip-missing - Ignore paths without link bandwidth for ECMP (if other paths have it)"
+              - Link Bandwidth attribute for the bestpath selection process
+              - Options are as follows
+              - default_weight - Assign a low default weight (value 1) to paths not having link bandwidth
+              - ignore_weight - Ignore link bandwidth (i.e., do regular ECMP, not weighted)
+              - skip_missing - Ignore paths without link bandwidth for ECMP (if other paths have it)
+            choices: ['default_weight', 'ignore_weight', 'skip_missing']
             type: str
           compare_routerid:
             description:
