@@ -85,3 +85,10 @@ class TestSonicUsersModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['deleted_03']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
+
+    def test_sonic_users_deleted_04(self):
+        set_module_args(self.fixture_data['deleted_04']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_04']['existing_users_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_04']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()

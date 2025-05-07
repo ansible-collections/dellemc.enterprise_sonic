@@ -28,6 +28,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    remove_empties,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_SUBCONFIG,
@@ -153,7 +154,7 @@ class Users(ConfigBase):
             want = []
 
         new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']}
-                    if 'ssh_key' in conf else {'name': conf['name'], 'role': conf['role']} for conf in want]
+                    if 'ssh_key' in conf and conf['ssh_key'] else {'name': conf['name'], 'role': conf['role']} for conf in want]
 
         new_diff = get_diff(new_want, have)
 
@@ -258,7 +259,7 @@ class Users(ConfigBase):
         self.sort_lists_in_config(have)
 
         new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']}
-                    if 'ssh_key' in conf else {'name': conf['name'], 'role': conf['role']} for conf in want]
+                    if 'ssh_key' in conf  and conf['ssh_key'] else {'name': conf['name'], 'role': conf['role']} for conf in want]
 
         new_have = []
         for conf in have:
@@ -381,11 +382,24 @@ class Users(ConfigBase):
         admin_usr_ssh_key_update = False
 
         for conf in commands:
+            conf = remove_empties(conf)
             match = next((cfg for cfg in have if cfg['name'] == conf['name']), None)
             if match:
                 if 'ssh_key' in conf and ('role' not in conf or conf['role'] is None):
-                    url = 'data/openconfig-system:system/aaa/authentication/users/user=%s/config/ssh-key' % (conf['name'])
-                    requests.append({'path': url, 'method': DELETE})
+                    delete_key = False
+                    ssh_key_conf = conf.get('ssh_key')
+                    ssh_key_match = match.get('ssh_key')
+
+                    if ssh_key_conf is None:
+                        if 'ssh_key' in match:
+                            delete_key = True
+                    elif ssh_key_conf == ssh_key_match:
+                        delete_key = True
+
+                    if delete_key:
+                        url = 'data/openconfig-system:system/aaa/authentication/users/user=%s/config/ssh-key' % (conf['name'])
+                        requests.append({'path': url, 'method': DELETE})
+
                     if conf['name'] == 'admin':
                         admin_usr_ssh_key_update = True
                     continue
