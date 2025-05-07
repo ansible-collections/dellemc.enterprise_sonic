@@ -12,6 +12,7 @@ DOCUMENTATION = """
 ---
 module: sonic_br_l2pt
 version_added: '3.1.0'
+author: "Allen Ting (allen.ting@dell.com)"
 notes:
   - Tested against Enterprise SONiC Distribution by Dell Technologies.
   - Supports C(check_mode).
@@ -19,7 +20,6 @@ short_description: Manage L2PT configurations on SONiC
 description:
   - This module provides configuration management of L2PT parameters
     in devices running SONiC.
-author: Allen Ting (allen.ting@dell.com)
 options:
   config:
     description: A list of L2PT configurations.
