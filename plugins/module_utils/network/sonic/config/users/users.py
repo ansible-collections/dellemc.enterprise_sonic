@@ -259,7 +259,7 @@ class Users(ConfigBase):
         self.sort_lists_in_config(have)
 
         new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']}
-                    if 'ssh_key' in conf  and conf['ssh_key'] else {'name': conf['name'], 'role': conf['role']} for conf in want]
+                    if 'ssh_key' in conf and conf['ssh_key'] else {'name': conf['name'], 'role': conf['role']} for conf in want]
 
         new_have = []
         for conf in have:
