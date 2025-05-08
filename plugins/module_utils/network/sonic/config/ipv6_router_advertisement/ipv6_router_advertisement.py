@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -14,6 +14,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -218,6 +219,7 @@ class Ipv6_router_advertisement(ConfigBase):
         commands, del_commands = [], []
         requests, del_requests = [], []
 
+        want_dict = {item['name']: item for item in want}
         if have:
             for have_conf in have:
                 intf_name = have_conf['name']
@@ -225,7 +227,7 @@ class Ipv6_router_advertisement(ConfigBase):
                 if len(have_conf.keys()) == 1:
                     continue
 
-                conf = next((item for item in want if item['name'] == intf_name), {})
+                conf = want_dict.get(intf_name)
                 # Delete all interface router advertisement config if not specified in 'overridden',
                 # or if only interface name is specified
                 if not conf:
@@ -304,9 +306,10 @@ class Ipv6_router_advertisement(ConfigBase):
                 commands.append({'name': have_conf['name']})
                 requests.extend(self.get_delete_ipv6_rtadv_requests(have_conf, have_conf, True))
         else:
+            have_dict = {item['name']: item for item in have}
             for conf in want:
                 intf_name = conf['name']
-                have_conf = next((item for item in have if item['name'] == intf_name), None)
+                have_conf = have_dict.get(intf_name)
                 if not have_conf:
                     continue
 
@@ -485,8 +488,9 @@ class Ipv6_router_advertisement(ConfigBase):
 
     def get_diff(self, want, have):
         updated_want = []
+        have_dict = {item['name']: item for item in have}
         for conf in want:
-            have_conf = next((item for item in have if item['name'] == conf['name']), {})
+            have_conf = have_dict.get(conf['name'], {})
             conf = self.remove_defaults(have_conf, conf, False)
             if len(conf.keys()) > 1:
                 updated_want.append(conf)
@@ -531,15 +535,12 @@ class Ipv6_router_advertisement(ConfigBase):
                 if updated_conf.get(option) == def_value:
                     del updated_conf[option]
 
-            if updated_conf.get('ra_prefixes'):
-                prefixes = updated_conf['ra_prefixes']
-                for i in range(len(prefixes)):
-                    updated_prefix = prefixes[i].copy()
+            if have_conf.get('ra_prefixes'):
+                updated_conf['ra_prefixes'] = deepcopy(have_conf['ra_prefixes'])
+                for updated_prefix in updated_conf['ra_prefixes']:
                     for option, def_value in DEFAULT_PREFIX_VALUES.items():
                         if updated_prefix.get(option) == def_value:
                             del updated_prefix[option]
-
-                    prefixes[i] = updated_prefix
         else:
             # For merge operation, the default values in conf are removed
             # if that option is not present in have_conf
@@ -551,17 +552,14 @@ class Ipv6_router_advertisement(ConfigBase):
                     if option not in have_conf and conf.get(option) == def_value:
                         del updated_conf[option]
 
-                if updated_conf.get('ra_prefixes'):
-                    prefixes = updated_conf['ra_prefixes']
-                    have_prefixes = have_conf.get('ra_prefixes', [])
-                    for i in range(len(prefixes)):
-                        updated_prefix = prefixes[i].copy()
-                        have_prefix = next((item for item in have_prefixes if item['prefix'] == updated_prefix['prefix']), {})
+                if conf.get('ra_prefixes'):
+                    updated_conf['ra_prefixes'] = deepcopy(conf['ra_prefixes'])
+                    have_prefixes = {item['prefix']: item for item in have_conf['ra_prefixes']} if have_conf.get('ra_prefixes') else {}
+                    for updated_prefix in updated_conf['ra_prefixes']:
+                        have_prefix = have_prefixes.get(updated_prefix['prefix'], {})
                         for option, def_value in DEFAULT_PREFIX_VALUES.items():
                             if option not in have_prefix and updated_prefix.get(option) == def_value:
                                 del updated_prefix[option]
-
-                        prefixes[i] = updated_prefix
 
         return updated_conf
 
