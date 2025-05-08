@@ -178,25 +178,19 @@ class SnmpFacts(object):
 
         if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not snmp_list.get('usm').get('local').get('user'):
             return user_list
-        if not snmp_list.get('ietf-snmp:vacm') or not snmp_list.get('ietf-snmp:vacm').get('group'):
+        if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('group'):
             return user_list
 
-        user_config = snmp_list.get('usm').get('local').get('user')
-        group_config = snmp_list['ietf-snmp:vacm']['group']
+        user_config = snmp_list['usm']['local'].get('user')
+        group_config = snmp_list['vacm']['group']
 
         for user in user_config:
             user_dict = dict()
-            auth_type = "md5"
-            auth_key = "md5Key"
-            if user.get("auth").get(auth_type) is None:
-                auth_type = "sha"
-                auth_key = "shaKey"
+            auth_type = list(user.get('auth').keys())[0]
+            auth_key = user.get("auth").get(auth_type).get('key')
 
-            priv_type = "aes"
-            priv_key = "aes-128"
-            if user.get("priv").get(priv_type) is None:
-                priv_type = "des"
-                priv_key = "des"
+            priv_type = list(user.get('priv').keys())[0]
+            priv_key = user.get("priv").get(priv_type).get('key')
 
             matched_user = None
             group_name = ""
@@ -210,7 +204,7 @@ class SnmpFacts(object):
             user_dict['name'] = user.get('name')
             user_dict['auth'] = {'auth_type': auth_type, 'key': auth_key}
             user_dict['priv'] = {'priv_type': priv_type, 'key': priv_key}
-            user_dict['encrypted'] = user.get('ietf-snmp-ext:encrypted')
+            user_dict['encrypted'] = user.get('encrypted')
 
             user_list.append(user_dict)
 
@@ -309,13 +303,13 @@ class SnmpFacts(object):
         snmp_group_list = snmp_list.get('vacm').get('group')
 
         for group in snmp_group_list:
+            group = dict()
             name = group.get('name')
             if name is None:
                 break
-            if group.get('access') is None:
-                break
-            group_list.append({"name": name,
-                               "access": self.get_group_access(group.get('access'))})
+            group['name'] = name
+            group['access'] = self.get_group_access(group.get('access'))
+            group_list.append(group)
 
         return group_list
 
@@ -396,7 +390,6 @@ class SnmpFacts(object):
         """
         Render config as dictionary structure and delete keys
           from spec for null values
-
         :param spec: The facts tree, generated from the argspec
         :param conf: The configuration
         :rtype: dictionary

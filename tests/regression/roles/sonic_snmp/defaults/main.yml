@@ -4,92 +4,91 @@ module_name: sonic_snmp
 
 tests:
   - name: test_case_01_merged
-    description: Merge snmp enable_trap contact, engine, user and location configuration
+    description: Merge snmp enable_trap contact, user and location configuration
     state: merged
     input:
       enable_trap:
         - bgp
       contact: Dell Support
-      engine: 80:00:01:37:03:e8:b5:d0:cc:0f:cc
       user:
-        - name: user2
+        - name: 'user1'
           auth:
-            auth_type: sha
-            key: shakey5
+            auth_type: 'sha'
+            key: 'pwd1234rf4drrfedderf'
           priv:
-            priv_type: aes
-            key: aes-128
-          encrypted: false
+            priv_type: 'aes'
+            key: 'pwd123534fr3errrijporewpoijto4o0t'
+          encrypted: False
       location: 'Lab1, Rack-10'
   - name: test_case_02_merged_group_community_view
     description: Merge some of the snmp configuration
     state: merged
     input:
       group:
-        - name: group-lab
+        - name: 'group-lab'
           access:
-            - security_model: v2c
-              security_level: auth-priv
-              read_view: r_view
-              write_view: w_view
-              notify_view: n_view
+            - security_model: 'v2c'
+              security_level: 'auth-priv'
+              read_view: 'r_view'
+              write_view: 'w_view'
+              notify_view: 'n_view'
       community:
-        - group: group-lab
-          name: comm1
+        - group: 'group-lab'
+          name: 'comm1'
       view:
-        - name: view2
+        - name: 'view2'
           excluded:
-            - 1.2.3.4.5.6.7.8.9.2
+            - '1.2.3.4.5.6.7.8.9.2'
   - name: test_case_03_merge_host_and_agentaddress
     description: Merge SNMP host
     state: merged
     input:
       host:
-        - ip: 1.2.3.5
+        - ip: '1.2.3.5'
           timeout: 300
-          tag: inform
+          tag: 'inform'
           retries: 20
       agentaddress:
-        - ip: 1.2.3.5
+        - ip: '1.2.3.5'
           port: 1024
-          interface: Eth1/30
+          interface: 'Eth1/30'
   - name: test_case_04_replaced_group
     description: Replace some of a snmp group
     state: replaced
     input:
       group:
-        - name: group-lab
+        - name: 'group-lab'
           access:
-            - security_model: v2c
-              security_level: auth-no-priv
-              read_view: r_view
-              write_view: w_view
-              notify_view: n_view
+            - security_model: 'v2c'
+              security_level: 'auth-no-priv'
+              read_view: 'r_view'
+              write_view: 'w_view'
+              notify_view: 'n_view'
   - name: test_case_05_replaced_host
     description: Replace SNMP host
     state: replaced
     input:
       host:
-        - ip: 1.2.3.5
+        - ip: '1.2.3.5'
           timeout: 400
-          tag: inform
+          tag: 'inform'
           retries: 20
   - name: test_case_06_overridden_host
     description: Override host and group
     state: overridden
     input:
       host:
-        - ip: 1.2.3.5
+        - ip: '1.2.3.5'
           timeout: 600
-          tag: inform
+          tag: 'inform'
       group:
-        - name: group-lab
+        - name: 'group-lab'
           access:
-            - security_model: v2c
-              security_level: auth-no-priv
-              read_view: r_view
-              write_view: w_view
-              notify_view: n_view
+            - security_model: 'v2c'
+              security_level: 'auth-no-priv'
+              read_view: 'r_view'
+              write_view: 'w_view'
+              notify_view: 'n_view'
   - name: test_case_07_deleted
     description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted

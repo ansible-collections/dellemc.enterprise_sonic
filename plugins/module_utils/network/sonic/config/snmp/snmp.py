@@ -62,7 +62,6 @@ class Snmp(ConfigBase):
 
     def get_snmp_facts(self):
         """ Get the 'facts' (the current configuration)
-
         :rtype: A dictionary
         :returns: The current configuration as a dictionary
         """
@@ -76,7 +75,6 @@ class Snmp(ConfigBase):
 
     def execute_module(self):
         """ Execute the module
-
         :rtype: A dictionary
         :returns: The result from module execution
         """
@@ -115,7 +113,6 @@ class Snmp(ConfigBase):
     def set_config(self, existing_snmp_facts):
         """ Collect the configuration from the args passed to the module,
             collect the current configuration (as a dict from facts)
-
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -127,7 +124,6 @@ class Snmp(ConfigBase):
 
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
-
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
         :rtype: A list
@@ -151,7 +147,6 @@ class Snmp(ConfigBase):
 
     def _state_replaced(self, want, have):
         """ The command generator when state is replaced
-
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -208,7 +203,6 @@ class Snmp(ConfigBase):
 
     def _state_overridden(self, want, have):
         """ The command generator when state is overridden
-
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -252,7 +246,6 @@ class Snmp(ConfigBase):
 
     def _state_merged(self, want, have):
         """ The command generator when state is merged
-
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
@@ -269,7 +262,6 @@ class Snmp(ConfigBase):
 
     def _state_deleted(self, want, have):
         """ The command generator when state is deleted
-
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
@@ -303,7 +295,6 @@ class Snmp(ConfigBase):
 
     def get_create_snmp_request(self, config, have=None):
         """ Create the requests necessary to create the desired configuration
-
         :rtype: A list
         :returns: the requests necessary to create the desired configuration
         """
@@ -369,7 +360,6 @@ class Snmp(ConfigBase):
             requests.append(location_request)
 
         if config.get('user'):
-            requests = self.delete_user(config, requests, have)
             user_path = "data/ietf-snmp:snmp/usm/local/user"
             payload = self.build_create_user_payload(config)
             users_request = {'path': user_path, "method": method, 'data': payload}
@@ -388,21 +378,8 @@ class Snmp(ConfigBase):
 
         return requests
 
-    def delete_user(self, config, requests, have):
-        """ Send the requests necessary to delete any existing users that match the users in config
-        """
-        if have.get('user') is None:
-            return requests
-        for user in config.get('user'):
-            user_name = user.get('name')
-            have_user_name = next((each_user for each_user in have.get('user') if each_user['name'] == user_name), None)
-            if have_user_name is not None:
-                requests.append(self.get_delete_snmp_request({'user': have_user_name}, have))
-        return requests
-
     def build_create_agentaddress_payload(self, config):
         """ Build the payload for SNMP agentaddress
-
         :rtype: A dictionary
         :returns: The payload for SNMP agentaddress
         """
@@ -422,7 +399,6 @@ class Snmp(ConfigBase):
 
     def build_create_community_payload(self, config, have):
         """ Build the payload for SNMP community
-
         :rtype: A dictionary
         :returns: The list of community requests
         """
@@ -453,7 +429,6 @@ class Snmp(ConfigBase):
 
     def build_create_group_community_payload(self, config):
         """ Build the payload for the group associated with SNMP community
-
         :rtype: A dictionary
         :returns: The payload for the group associated with SNMP community
         """
@@ -480,7 +455,6 @@ class Snmp(ConfigBase):
 
     def build_create_engine_payload(self, config):
         """ Build the payload for SNMP engine
-
         :rtype: A dictionary
         :returns: The payload for SNMP engine
         """
@@ -492,7 +466,6 @@ class Snmp(ConfigBase):
 
     def build_create_user_payload(self, config):
         """ Build the payload for SNMP user
-
         :rtype: A dictionary
         :returns: The payload for SNMP user
         """
@@ -504,20 +477,23 @@ class Snmp(ConfigBase):
             user_dict = dict()
             auth_dict = dict()
             priv_dict = dict()
-
-            auth_type = conf['auth'].get('auth_type')
-            priv_type = conf['priv'].get('priv_type')
-
-            auth_dict[auth_type] = {'key': conf['auth'].get('key')}
-            priv_dict[priv_type] = {'key': conf['priv'].get('key')}
-            user_dict['auth'] = auth_dict
-            user_dict['priv'] = priv_dict
             user_dict['name'] = conf.get('name')
 
-            if conf.get('encryption') is None:
-                user_dict['ietf-snmp-ext:encrypted'] = False
+            if conf.get('encrypted') is None:
+                user_dict['encrypted'] = False
             else:
-                user_dict['ietf-snmp-ext:encrypted'] = conf.get('encryption')
+                user_dict['encrypted'] = conf.get('encrypted')
+            auth_type = conf['auth'].get('auth_type')
+            priv_type = conf['priv'].get('priv_type')
+            auth_key = dict()
+            priv_key = dict()
+            auth_key['key'] = conf['auth']['key']
+            priv_key['key'] = conf['priv']['key']
+            auth_dict[auth_type] = auth_key
+            priv_dict[priv_type] = priv_key
+            user_dict['auth'] = auth_dict
+            user_dict['priv'] = priv_dict
+
             user_list.append(user_dict)
 
         payload_url['user'] = user_list
@@ -525,7 +501,6 @@ class Snmp(ConfigBase):
 
     def build_create_vacm_payload(self, config):
         """ Build the payload for SNMP group members based on the given user information
-
         :rtpe: A dictionary
         :returns: The payload for SNMP group members
         """
@@ -537,17 +512,19 @@ class Snmp(ConfigBase):
         for conf in group:
             group_dict = dict()
             member = dict()
-            member['security-model'] = "v3"
+            if conf.get('group') is None:
+                break
+            member['security-model'] = ["usm"]
             member['security-name'] = conf.get('name')
-            group_dict['member'] = member
+            group_dict['member'] = [member]
             group_dict['name'] = conf.get('group')
+            group_list.append(group_dict)
 
         payload_url['ietf-snmp:vacm'] = {'group': group_list}
         return payload_url
 
     def build_create_view_payload(self, config):
         """ Build the payload for SNMP view
-
         :rtype: A dictonary
         :returns: The payload for SNMP view
         """
@@ -568,7 +545,6 @@ class Snmp(ConfigBase):
 
     def build_create_contact_payload(self, config):
         """ Build the payload for SNMP contact
-
         :rtype: A dictionary
         :returns: The payload for SNMP contact
         """
@@ -580,7 +556,6 @@ class Snmp(ConfigBase):
 
     def build_create_location_payload(self, config):
         """ Build the payload for SNMP location
-
         :rtype: A dictionary
         :returns: The payload for SNMP location
         """
@@ -592,7 +567,6 @@ class Snmp(ConfigBase):
 
     def build_create_enable_trap_payload(self, config):
         """ Build the payload for SNMP enable_trap
-
         :rtype: dictionaries regarding the enable traps
         :returns: The payload for SNMP enable_trap
         """
@@ -631,7 +605,6 @@ class Snmp(ConfigBase):
 
     def build_create_group_payload(self, config):
         """ Build the payload for SNMP group
-
         :rtype: A dictionary
         :returns: The payload for SNMP group
         """
@@ -656,7 +629,6 @@ class Snmp(ConfigBase):
 
     def build_create_group_access_payload(self, config):
         """ Build the payload for the SNMP group access suboption
-
         :rtype: A list of dictionaries
         :returns: the list of access
         """
@@ -690,7 +662,6 @@ class Snmp(ConfigBase):
 
     def build_create_enable_target_payload(self, config, target_entry):
         """ Build the payload for SNMP target information based on the given host configuration
-
         :rtype: A dictionary
         :returns: The payload for SNMP target
         """
@@ -720,7 +691,6 @@ class Snmp(ConfigBase):
 
     def build_create_enable_target_params_payload(self, config, target_entry):
         """ Build the payload for SNMP param information based on the given host configuration
-
         :rtype: A dictionary
         :returns: The payload for SNMP target
         """
@@ -756,7 +726,6 @@ class Snmp(ConfigBase):
 
     def get_delete_snmp_request(self, configs, have, delete_all):
         """ Create the requests necessary to delete the given configuration
-
         :rtype: A list
         :returns: The list of requests to delete the given configuration
         """
@@ -1017,7 +986,6 @@ class Snmp(ConfigBase):
 
     def get_matched_access(self, access_list, want_access):
         """ Finds and returns the access list that matches the wanted access list
-
         :rtype: A list
         :returns: the access list that matches the wanted access list
         """
@@ -1034,7 +1002,6 @@ class Snmp(ConfigBase):
 
     def get_host(self, want, have):
         """ Finds and returns the host that matches the wanted host
-
         :rtype: A list
         :returns: the host that matches the wanted host
         """
@@ -1045,7 +1012,6 @@ class Snmp(ConfigBase):
 
     def get_available_target(self):
         """ Get and return the first available targetEntry that is not already taken
-
         :rtype: str
         :returns: the first available targetEntry that is not already taken
         """
@@ -1060,7 +1026,6 @@ class Snmp(ConfigBase):
 
     def get_delete_target(self, current_host):
         """ Get the targetEntry of the given host config
-
         :rtype: str
         :returns: Get the targetEntry of the given host config
         """
@@ -1074,7 +1039,6 @@ class Snmp(ConfigBase):
 
     def get_agententry(self):
         """ Get and return the first available agentEntry that is already taken
-
         :rtype: str
         :returns: the first available agentEntry that is not already taken
         """
@@ -1090,7 +1054,6 @@ class Snmp(ConfigBase):
 
     def get_delete_agententry(self, current_agentaddress):
         """ Get the agentEntry of the given agentaddress config
-
         :rtype: str
         :returns: Get the agentEntry of the given agentaddress config
         """
