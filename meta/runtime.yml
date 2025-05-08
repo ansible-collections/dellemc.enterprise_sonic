@@ -30,6 +30,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_config
     copp:
       redirect: dellemc.enterprise_sonic.sonic_copp
+    dcbx:
+      redirect: dellemc.enterprise_sonic.sonic_dcbx
     dhcp_relay:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_relay
     dhcp_snooping:
@@ -76,6 +78,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_mclag
     mgmt_servers:
       redirect: dellemc.enterprise_sonic.sonic_mgmt_servers
+    mirroring:
+      redirect: dellemc.enterprise_sonic.sonic_mirroring
     ntp:
       redirect: dellemc.enterprise_sonic.sonic_ntp
     ospf_area:

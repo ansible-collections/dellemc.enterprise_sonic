@@ -1,0 +1,111 @@
+---
+ansible_connection: httpapi
+
+sonic_dcbx_tests:
+  - name: test_case_merged_01
+    description: Disable DCBx Interfaces Configurations
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: false
+          pfc_tlv_enabled: false
+          ets_configuration_tlv_enabled: false
+          ets_recommendation_tlv_enabled: false
+
+  - name: test_case_merged_02
+    description: Enable global DCBx Configuration
+    state: merged
+    input:
+      global:
+        enabled: true
+
+  - name: test_case_merged_03
+    description: Enable DCBx Configurations on Interfaces
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: true
+          pfc_tlv_enabled: true
+          ets_configuration_tlv_enabled: true
+          ets_recommendation_tlv_enabled: true
+
+  - name: test_case_merged_04
+    description: Disable DCBx Configurations on Interfaces
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: false
+          pfc_tlv_enabled: false
+          ets_configuration_tlv_enabled: false
+          ets_recommendation_tlv_enabled: false
+
+  - name: test_case_replaced_01
+    description: Disable global DCBx configuration
+    state: replaced
+    input:
+      global:
+        enabled: false
+
+  - name: test_case_replaced_02
+    description: Enable DCBx Configurations on Interfaces
+    state: replaced
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: true
+        - name: '{{ interface2 }}'
+          enabled: true
+
+  - name: test_case_override_01
+    description: Restore default global DCBx configuration and modify some interface DCBx configurations
+    state: overridden
+    input:
+      interfaces:
+        - name: '{{ interface1 }}'
+          enabled: false
+          pfc_tlv_enabled: false
+          ets_configuration_tlv_enabled: false
+          ets_recommendation_tlv_enabled: true
+        - name: '{{ interface2 }}'
+          enabled: false
+
+  - name: test_case_override_02
+    description: Enable global DCBx configuration and restore default interface DCBx configurations
+    state: overridden
+    input:
+      global:
+        enabled: true
+
+  - name: test_case_merged_05
+    description: Disable DCBx TLV Configuration on Interfaces
+    state: merged
+    input:
+      interfaces:
+        - name: '{{ interface3 }}'
+          pfc_tlv_enabled: false
+        - name: '{{ interface4 }}'
+          ets_configuration_tlv_enabled: false
+        - name: '{{ interface5 }}'
+          ets_recommendation_tlv_enabled: false
+
+  - name: test_case_deleted_01
+    description: Restore DCBx Configuration for an Interface
+    state: deleted
+    input:
+      interfaces:
+        - name: '{{ interface3 }}'
+          pfc_tlv_enabled: false
+        - name: '{{ interface4 }}'
+          ets_configuration_tlv_enabled: false
+        - name: '{{ interface5 }}'
+          ets_recommendation_tlv_enabled: false
+
+  - name: test_case_deleted_02
+    description: Restore global DCBx Configuration
+    state: deleted
+    input:
+      global:
+        enabled: true
