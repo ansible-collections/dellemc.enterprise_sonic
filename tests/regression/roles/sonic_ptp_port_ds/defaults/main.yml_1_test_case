@@ -1,0 +1,17 @@
+---
+ansible_connection: httpapi
+module_name: ptp_port_ds
+
+preparations_tests:
+
+tests:
+  - name: test_case_01
+    description: Add PTP port configuration
+    state: merged
+    input:
+      - interface: '{{ interface1 }}'
+        role: SLAVE
+        localpriority: 10
+        unicasttable: ['1.1.1.1']
+      - interface: '{{ interface2 }}'
+        role: MASTER
