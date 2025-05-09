@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -42,6 +42,7 @@ class VlansArgs(object):  # pylint: disable=R0903
             'elements': 'dict',
             'options': {
                 'vlan_id': {'required': True, 'type': 'int'},
+                'autostate': {'type': 'bool'},
                 'description': {'type': 'str'}
             },
             'type': 'list'

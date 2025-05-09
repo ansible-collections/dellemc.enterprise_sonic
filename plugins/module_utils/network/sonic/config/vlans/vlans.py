@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -75,7 +75,7 @@ class Vlans(ConfigBase):
         :returns: The current configuration as a dictionary
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
-        vlans_facts = facts['ansible_network_resources'].get('vlans')
+        vlans_facts = facts['ansible_network_resources'].get('vlans', None)
         if not vlans_facts:
             return []
         return vlans_facts
@@ -111,6 +111,7 @@ class Vlans(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, existing_vlans_facts,
                                         TEST_KEYS_formatted_diff)
+            new_config = self.deal_with_default_entries(new_config, method="add")
             new_config.sort(key=lambda x: x['vlan_id'])
             result['after(generated)'] = new_config
 
@@ -130,7 +131,7 @@ class Vlans(ConfigBase):
                   to the desired configuration
         """
         want = remove_empties_from_list(self._module.params['config'])
-        have = remove_empties_from_list(existing_vlans_facts)
+        have = existing_vlans_facts
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -144,7 +145,7 @@ class Vlans(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        # diff method works on dict, so creating temp dict
+
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'overridden':
@@ -168,25 +169,26 @@ class Vlans(ConfigBase):
         """
         commands = []
         requests = []
-
+        reverse_diff = get_diff(have, self.deal_with_default_entries(want, method="add"), TEST_KEYS)
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
         replaced_vlans = []
-        for config in replaced_config:
-            vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
-            if vlan_obj and vlan_obj.get('description', None) is None:
-                replaced_vlans.append(config)
+        if reverse_diff:
+            for config in replaced_config:
+                vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
+                if vlan_obj:
+                    replaced_vlans.append(vlan_obj)
 
-        if replaced_vlans:
-            del_requests = self.get_delete_vlans_requests(replaced_vlans, False)
+            del_requests = self.get_delete_vlans_requests(replaced_vlans, delete_vlan=True)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, "deleted"))
 
+        diff = get_diff(want, have, TEST_KEYS)
+        diff = self.deal_with_default_entries(diff, method="remove")
         if diff:
-            rep_commands = diff
-            rep_requests = self.get_create_vlans_requests(rep_commands)
+            rep_requests = self.get_create_vlans_requests(diff)
             if len(rep_requests) > 0:
                 requests.extend(rep_requests)
-                commands.extend(update_states(rep_commands, "replaced"))
+                commands.extend(update_states(diff, "replaced"))
 
         return commands, requests
 
@@ -200,29 +202,35 @@ class Vlans(ConfigBase):
         commands = []
         requests = []
 
-        r_diff = get_diff(have, want, TEST_KEYS)
-        if not diff and not r_diff:
+        reverse_diff = get_diff(have, want, TEST_KEYS)
+        reverse_diff = self.deal_with_default_entries(reverse_diff, method="remove")
+
+        if not diff and not reverse_diff:
             return commands, requests
 
         del_vlans = []
-        del_descr_vlans = []
-        for config in r_diff:
+        del_vlans_attributes = []
+
+        for config in reverse_diff:
             vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
+            have_vlan_obj = search_obj_in_list(config['vlan_id'], have, 'vlan_id')
             if vlan_obj:
-                if vlan_obj.get('description', None) is None:
-                    del_descr_vlans.append(config)
+                if vlan_obj.get('description', None) is None and have_vlan_obj.get("description") is not None:
+                    del_vlans_attributes.append({"vlan_id": config.get("vlan_id"), "description": have_vlan_obj.get("description")})
+                if vlan_obj.get('autostate', None) is False:
+                    del_vlans_attributes.append({"vlan_id": config.get("vlan_id"), "autostate": False})
             else:
                 del_vlans.append(config)
 
         if del_vlans:
-            del_requests = self.get_delete_vlans_requests(del_vlans, True)
+            del_requests = self.get_delete_vlans_requests(del_vlans, delete_vlan=True)
             requests.extend(del_requests)
             commands.extend(update_states(del_vlans, "deleted"))
 
-        if del_descr_vlans:
-            del_requests = self.get_delete_vlans_requests(del_descr_vlans, False)
+        if del_vlans_attributes:
+            del_requests = self.get_delete_vlans_requests(del_vlans_attributes, delete_vlan=False)
             requests.extend(del_requests)
-            commands.extend(update_states(del_descr_vlans, "deleted"))
+            commands.extend(update_states(del_vlans_attributes, "deleted"))
 
         if diff:
             ovr_commands = diff
@@ -263,7 +271,7 @@ class Vlans(ConfigBase):
         else:  # delete specific vlans
             commands = get_diff(want, diff, TEST_KEYS)
 
-        requests = self.get_delete_vlans_requests(commands, delete_vlan)
+        requests = self.get_delete_vlans_requests(commands, delete_vlan=delete_vlan)
         commands = update_states(commands, "deleted")
         return commands, requests
 
@@ -275,22 +283,35 @@ class Vlans(ConfigBase):
         url = "data/openconfig-interfaces:interfaces/interface=Vlan{}"
         method = "DELETE"
         for vlan in configs:
-            vlan_id = vlan.get("vlan_id")
-            description = vlan.get("description")
-            if description and not delete_vlan:
-                path = self.get_delete_vlan_config_attr(vlan_id, "description")
-            else:
+            vlan_id = vlan.get("vlan_id", None)
+            if delete_vlan or (vlan_id and not (vlan.get("description", None) or vlan.get("autostate", None))):
                 path = url.format(vlan_id)
+                request = {"path": path,
+                           "method": method,
+                           }
+                requests.append(request)
 
-            request = {"path": path,
-                       "method": method,
-                       }
-            requests.append(request)
+            else:
+                if vlan.get("description", None) is not None:
+                    path = self.get_delete_vlan_config_attr(vlan_id, "description")
+                    request = {"path": path,
+                               "method": method,
+                               }
+                    requests.append(request)
+
+                if vlan.get("autostate", None) is not None:
+                    path = self.get_delete_vlan_config_attr(vlan_id, "autostate")
+                    payload = {"sonic-vlan:autostate": "disable"}
+                    request = {"path": path, "method": "PATCH", "data": payload}
+                    requests.append(request)
 
         return requests
 
     def get_delete_vlan_config_attr(self, vlan_id, attr_name):
-        url = "data/openconfig-interfaces:interfaces/interface=Vlan{}/config/{}"
+        if attr_name == "description":
+            url = "data/openconfig-interfaces:interfaces/interface=Vlan{}/config/{}"
+        elif attr_name == "autostate":
+            url = "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan{}/{}"
         path = url.format(vlan_id, attr_name)
 
         return path
@@ -300,20 +321,52 @@ class Vlans(ConfigBase):
         if not configs:
             return requests
         for vlan in configs:
-            vlan_id = vlan.get("vlan_id")
+            vlan_id = vlan.get("vlan_id", None)
             interface_name = "Vlan" + str(vlan_id)
             description = vlan.get("description", None)
+            autostate = vlan.get("autostate", None)
             request = build_interfaces_create_request(interface_name=interface_name)
             requests.append(request)
-            if description:
+            if description is not None:
                 requests.append(self.get_modify_vlan_config_attr(interface_name, 'description', description))
+            if autostate is not None:
+                requests.append(self.get_modify_vlan_config_attr(interface_name, 'autostate', autostate))
 
         return requests
 
     def get_modify_vlan_config_attr(self, intf_name, attr_name, attr_value):
-        url = "data/openconfig-interfaces:interfaces/interface={}/config"
-        payload = {"openconfig-interfaces:config": {"name": intf_name, attr_name: attr_value}}
-        method = "PATCH"
-        request = {"path": url.format(intf_name), "method": method, "data": payload}
-
+        if attr_name == "description":
+            url = "data/openconfig-interfaces:interfaces/interface={}/config".format(intf_name)
+            payload = {"openconfig-interfaces:config": {"name": intf_name, attr_name: attr_value}}
+            method = "PATCH"
+        elif attr_name == "autostate":
+            url = "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST={}/autostate".format(intf_name)
+            if attr_value is True:
+                attr_value = "enable"
+            elif attr_value is False:
+                attr_value = "disable"
+            payload = {"sonic-vlan:{}".format(attr_name): attr_value}
+            method = "PATCH"
+        request = {"path": url, "method": method, "data": payload}
         return request
+
+    def deal_with_default_entries(self, configs, method="add"):
+        """
+        Remove default entries for the data value in overridden state
+        Autostate is defaulted to True and can never be truly deleted so it is a no-op
+        Optional parameter: method [add|remove] to determine whether to fill in the missing default value or to remove the fields that are auto-populated
+        # Pad want for reverse diff of have vs want
+        # Delete want for diff of all vlans that exist in Want in replaced state, then behaves like overridden.
+        """
+        if configs:
+            pop_list = []
+            for index, vlan in enumerate(configs):
+                if 'autostate' not in vlan:
+                    pop_list.append(index)
+            for index in pop_list:
+                if method == "add":
+                    configs[index]["autostate"] = True
+                elif method == "remove":
+                    if configs[index].get("autostate") is not None:
+                        del configs[index]["autostate"]
+        return configs
