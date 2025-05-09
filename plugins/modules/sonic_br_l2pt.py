@@ -268,17 +268,15 @@ EXAMPLES = """
 #  switchport l2proto-tunnel cdp Vlan 20,40-60
 #  switchport l2proto-tunnel stp Vlan 25-26
 
-- name: Delete interface L2PT configurations
-  dellemc.enterprise_sonic.sonic_br_l2pt:
-    config:
-      - name: Ethernet0
-        bridge_l2pt_params:
-          - protocol: 'LACP'
-            vlan_ids:
-              - 10-12
-          - protocol: 'CDP'
-            vlan_ids:
-    state: deleted
+  - name: Delete L2PT configurations for protocol
+    dellemc.enterprise_sonic.sonic_br_l2pt:
+      config:
+        - name: Ethernet0
+          bridge_l2pt_params:
+            - protocol: 'LACP'
+            - protocol: 'CDP'
+              vlan_ids: []
+      state: deleted
 
 # After State:
 # ------------
@@ -335,6 +333,61 @@ EXAMPLES = """
 #  switchport l2proto-tunnel lacp Vlan 10,12
 #  switchport l2proto-tunnel cdp Vlan 20,51-60
 #  switchport l2proto-tunnel stp Vlan 25-26
+
+
+# Using Deleted
+#
+# Before State:
+# -------------
+# sonic# show running-configuration interface Ethernet 0
+# !
+# interface Ethernet0
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+#  switchport l2proto-tunnel lacp Vlan 10-12
+#  switchport l2proto-tunnel cdp Vlan 20,40-60
+#  switchport l2proto-tunnel stp Vlan 25-26
+# sonic# show running-configuration interface Ethernet 8
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+#  switchport l2proto-tunnel lacp Vlan 10-12
+#  switchport l2proto-tunnel cdp Vlan 20,40-60
+#  switchport l2proto-tunnel stp Vlan 25-26
+
+  - name: Delete L2PT configurations for entire interface
+    dellemc.enterprise_sonic.sonic_br_l2pt:
+      config:
+        - name: Ethernet0
+          bridge_l2pt_params: []
+        - name: Ethernet8
+      state: deleted
+
+# After State:
+# ------------
+# sonic# show running-configuration interface Ethernet 0
+# !
+# interface Ethernet0
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+# sonic# show running-configuration interface Ethernet 8
+# !
+# interface Ethernet8
+#  mtu 9100
+#  speed 400000
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
 
 
 # Using Replaced
