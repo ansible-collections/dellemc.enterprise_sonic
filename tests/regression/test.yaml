@@ -27,6 +27,7 @@
     - sonic_bgp_af
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
+    - sonic_br_l2pt
     - sonic_ospfv2_interfaces
     - sonic_ospfv2
     - sonic_dhcp_snooping
