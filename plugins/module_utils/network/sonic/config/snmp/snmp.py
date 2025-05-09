@@ -511,9 +511,13 @@ class Snmp(ConfigBase):
             member = dict()
             if conf.get('group') is None:
                 break
-            member['security-model'] = ["usm"]
+            model_list = list()
+            model_list.append('usm')
+            member['security-model'] = model_list
             member['security-name'] = conf.get('name')
-            group_dict['member'] = [member]
+            member_list = list()
+            member_list.append(member)
+            group_dict['member'] = member_list
             group_dict['name'] = conf.get('group')
             group_list.append(group_dict)
 
@@ -617,6 +621,7 @@ class Snmp(ConfigBase):
             group_dict['name'] = conf.get('name')
 
             group_dict['access'] = self.build_create_group_access_payload(conf)
+
             group_list.append(group_dict)
 
         group_payload['group'] = group_list
@@ -639,20 +644,18 @@ class Snmp(ConfigBase):
             access_dict = dict()
 
             access_dict['context'] = 'Default'
-            access_dict['context-match'] = "exact"
-            access_dict['notify-view'] = access.get('notify_view')
-            access_dict['read-view'] = access.get('read_view')
-            access_dict['write-view'] = access.get('write_view')
-
             security_level = access.get('security_level')
             security_model = access.get('security_model')
 
             if security_model == 'usm':
                 security_model = "v3"
 
-            access_dict['security-level'] = security_level
             access_dict['security-model'] = security_model
-
+            access_dict['security-level'] = security_level
+            access_dict['read-view'] = access.get('read_view')
+            access_dict['write-view'] = access.get('write_view')
+            access_dict['notify-view'] = access.get('notify_view')
+            
             access_list.append(access_dict)
 
         return access_list
