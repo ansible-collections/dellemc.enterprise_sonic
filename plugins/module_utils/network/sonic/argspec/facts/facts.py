@@ -39,6 +39,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'fips',
         'interfaces',
         'ip_neighbor',
+        'ipv6_router_advertisement',
         'lag_interfaces',
         'ldap',
         'lldp_global',

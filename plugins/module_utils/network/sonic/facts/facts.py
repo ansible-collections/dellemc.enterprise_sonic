@@ -50,6 +50,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.logging.logging import LoggingFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pki.pki import PkiFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor.ip_neighbor import Ip_neighborFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ipv6_router_advertisement.ipv6_router_advertisement import (
+    Ipv6_router_advertisementFacts
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.port_group.port_group import Port_groupFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dhcp_relay.dhcp_relay import Dhcp_relayFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dhcp_snooping.dhcp_snooping import Dhcp_snoopingFacts
@@ -119,6 +122,7 @@ FACT_RESOURCE_SUBSETS = dict(
     logging=LoggingFacts,
     pki=PkiFacts,
     ip_neighbor=Ip_neighborFacts,
+    ipv6_router_advertisement=Ipv6_router_advertisementFacts,
     port_group=Port_groupFacts,
     dhcp_relay=Dhcp_relayFacts,
     dhcp_snooping=Dhcp_snoopingFacts,
