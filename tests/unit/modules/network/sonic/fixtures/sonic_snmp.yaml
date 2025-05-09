@@ -47,7 +47,8 @@ merged_01:
                   read-view: 'r_view'
                   write-view: 'w_view'
                   security-level: 'auth-priv'
-                  security-model: 'v3'
+                  security-model: 
+                    - 'v3'
 
 merged_02:
   module_args:
@@ -411,7 +412,8 @@ overridden_02:
               access:
                 - context: 'Default'
                   context-match: 'exact'
-                  security-model: 'v3'
+                  security-model: 
+                    - 'v3'
 
 overridden_03:
   module_args:
