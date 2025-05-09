@@ -17,7 +17,8 @@ DOCUMENTATION = """
 module: sonic_pms
 version_added: '3.1.0'
 notes:
-- Supports C(check_mode).
+  - Supports C(check_mode).
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
 short_description: Configure interface mode port security settings on SONiC.
 description:
   - This module provides configuration management of port security interface mode parameters on devices running SONiC.
@@ -44,7 +45,7 @@ options:
       max_allowed_macs:
         type: int
         description:
-          - Maximum no of secure MAC's allowed on the interface. (1 to 4097)
+          - Maximum no of secure MACs allowed on the interface. (1 to 4097)
           - If I(port_security_enable=True) and I(max_allowed_macs) not configured, default is C(1).
       violation:
         type: str

@@ -41,7 +41,7 @@ class TestSonicPmsModule(TestSonicModule):
 
         self.facts_edit_config.side_effect = self.facts_side_effect
         self.config_edit_config.side_effect = self.config_side_effect
-        self.utils_edit_config.side_effect = self.facts_side_effect
+        self.utils_edit_config.side_effect = self.config_side_effect
 
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
         self.get_interface_naming_mode.return_value = 'standard'
