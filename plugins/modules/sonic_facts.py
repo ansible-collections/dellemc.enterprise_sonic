@@ -1,15 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
 The module file for sonic_facts
 """
-
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
-
 DOCUMENTATION = """
 ---
 module: sonic_facts
@@ -66,6 +64,7 @@ options:
       - bgp_as_paths
       - bgp_communities
       - bgp_ext_communities
+      - dcbx
       - ospfv2_interfaces
       - ospfv2
       - mclag
@@ -93,6 +92,7 @@ options:
       - l3_acls
       - lldp_global
       - mac
+      - mirroring
       - bfd
       - copp
       - route_maps
@@ -101,6 +101,7 @@ options:
       - poe
       - dhcp_snooping
       - sflow
+      - snmp
       - fips
       - roce
       - qos_buffer
@@ -117,8 +118,6 @@ options:
       - ssh
       - lst
       - fbs_classifiers
-      - dcbx
-      - mirroring
 """
 
 EXAMPLES = """
