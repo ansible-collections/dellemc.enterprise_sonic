@@ -68,6 +68,7 @@ options:
       - bgp_ext_communities
       - ospfv2_interfaces
       - ospfv2
+      - ospfv3
       - mclag
       - prefix_lists
       - vlan_mapping
