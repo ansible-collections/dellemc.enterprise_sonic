@@ -32,7 +32,7 @@ merged_01:
             - name: 'group-lab'
               member:
                 - security-model:
-                    - 'v2c'
+                  - 'v2c'
                   security-name: 'comm1'
     - path: 'data/ietf-snmp:snmp/vacm'
       method: 'patch'
@@ -42,13 +42,11 @@ merged_01:
             - name: 'group-floor2'
               access:
                 - context: 'Default'
-                  context-match: 'exact'
-                  notify-view: 'n_view'
+                  security-model: 'v3'
+                  security-level: 'auth-priv'
                   read-view: 'r_view'
                   write-view: 'w_view'
-                  security-level: 'auth-priv'
-                  security-model: 
-                    - 'v3'
+                  notify-view: 'n_view'
 
 merged_02:
   module_args:
@@ -411,9 +409,7 @@ overridden_02:
             - name: 'group-floor2'
               access:
                 - context: 'Default'
-                  context-match: 'exact'
-                  security-model: 
-                    - 'v3'
+                  security-model: 'v3'
 
 overridden_03:
   module_args:
