@@ -61,9 +61,9 @@ options:
     default: merged
 """
 EXAMPLES = """
-# Using Merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -92,7 +92,7 @@ EXAMPLES = """
               - 25-26
     state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet0
 # !
@@ -108,9 +108,9 @@ EXAMPLES = """
 #  switchport l2proto-tunnel stp Vlan 25-26
 
 
-# Using Merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -145,7 +145,7 @@ EXAMPLES = """
               - 20-21
     state: merged
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet0
 # !
@@ -161,9 +161,9 @@ EXAMPLES = """
 #  switchport l2proto-tunnel stp Vlan 20-21,25-26
 
 
-# Using Deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -187,7 +187,7 @@ EXAMPLES = """
               - 10-12
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet0
 # !
@@ -201,9 +201,9 @@ EXAMPLES = """
 #  switchport l2proto-tunnel stp Vlan 25-26
 
 
-# Using Deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -232,7 +232,7 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet0
 # !
@@ -252,9 +252,9 @@ EXAMPLES = """
 #  no shutdown
 
 
-# Using Deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -278,7 +278,7 @@ EXAMPLES = """
             vlan_ids: []
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet0
 # !
@@ -291,9 +291,9 @@ EXAMPLES = """
 #  switchport l2proto-tunnel stp Vlan 25-26
 
 
-# Using Deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -320,7 +320,7 @@ EXAMPLES = """
               - 40-50
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet0
 # !
@@ -335,9 +335,9 @@ EXAMPLES = """
 #  switchport l2proto-tunnel stp Vlan 25-26
 
 
-# Using Deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -370,7 +370,7 @@ EXAMPLES = """
       - name: Ethernet8
     state: deleted
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -390,9 +390,9 @@ EXAMPLES = """
 #  no shutdown
 
 
-# Using Replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -433,7 +433,7 @@ EXAMPLES = """
               - 20-45
     state: replaced
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -458,9 +458,9 @@ EXAMPLES = """
 #  switchport l2proto-tunnel stp Vlan 100-150
 
 
-# Using Overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 # sonic# show running-configuration interface Ethernet 0
 # !
@@ -502,7 +502,7 @@ EXAMPLES = """
               - 25-26
     state: overridden
 
-# After State:
+# After state:
 # ------------
 # sonic# show running-configuration interface Ethernet0
 # !
