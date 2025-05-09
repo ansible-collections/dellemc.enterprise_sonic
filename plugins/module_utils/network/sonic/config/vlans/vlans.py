@@ -111,6 +111,7 @@ class Vlans(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, existing_vlans_facts,
                                         TEST_KEYS_formatted_diff)
+            new_config = self.deal_with_default_entries(new_config, method="add")
             new_config.sort(key=lambda x: x['vlan_id'])
             result['after(generated)'] = new_config
 
