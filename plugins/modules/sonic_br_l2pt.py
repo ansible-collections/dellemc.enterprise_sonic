@@ -268,15 +268,15 @@ EXAMPLES = """
 #  switchport l2proto-tunnel cdp Vlan 20,40-60
 #  switchport l2proto-tunnel stp Vlan 25-26
 
-  - name: Delete L2PT configurations for protocol
-    dellemc.enterprise_sonic.sonic_br_l2pt:
-      config:
-        - name: Ethernet0
-          bridge_l2pt_params:
-            - protocol: 'LACP'
-            - protocol: 'CDP'
-              vlan_ids: []
-      state: deleted
+- name: Delete L2PT configurations for protocol
+  dellemc.enterprise_sonic.sonic_br_l2pt:
+    config:
+      - name: Ethernet0
+        bridge_l2pt_params:
+          - protocol: 'LACP'
+          - protocol: 'CDP'
+            vlan_ids: []
+    state: deleted
 
 # After State:
 # ------------
@@ -362,13 +362,13 @@ EXAMPLES = """
 #  switchport l2proto-tunnel cdp Vlan 20,40-60
 #  switchport l2proto-tunnel stp Vlan 25-26
 
-  - name: Delete L2PT configurations for entire interface
-    dellemc.enterprise_sonic.sonic_br_l2pt:
-      config:
-        - name: Ethernet0
-          bridge_l2pt_params: []
-        - name: Ethernet8
-      state: deleted
+- name: Delete L2PT configurations for entire interface
+  dellemc.enterprise_sonic.sonic_br_l2pt:
+    config:
+      - name: Ethernet0
+        bridge_l2pt_params: []
+      - name: Ethernet8
+    state: deleted
 
 # After State:
 # ------------
