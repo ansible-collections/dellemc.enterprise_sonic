@@ -14,11 +14,11 @@ tests:
         - name: 'user1'
           auth:
             auth_type: 'sha'
-            key: 'pwd1234rf4drrfedderf'
+            key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
           priv:
             priv_type: 'aes'
-            key: 'pwd123534fr3errrijporewpoijto4o0t'
-          encrypted: False
+            key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
+          encrypted: True
       location: 'Lab1, Rack-10'
   - name: test_case_02_merged_group_community_view
     description: Merge some of the snmp configuration

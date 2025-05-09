@@ -479,10 +479,7 @@ class Snmp(ConfigBase):
             priv_dict = dict()
             user_dict['name'] = conf.get('name')
 
-            if conf.get('encrypted') is None:
-                user_dict['encrypted'] = False
-            else:
-                user_dict['encrypted'] = conf.get('encrypted')
+            user_dict['encrypted'] = conf.get('encrypted')
             auth_type = conf['auth'].get('auth_type')
             priv_type = conf['priv'].get('priv_type')
             auth_key = dict()
