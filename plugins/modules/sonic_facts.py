@@ -77,6 +77,7 @@ options:
       - users
       - system
       - port_breakout
+      - pms
       - aaa
       - ldap
       - tacacs_server
