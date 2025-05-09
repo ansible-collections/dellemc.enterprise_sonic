@@ -511,13 +511,9 @@ class Snmp(ConfigBase):
             member = dict()
             if conf.get('group') is None:
                 break
-            model_list = list()
-            model_list.append('usm')
-            member['security-model'] = model_list
+            member['security-model'] = ["usm"]
             member['security-name'] = conf.get('name')
-            member_list = list()
-            member_list.append(member)
-            group_dict['member'] = member_list
+            group_dict['member'] = [member]
             group_dict['name'] = conf.get('group')
             group_list.append(group_dict)
 
@@ -655,7 +651,7 @@ class Snmp(ConfigBase):
             access_dict['read-view'] = access.get('read_view')
             access_dict['write-view'] = access.get('write_view')
             access_dict['notify-view'] = access.get('notify_view')
-            
+
             access_list.append(access_dict)
 
         return access_list
