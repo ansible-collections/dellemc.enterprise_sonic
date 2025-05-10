@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -33,6 +33,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_as_paths',
         'bgp_communities',
         'bgp_ext_communities',
+        'dcbx',
         'ospfv2_interfaces',
         'ospfv2',
         'mclag',
@@ -83,7 +84,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'ospf_area',
         'ssh',
         'lst',
-        'fbs_classifiers'
+        'fbs_classifiers',
+        'mirroring'
     ]
 
     argument_spec = {
