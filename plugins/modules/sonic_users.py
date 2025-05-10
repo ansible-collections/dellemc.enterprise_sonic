@@ -79,6 +79,13 @@ options:
         version_added: 3.1.0
         description:
           - Specifies the user ssh key for an existing user.
+          - The ssh key pair (public and private key) can be created using ssh-keygen command on the server from
+          - where the user will connect to the SONiC device.
+          - Only the public key is configured in the ssh_key field.
+          - The ssh_key option can only be "merged" after initial creation of the affected "user" instance
+          - and must be merged without any additional options specified other than "name".
+          - It can only be deleted as an individual option if it is the only option specified.
+          - If other options are specified for deletion, the entire user instance is deleted.
         type: str
   state:
     description:

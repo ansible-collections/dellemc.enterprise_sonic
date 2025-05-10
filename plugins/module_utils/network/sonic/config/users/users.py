@@ -153,6 +153,7 @@ class Users(ConfigBase):
         if not want:
             want = []
 
+        # Handle "role" and "ssh_key" options.
         new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']}
                     if 'ssh_key' in conf and conf['ssh_key'] else {'name': conf['name'], 'role': conf['role']} for conf in want]
 
@@ -315,6 +316,9 @@ class Users(ConfigBase):
                 user_cfg['password'] = clear_pwd
                 user_cfg['password-hashed'] = hashed_pwd
         else:
+            if role or password:
+                err_msg = "ssh_key can not be configured at the same time as other options."
+                self._module.fail_json(msg=err_msg, code=513)
             user_cfg['ssh-key'] = ssh_key
 
         pay_load = {'openconfig-system:user': [{'username': name, 'config': user_cfg}]}
