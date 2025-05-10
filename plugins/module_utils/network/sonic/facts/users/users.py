@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -105,16 +105,20 @@ class UsersFacts(object):
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         raw_users = []
+
         if "openconfig-system:users" in response[0][1]:
             raw_users = response[0][1].get("openconfig-system:users", {}).get('user', [])
 
         for raw_user in raw_users:
             name = raw_user.get('username', None)
             role = raw_user.get('config', {}).get('role', None)
+            sshkey = raw_user.get('config', {}).get('ssh-key', None)
             user = {}
             if name and role:
                 user['name'] = name
                 user['role'] = role
+                if sshkey:
+                    user['ssh_key'] = sshkey
             if user:
                 users.append(user)
         return users

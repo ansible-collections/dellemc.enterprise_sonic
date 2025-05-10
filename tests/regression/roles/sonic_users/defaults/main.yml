@@ -100,11 +100,19 @@ tests:
         password: User@Dell
         update_password: on_create
   - name: test_case_06
+    description: Configure users sshkey
+    state: merged
+    input:
+      - name: user5
+        ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic        
+  - name: test_case_07
     description: Delete user
     state: deleted
     input:
       - name: user4
-  - name: test_case_07
+      - name: user5
+        ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
+  - name: test_case_08
     description: Delete all users configurations
     state: deleted
     input: []
