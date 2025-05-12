@@ -165,6 +165,7 @@ class Users(ConfigBase):
             if match:
                 diff.append(match)
 
+        # Handle "password" and "update_password" options
         for cfg in want:
             if cfg['password'] and cfg['update_password'] == 'always':
                 d_match = next((d_cfg for d_cfg in diff if d_cfg['name'] == cfg['name']), None)
