@@ -22,6 +22,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     remove_none,
     get_ranges_in_list,
+    remove_empties_from_list,
+    sort_lists_by_interface_name,
     update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -29,7 +31,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    __MERGE_OP_DEFAULT,
+    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
 )
@@ -47,10 +50,32 @@ TEST_KEYS = [
     {'bridge_l2pt_params': {'protocol': ''}}
 ]
 
-TEST_KEYS_generate_config_merged = [
-    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
-]
+def __derive_br_l2pt_merge_op(key_set, command, exist_conf):
+    new_conf = exist_conf
+    if command:
+        if len(command.keys()) == 1:
+            return True, new_conf
 
+        if command.get('vlan_ids', []):
+            if not exist_conf:
+                new_conf = command
+            else:
+                new_ids = Br_l2pt.get_vlan_id_set(command['vlan_ids'])
+                exist_ids = Br_l2pt.get_vlan_id_set(exist_conf['vlan_ids'])
+                vlans_to_merge = sorted(list(new_ids.union(exist_ids)))
+                if vlans_to_merge:
+                    new_conf['protocol'] = command['protocol']
+                    new_conf['vlan_ids'] = [str(vrng[0]) if len(vrng) == 1 else f"{vrng[0]}-{vrng[-1]}"
+                                            for vrng in get_ranges_in_list(vlans_to_merge)]     
+    return True, new_conf
+
+def __derive_br_l2pt_delete_op(key_set, command, exist_conf):
+    self._module.warn('__derive_br_l2pt_delete_op is not implemented')
+
+TEST_KEYS_generate_config = [
+    {'config': {'name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'bridge_l2pt_params': {'protocol': '',  '__merge_op':  __derive_br_l2pt_merge_op, '__delete_op': __derive_br_l2pt_delete_op}}
+]
 
 class Br_l2pt(ConfigBase):
     """
@@ -114,18 +139,18 @@ class Br_l2pt(ConfigBase):
 
         changed_br_l2pt_facts = self.get_br_l2pt_facts()
 
-        result['before'] = existing_br_l2pt_facts
+        result['before'] = Br_l2pt.sort_lists_in_config(existing_br_l2pt_facts)
         if result['changed']:
-            result['after'] = changed_br_l2pt_facts
+            result['after'] = Br_l2pt.sort_lists_in_config(changed_br_l2pt_facts)
 
         old_config = existing_br_l2pt_facts
         new_config = changed_br_l2pt_facts
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_br_l2pt_facts, TEST_KEYS_generate_config_merged)
-            result['after(generated)'] = [new_config]
+            new_commands = remove_empties_from_list(commands)
+            new_config = get_new_config(commands, old_config, TEST_KEYS_generate_config)
+            result['after(generated)'] = Br_l2pt.sort_lists_in_config(new_config)
 
-        new_config = changed_br_l2pt_facts
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config,
                                                        new_config,
@@ -399,7 +424,8 @@ class Br_l2pt(ConfigBase):
 
         return requests
 
-    def get_vlan_id_set(self, vlan_range_list):
+    @staticmethod
+    def get_vlan_id_set(vlan_range_list):
         """Convert a list of strings specifying single VLANs and VLAN
         ranges to a new set containing integer values and return."""
         vlan_id_set = set()
@@ -442,3 +468,12 @@ class Br_l2pt(ConfigBase):
             if not want_proto_config:
                 commands.append({'name': name, 'bridge_l2pt_params': intf.get('bridge_l2pt_params', [])})
         return commands
+
+    @staticmethod
+    def sort_lists_in_config(self, config):
+        if config:
+            sort_lists_by_interface_name(config, 'name')
+            for single_config in config:
+                if single_config.get('bridge_l2pt_params'):
+                    sort_lists_by_interface_name(single_config['bridge_l2pt_params'], 'protocol')
+        return config
