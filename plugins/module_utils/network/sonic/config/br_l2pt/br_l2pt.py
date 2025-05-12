@@ -31,7 +31,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __MERGE_OP_DEFAULT,
     __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
@@ -53,10 +52,9 @@ TEST_KEYS = [
 supported_protocols = ['LLDP', 'LACP', 'STP', 'CDP']
 replace = False
 
+
 def __derive_br_l2pt_merge_op(key_set, command, exist_conf):
     new_conf = exist_conf
-    print('CHECK MODE COMMAND: {}'.format(command), file=open('mylog.txt', 'a'))
-    print('CHECK MODE EXIST_CONF: {}'.format(exist_conf), file=open('mylog.txt', 'a'))
 
     if command:
         if len(command.keys()) == 1:
@@ -76,12 +74,13 @@ def __derive_br_l2pt_merge_op(key_set, command, exist_conf):
                     for cfg in new_conf['bridge_l2pt_params']:
                         if cfg['protocol'] == single_proto_config['protocol']:
                             cfg['vlan_ids'] = [str(vrng[0]) if len(vrng) == 1 else f"{vrng[0]}-{vrng[-1]}"
-                                                for vrng in get_ranges_in_list(vlans_merged)]
+                                               for vrng in get_ranges_in_list(vlans_merged)]
                 elif single_proto_config['protocol'] in supported_protocols:
                     new_conf['bridge_l2pt_params'].append({'protocol': single_proto_config['protocol'],
-                                    'vlan_ids': single_proto_config['vlan_ids']})
-    
+                                                           'vlan_ids': single_proto_config['vlan_ids']})
+
     return True, new_conf
+
 
 def __derive_br_l2pt_delete_op(key_set, command, exist_conf):
     new_conf = exist_conf
@@ -107,10 +106,12 @@ def __derive_br_l2pt_delete_op(key_set, command, exist_conf):
 
     return True, new_conf
 
+
 TEST_KEYS_generate_config = [
-    {'config': {'name': '', '__merge_op':  __derive_br_l2pt_merge_op, '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'bridge_l2pt_params': {'protocol': '',  '__delete_op': __derive_br_l2pt_delete_op}}
+    {'config': {'name': '', '__merge_op': __derive_br_l2pt_merge_op, '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
+    {'bridge_l2pt_params': {'protocol': '', '__delete_op': __derive_br_l2pt_delete_op}}
 ]
+
 
 def remove_empty_protocols(config):
     new_config = []
@@ -120,6 +121,7 @@ def remove_empty_protocols(config):
         if new_intf_config['bridge_l2pt_params']:
             new_config.append(new_intf_config)
     return new_config
+
 
 class Br_l2pt(ConfigBase):
     """
