@@ -112,6 +112,15 @@ TEST_KEYS_generate_config = [
     {'bridge_l2pt_params': {'protocol': '',  '__delete_op': __derive_br_l2pt_delete_op}}
 ]
 
+def remove_empty_protocols(config):
+    new_config = []
+    for intf_config in config:
+        new_intf_config = {'name': intf_config['name'],
+                           'bridge_l2pt_params': [cfg for cfg in intf_config['bridge_l2pt_params'] if cfg['vlan_ids']]}
+        if new_intf_config['bridge_l2pt_params']:
+            new_config.append(new_intf_config)
+    return new_config
+
 class Br_l2pt(ConfigBase):
     """
     The sonic_br_l2pt class
@@ -182,7 +191,7 @@ class Br_l2pt(ConfigBase):
             result.pop('after', None)
             new_commands = remove_empties_from_list(commands)
             new_config = get_new_config(commands, old_config, TEST_KEYS_generate_config)
-            result['after(generated)'] = Br_l2pt.sort_lists_in_config(new_config)
+            result['after(generated)'] = Br_l2pt.sort_lists_in_config(remove_empty_protocols(new_config))
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config,
