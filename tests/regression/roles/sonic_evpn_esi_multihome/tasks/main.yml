@@ -4,7 +4,7 @@
     msg: "sonic_evpn_esi_multihome tests started ..."
 
 - name: Preparation test
-  include_tasks: preparation_tests.yml
+  include_tasks: preperation_tests.yml
 
 - name: "Test {{ module_name }} started ..."
   include_tasks: tasks_template.yml
