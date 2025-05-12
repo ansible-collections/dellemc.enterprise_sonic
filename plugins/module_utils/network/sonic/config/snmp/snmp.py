@@ -632,7 +632,6 @@ class Snmp(ConfigBase):
         for access in access_dicts:
             access_dict = dict()
             access_dict['context'] = 'Default'
-            access_dict['context-match'] = "exact"
             access_dict['notify-view'] = access.get('notify_view')
             access_dict['read-view'] = access.get('read_view')
             access_dict['write-view'] = access.get('write_view')
