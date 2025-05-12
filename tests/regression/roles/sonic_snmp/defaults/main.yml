@@ -14,13 +14,26 @@ tests:
         - name: 'user1'
           auth:
             auth_type: 'sha'
+            key: 'pwd1234567'
+          priv:
+            priv_type: 'aes'
+            key: 'pwd1234567'
+          encrypted: False
+      location: 'Lab1, Rack-10'
+  - name: test_case_02_merge_encrypted_user
+    description: Merge snmp encrypted user configuration
+    state: merged
+    input:
+      user:
+        - name: 'user2'
+          auth:
+            auth_type: 'sha'
             key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
           priv:
             priv_type: 'aes'
             key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
           encrypted: True
-      location: 'Lab1, Rack-10'
-  - name: test_case_02_merged_group_community_view
+  - name: test_case_03_merged_group_community_view
     description: Merge some of the snmp configuration
     state: merged
     input:
@@ -39,7 +52,7 @@ tests:
         - name: 'view2'
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
-  - name: test_case_03_merge_host_and_agentaddress
+  - name: test_case_04_merge_host_and_agentaddress
     description: Merge SNMP host
     state: merged
     input:
@@ -52,7 +65,7 @@ tests:
         - ip: '1.2.3.5'
           port: 1024
           interface: 'Eth1/30'
-  - name: test_case_04_replaced_group
+  - name: test_case_05_replaced_group
     description: Replace some of a snmp group
     state: replaced
     input:
@@ -64,7 +77,7 @@ tests:
               read_view: 'r_view'
               write_view: 'w_view'
               notify_view: 'n_view'
-  - name: test_case_05_replaced_host
+  - name: test_case_06_replaced_host
     description: Replace SNMP host
     state: replaced
     input:
@@ -73,7 +86,7 @@ tests:
           timeout: 400
           tag: 'inform'
           retries: 20
-  - name: test_case_06_overridden_host
+  - name: test_case_07_overridden_host
     description: Override host and group
     state: overridden
     input:
@@ -89,12 +102,12 @@ tests:
               read_view: 'r_view'
               write_view: 'w_view'
               notify_view: 'n_view'
-  - name: test_case_07_deleted
+  - name: test_case_08_deleted
     description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted
     input:
       group: []
-  - name: test_case_08_deleted_all
+  - name: test_case_09_deleted_all
     description: Delete all SNMP server configuration
     state: deleted
     input: {}

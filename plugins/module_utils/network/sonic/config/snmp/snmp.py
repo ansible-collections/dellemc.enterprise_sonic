@@ -609,20 +609,15 @@ class Snmp(ConfigBase):
         group_list = []
         group = config.get('group', None)
         group_payload = dict()
-
         for conf in list(group):
             group_dict = dict()
             if conf.get('name') is None:
                 break
             group_dict['name'] = conf.get('name')
-
             group_dict['access'] = self.build_create_group_access_payload(conf)
-
             group_list.append(group_dict)
-
         group_payload['group'] = group_list
         payload_url['ietf-snmp:vacm'] = group_payload
-
         return payload_url
 
     def build_create_group_access_payload(self, config):
@@ -632,28 +627,22 @@ class Snmp(ConfigBase):
         """
         access_list = list()
         access_dicts = config.get('access')
-
         if access_dicts is None:
             return access_list
-
         for access in access_dicts:
             access_dict = dict()
-
             access_dict['context'] = 'Default'
-            security_level = access.get('security_level')
-            security_model = access.get('security_model')
-
-            if security_model == 'usm':
-                security_model = "v3"
-
-            access_dict['security-model'] = security_model
-            access_dict['security-level'] = security_level
+            access_dict['context-match'] = "exact"
+            access_dict['notify-view'] = access.get('notify_view')
             access_dict['read-view'] = access.get('read_view')
             access_dict['write-view'] = access.get('write_view')
-            access_dict['notify-view'] = access.get('notify_view')
-
+            security_level = access.get('security_level')
+            security_model = access.get('security_model')
+            if security_model == 'usm':
+                security_model = "v3"
+            access_dict['security-level'] = security_level
+            access_dict['security-model'] = security_model
             access_list.append(access_dict)
-
         return access_list
 
     def build_create_enable_target_payload(self, config, target_entry):
