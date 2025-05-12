@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -92,6 +92,15 @@ class BgpArgs(object):  # pylint: disable=R0903
                     'options': {
                         'holdtime': {'type': 'int'},
                         'keepalive_interval': {'type': 'int'}
+                    },
+                    'type': 'dict'
+                },
+                'graceful_restart': {
+                    'options': {
+                        'enabled': {'type': 'bool'},
+                        'restart_time': {'type': 'int'},
+                        'stale_routes_time': {'type': 'int'},
+                        'preserve_fw_state': {'type': 'bool'}
                     },
                     'type': 'dict'
                 },

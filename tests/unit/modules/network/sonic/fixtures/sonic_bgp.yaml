@@ -5,27 +5,32 @@ merged_01:
       - bgp_as: 4
         router_id: 10.2.2.4
         rt_delay: 10
-        log_neighbor_changes: False
+        log_neighbor_changes: false
         as_notation: "asdot+"
         timers:
           holdtime: 20
           keepalive_interval: 30
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-            multipath_relax: False
-            multipath_relax_as_set: True
+            confed: true
+            ignore: true
+            multipath_relax: false
+            multipath_relax_as_set: true
           bandwidth: default_weight
-          compare_routerid: True
+          compare_routerid: true
           med:
-            confed: True
-            missing_as_worst: True
-            always_compare_med: True
+            confed: true
+            missing_as_worst: true
+            always_compare_med: true
         max_med:
           on_startup:
             timer: 667
             med_val: 7878
+        graceful_restart:
+            enabled: true
+            restart_time: 100
+            stale_routes_time: 1000
+            preserve_fw_state: true
       - bgp_as: 10.5
         router_id: 10.2.2.5
         as_notation: "asdot"
@@ -81,18 +86,18 @@ merged_01:
       data:
         route-selection-options:
           config:
-            external-compare-router-id: True
-            compare-confed-as-path: True
-            ignore-as-path-length: True
-            med-confed: True
-            med-missing-as-worst: True
-            always-compare-med: True
+            external-compare-router-id: true
+            compare-confed-as-path: true
+            ignore-as-path-length: true
+            med-confed: true
+            med-missing-as-worst: true
+            always-compare-med: true
             compare-linkbw: "DEFAULT_WT"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/use-multiple-paths/ebgp/config"
       method: "patch"
       data:
         openconfig-network-instance:config:
-          as-set: True
+          as-set: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
       method: "patch"
       data:
@@ -100,6 +105,14 @@ merged_01:
           router-id: "10.2.2.5"
           as: "10.5"
           as-notation: "ASDOT"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config"
+      method: "patch"
+      data:
+        openconfig-network-instance:config:
+          enabled: true
+          restart-time: 100
+          stale-routes-time: 1000
+          preserve-fw-state: true
 
 deleted_01:
   module_args:
@@ -107,20 +120,20 @@ deleted_01:
       - bgp_as: 4
         router_id: 10.2.2.4
         rt_delay: 10
-        log_neighbor_changes: False
+        log_neighbor_changes: false
         as_notation: "asdot+"
         bestpath:
           as_path:
-            confed: True
-            ignore: True
-            multipath_relax: False
-            multipath_relax_as_set: True
+            confed: true
+            ignore: true
+            multipath_relax: false
+            multipath_relax_as_set: true
           bandwidth: default_weight
-          compare_routerid: True
+          compare_routerid: true
           med:
-            confed: True
-            missing_as_worst: True
-            always_compare_med: True
+            confed: true
+            missing_as_worst: true
+            always_compare_med: true
         timers:
           holdtime: 20
           keepalive_interval: 30
@@ -128,6 +141,9 @@ deleted_01:
           on_startup:
             timer: 667
             med_val: 7878
+        graceful_restart:
+           stale_routes_time: 1000
+           preserve_fw_state: true
     state: deleted
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -144,25 +160,31 @@ deleted_01:
               as-notation: "ASDOT_PLUS"
             logging-options:
               config:
-                log-neighbor-state-changes: False
+                log-neighbor-state-changes: false
             route-selection-options:
               config:
-                always-compare-med: True
-                external-compare-router-id: True
-                ignore-as-path-length: True
-                compare-confed-as-path: True
-                med-confed: True
-                med-missing-as-worst: True
+                always-compare-med: true
+                external-compare-router-id: true
+                ignore-as-path-length: true
+                compare-confed-as-path: true
+                med-confed: true
+                med-missing-as-worst: true
                 compare-linkbw: "DEFAULT_WT"
             use-multiple-paths:
               ebgp:
                 config:
-                  allow-multiple-as: False
-                  as-set: False
+                  allow-multiple-as: false
+                  as-set: false
             max-med:
               config:
                 time: 667
                 max-med-val: 7878
+            graceful-restart:
+              config:
+                enabled: true
+                restart-time: 100
+                stale-routes-time: 1000
+                preserve-fw-state: true
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -189,7 +211,7 @@ deleted_01:
       data:
         route-selection-options:
           config:
-            external-compare-router-id: False
+            external-compare-router-id: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/always-compare-med"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/compare-confed-as-path"
@@ -201,6 +223,10 @@ deleted_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-confed"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-missing-as-worst"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/stale-routes-time"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/preserve-fw-state"
       method: "delete"
 
 deleted_02:
@@ -222,21 +248,25 @@ deleted_02:
               as-notation: "ASDOT"
             logging-options:
               config:
-                log-neighbor-state-changes: False
+                log-neighbor-state-changes: false
             route-selection-options:
               config:
-                always-compare-med: True
-                external-compare-router-id: True
-                ignore-as-path-length: True
-                compare-confed-as-path: True
-                med-confed: True
-                med-missing-as-worst: True
+                always-compare-med: true
+                external-compare-router-id: true
+                ignore-as-path-length: true
+                compare-confed-as-path: true
+                med-confed: true
+                med-missing-as-worst: true
                 compare-linkbw: "DEFAULT_WT"
             use-multiple-paths:
               ebgp:
                 config:
-                  allow-multiple-as: False
-                  as-set: False
+                  allow-multiple-as: false
+                  as-set: false
+            graceful-restart:
+              config:
+                enabled: true
+                restart-time: 100
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -265,6 +295,9 @@ replaced_01:
             med_val: 8787
         bestpath:
           bandwidth: ignore_weight
+        graceful_restart:
+          enabled: true
+          preserve_fw_state: true
     state: replaced
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -281,25 +314,31 @@ replaced_01:
               as-notation: "ASDOT"
             logging-options:
               config:
-                log-neighbor-state-changes: False
+                log-neighbor-state-changes: false
             route-selection-options:
               config:
-                always-compare-med: True
-                external-compare-router-id: True
-                ignore-as-path-length: True
-                compare-confed-as-path: True
-                med-confed: True
-                med-missing-as-worst: True
+                always-compare-med: true
+                external-compare-router-id: true
+                ignore-as-path-length: true
+                compare-confed-as-path: true
+                med-confed: true
+                med-missing-as-worst: true
                 compare-linkbw: "DEFAULT_WT"
             use-multiple-paths:
               ebgp:
                 config:
-                  allow-multiple-as: False
-                  as-set: False
+                  allow-multiple-as: false
+                  as-set: false
             max-med:
               config:
                 time: 667
                 max-med-val: 7878
+            graceful-restart:
+              config:
+                enabled: true
+                restart-time: 100
+                stale-routes-time: 1000
+                preserve-fw-state: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global"
       response:
         code: 200
@@ -324,13 +363,13 @@ replaced_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/logging-options/config/log-neighbor-state-changes"
       method: "patch"
       data:
-        log-neighbor-state-changes: True
+        log-neighbor-state-changes: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options"
       method: "patch"
       data:
         route-selection-options:
           config:
-            external-compare-router-id: False
+            external-compare-router-id: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options"
       method: "patch"
       data:
@@ -348,6 +387,10 @@ replaced_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-confed"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-missing-as-worst"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/restart-time"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/stale-routes-time"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
       method: "patch"
@@ -386,6 +429,11 @@ replaced_01:
       method: "patch"
       data:
         keepalive-interval: 30
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config"
+      method: "patch"
+      data:
+        openconfig-network-instance:config:
+          preserve-fw-state: true
 
 overridden_01:
   module_args:
@@ -394,24 +442,26 @@ overridden_01:
         vrf_name: 'VrfReg2'
         router_id: 10.2.2.6
         rt_delay: 10
-        log_neighbor_changes: True
+        log_neighbor_changes: true
       - bgp_as: 4
         router_id: 10.2.2.5
         rt_delay: 10
         as_notation: "asdot"
         bestpath:
           as_path:
-            confed: True
-            ignore: True
+            confed: true
+            ignore: true
           bandwidth: ignore_weight
-          compare_routerid: True
+          compare_routerid: true
           med:
-            confed: True
-            missing_as_worst: True
+            confed: true
+            missing_as_worst: true
         max_med:
           on_startup:
             timer: 776
             med_val: 8787
+        graceful_restart:
+          preserve_fw_state: true
     state: overridden
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -428,24 +478,28 @@ overridden_01:
               as-notation: "ASDOT_PLUS"
             logging-options:
               config:
-                log-neighbor-state-changes: True
+                log-neighbor-state-changes: true
             route-selection-options:
               config:
-                always-compare-med: True
-                external-compare-router-id: True
-                ignore-as-path-length: True
-                compare-confed-as-path: True
-                med-confed: True
-                med-missing-as-worst: True
+                always-compare-med: true
+                external-compare-router-id: true
+                ignore-as-path-length: true
+                compare-confed-as-path: true
+                med-confed: true
+                med-missing-as-worst: true
             use-multiple-paths:
               ebgp:
                 config:
-                  allow-multiple-as: False
-                  as-set: False
+                  allow-multiple-as: false
+                  as-set: false
             max-med:
               config:
                 time: 667
                 max-med-val: 7878
+            graceful-restart:
+              config:
+                enabled: true
+                preserve-fw-state: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global"
       response:
         code: 200
@@ -458,16 +512,16 @@ overridden_01:
               keepalive-interval: 60
             logging-options:
               config:
-                log-neighbor-state-changes: True
+                log-neighbor-state-changes: true
             route-selection-options:
               config:
-                always-compare-med: False
-                external-compare-router-id: False
-                ignore-as-path-length: False
+                always-compare-med: false
+                external-compare-router-id: false
+                ignore-as-path-length: false
             use-multiple-paths:
               ebgp:
                 config:
-                  allow-multiple-as: False
+                  allow-multiple-as: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global"
       response:
         code: 200
@@ -485,6 +539,8 @@ overridden_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med/config/time"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/always-compare-med"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/enabled"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp"
       method: "delete"
@@ -522,7 +578,7 @@ overridden_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/logging-options/config/log-neighbor-state-changes"
       method: "patch"
       data:
-        log-neighbor-state-changes: True
+        log-neighbor-state-changes: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options"
       method: "patch"
       data:

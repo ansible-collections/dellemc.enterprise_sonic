@@ -84,6 +84,30 @@ options:
             description:
               - Configures keepalive-interval
             type: int
+      graceful_restart:
+        version_added: 3.1.0
+        description:
+          - Configure graceful restart
+        type: dict
+        suboptions:
+          enabled:
+            description:
+              - Enable graceful restart
+            type: bool
+          restart_time:
+            description:
+              - Configures restart-time.
+              - The range is from 1 to 3600.
+            type: int
+          stale_routes_time:
+            description:
+              - Configures stale-routes-time.
+              - The range is from 1 to 3600.
+            type: int
+          preserve_fw_state:
+            description:
+              - Configures preserve-fw-state
+            type: bool
       bestpath:
         description:
           - Configures the BGP best-path.
@@ -177,6 +201,9 @@ EXAMPLES = """
 # !
 # router bgp 4
 #  router-id 10.2.2.4
+#  graceful-restart enable
+#  graceful-restart restart-time 1
+#  graceful-restart stalepath-time 500
 #  route-map delay-timer 10
 #  bestpath as-path ignore
 #  bestpath as-path confed
@@ -191,6 +218,9 @@ EXAMPLES = """
         router_id: 10.2.2.4
         rt_delay: 10
         log_neighbor_changes: false
+        graceful_restart:
+          stale_routes_time: 500
+          restart_time: 1
         bestpath:
           as_path:
             confed: true
@@ -233,6 +263,7 @@ EXAMPLES = """
 #  bestpath compare-routerid
 # !
 # router bgp 4
+#  graceful-restart enable
 #  log-neighbor-changes
 #  bestpath compare-routerid
 # !
@@ -250,6 +281,7 @@ EXAMPLES = """
 #  log-neighbor-changes
 # !
 # router bgp 11 vrf VrfCheck2
+#  graceful-restart enable
 #  log-neighbor-changes
 #  bestpath as-path ignore
 #  bestpath med missing-as-worst confed
@@ -293,6 +325,9 @@ EXAMPLES = """
         router_id: 10.2.2.4
         rt_delay: 10
         log_neighbor_changes: false
+        graceful_restart:
+          enabled: true
+          preserve_fw_state: true
         timers:
           holdtime: 20
           keepalive_interval: 30
@@ -348,6 +383,8 @@ EXAMPLES = """
 # !
 # router bgp 4
 #  router-id 10.2.2.4
+#  graceful-restart enable
+#  graceful-restart preserve-fw-state
 #  route-map delay-timer 10
 #  bestpath as-path ignore
 #  bestpath as-path confed
