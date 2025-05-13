@@ -246,9 +246,6 @@ class Br_l2pt(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        global replace
-        replace = False
-
         commands = self.get_modify_br_l2pt_commands(want, have)
         requests = self.get_modify_br_l2pt_requests(commands)
 

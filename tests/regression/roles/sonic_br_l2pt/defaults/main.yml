@@ -163,12 +163,10 @@ tests:
             vlan_ids:
               - 1-100
           - protocol: 'STP'
-            vlan_ids:
   - name: "test_case_09: Delete L2PT configurations (interface)."
     state: deleted
     input:
       - name: '{{ interface1 }}'
-        bridge_l2pt_params: []
   - name: "test_case_10: Delete L2PT configurations (all)."
     state: deleted
     input: []
