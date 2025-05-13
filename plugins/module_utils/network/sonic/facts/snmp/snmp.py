@@ -303,13 +303,13 @@ class SnmpFacts(object):
         snmp_group_list = snmp_list.get('vacm').get('group')
 
         for group in snmp_group_list:
-            group = dict()
+            group_dict = dict()
             name = group.get('name')
             if name is None:
                 break
-            group['name'] = name
-            group['access'] = self.get_group_access(group.get('access'))
-            group_list.append(group)
+            group_dict['name'] = name
+            group_dict['access'] = self.get_group_access(group.get('access'))
+            group_list.append(group_dict)
 
         return group_list
 

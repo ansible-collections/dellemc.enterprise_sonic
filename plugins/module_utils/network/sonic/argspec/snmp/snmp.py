@@ -97,7 +97,8 @@ class SnmpArgs(object):  # pylint: disable=R0903
                                     'choices': [
                                         'any',
                                         'v2c',
-                                        'v3'
+                                        'v3',
+                                        'usm'
                                     ],
                                     'required': True,
                                     'type': 'str'
@@ -173,7 +174,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                                 },
                                 'key': {
                                     'type': 'str',
-                                    'no_log': True
+                                    'no_log': False
                                 },
                             },
                             'type': 'dict'
@@ -189,7 +190,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                                 },
                                 'key': {
                                     'type': 'str',
-                                    'no_log': True
+                                    'no_log': False
                                 },
                             },
                             'type': 'dict'
