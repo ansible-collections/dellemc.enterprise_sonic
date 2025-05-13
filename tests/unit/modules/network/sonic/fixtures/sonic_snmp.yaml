@@ -401,15 +401,18 @@ overridden_02:
                   security-model: 'v3'
                   write-view: 'w_view'
   expected_config_requests:
-    - path: 'data/ietf-snmp:snmp/vacm'
-      method: 'patch'
-      data:
-        ietf-snmp:vacm:
-          group:
-            - name: 'group-floor2'
-              access:
-                - context: 'Default'
-                  security-model: 'v3'
+  - path: 'data/ietf-snmp:snmp/vacm'
+    method: 'patch'
+    data:
+      ietf-snmp:vacm:
+        group:
+          - name: 'group-floor2'
+            access:
+              - context: 'Default'
+                security-model: 'v3'
+  - path: 'data/ietf-snmp:snmp/vacm/group=group-floor2'
+    method: 'delete'
+    data:
 
 overridden_03:
   module_args:
