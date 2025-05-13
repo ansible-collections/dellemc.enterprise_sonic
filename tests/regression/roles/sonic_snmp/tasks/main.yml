@@ -6,6 +6,10 @@
 - name: Preparation test
   include_tasks: preparation_tests.yaml
 
+- name: "Test {{ module_name }} Single run validation started ..."
+  include_tasks: single_run_template.yaml
+  loop: "{{ tests_single_run }}"
+
 - name: "Test {{ module_name }} started ..."
   include_tasks: tasks_template.yaml
   loop: "{{ tests }}"

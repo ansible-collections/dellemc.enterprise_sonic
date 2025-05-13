@@ -118,9 +118,24 @@ class Snmp(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
+        want = self.pop_encrypted_attributes(want)
         have = existing_snmp_facts
         resp = self.set_state(want, have)
         return to_list(resp)
+
+    def pop_encrypted_attributes(self, config):
+        """ Remove the encrypted attributes from the config
+        :param config: the config to remove the encrypted attributes from
+        :rtype: None
+        :returns: None
+        """
+        if config:
+            users = config.get('user', [])
+            if users:
+                for user in users:
+                    if user.get('encrypted'):
+                        user.pop('encrypted')
+        return config
 
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
@@ -478,8 +493,8 @@ class Snmp(ConfigBase):
             auth_dict = dict()
             priv_dict = dict()
             user_dict['name'] = conf.get('name')
-
             user_dict['encrypted'] = conf.get('encrypted')
+
             auth_type = conf['auth']['auth_type']
             priv_type = conf['priv']['priv_type']
             auth_key = dict()
