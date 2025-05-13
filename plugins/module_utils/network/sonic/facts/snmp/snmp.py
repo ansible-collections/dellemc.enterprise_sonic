@@ -175,14 +175,15 @@ class SnmpFacts(object):
         Get snmp users from the snmp list
         """
         user_list = list()
+        group_config = []
 
         if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not snmp_list.get('usm').get('local').get('user'):
             return user_list
-        if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('group'):
-            return user_list
+
+        if snmp_list.get('vacm') and snmp_list.get('vacm').get('group'):
+            group_config = snmp_list['vacm']['group']
 
         user_config = snmp_list['usm']['local'].get('user')
-        group_config = snmp_list['vacm']['group']
 
         for user in user_config:
             user_dict = dict()

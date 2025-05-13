@@ -480,8 +480,8 @@ class Snmp(ConfigBase):
             user_dict['name'] = conf.get('name')
 
             user_dict['encrypted'] = conf.get('encrypted')
-            auth_type = conf['auth'].get('auth_type')
-            priv_type = conf['priv'].get('priv_type')
+            auth_type = conf['auth']['auth_type']
+            priv_type = conf['priv']['priv_type']
             auth_key = dict()
             priv_key = dict()
             auth_key['key'] = conf['auth']['key']
