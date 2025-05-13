@@ -42,7 +42,7 @@ class TestSonicBrL2PTModule(TestSonicModule):
         self.get_interface_naming_mode = self.mock_get_interface_naming_mode.start()
         self.get_interface_naming_mode.return_value = 'native'
         self.utils_edit_config = self.mock_utils_edit_config.start()
-        self.utils_edit_config.side_effect = self.facts_side_effect
+        self.utils_edit_config.side_effect = self.config_side_effect
 
     def tearDown(self):
         super(TestSonicBrL2PTModule, self).tearDown()
