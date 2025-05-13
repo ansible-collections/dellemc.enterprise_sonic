@@ -130,6 +130,7 @@ options:
                   - any
                   - v2c
                   - v3
+                  - usm
               write_view:
                 description:
                   - Name of the write view
