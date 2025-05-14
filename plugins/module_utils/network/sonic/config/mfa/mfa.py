@@ -680,6 +680,8 @@ class Mfa(ConfigBase):
                 server.setdefault("server_port", DEFAULT_PORT)
                 server.setdefault("connection_timeout", DEFAULT_CONN_TMOUT)
                 server.setdefault("read_timeout", DEFAULT_READ_TMOUT)
+            if not config["rsa_servers"]:
+                config.pop("rsa_servers")
         if "cac_piv_global" in config:
             config["cac_piv_global"].setdefault("cert_username_field", DEFAULT_CERT_UN_FIELD)
             config["cac_piv_global"].setdefault("cert_username_match", DEFAULT_CERT_UN_MATCH)
