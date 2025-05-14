@@ -207,7 +207,7 @@ class Logging(ConfigBase):
 
         want_none = {'remote_servers': None, 'security_profile': None}
         want_any = get_diff(want, want_none, TEST_KEYS)
-        # if want_any is none, then delete all NTP configurations
+        # If want_any is none, then delete all logging configuration.
 
         delete_all = False
         if not want_any:
