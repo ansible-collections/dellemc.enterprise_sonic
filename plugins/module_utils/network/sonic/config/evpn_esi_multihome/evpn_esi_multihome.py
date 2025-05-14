@@ -21,10 +21,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    get_new_config,
-    get_formatted_config_diff
-)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
@@ -88,7 +84,6 @@ class Evpn_esi_multihome(ConfigBase):
         result['commands'] = commands
 
         changed_evpn_esi_mh_facts = self.get_evpn_esi_multihome_facts()
-
 
         result['before'] = existing_evpn_esi_multihome_facts
         if result['changed']:

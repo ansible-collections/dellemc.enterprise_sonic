@@ -30,15 +30,16 @@ from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 ANSIBLE_METADATA = {
-  'metadata_version': '1.1',
-  'status': ['preview'],
-  'supported_by': 'community'
+    'metadata_version': '1.1',
+    'status': ['preview'],
+    'supported_by': 'community',
+    'license': 'Apache 2.0'
 }
 
 DOCUMENTATION = """
 ---
 module: sonic_evpn_esi_multihome
-version_added: 3.1.0
+version_added: 4.5.1
 short_description: Manage EVPN ESI multihoming configuration on SONiC
 description:
   - This module provides configuration management of EVPN ESI multihoming for devices running SONiC
