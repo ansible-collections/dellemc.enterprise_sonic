@@ -70,6 +70,56 @@ options:
             type: list
             elements: str
             choices: ['ldap', 'local']
+      accounting:
+        description:
+          - AAA accounting configuration.
+        type: dict
+        version_added: 3.1.0
+        suboptions:
+          commands_accounting:
+            description:
+              - AAA commands accounting configuration.
+            type: dict
+            suboptions:
+              accounting_method:
+                description:
+                  - Specifies the order of methods in which to perform accounting.
+                type: list
+                elements: str
+                choices: ['tacacs+', 'logging']
+              accounting_record_type:
+                description:
+                  - Specifies the type of record to be sent to the accounting server.
+                type: str
+                choices:
+                  - START_STOP
+                  - STOP_ONLY
+              accounting_console_exempt:
+                description:
+                  - Exempts accounting of events from console.
+                type: bool
+          session_accounting:
+            description:
+              - AAA session accounting configuration.
+            type: dict
+            suboptions:
+              accounting_method:
+                description:
+                  - Specifies the order of methods in which to perform accounting.
+                type: list
+                elements: str
+                choices: ['tacacs+', 'logging']
+              accounting_record_type:
+                description:
+                  - Specifies the type of record to be sent to the accounting server.
+                type: str
+                choices:
+                  - START_STOP
+                  - STOP_ONLY
+              accounting_console_exempt:
+                description:
+                  - Exempts accounting of events from console.
+                type: bool
       name_service:
         description:
           - AAA name-service configuration
@@ -139,6 +189,18 @@ EXAMPLES = """
         login_auth_method:
           - local
           - ldap
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+            - logging
+          accounting_record_type: 'START_STOP'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
       name_service:
         group:
           - ldap
@@ -168,6 +230,11 @@ EXAMPLES = """
 # login        : local, ldap
 # commands     : local, tacacs+
 # ---------------------------------------------------------
+# AAA Accounting Information
+# ---------------------------------------------------------
+# commands   : tacacs+, logging (start-stop, console-disabled)
+# session    : logging (stop-only, console-disabled)
+# ---------------------------------------------------------
 # AAA Name-Service Information
 # ---------------------------------------------------------
 # group-method    : ldap
@@ -195,6 +262,11 @@ EXAMPLES = """
 # login        : local, ldap
 # commands     : local, tacacs+
 # ---------------------------------------------------------
+# AAA Accounting Information
+# ---------------------------------------------------------
+# commands   : tacacs+, logging (start-stop, console-disabled)
+# session    : logging (stop-only, console-disabled)
+# ---------------------------------------------------------
 # AAA Name-Service Information
 # ---------------------------------------------------------
 # group-method    : ldap
@@ -212,6 +284,12 @@ EXAMPLES = """
       authorization:
         commands_auth_method:
           - local
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+        session_accounting:
+          accounting_record_type: 'START_STOP'
       name_service:
         group:
           - ldap
@@ -231,6 +309,11 @@ EXAMPLES = """
 # AAA Authorization Information
 # ---------------------------------------------------------
 # login        : local
+# ---------------------------------------------------------
+# AAA Accounting Information
+# ---------------------------------------------------------
+# commands   : tacacs+ (start-stop, console-disabled)
+# session    : logging (start-stop, console-disabled)
 # ---------------------------------------------------------
 # AAA Name-Service Information
 # ---------------------------------------------------------
@@ -255,6 +338,11 @@ EXAMPLES = """
 # login        : local, ldap
 # commands     : local, tacacs+
 # ---------------------------------------------------------
+# AAA Accounting Information
+# ---------------------------------------------------------
+# commands   : tacacs+ (start-stop, console-disabled)
+# session    : logging (start-stop, console-disabled)
+# ---------------------------------------------------------
 # AAA Name-Service Information
 # ---------------------------------------------------------
 # group-method    : ldap
@@ -271,6 +359,18 @@ EXAMPLES = """
           - tacacs+
         console_auth_local: true
         failthrough: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
     state: overridden
 
 # After state:
@@ -283,7 +383,11 @@ EXAMPLES = """
 # failthrough  : True
 # login-method : tacacs+
 # console authentication  : local
-
+# ---------------------------------------------------------
+# AAA Accounting Information
+# ---------------------------------------------------------
+# commands   : tacacs+, logging (stop-only, console-disabled)
+# session    : logging (stop-only, console-disabled)
 
 # Using "deleted" state
 #
@@ -302,6 +406,11 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # login        : local, ldap
 # commands     : local, tacacs+
+# ---------------------------------------------------------
+# AAA Accounting Information
+# ---------------------------------------------------------
+# commands   : tacacs+, logging (stop-only, console-disabled)
+# session    : logging (stop-only, console-disabled)
 # ---------------------------------------------------------
 # AAA Name-Service Information
 # ---------------------------------------------------------
@@ -327,6 +436,18 @@ EXAMPLES = """
         login_auth_method:
           - local
           - ldap
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
       name_service:
         group:
           - ldap
@@ -364,6 +485,11 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # login        : local, ldap
 # commands     : local, tacacs+
+# ---------------------------------------------------------
+# AAA Accounting Information
+# ---------------------------------------------------------
+# commands   : tacacs+, logging (stop-only, console-disabled)
+# session    : logging (stop-only, console-disabled)
 # ---------------------------------------------------------
 # AAA Name-Service Information
 # ---------------------------------------------------------

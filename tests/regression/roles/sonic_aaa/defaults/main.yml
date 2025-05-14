@@ -12,6 +12,18 @@ sonic_aaa_tests:
           - ldap
         console_auth_local: true
         failthrough: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+            - logging
+          accounting_record_type: 'START_STOP'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
       authorization:
         commands_auth_method:
           - local
@@ -49,6 +61,15 @@ sonic_aaa_tests:
           - tacacs+
         console_auth_local: false
         failthrough: false
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+        session_accounting:
+          accounting_method:
+            - tacacs+
+            - logging
       authorization:
         commands_auth_method:
           - tacacs+
@@ -77,6 +98,15 @@ sonic_aaa_tests:
     input:
       authentication:
         console_auth_local: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+          accounting_console_exempt: True
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'STOP_ONLY'
       authorization:
         login_auth_method:
           - local
@@ -94,6 +124,17 @@ sonic_aaa_tests:
           - radius
         console_auth_local: true
         failthrough: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+          accounting_record_type: 'START_STOP'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'START_STOP'
+          accounting_console_exempt: true
       authorization:
         commands_auth_method:
           - local
@@ -131,6 +172,15 @@ sonic_aaa_tests:
           - radius
         console_auth_local: true
         failthrough: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+          accounting_record_type: 'START_STOP'
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_console_exempt: true
       authorization:
         commands_auth_method:
           - local
@@ -168,6 +218,19 @@ sonic_aaa_tests:
           - tacacs+
         console_auth_local: false
         failthrough: false
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - logging
+            - tacacs+
+          accounting_record_type: 'START_STOP'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+            - tacacs+
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
       authorization:
         commands_auth_method:
           - tacacs+
