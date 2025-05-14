@@ -25,7 +25,8 @@
 """
 The arg spec for the sonic_evpn_esi_multihome module
 """
-
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
 
 class Evpn_esi_multihomeArgs(object):  # pylint: disable=R0903
     """The arg spec for the sonic_evpn_esi_multihome module
