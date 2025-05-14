@@ -118,7 +118,6 @@ class Snmp(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
-        want = self.pop_encrypted_attributes(want)
         have = existing_snmp_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -265,7 +264,12 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
+        #want = self.pop_encrypted_attributes(want)
+        want = remove_none(want)
+        want = self.pop_encrypted_attributes(want)
         commands = get_diff(want, have)
+        commands = self.check_user_exists(commands, have)
+
         requests = self.get_create_snmp_request(commands, have)
 
         if commands and len(requests) > 0:
@@ -275,6 +279,23 @@ class Snmp(ConfigBase):
 
         return commands, requests
 
+    def check_user_exists(self, commands, have):
+        """ Checks if the user in commands exists already
+        :rtype: A list
+        :returns: the list of commands if the user does not exist
+        if the user exists returns an empty list
+        """
+        new_users = list()
+        want_users = commands.get('user', None)
+        if have.get('user') is None:
+            return commands
+        if want_users:
+            for user in want_users:
+                have_user = next((each_user for each_user in have['user'] if each_user['name'] == user['name']), None)
+                if not have_user:
+                    new_users.append(user)
+            commands['user'] = new_users
+        return commands
     def _state_deleted(self, want, have):
         """ The command generator when state is deleted
         :rtype: A list
