@@ -39,7 +39,7 @@ ANSIBLE_METADATA = {
 DOCUMENTATION = """
 ---
 module: sonic_evpn_esi_multihome
-version_added: 4.5.1
+version_added: 3.1.0
 short_description: Manage EVPN ESI multihoming configuration on SONiC
 description:
   - This module provides configuration management of EVPN ESI multihoming for devices running SONiC
