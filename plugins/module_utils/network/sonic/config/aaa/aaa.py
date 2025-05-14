@@ -36,6 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 
+
 AAA_AUTHENTICATION_PATH = '/data/openconfig-system:system/aaa/authentication/config'
 AAA_AUTHORIZATION_PATH = '/data/openconfig-system:system/aaa/authorization'
 AAA_COMMANDS_ACCOUNTING_PATH = '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
@@ -85,6 +86,7 @@ class Aaa(ConfigBase):
         warnings = []
         commands = []
         existing_aaa_facts = self.get_aaa_facts()
+
         commands, requests = self.set_config(existing_aaa_facts)
 
         if commands and len(requests) > 0:
@@ -182,10 +184,11 @@ class Aaa(ConfigBase):
         commands = []
         mod_commands = None
         requests = []
-        replaced_config = self.get_replaced_config(want, have)
+        new_have = deepcopy(have)
+        replaced_config = self.get_replaced_config(want, new_have)
 
         if replaced_config:
-            is_delete_all = replaced_config == have
+            is_delete_all = replaced_config == new_have
             del_requests = self.get_delete_aaa_requests(replaced_config, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, 'deleted'))
@@ -263,6 +266,7 @@ class Aaa(ConfigBase):
 
     def get_modify_aaa_requests(self, commands):
         requests = []
+        mfa_dict = {False: 'disable', True: 'enable'}
 
         if commands:
             # Authentication modification handling
@@ -272,6 +276,8 @@ class Aaa(ConfigBase):
                 auth_method = authentication.get('auth_method')
                 console_auth_local = authentication.get('console_auth_local')
                 failthrough = authentication.get('failthrough')
+                mfa_auth_method = authentication.get('mfa_auth_method')
+                login_mfa_console = authentication.get('login_mfa_console')
 
                 if auth_method:
                     authentication_cfg_dict['authentication-method'] = auth_method
@@ -279,6 +285,10 @@ class Aaa(ConfigBase):
                     authentication_cfg_dict['console-authentication-local'] = console_auth_local
                 if failthrough is not None:
                     authentication_cfg_dict['failthrough'] = str(failthrough)
+                if mfa_auth_method:
+                    authentication_cfg_dict['openconfig-mfa:mfa-authentication-method'] = mfa_auth_method
+                if login_mfa_console is not None:
+                    authentication_cfg_dict['openconfig-mfa:login-mfa-console'] = mfa_dict[login_mfa_console]
                 if authentication_cfg_dict:
                     payload = {'openconfig-system:config': authentication_cfg_dict}
                     requests.append({'path': AAA_AUTHENTICATION_PATH, 'method': PATCH, 'data': payload})
@@ -367,6 +377,8 @@ class Aaa(ConfigBase):
             auth_method = authentication.get('auth_method')
             console_auth_local = authentication.get('console_auth_local')
             failthrough = authentication.get('failthrough')
+            mfa_auth_method = authentication.get('mfa_auth_method')
+            login_mfa_console = authentication.get('login_mfa_console')
 
             # Current SONiC behavior doesn't support single list item deletion
             if auth_method:
@@ -376,6 +388,10 @@ class Aaa(ConfigBase):
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'console-authentication-local'))
             if failthrough is not None:
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'failthrough'))
+            if mfa_auth_method:
+                requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'openconfig-mfa:mfa-authentication-method'))
+            if login_mfa_console is not None:
+                requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'openconfig-mfa:login-mfa-console'))
 
         # Accounting deletion handling
         accounting = commands.get('accounting')
@@ -448,6 +464,8 @@ class Aaa(ConfigBase):
             auth_method = authentication.get('auth_method')
             console_auth_local = authentication.get('console_auth_local')
             failthrough = authentication.get('failthrough')
+            mfa_auth_method = authentication.get('mfa_auth_method')
+            login_mfa_console = authentication.get('login_mfa_console')
 
             compare_authentication = compare_cfg.get('authentication')
             if compare_authentication:
@@ -455,6 +473,8 @@ class Aaa(ConfigBase):
                 compare_auth_method = compare_authentication.get('auth_method')
                 compare_console_auth_local = compare_authentication.get('console_auth_local')
                 compare_failthrough = compare_authentication.get('failthrough')
+                compare_mfa_auth_method = compare_authentication.get('mfa_auth_method')
+                compare_login_mfa_console = compare_authentication.get('login_mfa_console')
 
                 if auth_method and auth_method != compare_auth_method:
                     authentication_dict['auth_method'] = auth_method
@@ -462,6 +482,10 @@ class Aaa(ConfigBase):
                     authentication_dict['console_auth_local'] = console_auth_local
                 if failthrough is not None and failthrough != compare_failthrough:
                     authentication_dict['failthrough'] = failthrough
+                if mfa_auth_method and mfa_auth_method != compare_mfa_auth_method:
+                    authentication_dict['mfa_auth_method'] = mfa_auth_method
+                if login_mfa_console is not None and login_mfa_console != compare_login_mfa_console:
+                    authentication_dict['login_mfa_console'] = login_mfa_console
                 if authentication_dict:
                     cfg_dict['authentication'] = authentication_dict
             else:
@@ -589,8 +613,12 @@ class Aaa(ConfigBase):
             if authentication:
                 if 'auth_method' in authentication and not authentication['auth_method']:
                     data['authentication'].pop('auth_method')
-                if not data['authentication']:
+                default_entries = {'console_auth_local': False, 'failthrough': False, 'login_mfa_console': False}
+                for option, value in default_entries.items():
+                    authentication.setdefault(option, value)
+                if authentication == default_entries:
                     data.pop('authentication')
+
             if authorization:
                 if 'commands_auth_method' in authorization and not authorization['commands_auth_method']:
                     data['authorization'].pop('commands_auth_method')
@@ -621,8 +649,11 @@ class Aaa(ConfigBase):
     def remove_default_entries(self, data):
         if data:
             authentication = data.get('authentication')
-            if authentication and authentication.get('console_auth_local') is False:
-                authentication.pop('console_auth_local')
+            if authentication:
+                if authentication.get('console_auth_local') is False:
+                    authentication.pop('console_auth_local')
+                if authentication.get('login_mfa_console') is False:
+                    authentication.pop('login_mfa_console')
                 if not authentication:
                     data.pop('authentication')
             accounting = data.get('accounting')
