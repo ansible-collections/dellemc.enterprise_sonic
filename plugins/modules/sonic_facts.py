@@ -119,6 +119,7 @@ options:
       - fbs_classifiers
       - dcbx
       - mirroring
+      - ssh_server
 """
 
 EXAMPLES = """
