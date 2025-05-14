@@ -19,7 +19,7 @@ logging_host_server: logging.dell.com
 
 tests:
   - name: test_case_01
-    description: Create a single logging remote server
+    description: Create a single logging remote server, Syslog security profile
     state: merged
     input:
       remote_servers:
@@ -30,6 +30,7 @@ tests:
           severity: debug
           message_type: event
           vrf: Vrf_logging_1
+      security_profile: "default"
 
   - name: test_case_02
     description: Create several logging remote servers
@@ -65,7 +66,7 @@ tests:
           vrf: Vrf_logging_1
 
   - name: test_case_03
-    description: Replace a single logging remote server
+    description: Replace a single logging remote server, Syslog security profile
     state: replaced
     input:
       remote_servers:
@@ -75,6 +76,7 @@ tests:
           remote_port: 838
           protocol: UDP
           message_type: event
+      security_profile: "spl"
 
   - name: test_case_04
     description: Replace several logging remote servers
@@ -98,7 +100,7 @@ tests:
           message_type: auditd-system
 
   - name: test_case_05
-    description: Override a single logging remote server
+    description: Override a single logging remote server, security profile
     state: overridden
     input:
       remote_servers:
@@ -108,6 +110,7 @@ tests:
           remote_port: 777
           protocol: UDP
           message_type: log
+      security_profile: "default"
 
   - name: test_case_06
     description: Override several logging remote servers
@@ -125,7 +128,7 @@ tests:
           message_type: event
 
   - name: test_case_07
-    description: Modify several created logging remote servers to change or add attributes
+    description: Modify several created logging remote servers to change or add attributes, security profile
     state: merged
     input:
       remote_servers:
@@ -148,6 +151,7 @@ tests:
           source_interface: "{{ lo1 }}"
           message_type: log
           vrf: Vrf_logging_1
+      security_profile: "spl"
 
   - name: test_case_08
     description: Delete a single logging remote server's attributes
