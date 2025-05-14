@@ -62,7 +62,7 @@ class Evpn_esi_multihome(ConfigBase):
         evpn_esi_multihome_facts = dict()
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         evpn_esi_multihome_facts = facts['ansible_network_resources'].get('evpn_esi_multihome')
-        if not evpn_esi_multihome_facts:
+        if evpn_esi_multihome_facts is None:
             return {}
         return evpn_esi_multihome_facts
 
@@ -78,8 +78,7 @@ class Evpn_esi_multihome(ConfigBase):
 
         existing_evpn_esi_multihome_facts = self.get_evpn_esi_multihome_facts()
         commands, requests = self.set_config(existing_evpn_esi_multihome_facts)
-
-        if commands and len(requests) > 0:
+        if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
@@ -90,20 +89,13 @@ class Evpn_esi_multihome(ConfigBase):
 
         changed_evpn_esi_mh_facts = self.get_evpn_esi_multihome_facts()
 
+
         result['before'] = existing_evpn_esi_multihome_facts
         if result['changed']:
             result['after'] = changed_evpn_esi_mh_facts
 
-        new_config = changed_evpn_esi_mh_facts
-        old_config = existing_evpn_esi_multihome_facts
-
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_evpn_esi_multihome_facts)
-            result['after(generated)'] = new_config
-
-        if self._module._diff:
-            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
         result['warnings'] = warnings
         return result
@@ -112,8 +104,8 @@ class Evpn_esi_multihome(ConfigBase):
         """ Collect the configuration from the args passed to the module,
             collect the current configuration (as a dict from facts)
 
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
+        :rtype: Two lists
+        :returns: the commands and requests necessary to migrate the current configuration
                   to the desired configuration
         """
         want = self._module.params['config']
@@ -170,7 +162,7 @@ class Evpn_esi_multihome(ConfigBase):
         else:
             commands = get_diff(want, diff)
 
-        requests = list(self.get_delete_evpn_esi_mh_request(commands, have, delete_all))
+        requests = self.get_delete_evpn_esi_mh_request(commands, have, delete_all)
 
         if len(commands) > 0 and len(requests) > 0:
             commands = update_states(commands, 'deleted')
@@ -217,8 +209,6 @@ class Evpn_esi_multihome(ConfigBase):
         diff_dont_want = get_diff(have, want)
 
         if diff_want is None and diff_dont_want is None:
-            return commands, requests
-        if not diff_dont_want and not diff_want:
             return commands, requests
         if not diff_want:
             return commands, requests
@@ -299,101 +289,35 @@ class Evpn_esi_multihome(ConfigBase):
 
         if config.get('df_election_time'):
             df_election_time_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/df-election-time'
-            payload = self.build_df_election_time_payload(config)
-            df_election_time_request = {'path': df_election_time_path, 'method': method, 'payload': payload}
+            payload = {'openconfig-network-instance:df-election-time': config.get('df_election_time')}
+            df_election_time_request = {'path': df_election_time_path, 'method': method, 'data': payload}
             requests.append(df_election_time_request)
 
         if config.get('es_activation_delay'):
             es_activation_delay_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/es-activation-delay'
-            payload = self.build_es_activation_delay_payload(config)
-            es_activation_delay_request = {'path': es_activation_delay_path, 'method': method, 'payload': payload}
+            payload = {'openconfig-network-instance:es-activation-delay': config.get('es_activation_delay')}
+            es_activation_delay_request = {'path': es_activation_delay_path, 'method': method, 'data': payload}
             requests.append(es_activation_delay_request)
 
         if config.get('mac_holdtime'):
             mac_holdtime_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/mac-holdtime'
-            payload = self.build_mac_holdtime_payload(config)
-            mac_holdtime_request = {'path': mac_holdtime_path, 'method': method, 'payload': payload}
+            payload = {'openconfig-network-instance:mac-holdtime': config.get('mac_holdtime')}
+            mac_holdtime_request = {'path': mac_holdtime_path, 'method': method, 'data': payload}
             requests.append(mac_holdtime_request)
 
         if config.get('neigh_holdtime'):
             neigh_holdtime_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime'
-            payload = self.build_neigh_holdtime_payload(config)
-            neigh_holdtime_request = {'path': neigh_holdtime_path, 'method': method, 'payload': payload}
+            payload = {'openconfig-network-instance:neigh-holdtime': config.get('neigh_holdtime')}
+            neigh_holdtime_request = {'path': neigh_holdtime_path, 'method': method, 'data': payload}
             requests.append(neigh_holdtime_request)
 
         if config.get('startup_delay'):
             startup_delay_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
-            payload = self.build_startup_delay_payload(config)
-            startup_delay_request = {'path': startup_delay_path, 'method': method, 'payload': payload}
+            payload = {'openconfig-network-instance:startup-delay': config.get('startup_delay')}
+            startup_delay_request = {'path': startup_delay_path, 'method': method, 'data': payload}
             requests.append(startup_delay_request)
 
         return requests
-
-    def build_df_election_time_payload(self, config):
-        """ Build the payload for evpn esi multihoming df_election_time
-        :rtype: A dictionary
-        :returns: The payload for evpn esi multihoming df_election_time
-        """
-        df_election_time = config.get('df_election_time', None)
-        df_election_time_value = 3
-        if df_election_time is not None:
-            df_election_time_value = df_election_time
-        df_election_time_dict = dict()
-        df_election_time_dict = {'openconfig-network-instance:df-election-time': df_election_time_value}
-        return df_election_time_dict
-
-    def build_es_activation_delay_payload(self, config):
-        """ Build the payload for evpn esi multihoming es_activation_delay
-        :rtype: A dictionary
-        :returns: The payload for evpn esi multihoming es_activation_delay
-        """
-        es_activation_delay = config.get('es_activation_delay', None)
-        es_activation_delay_value = 0
-        if es_activation_delay is not None:
-            es_activation_delay_value = es_activation_delay
-        es_activation_delay_dict = dict()
-        es_activation_delay_dict = {'openconfig-network-instance:es-activation-delay': es_activation_delay_value}
-        return es_activation_delay_dict
-
-    def build_mac_holdtime_payload(self, config):
-        """ Build the payload for evpn esi multihoming mac_holdtime
-        :rtype: A dictionary
-        :returns: The payload for evpn esi multihoming mac_holdtime
-        """
-        mac_holdtime = config.get('mac_holdtime', None)
-        mac_holdtime_value = 1080
-        if mac_holdtime is not None:
-            mac_holdtime_value = mac_holdtime
-        mac_holdtime_dict = dict()
-        mac_holdtime_dict = {'openconfig-network-instance:mac-holdtime': mac_holdtime_value}
-        return mac_holdtime_dict
-
-    def build_neigh_holdtime_payload(self, config):
-        """ Build the payload for evpn esi multihoming neigh_holdtime
-        :rtype: A dictionary
-        :returns: The payload for evpn esi multihoming neigh_holdtime
-        """
-        neigh_holdtime = config.get('neigh_holdtime', None)
-        neigh_holdtime_value = 1080
-
-        if neigh_holdtime is not None:
-            neigh_holdtime_value = neigh_holdtime
-        neigh_holdtime_dict = dict()
-        neigh_holdtime_dict = {'openconfig-network-instance:neigh-holdtime': neigh_holdtime_value}
-        return neigh_holdtime_dict
-
-    def build_startup_delay_payload(self, config):
-        """ Build the payload for evpn esi multihoming startup_delay
-        :rtype: A dictionary
-        :returns: The payload for evpn esi multihoming startup_delay
-        """
-        startup_delay = config.get('es_activation_time', None)
-        startup_delay_value = 300
-        if startup_delay is not None:
-            startup_delay_value = startup_delay
-        startup_delay_dict = dict()
-        startup_delay_dict = {'openconfig-network-instance:startup-delay': startup_delay_value}
-        return startup_delay_dict
 
     def get_delete_evpn_esi_mh_request(self, configs, have, delete_all):
         requests = []

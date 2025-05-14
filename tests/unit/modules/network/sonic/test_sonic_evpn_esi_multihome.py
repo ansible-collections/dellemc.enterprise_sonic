@@ -13,7 +13,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.modules.utils impor
 from .sonic_module import TestSonicModule
 
 
-class TestSoniEvpnEsiMultihome(TestSonicModule):
+class TestSonicEvpnEsiMultihome(TestSonicModule):
     module = sonic_evpn_esi_multihome
 
     @classmethod
@@ -33,7 +33,7 @@ class TestSoniEvpnEsiMultihome(TestSonicModule):
         cls.fixture_data = cls.load_fixtures('sonic_evpn_esi_multihome.yaml')
 
     def setUp(self):
-        super(TestSoniEvpnEsiMultihome, self).setUp()
+        super(TestSonicEvpnEsiMultihome, self).setUp()
         self.facts_edit_config = self.mock_facts_edit_config.start()
         self.config_edit_config = self.mock_config_edit_config.start()
         self.facts_edit_config.side_effect = self.facts_side_effect
@@ -44,7 +44,7 @@ class TestSoniEvpnEsiMultihome(TestSonicModule):
         self.utils_edit_config.side_effect = self.facts_side_effect
 
     def tearDown(self):
-        super(TestSoniEvpnEsiMultihome, self).tearDown()
+        super(TestSonicEvpnEsiMultihome, self).tearDown()
         self.mock_facts_edit_config.stop()
         self.mock_config_edit_config.stop()
         self.mock_get_interface_naming_mode.stop()

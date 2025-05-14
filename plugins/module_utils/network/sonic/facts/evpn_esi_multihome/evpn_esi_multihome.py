@@ -35,7 +35,7 @@ class Evpn_esi_multihomeFacts(object):
         spec = deepcopy(self.argument_spec)
         if subspec:
             if options:
-                facts_argument_spec = spec[subspec][options],
+                facts_argument_spec = spec[subspec][options]
             else:
                 facts_argument_spec = spec[subspec]
         else:
@@ -51,13 +51,18 @@ class Evpn_esi_multihomeFacts(object):
         :rtype: dictionary
         :returns: facts
         """
+        if connection:
+            pass
 
         if not data:
+            # Fetch data from the current device configuration
+            # (Skip if operating on previously fetched configuraation)
             data = self.get_all_evpn_esi_mh()
 
         evpn_esi_mh = dict()
         self.render_config(self.generated_spec, data)
         evpn_esi_mh = data
+
         facts = {}
         if evpn_esi_mh:
             facts['evpn_esi_multihome'] = dict()
@@ -65,7 +70,6 @@ class Evpn_esi_multihomeFacts(object):
 
             if params:
                 facts['evpn_esi_multihome'].update(remove_empties(params['config']))
-
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
@@ -75,39 +79,37 @@ class Evpn_esi_multihomeFacts(object):
         """
         path = "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
         method = "GET"
-        request = {"path": path, "method": method}
-
+        requests = [{"path": path, "method": method}]
         try:
-            response = edit_config(self._module, to_request(self._module, request))
+            response = edit_config(self._module, to_request(self._module, requests))
+
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
-        evpn_esi_mh_dict = dict()
-        if len(response) == 0 or len(response[0]) == 0:
-            return evpn_esi_mh_dict
+        evpn_esi_mh_dict = {}
 
-        info_path = 'openconfig-network-instance:config'
-        response_evpn_esi = response[0][1].get(info_path, {})
-        if info_path in response[0][1] and response_evpn_esi:
-            df_election_time = response_evpn_esi.get('df-election-time', None)
+        if response is not None and response[0][1] is not None and "openconfig-network-instance:config" in response[0][1]:
+            evpn_response = response[0][1].get("openconfig-network-instance:config", {})
+            df_election_time = evpn_response.get('df-election-time', None)
             if df_election_time:
                 evpn_esi_mh_dict.update({'df_election_time': df_election_time})
 
-            es_activation_delay = response_evpn_esi.get('es-activation-delay', None)
+            es_activation_delay = evpn_response.get('es-activation-delay', None)
             if es_activation_delay:
                 evpn_esi_mh_dict.update({'es_activation_delay': es_activation_delay})
 
-            neigh_holdtime = response_evpn_esi.get('neigh-holdtime', None)
+            neigh_holdtime = evpn_response.get('neigh-holdtime', None)
             if neigh_holdtime:
                 evpn_esi_mh_dict.update({'neigh_holdtime': neigh_holdtime})
 
-            mac_holdtime = response_evpn_esi.get('mac-holdtime', None)
+            mac_holdtime = evpn_response.get('mac-holdtime', None)
             if mac_holdtime:
                 evpn_esi_mh_dict.update({'mac_holdtime': mac_holdtime})
 
-            startup_delay = response_evpn_esi.get('startup-delay', None)
+            startup_delay = evpn_response.get('startup-delay', None)
             if startup_delay:
                 evpn_esi_mh_dict.update({'startup_delay': startup_delay})
+        return evpn_esi_mh_dict
 
     def render_config(self, spec, conf):
         """
