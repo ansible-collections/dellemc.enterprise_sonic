@@ -371,6 +371,7 @@ class Mfa(ConfigBase):
         for server in data:
             rsa_server_dict = {}
             config_dict = {}
+            hostname = None
             for key, value in server.items():
                 if value is not None:
                     if key == 'hostname':
