@@ -264,7 +264,6 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        #want = self.pop_encrypted_attributes(want)
         want = remove_none(want)
         want = self.pop_encrypted_attributes(want)
         commands = get_diff(want, have)
@@ -296,6 +295,7 @@ class Snmp(ConfigBase):
                     new_users.append(user)
             commands['user'] = new_users
         return commands
+
     def _state_deleted(self, want, have):
         """ The command generator when state is deleted
         :rtype: A list
