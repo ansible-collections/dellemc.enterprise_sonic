@@ -1,0 +1,24 @@
+---
+- name: Delete PMS configurations
+  dellemc.enterprise_sonic.sonic_pms:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: Delete l2 configurations on test interfaces
+  dellemc.enterprise_sonic.sonic_l2_interfaces:
+    config: "{{ sonic_pms_preparation_task_input.l2_interfaces }}"
+    state: deleted
+  failed_when: false
+
+- name: Delete test VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ sonic_pms_preparation_task_input.vlans }}"
+    state: deleted
+  failed_when: false
+
+- name: Delete test lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ sonic_pms_preparation_task_input.lag_interfaces }}"
+    state: deleted
+  failed_when: false
