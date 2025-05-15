@@ -109,6 +109,9 @@ merged_02:
               - "30:40"
             soo:
               - "10.73.14.9:78"
+            bandwidth:
+              bandwidth_value: "num-multipaths"
+              transitive_value: true
           ip_next_hop: 
             address: 10.48.16.18
           ipv6_next_hop:
@@ -235,6 +238,7 @@ merged_02:
                               communities:
                                 - route-target:30:40
                                 - route-origin:10.73.14.9:78
+                                - link-bandwidth:num-multipaths:transitive
                         config:
                           set-next-hop: 10.48.16.18
                           set-ipv6-next-hop-global: 30::30
@@ -829,6 +833,9 @@ merged_05:
             soo:
               - "10.73.14.9:78"
               - "200.4:79"
+            bandwidth:
+              bandwidth_value: "4200"
+              transitive_value: false
   existing_route_maps_config:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
       response:
@@ -882,6 +889,7 @@ merged_05:
                                 communities:
                                   - route-target:30:40
                                   - route-origin:10.73.14.9:78
+                                  - link-bandwidth:4200:non-transitive
                         config:
                           policy-result: ACCEPT_ROUTE
                         metric-action:
@@ -1145,6 +1153,7 @@ merged_05:
                             config:
                               communities:
                                 - route-target:30:40
+                                - link-bandwidth:4200:non-transitive
 
 merged_06:
   module_args:
@@ -1584,6 +1593,9 @@ replaced_01:
               - "20:20"
             soo:
               - "45:55"
+            bandwidth:
+              bandwidth_value: "4200"
+              transitive_value: false
           ipv6_next_hop:
             global_addr: 30::30
       - map_name: rm2
@@ -1659,6 +1671,7 @@ replaced_01:
                                 communities:
                                   - route-target:30:40
                                   - route-origin:10.73.14.9:78
+                                  - link-bandwidth:num-multipaths:transitive
                         config:
                           policy-result: ACCEPT_ROUTE
                         metric-action:
@@ -1905,6 +1918,7 @@ replaced_01:
                                   - route-target:655363:41
                                   - route-origin:10.73.14.9:78
                                   - route-origin:13107204:79
+                                  - link-bandwidth:num-multipaths:transitive
                         config:
                           policy-result: ACCEPT_ROUTE
                       config:
@@ -1946,6 +1960,7 @@ replaced_01:
                               communities:
                                 - route-target:20:20
                                 - route-origin:45:55
+                                - link-bandwidth:4200:non-transitive
                         config:
                           set-ipv6-next-hop-global: 30::30
                     conditions:
@@ -2042,6 +2057,7 @@ replaced_01:
               communities:
                 - route-target:655363:41
                 - route-origin:10.73.14.9:78
+                - link-bandwidth:num-multipaths:transitive
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/prefix-set"
       method: "delete"
       data:
@@ -2426,6 +2442,7 @@ replaced_03:
         sequence_num: 100
         set:
           as_path_prepend: 375,94
+
       - map_name: rm3
         action: deny
         sequence_num: 285
@@ -2943,6 +2960,9 @@ overridden_01:
             soo:
               - "200.4:79"
               - "200.4:279"
+            bandwidth:
+              bandwidth_value: "num-multipaths"
+              transitive_value: true
     state: overridden
   existing_route_maps_config:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
@@ -2997,6 +3017,7 @@ overridden_01:
                                 communities:
                                   - route-target:30:40
                                   - route-origin:10.73.14.9:78
+                                  - link-bandwidth:4200:non-transitive
                         config:
                           policy-result: ACCEPT_ROUTE
                         metric-action:
@@ -3299,6 +3320,7 @@ overridden_01:
                                 - route-target:10.3:241
                                 - route-origin:200.4:79
                                 - route-origin:200.4:279
+                                - link-bandwidth:num-multipaths:transitive
 
 overridden_02:
   module_args:
@@ -3923,6 +3945,9 @@ deleted_01:
             soo:
               - "200.4:79"
               - "200.4:279"
+            bandwidth:
+              bandwidth_value: "4200"
+              transitive_value: false
     state: deleted
   existing_route_maps_config:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
@@ -4225,6 +4250,7 @@ deleted_01:
                                   - route-target:655363:41
                                   - route-origin:10.73.14.9:78
                                   - route-origin:13107204:79
+                                  - link-bandwidth:4200:non-transitive
                         config:
                           policy-result: ACCEPT_ROUTE
                       config:
@@ -4312,6 +4338,7 @@ deleted_01:
               communities:
                 - route-target:30:40
                 - route-origin:200.4:79
+                - link-bandwidth:4200:non-transitive
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-interface"
       method: "delete"
       data:

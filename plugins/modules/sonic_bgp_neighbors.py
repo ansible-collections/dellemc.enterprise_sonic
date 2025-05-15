@@ -444,6 +444,10 @@ options:
             description:
               - Enforces EBGP multihop performance for neighbor.
             type: bool
+          extended_link_bandwidth:
+            description:
+              - Configure Extended Link Bandwidth for BGP neighbors.
+            type: bool
           local_address:
             description:
               - Set the local IP address to use for the session when sending BGP update messages.
