@@ -8,7 +8,7 @@
 - import_role:
     name: common
     tasks_from: action.facts.report.yaml
-  
+
 - name: "{{ item.name}} , {{ item.description}} Idempotent"
   sonic_radius_server:
     config: "{{ item.input }}"

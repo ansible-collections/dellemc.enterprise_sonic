@@ -3,4 +3,24 @@
     config: {}
     state: deleted
   ignore_errors: yes
-  
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto security-profile radius-sec-profile']
+    save: yes
+  failed_when: false
+- name: Remove crypto security profile configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto security-profile rad-sec-prof']
+    save: yes
+  failed_when: false
+- name: Remove crypto trust store configurations
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: ['no crypto trust-store radius-ts']
+    save: yes
+  failed_when: false

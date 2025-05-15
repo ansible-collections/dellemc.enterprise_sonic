@@ -157,6 +157,10 @@ class Radius_serverFacts(object):
                         host_data['source_interface'] = tacas_cfg['openconfig-aaa-radius-ext:source-interface']
                     if tacas_cfg.get('retransmit-attempts', None):
                         host_data['retransmit'] = tacas_cfg['retransmit-attempts']
+                    if tacas_cfg.get('security-profile', None):
+                        host_data['security_profile'] = tacas_cfg['security-profile']
+                    if tacas_cfg.get('protocol', None):
+                        host_data['protocol'] = tacas_cfg['protocol']
             if host_data:
                 hosts.append(host_data)
 
