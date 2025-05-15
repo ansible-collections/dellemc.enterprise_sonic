@@ -115,7 +115,6 @@ class Pms(ConfigBase):
             existing_pms_facts.sort(key=lambda x: x['name'])
             result['diff'] = get_formatted_config_diff(existing_pms_facts, new_config, self._module._verbosity)
 
-        result['warnings'] = list()
         return result
 
     def set_config(self, existing_pms_facts):

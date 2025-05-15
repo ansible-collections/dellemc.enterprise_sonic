@@ -65,9 +65,7 @@ class PmsFacts(object):
 
         for pms_interface_config in all_pms_interface_configs:
             if pms_interface_config:
-                obj = self.render_config(self.generated_spec, pms_interface_config)
-                if obj:
-                    objs.append(obj)
+                objs.append(pms_interface_config)
 
         ansible_facts['ansible_network_resources'].pop('pms', None)
         facts = {}
@@ -77,18 +75,6 @@ class PmsFacts(object):
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def get_pms(self):
         """Get all pms interfaces available in chassis"""
