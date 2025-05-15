@@ -89,6 +89,13 @@ options:
                 description:
                   - Specifies the priority of the radius server host.
                 type: int
+              protocol:
+                description:
+                  - Specifies the protocol of the radius server host.
+                type: str
+                choices:
+                  - TLS
+                  - UDP
               port:
                 description:
                   - Specifies the port of the radius server host.
@@ -102,6 +109,10 @@ options:
                 description:
                   - Specifies the retransmit of the radius server host.
                 type: int
+              security_profile:
+                description:
+                  - Specifies the security profile for the radius server host.
+                type: str
               source_interface:
                 description:
                   - Specifies the source interface of the radius server host.
@@ -214,6 +225,51 @@ EXAMPLES = """
 # timeout    : 5
 # auth-type  : pap
 
+# Using deleted
+#
+# Before state:
+# -------------
+
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout        : 5
+#auth-type      : pap
+#key configured : No
+#---------------------------------------------------------------------------------------------------------------
+#HOST            AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI          PROTOCOL  SEC_PROFILE
+#---------------------------------------------------------------------------------------------------------------
+#1.1.1.1         -         No         2083      -        -       -     -     -            TLS      rad-sec-prof
+#100.104.36.28   -         No         2083      -        -       -     -     -            TLS      rad-sec-prof
+#
+#---------------------------------------------------------
+#RADIUS TLS Configuration removal
+#---------------------------------------------------------
+#
+#    - name: Delete radius configurations
+#      sonic_radius_server:
+#        config:
+#          servers:
+#            - host:
+#                name: 1.1.1.1
+#        state: deleted
+# After state:
+# ------------
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout        : 5
+#auth-type      : pap
+#key configured : No
+#---------------------------------------------------------------------------------------------------------------
+#HOST            AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI         PROTOCOL  SEC_PROFILE
+#---------------------------------------------------------------------------------------------------------------
+#100.104.36.28   -         No         2083      -        -       -     -     -           TLS      radius-sec-profile
+#
+
+
 
 # Using "merged" state
 #
@@ -268,6 +324,43 @@ EXAMPLES = """
 # RADIUS Statistics
 # ---------------------------------------------------------
 #
+
+# Using merged
+#
+# Before state:
+# -------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#
+#    - name: Merge radius configurations
+#      sonic_radius_server:
+#        config:
+#          servers:
+#            host:
+#              - name: 1.1.1.1
+#                port: 2083
+#                protocol: TLS
+#                security_profile: radius-sec-profile
+#        state: merged
+# After state:
+# ------------
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout        : 5
+#auth-type      : pap
+#key configured : No
+#---------------------------------------------------------------------------------------------------------------
+#HOST            AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI         PROTOCOL  SEC_PROFILE
+#---------------------------------------------------------------------------------------------------------------
+#100.104.36.28   -         No         2083      -        -       -     -     -           TLS        radius-sec-profile
+#
+
+
 # Using "replaced" state
 #
 # Before state:
@@ -367,6 +460,54 @@ EXAMPLES = """
 # 1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
 # 10.10.11.12  chap     No         49         2          30   -     -       -
 #
+
+# Using overridden
+#
+# Before state:
+# -------------
+#
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout        : 5
+#auth-type      : pap
+#key configured : No
+#---------------------------------------------------------------------------------------------------------------
+#HOST            AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI         PROTOCOL  SEC_PROFILE
+#---------------------------------------------------------------------------------------------------------------
+#100.104.36.28   -         No         2083      -        -       -     -     -           TLS        radius-sec-profile
+#
+#---------------------------------------------------------
+#RADIUS TLS Configuration
+#---------------------------------------------------------
+#
+#    - name: Override radius tls configurations
+#      sonic_radius_server:
+#        config:
+#          servers:
+#            host:
+#              - name: 1.1.1.1
+#                port: 2083
+#                protocol: TLS
+#                security_profile: radius-sec-profile
+#        state: merged
+# After state:
+# ------------
+#sonic(config)# do show radius-server
+#---------------------------------------------------------
+#RADIUS Global Configuration
+#---------------------------------------------------------
+#timeout        : 5
+#auth-type      : pap
+#key configured : No
+#---------------------------------------------------------------------------------------------------------------
+#HOST            AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI         PROTOCOL  SEC_PROFILE
+#---------------------------------------------------------------------------------------------------------------
+#1.1.1.1   -         No         2083      -        -       -     -     -           TLS        radius-sec-profile
+#
+
+
 """
 
 RETURN = """

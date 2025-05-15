@@ -19,6 +19,8 @@ merged_01:
             timeout: 20
             source_interface: Eth1/2
             vrf: mgmt
+            protocol: TLS
+            security_profile: rad-sec-prof
   existing_radius_server_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -71,6 +73,8 @@ merged_01:
                   secret-key: local
                   retransmit-attempts: 2
                   openconfig-aaa-radius-ext:source-interface: Eth1/2
+                  protocol: TLS
+                  security-profile: rad-sec-prof
 
 deleted_01:
   module_args:
@@ -104,6 +108,8 @@ deleted_01:
                   priority: 2
                   vrf: mgmt
                   timeout: 20
+                  protocol: "TLS"
+                  security-profile: rad-sec-prof
                 radius:
                   config:
                     auth-port: 52
@@ -180,6 +186,8 @@ deleted_02:
                   priority: 2
                   vrf: mgmt
                   timeout: 20
+                  protocol: TLS
+                  securtity-profile: rad-sec-prof
                 radius:
                   config:
                     auth-port: 52
