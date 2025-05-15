@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -150,7 +150,7 @@ class Bgp_neighbors_af(ConfigBase):
     prv_teardown_path = "/%s/prefix-limit/config/prevent-teardown"
     restart_timer_path = "/%s/prefix-limit/config/restart-timer"
     wrn_threshold_path = "/%s/prefix-limit/config/warning-threshold-pct"
-    discard_extra_path = "/%s/prefix-limit/config/discard-extra"
+    discard_extra_path = "/%s/prefix-limit/config/openconfig-bgp-ext:discard-extra"
 
     def __init__(self, module):
         super(Bgp_neighbors_af, self).__init__(module)
@@ -352,6 +352,7 @@ class Bgp_neighbors_af(ConfigBase):
             is_delete_all = True
         else:
             commands = want
+
 
         requests = self.get_delete_bgp_neighbors_af_requests(commands, have, is_delete_all)
 

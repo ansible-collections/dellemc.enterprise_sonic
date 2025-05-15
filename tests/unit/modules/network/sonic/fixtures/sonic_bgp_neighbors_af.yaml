@@ -721,7 +721,7 @@ deleted_04:
                         prefix-limit:
                           config:
                             max-prefixes: 1
-                            discard-extra: True
+                            openconfig-bgp-ext:discard-extra: True
                             warning-threshold-pct: 99
                       allow-own-as:
                         config:
@@ -774,6 +774,9 @@ deleted_04:
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/warning-threshold-pct"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/prefix-limit/config/openconfig-bgp-ext:discard-extra"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/prefix-list/config/export-policy"
