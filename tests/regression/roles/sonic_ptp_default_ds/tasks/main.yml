@@ -1,0 +1,15 @@
+---
+- name: "Preparations for sonic_ptp_default_ds"
+  ansible.builtin.include_tasks: preparation_tests.yaml
+
+- name: "Test for sonic_ptp_default_ds started"
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ sonic_ptp_default_ds_tests }}"
+
+- name: "Test_delete_all for sonic_ptp_default_ds started ..."
+  ansible.builtin.include_tasks: tasks_template_del.yaml
+  loop: "{{ sonic_ptp_default_ds_test_delete_all }}"
+  when: sonic_ptp_default_ds_test_delete_all is defined
+
+- name: "Cleanup started for sonic_ptp_default_ds ..."
+  ansible.builtin.include_tasks: cleanup_tests.yaml
