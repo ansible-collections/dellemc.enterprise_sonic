@@ -17,6 +17,18 @@ merged_01:
         login_auth_method:
           - local
           - ldap
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'START_STOP'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+            - tacacs+
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
       name_service:
         group:
           - ldap
@@ -44,6 +56,12 @@ merged_01:
       response:
         code: 200
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
+      response:
+        code: 200
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      response:
+        code: 200
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
       response:
         code: 200
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
@@ -75,6 +93,23 @@ merged_01:
               authorization-method:
                 - local
                 - ldap
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      method: 'patch'
+      data:
+        openconfig-system-ext:config:
+          accounting-method:
+            - logging
+          accounting-record-type: 'START_STOP'
+          accounting-console-exempt: true
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
+      method: 'patch'
+      data:
+        openconfig-system-ext:config:
+          accounting-method:
+            - logging
+            - tacacs+
+          accounting-record-type: 'STOP_ONLY'
+          accounting-console-exempt: true
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       method: 'patch'
       data:
@@ -109,6 +144,11 @@ replaced_01:
       authorization:
         commands_auth_method:
           - local
+      accounting:
+        commands_accounting:
+          accounting_record_type: 'STOP_ONLY'
+        session_accounting:
+          accounting_record_type: 'START_STOP'
       name_service:
         group:
           - local
@@ -133,7 +173,6 @@ replaced_01:
           openconfig-aaa-tacacsplus-ext:authorization-method:
             - local
             - tacacs+
-
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
       response:
         code: 200
@@ -141,6 +180,25 @@ replaced_01:
           openconfig-aaa-ext:authorization-method:
             - local
             - ldap
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            accounting-method:
+              - logging
+            accounting-record-type: 'START_STOP'
+            accounting-console-exempt: true
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            accounting-method:
+              - logging
+              - tacacs+
+            accounting-record-type: 'STOP_ONLY'
+            accounting-console-exempt: true
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       response:
         code: 200
@@ -171,6 +229,12 @@ replaced_01:
     - path: '/data/openconfig-system:system/aaa/authorization'
       method: 'delete'
       data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
+      method: 'delete'
+      data:
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       method: 'delete'
       data:
@@ -190,6 +254,16 @@ replaced_01:
             config:
               authorization-method:
                 - local
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      method: 'patch'
+      data:
+        openconfig-system-ext:config:
+          accounting-record-type: 'STOP_ONLY'
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
+      method: 'patch'
+      data:
+        openconfig-system-ext:config:
+          accounting-record-type: 'START_STOP'
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       method: 'patch'
       data:
@@ -215,6 +289,17 @@ overridden_01:
         login_auth_method:
           - local
           - ldap
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+          accounting_record_type: 'START_STOP'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
       name_service:
         group:
           - ldap
@@ -251,6 +336,18 @@ overridden_01:
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
       response:
         code: 200
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      response:
+        code:
+        value:
+          openconfig-system-ext:config:
+            accounting-record-type: 'STOP_ONLY'
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
+      response:
+        code:
+        value:
+          openconfig-system-ext:config:
+            accounting-record-type: 'START_STOP'
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       response:
         code:
@@ -263,6 +360,12 @@ overridden_01:
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
@@ -293,6 +396,22 @@ overridden_01:
               authorization-method:
                 - local
                 - ldap
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      method: 'patch'
+      data:
+        openconfig-system-ext:config:
+          accounting-method:
+            - tacacs+
+          accounting-record-type: 'START_STOP'
+          accounting-console-exempt: true
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
+      method: 'patch'
+      data:
+        openconfig-system-ext:config:
+          accounting-method:
+            - logging
+          accounting-record-type: 'STOP_ONLY'
+          accounting-console-exempt: true
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       method: 'patch'
       data:
@@ -334,6 +453,17 @@ deleted_01:
         login_auth_method:
           - local
           - ldap
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+          accounting_record_type: 'START_STOP'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'STOP_ONLY'
+          accounting_console_exempt: true
       name_service:
         group:
           - ldap
@@ -374,7 +504,24 @@ deleted_01:
           openconfig-aaa-tacacsplus-ext:authorization-method:
             - local
             - tacacs+
-
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            accounting-method:
+              - tacacs+
+            accounting-record-type: 'START_STOP'
+            accounting-console-exempt: true
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            accounting-method:
+              - logging
+            accounting-record-type: 'STOP_ONLY'
+            accounting-console-exempt: true
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
       response:
         code: 200
@@ -427,6 +574,24 @@ deleted_01:
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-ext:login/config/authorization-method'
       method: 'delete'
       data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config/accounting-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config/accounting-record-type'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config/accounting-console-exempt'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config/accounting-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config/accounting-record-type'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config/accounting-console-exempt'
+      method: 'delete'
+      data:
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config/group-method'
       method: 'delete'
       data:
@@ -474,6 +639,25 @@ deleted_02:
           openconfig-aaa-ext:authorization-method:
             - local
             - ldap
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            accounting-method:
+              - tacacs+
+              - logging
+            accounting-record-type: 'START_STOP'
+            accounting-console-exempt: true
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            accounting-method:
+              - tacacs+
+            accounting-record-type: 'START_STOP'
+            accounting-console-exempt: true
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
       response:
         code: 200
@@ -502,6 +686,12 @@ deleted_02:
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/authorization'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
       method: 'delete'
       data:
     - path: '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
