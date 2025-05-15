@@ -32,6 +32,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_ext_communities',
         'bgp_neighbors',
         'bgp_neighbors_af',
+        'br_l2pt',
         'copp',
         'dhcp_relay',
         'dhcp_snooping',

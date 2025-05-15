@@ -64,6 +64,7 @@ options:
       - bgp_as_paths
       - bgp_communities
       - bgp_ext_communities
+      - br_l2pt
       - dcbx
       - ospfv2_interfaces
       - ospfv2
