@@ -41,9 +41,11 @@ options:
             description:
               - Specifies the order of the methods in which to authenticate login
               - Any 1 choice may be specified or 2 choices consisting of local and another group may be specified
+              - C(cac-piv) option is only available in devices running sonic 4.5.0 and above.
+              - MFA is not applicable when C(cac-piv) is configured as first factor for authentication.
             type: list
             elements: str
-            choices: ['ldap', 'local', 'radius', 'tacacs+']
+            choices: ['ldap', 'local', 'radius', 'tacacs+', 'cac-piv']
           console_auth_local :
             description:
               Enable/disable local authentication on console
@@ -51,6 +53,17 @@ options:
           failthrough:
             description:
               - Enable/disable failthrough
+            type: bool
+          mfa_auth_method:
+            version_added: 3.1.0
+            description:
+              - Specifies RSA SecurID as multi-factor authentication method.
+            type: str
+            choices: ['rsa-securid']
+          login_mfa_console:
+            version_added: 3.1.0
+            description:
+              - Enable/disable MFA method for console access.
             type: bool
       authorization:
         description:
@@ -172,6 +185,15 @@ EXAMPLES = """
 #
 # sonic# show aaa
 # (No AAA configuration present)
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : None
+# Console Exempted               : None
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 
 - name: Merge AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:
@@ -182,6 +204,8 @@ EXAMPLES = """
           - ldap
         console_auth_local: true
         failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -223,6 +247,7 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : local, ldap
+# login-mfa    : rsa-securid
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -242,6 +267,15 @@ EXAMPLES = """
 # passwd-method   : login
 # shadow-method   : ldap
 # sudoers-method  : local
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : rsa-securid
+# Console Exempted               : No
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 
 
 # Using "replaced" state
@@ -255,6 +289,7 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : local, ldap
+# login-mfa    : rsa-securid
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -274,11 +309,23 @@ EXAMPLES = """
 # passwd-method   : login
 # shadow-method   : ldap
 # sudoers-method  : local
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : rsa-securid
+# Console Exempted               : No
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 
 - name: Replace AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:
     config:
       authentication:
+        auth_method:
+          - cac-piv
+          - local
         console_auth_local: true
         failthrough: false
       authorization:
@@ -303,7 +350,8 @@ EXAMPLES = """
 # AAA Authentication Information
 # ---------------------------------------------------------
 # failthrough  : False
-# login-method :
+# login-method : cac-piv, local
+# login-mfa    : None
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -318,6 +366,15 @@ EXAMPLES = """
 # AAA Name-Service Information
 # ---------------------------------------------------------
 # group-method    : ldap
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : None
+# Console Exempted               : None
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 
 
 # Using "overridden" state
@@ -331,6 +388,7 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : local, ldap
+# login-mfa    : rsa-securid
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -350,6 +408,15 @@ EXAMPLES = """
 # passwd-method   : login
 # shadow-method   : ldap
 # sudoers-method  : local
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : rsa-securid
+# Console Exempted               : Yes
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 
 - name: Override AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:
@@ -359,6 +426,8 @@ EXAMPLES = """
           - tacacs+
         console_auth_local: true
         failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       accounting:
         commands_accounting:
           accounting_method:
@@ -382,7 +451,17 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : tacacs+
+# login-mfa    : rsa-securid
 # console authentication  : local
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : rsa-securid
+# Console Exempted               : No
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 # ---------------------------------------------------------
 # AAA Accounting Information
 # ---------------------------------------------------------
@@ -400,6 +479,7 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : local, ldap
+# login-mfa    : rsa-securid
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -419,6 +499,15 @@ EXAMPLES = """
 # passwd-method   : login
 # shadow-method   : ldap
 # sudoers-method  : local
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : rsa-securid
+# Console Exempted               : No
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 
 - name: Delete AAA individual attributes
   dellemc.enterprise_sonic.sonic_aaa:
@@ -429,6 +518,8 @@ EXAMPLES = """
           - ldap
         console_auth_local: true
         failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -466,6 +557,15 @@ EXAMPLES = """
 #
 # sonic# show aaa
 # (No AAA configuration present)
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : None
+# Console Exempted               : None
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 
 
 # Using "deleted" state
@@ -479,6 +579,7 @@ EXAMPLES = """
 # ---------------------------------------------------------
 # failthrough  : True
 # login-method : local, ldap
+# login-mfa    : rsa-securid
 # console authentication  : local
 # ---------------------------------------------------------
 # AAA Authorization Information
@@ -498,6 +599,15 @@ EXAMPLES = """
 # passwd-method   : login
 # shadow-method   : ldap
 # sudoers-method  : local
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : rsa-securid
+# Console Exempted               : Yes
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 
 - name: Delete all AAA configuration
   dellemc.enterprise_sonic.sonic_aaa:
@@ -509,6 +619,15 @@ EXAMPLES = """
 #
 # sonic# show aaa
 # (No AAA configuration present)
+#
+# sonic# show mfa
+# ---------------------------------------------------------
+# Multi-factor Authentication Information
+# ---------------------------------------------------------
+# MFA Authentication             : None
+# Console Exempted               : None
+# MFA Service Security Profile   : None
+# RSA SecurID Security Profile   : None
 """
 
 RETURN = """

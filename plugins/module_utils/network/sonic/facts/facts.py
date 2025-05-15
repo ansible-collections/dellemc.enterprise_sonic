@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -50,6 +50,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.logging.logging import LoggingFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pki.pki import PkiFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor.ip_neighbor import Ip_neighborFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ipv6_router_advertisement.ipv6_router_advertisement import (
+    Ipv6_router_advertisementFacts
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.port_group.port_group import Port_groupFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dhcp_relay.dhcp_relay import Dhcp_relayFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dhcp_snooping.dhcp_snooping import Dhcp_snoopingFacts
@@ -81,7 +84,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ssh.ssh import SshFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lst.lst import LstFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_classifiers.fbs_classifiers import Fbs_classifiersFacts
-
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mirroring.mirroring import MirroringFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx.dcbx import DcbxFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -117,6 +121,7 @@ FACT_RESOURCE_SUBSETS = dict(
     logging=LoggingFacts,
     pki=PkiFacts,
     ip_neighbor=Ip_neighborFacts,
+    ipv6_router_advertisement=Ipv6_router_advertisementFacts,
     port_group=Port_groupFacts,
     dhcp_relay=Dhcp_relayFacts,
     dhcp_snooping=Dhcp_snoopingFacts,
@@ -147,7 +152,9 @@ FACT_RESOURCE_SUBSETS = dict(
     ospf_area=Ospf_areaFacts,
     ssh=SshFacts,
     lst=LstFacts,
-    fbs_classifiers=Fbs_classifiersFacts
+    fbs_classifiers=Fbs_classifiersFacts,
+    mirroring=MirroringFacts,
+    dcbx=DcbxFacts
 )
 
 
