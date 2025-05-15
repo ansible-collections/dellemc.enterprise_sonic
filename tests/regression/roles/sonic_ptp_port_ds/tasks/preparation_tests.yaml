@@ -1,0 +1,14 @@
+---
+- name: Delete old PTP port configurations
+  dellemc.enterprise_sonic.sonic_ptp_port_ds:
+    config: []
+    state: deleted
+  ignore_errors: yes
+
+- name: Initialize default interfaces
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ default_interface_cli }}"
+  register: output
+  ignore_errors: yes
