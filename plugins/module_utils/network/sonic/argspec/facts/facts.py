@@ -86,8 +86,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'lst',
         'fbs_classifiers',
         'mirroring',
-        'evpn_esi_multihome',
-        'br_l2pt'
+        'br_l2pt',
+        'evpn_esi_multihome'
     ]
 
     argument_spec = {
