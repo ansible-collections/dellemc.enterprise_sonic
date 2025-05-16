@@ -53,24 +53,16 @@ class Evpn_esi_multihomeFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        if connection:
-            pass
-
         if not data:
             # Fetch data from the current device configuration
-            # (Skip if operating on previously fetched configuraation)
             data = self.get_all_evpn_esi_mh()
 
-        evpn_esi_mh = {}
         evpn_esi_mh = data
-
         facts = {}
+		
         if evpn_esi_mh:
-            facts['evpn_esi_multihome'] = {}
             params = utils.validate_config(self.argument_spec, {'config': evpn_esi_mh})
-
-            if params:
-                facts['evpn_esi_multihome'] = remove_empties(params['config'])
+            facts['evpn_esi_multihome'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts

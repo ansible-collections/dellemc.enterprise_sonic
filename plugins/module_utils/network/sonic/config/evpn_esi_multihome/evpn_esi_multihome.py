@@ -166,7 +166,7 @@ class Evpn_esi_multihome(ConfigBase):
         else:
             commands = get_diff(want, diff)
 
-        requests = self.get_delete_evpn_esi_mh_request(commands, have, delete_all)
+        requests = self.get_delete_evpn_esi_mh_requests(commands, delete_all)
 
         if len(commands) > 0 and len(requests) > 0:
             commands = update_states(commands, 'deleted')
@@ -181,7 +181,7 @@ class Evpn_esi_multihome(ConfigBase):
         diff = get_diff(want, new_have)
         merged_commands = diff
 
-        replaced_snmp = self.get_create_evpn_esi_mh_request(merged_commands, have)
+        replaced_snmp = self.get_create_evpn_esi_mh_request(merged_commands)
         requests.extend(replaced_snmp)
         if merged_commands and len(replaced_snmp) > 0:
             merged_commands = update_states(merged_commands, 'replaced')
@@ -218,13 +218,13 @@ class Evpn_esi_multihome(ConfigBase):
             return commands, requests
 
         commands = have
-        requests = list(self.get_delete_evpn_esi_mh_request(commands, have, True))
+        requests = list(self.get_delete_evpn_esi_mh_requests(commands, True))
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
 
         merged_commands = want
-        overridden_requests = self.get_create_evpn_esi_mh_request(merged_commands, want)
+        overridden_requests = self.get_create_evpn_esi_mh_request(merged_commands)
 
         requests.extend(overridden_requests)
 
@@ -244,7 +244,7 @@ class Evpn_esi_multihome(ConfigBase):
                   the current configuration
         """
         commands = get_diff(want, have)
-        requests = self.get_create_evpn_esi_mh_request(commands, have)
+        requests = self.get_create_evpn_esi_mh_request(commands)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -272,10 +272,10 @@ class Evpn_esi_multihome(ConfigBase):
             commands = deepcopy(have)
             delete_all = True
         else:
-            diff = get_diff(have, want)
+            diff = get_diff(want, have)
             commands = get_diff(want, diff)
 
-        requests = list(self.get_delete_evpn_esi_mh_request(commands, have, delete_all))
+        requests = list(self.get_delete_evpn_esi_mh_requests(commands, delete_all))
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -284,7 +284,7 @@ class Evpn_esi_multihome(ConfigBase):
 
         return commands, requests
 
-    def get_create_evpn_esi_mh_request(self, config, have=None):
+    def get_create_evpn_esi_mh_request(self, config):
         """ Creates the request for creating the evpn_esi_mh object
 
         :rtype: A list
@@ -308,7 +308,7 @@ class Evpn_esi_multihome(ConfigBase):
 
         return requests
 
-    def get_delete_evpn_esi_mh_request(self, configs, have, delete_all):
+    def get_delete_evpn_esi_mh_requests(self, configs, delete_all):
         """ Creates the request for deleting the evpn_esi_mh object
 
         :rtype: A list
@@ -318,12 +318,6 @@ class Evpn_esi_multihome(ConfigBase):
         path = EVPN_MH_PATH
         if not configs:
             return requests
-
-        have_df_election_time = have.get('df_election_time')
-        have_es_activation_delay = have.get('es_activation_delay')
-        have_mac_holdtime = have.get('mac_holdtime')
-        have_neigh_holdtime = have.get('neigh_holdtime')
-        have_startup_delay = have.get('startup_delay')
 
         df_election_time = 'df_election_time' in configs
         es_activation_delay = 'es_activation_delay' in configs
@@ -336,27 +330,27 @@ class Evpn_esi_multihome(ConfigBase):
             requests.append(delete_all_request)
             return requests
 
-        if df_election_time and have_df_election_time:
+        if df_election_time and configs.get('df_election_time') is not None:
             df_election_time_url = '{0}/{1}'.format(path, 'df-election-time')
             df_election_time_request = {'path': df_election_time_url, 'method': DELETE}
             requests.append(df_election_time_request)
 
-        if es_activation_delay and have_es_activation_delay:
+        if es_activation_delay and configs.get('es_activation_delay') is not None:
             es_activation_delay_url = '{0}/{1}'.format(path, 'es-activation-delay')
             es_activation_delay_request = {'path': es_activation_delay_url, 'method': DELETE}
             requests.append(es_activation_delay_request)
 
-        if mac_holdtime and have_mac_holdtime:
+        if mac_holdtime:
             mac_holdtime_url = '{0}/{1}'.format(path, 'mac-holdtime')
             mac_holdtime_delay_request = {'path': mac_holdtime_url, 'method': DELETE}
             requests.append(mac_holdtime_delay_request)
 
-        if neigh_holdtime and have_neigh_holdtime:
+        if neigh_holdtime:
             neigh_holdtime_url = '{0}/{1}'.format(path, 'neigh-holdtime')
             neigh_holdtime_request = {'path': neigh_holdtime_url, 'method': DELETE}
             requests.append(neigh_holdtime_request)
 
-        if startup_delay and have_startup_delay:
+        if startup_delay:
             startup_delay_url = '{0}/{1}'.format(path, 'startup-delay')
             startup_delay_request = {'path': startup_delay_url, 'method': DELETE}
             requests.append(startup_delay_request)
