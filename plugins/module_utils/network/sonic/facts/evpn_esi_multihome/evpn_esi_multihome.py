@@ -59,7 +59,7 @@ class Evpn_esi_multihomeFacts(object):
 
         evpn_esi_mh = data
         facts = {}
-		
+
         if evpn_esi_mh:
             params = utils.validate_config(self.argument_spec, {'config': evpn_esi_mh})
             facts['evpn_esi_multihome'] = remove_empties(params['config'])
@@ -72,33 +72,33 @@ class Evpn_esi_multihomeFacts(object):
         """
         path = "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
         method = "GET"
-        requests = [{"path": path, "method": method}]
+        request = {"path": path, "method": method}
         try:
-            response = edit_config(self._module, to_request(self._module, requests))
+            response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         evpn_esi_mh_dict = {}
 
-        if response is not None and response[0][1] is not None and "openconfig-network-instance:config" in response[0][1]:
+        if "openconfig-network-instance:config" in response[0][1]:
             evpn_response = response[0][1].get("openconfig-network-instance:config", {})
             df_election_time = evpn_response.get('df-election-time')
             if df_election_time:
-                evpn_esi_mh_dict.update({'df_election_time': df_election_time})
+                evpn_esi_mh_dict['df_election_time'] = df_election_time
 
             es_activation_delay = evpn_response.get('es-activation-delay')
             if es_activation_delay:
-                evpn_esi_mh_dict.update({'es_activation_delay': es_activation_delay})
+                evpn_esi_mh_dict['es_activation_delay'] = es_activation_delay
 
             neigh_holdtime = evpn_response.get('neigh-holdtime')
             if neigh_holdtime:
-                evpn_esi_mh_dict.update({'neigh_holdtime': neigh_holdtime})
+                evpn_esi_mh_dict['neigh_holdtime'] = neigh_holdtime
 
             mac_holdtime = evpn_response.get('mac-holdtime')
             if mac_holdtime:
-                evpn_esi_mh_dict.update({'mac_holdtime': mac_holdtime})
+                evpn_esi_mh_dict['mac_holdtime'] = mac_holdtime
 
             startup_delay = evpn_response.get('startup-delay')
             if startup_delay:
-                evpn_esi_mh_dict.update({'startup_delay': startup_delay})
+                evpn_esi_mh_dict['startup_delay'] = startup_delay
         return evpn_esi_mh_dict
