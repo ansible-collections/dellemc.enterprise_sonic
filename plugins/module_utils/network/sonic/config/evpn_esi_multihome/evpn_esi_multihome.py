@@ -302,8 +302,7 @@ class Evpn_esi_multihome(ConfigBase):
             'es-activation-delay': config.get('es_activation_delay', None),
             'mac-holdtime': config.get('mac_holdtime', None),
             'neigh-holdtime': config.get('neigh_holdtime', None),
-            'startup-delay': config.get('startup_delay', None)
-                                                             }
+            'startup-delay': config.get('startup_delay', None)}
 
         request = dict()
         request = {'path': path, 'method': method, 'data': request_info}
