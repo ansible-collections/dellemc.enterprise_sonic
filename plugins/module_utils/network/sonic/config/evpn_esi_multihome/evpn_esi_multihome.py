@@ -103,7 +103,6 @@ class Evpn_esi_multihome(ConfigBase):
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-
         return result
 
     def set_config(self, existing_evpn_esi_multihome_facts):
@@ -298,13 +297,12 @@ class Evpn_esi_multihome(ConfigBase):
         path = EVPN_MH_PATH
         requests = list()
 
-        request_info['openconfig-network-instance:config'] = {
-            'df-election-time': config.get('df_election_time', None),
-            'es-activation-delay': config.get('es_activation_delay', None), 
-            'mac-holdtime': config.get('mac_holdtime', None), 
-            'neigh-holdtime': config.get('neigh_holdtime', None), 
-            'startup-delay': config.get('startup_delay', None)
-            }
+        request_info['openconfig-network-instance:config'] = {'df-election-time': config.get('df_election_time', None),
+                                                              'es-activation-delay': config.get('es_activation_delay', None),
+                                                              'mac-holdtime': config.get('mac_holdtime', None),
+                                                              'neigh-holdtime': config.get('neigh_holdtime', None),
+                                                              'startup-delay': config.get('startup_delay', None)
+                                                            }
 
         request = dict()
         request = {'path': path, 'method': method, 'data': request_info}
@@ -340,7 +338,7 @@ class Evpn_esi_multihome(ConfigBase):
             requests.append(delete_all_request)
             return requests
 
-        if  df_election_time and have_df_election_time:
+        if df_election_time and have_df_election_time:
             df_election_time_url = '{0}/{1}'.format(path, 'df-election-time')
             df_election_time_request = {'path': df_election_time_url, 'method': DELETE}
             requests.append(df_election_time_request)
