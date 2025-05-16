@@ -9,14 +9,12 @@ merged_01:
       response:
         code: 200
   expected_config_requests:
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
       method: "patch"
       data:
-        openconfig-network-instance:startup-delay: 300
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime"
-      method: "patch"
-      data:
-        openconfig-network-instance:neigh-holdtime: 1080
+        openconfig-network-instance:config:
+          startup-delay: 300
+          neigh-holdtime: 1080
 
 merged_02:
   module_args:
@@ -27,10 +25,11 @@ merged_02:
       response:
         code: 200
   expected_config_requests:
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/mac-holdtime"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
       method: "patch"
       data:
-        openconfig-network-instance:mac-holdtime: 1080
+        openconfig-network-instance:config:
+          mac-holdtime: 1080
 
 replaced_01:
   module_args:
@@ -47,13 +46,14 @@ replaced_01:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+      method: 'patch'
+      data:
+        openconfig-network-instance:config:
+          neigh-holdtime: 2000
     - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime'
       method: 'delete'
       data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime'
-      method: 'patch'
-      data:
-        openconfig-network-instance:neigh-holdtime: 2000
 
 replaced_02:
   module_args:
@@ -70,13 +70,14 @@ replaced_02:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+      method: 'patch'
+      data:
+        openconfig-network-instance:config:
+          startup-delay: 20
     - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
       method: 'delete'
       data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
-      method: 'patch'
-      data:
-        openconfig-network-instance:startup-delay: 20
 
 overridden_01:
   module_args:
@@ -93,19 +94,14 @@ overridden_01:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/mac-holdtime'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
       method: 'delete'
       data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime'
-      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+      method: 'patch'
       data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
-      method: 'delete'
-      data:
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime"
-      method: "patch"
-      data:
-        openconfig-network-instance:neigh-holdtime: 5000
+        openconfig-network-instance:config:
+          neigh-holdtime: 5000
 
 overridden_02:
   module_args:
@@ -122,19 +118,14 @@ overridden_02:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/mac-holdtime'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
       method: 'delete'
       data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime'
-      method: 'delete'
-      data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
-      method: 'delete'
-      data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
       method: 'patch'
       data:
-        openconfig-network-instance:startup-delay: 500
+        openconfig-network-instance:config:
+          startup-delay: 500
 
 deleted_01:
   module_args:
@@ -168,12 +159,6 @@ deleted_02:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/mac-holdtime'
-      method: 'delete'
-      data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime'
-      method: 'delete'
-      data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
       method: 'delete'
       data:

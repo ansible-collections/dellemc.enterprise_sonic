@@ -62,7 +62,6 @@ class Evpn_esi_multihomeFacts(object):
             data = self.get_all_evpn_esi_mh()
 
         evpn_esi_mh = dict()
-        self.render_config(self.generated_spec, data)
         evpn_esi_mh = data
 
         facts = {}
@@ -84,7 +83,6 @@ class Evpn_esi_multihomeFacts(object):
         requests = [{"path": path, "method": method}]
         try:
             response = edit_config(self._module, to_request(self._module, requests))
-
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
@@ -92,7 +90,7 @@ class Evpn_esi_multihomeFacts(object):
 
         if response is not None and response[0][1] is not None and "openconfig-network-instance:config" in response[0][1]:
             evpn_response = response[0][1].get("openconfig-network-instance:config", {})
-            df_election_time = evpn_response.get('df-election-time', None)
+            df_election_time = evpn_response.get('df-election-time')
             if df_election_time:
                 evpn_esi_mh_dict.update({'df_election_time': df_election_time})
 
@@ -112,15 +110,3 @@ class Evpn_esi_multihomeFacts(object):
             if startup_delay:
                 evpn_esi_mh_dict.update({'startup_delay': startup_delay})
         return evpn_esi_mh_dict
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf

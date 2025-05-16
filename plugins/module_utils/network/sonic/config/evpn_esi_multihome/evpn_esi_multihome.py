@@ -28,10 +28,15 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_diff,
     remove_none
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    get_new_config,
+    get_formatted_config_diff
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 
 PATCH = "patch"
 DELETE = "delete"
+EVPN_MH_PATH = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
 
 
 class Evpn_esi_multihome(ConfigBase):
@@ -71,7 +76,6 @@ class Evpn_esi_multihome(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
         commands = list()
 
         existing_evpn_esi_multihome_facts = self.get_evpn_esi_multihome_facts()
@@ -91,10 +95,15 @@ class Evpn_esi_multihome(ConfigBase):
         if result['changed']:
             result['after'] = changed_evpn_esi_mh_facts
 
+        new_config = changed_evpn_esi_mh_facts
+        old_config = existing_evpn_esi_multihome_facts
         if self._module.check_mode:
             result.pop('after', None)
+            new_config = get_new_config(commands, existing_evpn_esi_multihome_facts)
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
+
         return result
 
     def set_config(self, existing_evpn_esi_multihome_facts):
@@ -105,7 +114,7 @@ class Evpn_esi_multihome(ConfigBase):
         :returns: the commands and requests necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_none(self._module.params['config'])
         have = existing_evpn_esi_multihome_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -140,7 +149,6 @@ class Evpn_esi_multihome(ConfigBase):
         requests = []
         commands = []
         delete_all = False
-        want = remove_none(want)
 
         if want is None or have is None:
             return commands, requests
@@ -198,7 +206,7 @@ class Evpn_esi_multihome(ConfigBase):
         requests = []
         if want is None or have is None:
             return commands, requests
-        want = remove_none(want)
+
         if not want:
             return commands, requests
 
@@ -260,7 +268,6 @@ class Evpn_esi_multihome(ConfigBase):
             return commands, requests
 
         delete_all = False
-        want = remove_none(want)
         have = remove_none(have)
 
         if have is None:
@@ -281,43 +288,38 @@ class Evpn_esi_multihome(ConfigBase):
         return commands, requests
 
     def get_create_evpn_esi_mh_request(self, config, have=None):
-        requests = []
+        """ Creates the request for creating the evpn_esi_mh object
+
+        :rtype: A list
+        :returns: the request for creating the evpn_esi_mh object
+        """
+        request_info = dict()
         method = PATCH
+        path = EVPN_MH_PATH
+        requests = list()
 
-        if config.get('df_election_time'):
-            df_election_time_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/df-election-time'
-            payload = {'openconfig-network-instance:df-election-time': config.get('df_election_time')}
-            df_election_time_request = {'path': df_election_time_path, 'method': method, 'data': payload}
-            requests.append(df_election_time_request)
+        request_info['openconfig-network-instance:config'] = {
+            'df-election-time': config.get('df_election_time', None),
+            'es-activation-delay': config.get('es_activation_delay', None), 
+            'mac-holdtime': config.get('mac_holdtime', None), 
+            'neigh-holdtime': config.get('neigh_holdtime', None), 
+            'startup-delay': config.get('startup_delay', None)
+            }
 
-        if config.get('es_activation_delay'):
-            es_activation_delay_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/es-activation-delay'
-            payload = {'openconfig-network-instance:es-activation-delay': config.get('es_activation_delay')}
-            es_activation_delay_request = {'path': es_activation_delay_path, 'method': method, 'data': payload}
-            requests.append(es_activation_delay_request)
-
-        if config.get('mac_holdtime'):
-            mac_holdtime_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/mac-holdtime'
-            payload = {'openconfig-network-instance:mac-holdtime': config.get('mac_holdtime')}
-            mac_holdtime_request = {'path': mac_holdtime_path, 'method': method, 'data': payload}
-            requests.append(mac_holdtime_request)
-
-        if config.get('neigh_holdtime'):
-            neigh_holdtime_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime'
-            payload = {'openconfig-network-instance:neigh-holdtime': config.get('neigh_holdtime')}
-            neigh_holdtime_request = {'path': neigh_holdtime_path, 'method': method, 'data': payload}
-            requests.append(neigh_holdtime_request)
-
-        if config.get('startup_delay'):
-            startup_delay_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
-            payload = {'openconfig-network-instance:startup-delay': config.get('startup_delay')}
-            startup_delay_request = {'path': startup_delay_path, 'method': method, 'data': payload}
-            requests.append(startup_delay_request)
+        request = dict()
+        request = {'path': path, 'method': method, 'data': request_info}
+        requests.append(request)
 
         return requests
 
     def get_delete_evpn_esi_mh_request(self, configs, have, delete_all):
+        """ Creates the request for deleting the evpn_esi_mh object
+
+        :rtype: A list
+        :returns: the requests for deleting the evpn_esi_mh object
+        """
         requests = []
+        path = EVPN_MH_PATH
         if not configs:
             return requests
 
@@ -333,28 +335,33 @@ class Evpn_esi_multihome(ConfigBase):
         neigh_holdtime = 'neigh_holdtime' in configs
         startup_delay = 'startup_delay' in configs
 
-        if (delete_all or df_election_time) and have_df_election_time:
-            df_election_time_url = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/df-election-time'
+        if delete_all:
+            delete_all_request = {'path': path, 'method': DELETE}
+            requests.append(delete_all_request)
+            return requests
+
+        if  df_election_time and have_df_election_time:
+            df_election_time_url = '{0}/{1}'.format(path, 'df-election-time')
             df_election_time_request = {'path': df_election_time_url, 'method': DELETE}
             requests.append(df_election_time_request)
 
-        if (delete_all or es_activation_delay) and have_es_activation_delay:
-            es_activation_delay_url = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/es-activation-delay'
+        if es_activation_delay and have_es_activation_delay:
+            es_activation_delay_url = '{0}/{1}'.format(path, 'es-activation-delay')
             es_activation_delay_request = {'path': es_activation_delay_url, 'method': DELETE}
             requests.append(es_activation_delay_request)
 
-        if (delete_all or mac_holdtime) and have_mac_holdtime:
-            mac_holdtime_url = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/mac-holdtime'
+        if mac_holdtime and have_mac_holdtime:
+            mac_holdtime_url = '{0}/{1}'.format(path, 'mac-holdtime')
             mac_holdtime_delay_request = {'path': mac_holdtime_url, 'method': DELETE}
             requests.append(mac_holdtime_delay_request)
 
-        if (delete_all or neigh_holdtime) and have_neigh_holdtime:
-            neigh_holdtime_url = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime'
+        if neigh_holdtime and have_neigh_holdtime:
+            neigh_holdtime_url = '{0}/{1}'.format(path, 'neigh-holdtime')
             neigh_holdtime_request = {'path': neigh_holdtime_url, 'method': DELETE}
             requests.append(neigh_holdtime_request)
 
-        if (delete_all or startup_delay) and have_startup_delay:
-            startup_delay_url = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay'
+        if startup_delay and have_startup_delay:
+            startup_delay_url = '{0}/{1}'.format(path, 'startup-delay')
             startup_delay_request = {'path': startup_delay_url, 'method': DELETE}
             requests.append(startup_delay_request)
 
