@@ -155,15 +155,6 @@ class TestSonicModule(ModuleTestCase):
             self.config_requests_valid.sort(key=lambda request: (request['path'], request['method']))
             self.config_requests_sent.sort(key=lambda request: (request['path'], request['method']))
 
-        import json
-        with open('/neteng/vishvaja.ramalinga/REVIEW_BGP_ANSIBLE/valid_req_file', 'w') as fd:
-            json.dump(self.config_requests_valid, fd, indent=4)
-        with open('/neteng/vishvaja.ramalinga/REVIEW_BGP_ANSIBLE/sent_req_file', 'w') as fd:
-            json.dump(self.config_requests_sent, fd, indent=4)
-
-
-
-
         self.assertEqual(len(self.config_requests_valid), len(self.config_requests_sent))
         for valid_request, sent_request in zip(self.config_requests_valid, self.config_requests_sent):
             self.assertEqual(get_diff(valid_request, sent_request, [{'path': "", 'method': "", 'data': {}}]), {})

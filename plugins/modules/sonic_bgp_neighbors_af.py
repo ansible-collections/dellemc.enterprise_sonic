@@ -362,6 +362,47 @@ EXAMPLES = """
 #   maximum-prefix 1 80 warning-only
 
 
+# Using "merged" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# (No bgp neighbor configuration present)
+- name: "Configure BGP neighbor prefix-list attributes"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+     config:
+        - bgp_as: 51
+          neighbors:
+             - neighbor: 1.1.1.1
+               address_family:
+                  - afi: ipv4
+                    safi: unicast
+                    ip_afi:
+                       default_policy_name: rmap_reg1
+                       send_default_route: true
+                    prefix_limit:
+                       max_prefixes: 2
+                       discard_extra: true
+                       warning_threshold: 60
+                    prefix_list_in: p1
+                    prefix_list_out: p2
+     state: merged
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# !
+# neighbor 1.1.1.1
+#  !
+#  address-family ipv4 unicast
+#   default-originate route-map rmap_reg1
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 2 60 discard-extra
+
+
 # Using "deleted" state
 #
 # Before state:

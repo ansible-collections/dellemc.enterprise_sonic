@@ -353,7 +353,6 @@ class Bgp_neighbors_af(ConfigBase):
         else:
             commands = want
 
-
         requests = self.get_delete_bgp_neighbors_af_requests(commands, have, is_delete_all)
 
         if commands and len(requests) > 0:
