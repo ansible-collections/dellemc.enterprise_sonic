@@ -87,7 +87,9 @@ class FactsArgs(object):  # pylint: disable=R0903
         'lst',
         'fbs_classifiers',
         'mirroring',
-        'mfa'
+        'mfa',
+        'br_l2pt',
+        'mirroring'
     ]
 
     argument_spec = {
