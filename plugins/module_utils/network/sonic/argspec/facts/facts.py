@@ -54,6 +54,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'logging',
         'pki',
         'ip_neighbor',
+        'ipv6_router_advertisement',
         'port_group',
         'dhcp_relay',
         'dhcp_snooping',

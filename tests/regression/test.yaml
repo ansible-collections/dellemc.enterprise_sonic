@@ -27,6 +27,7 @@
     - sonic_bgp_af
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
+    - sonic_br_l2pt
     - sonic_ospfv2_interfaces
     - sonic_ospfv2
     - sonic_dhcp_snooping
@@ -45,6 +46,7 @@
     - sonic_ntp
     - sonic_logging
     - sonic_ip_neighbor
+    - sonic_ipv6_router_advertisement
     - sonic_port_group
     - sonic_dhcp_relay
     - sonic_acl_interfaces
