@@ -24,8 +24,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_bgp_neighbors
     bgp_neighbors_af:
       redirect: dellemc.enterprise_sonic.sonic_bgp_neighbors_af
-    evpn_esi_multihome:
-      redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
+    br_l2pt:
+      redirect: dellemc.enterprise_sonic.sonic_br_l2pt
     command:
       redirect: dellemc.enterprise_sonic.sonic_command
     config:
@@ -36,6 +36,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_relay
     dhcp_snooping:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
+    evpn_esi_multihome:
+      redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
     facts:
       redirect: dellemc.enterprise_sonic.sonic_facts
     fbs_classifiers:
