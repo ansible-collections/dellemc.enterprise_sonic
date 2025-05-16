@@ -297,11 +297,12 @@ class Evpn_esi_multihome(ConfigBase):
         path = EVPN_MH_PATH
         requests = list()
 
-        request_info['openconfig-network-instance:config'] = {'df-election-time': config.get('df_election_time', None),
-                                                              'es-activation-delay': config.get('es_activation_delay', None),
-                                                              'mac-holdtime': config.get('mac_holdtime', None),
-                                                              'neigh-holdtime': config.get('neigh_holdtime', None),
-                                                              'startup-delay': config.get('startup_delay', None)
+        request_info['openconfig-network-instance:config'] = {
+            'df-election-time': config.get('df_election_time', None),
+            'es-activation-delay': config.get('es_activation_delay', None),
+            'mac-holdtime': config.get('mac_holdtime', None),
+            'neigh-holdtime': config.get('neigh_holdtime', None),
+            'startup-delay': config.get('startup_delay', None)
                                                              }
 
         request = dict()
