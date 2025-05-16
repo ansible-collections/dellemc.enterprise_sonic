@@ -62,7 +62,7 @@ class Evpn_esi_multihome(ConfigBase):
         :rtype: A dictionary
         :returns: The current configuration as a dictionary
         """
-        evpn_esi_multihome_facts = dict()
+        evpn_esi_multihome_facts = {}
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         evpn_esi_multihome_facts = facts['ansible_network_resources'].get('evpn_esi_multihome')
         if evpn_esi_multihome_facts is None:
@@ -76,7 +76,7 @@ class Evpn_esi_multihome(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        commands = list()
+        commands = []
 
         existing_evpn_esi_multihome_facts = self.get_evpn_esi_multihome_facts()
         commands, requests = self.set_config(existing_evpn_esi_multihome_facts)
@@ -185,7 +185,7 @@ class Evpn_esi_multihome(ConfigBase):
         requests.extend(replaced_snmp)
         if merged_commands and len(replaced_snmp) > 0:
             merged_commands = update_states(merged_commands, 'replaced')
-            new_commands = list()
+            new_commands = []
             for command in merged_commands:
                 new_commands.append(remove_none(command))
             commands = new_commands
@@ -263,19 +263,17 @@ class Evpn_esi_multihome(ConfigBase):
         requests = []
         commands = []
 
-        if not have or have is None or have is {}:
+        if not have:
             return commands, requests
 
         delete_all = False
-        have = remove_none(have)
 
-        if have is None:
-            return commands, requests
-        if not want or want is None:
+        if not want:
             commands = deepcopy(have)
             delete_all = True
         else:
-            commands = want
+            diff = get_diff(have, want)
+            commands = get_diff(want, diff)
 
         requests = list(self.get_delete_evpn_esi_mh_request(commands, have, delete_all))
 
@@ -292,19 +290,19 @@ class Evpn_esi_multihome(ConfigBase):
         :rtype: A list
         :returns: the request for creating the evpn_esi_mh object
         """
-        request_info = dict()
+        request_info = {}
         method = PATCH
         path = EVPN_MH_PATH
-        requests = list()
+        requests = []
 
         request_info['openconfig-network-instance:config'] = {
-            'df-election-time': config.get('df_election_time', None),
-            'es-activation-delay': config.get('es_activation_delay', None),
-            'mac-holdtime': config.get('mac_holdtime', None),
-            'neigh-holdtime': config.get('neigh_holdtime', None),
-            'startup-delay': config.get('startup_delay', None)}
+            'df-election-time': config.get('df_election_time'),
+            'es-activation-delay': config.get('es_activation_delay'),
+            'mac-holdtime': config.get('mac_holdtime'),
+            'neigh-holdtime': config.get('neigh_holdtime'),
+            'startup-delay': config.get('startup_delay')}
 
-        request = dict()
+        request = {}
         request = {'path': path, 'method': method, 'data': request_info}
         requests.append(request)
 
@@ -321,11 +319,11 @@ class Evpn_esi_multihome(ConfigBase):
         if not configs:
             return requests
 
-        have_df_election_time = have.get('df_election_time', None)
-        have_es_activation_delay = have.get('es_activation_delay', None)
-        have_mac_holdtime = have.get('mac_holdtime', None)
-        have_neigh_holdtime = have.get('neigh_holdtime', None)
-        have_startup_delay = have.get('startup_delay', None)
+        have_df_election_time = have.get('df_election_time')
+        have_es_activation_delay = have.get('es_activation_delay')
+        have_mac_holdtime = have.get('mac_holdtime')
+        have_neigh_holdtime = have.get('neigh_holdtime')
+        have_startup_delay = have.get('startup_delay')
 
         df_election_time = 'df_election_time' in configs
         es_activation_delay = 'es_activation_delay' in configs
