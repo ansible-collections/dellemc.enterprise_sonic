@@ -94,19 +94,19 @@ class Evpn_esi_multihomeFacts(object):
             if df_election_time:
                 evpn_esi_mh_dict.update({'df_election_time': df_election_time})
 
-            es_activation_delay = evpn_response.get('es-activation-delay', None)
+            es_activation_delay = evpn_response.get('es-activation-delay')
             if es_activation_delay:
                 evpn_esi_mh_dict.update({'es_activation_delay': es_activation_delay})
 
-            neigh_holdtime = evpn_response.get('neigh-holdtime', None)
+            neigh_holdtime = evpn_response.get('neigh-holdtime')
             if neigh_holdtime:
                 evpn_esi_mh_dict.update({'neigh_holdtime': neigh_holdtime})
 
-            mac_holdtime = evpn_response.get('mac-holdtime', None)
+            mac_holdtime = evpn_response.get('mac-holdtime')
             if mac_holdtime:
                 evpn_esi_mh_dict.update({'mac_holdtime': mac_holdtime})
 
-            startup_delay = evpn_response.get('startup-delay', None)
+            startup_delay = evpn_response.get('startup-delay')
             if startup_delay:
                 evpn_esi_mh_dict.update({'startup_delay': startup_delay})
         return evpn_esi_mh_dict
