@@ -120,6 +120,7 @@ options:
       - br_l2pt
       - dcbx
       - mirroring
+      - mfa
 """
 
 EXAMPLES = """
