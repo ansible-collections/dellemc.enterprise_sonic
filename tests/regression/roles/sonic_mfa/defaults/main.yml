@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: mfa
 
-tests:
+sonic_mfa_tests:
   - name: test_case_01
     description: Add MFA global and RSA global configurations
     state: merged

@@ -487,7 +487,7 @@ class Mfa(ConfigBase):
         if mfa_global:
             for mfa_global_option in mfa_global_std_paths:
                 if mfa_global.get(mfa_global_option):
-                    requests.append(self.get_delete_attr(mfa_global_std_paths[mfa_global_option], 'mfa-global'))
+                    requests.append(self.get_delete_attr_request(mfa_global_std_paths[mfa_global_option], 'mfa-global'))
         return requests
 
     def get_delete_all_rsa_global_requests(self, commands):
@@ -505,7 +505,7 @@ class Mfa(ConfigBase):
 
         rsa_servers = commands.get('rsa_servers', [])
         for rsa_server in rsa_servers:
-            requests.append(self.get_delete_attr(rsa_server['hostname'], 'rsa-servers'))
+            requests.append(self.get_delete_attr_request(rsa_server['hostname'], 'rsa-servers'))
         return requests
 
     def get_delete_all_cac_piv_global_requests(self, commands):
@@ -525,7 +525,7 @@ class Mfa(ConfigBase):
             if mfa_global_option in want_mfa_global:
                 if (want_mfa_global.get(mfa_global_option) and want_mfa_global.get(mfa_global_option) == have_mfa_global.get(mfa_global_option)):
                     commands[mfa_global_option] = have_mfa_global.get(mfa_global_option)
-                    requests.append(self.get_delete_attr(mfa_global_std_paths[mfa_global_option], 'mfa-global'))
+                    requests.append(self.get_delete_attr_request(mfa_global_std_paths[mfa_global_option], 'mfa-global'))
                 else:
                     want_mfa_global.pop(mfa_global_option)
         return commands, requests
@@ -537,7 +537,7 @@ class Mfa(ConfigBase):
         security_profile = want_rsa_global.get('security_profile')
         if security_profile and security_profile == have_rsa_global.get('security_profile'):
             commands.append({'security_profile': have_rsa_global.get('security_profile')})
-            requests.append(self.get_delete_attr('rsa-security-profile', 'rsa-global'))
+            requests.append(self.get_delete_attr_request('rsa-security-profile', 'rsa-global'))
         return commands, requests
 
     def get_delete_rsa_servers_requests(self, want_rsa_servers, have_rsa_servers):
@@ -554,16 +554,16 @@ class Mfa(ConfigBase):
                         if rsa_server.get(attr) and rsa_server.get(attr) == matching_rsa_server.get(attr):
                             cmd[attr] = matching_rsa_server.get(attr)
                             if attr == "server_port":
-                                requests.append(self.get_delete_attr(rsa_server["hostname"], 'rsa-servers', 'port-number'))
+                                requests.append(self.get_delete_attr_request(rsa_server["hostname"], 'rsa-servers', 'port-number'))
                             else:
-                                requests.append(self.get_delete_attr(rsa_server["hostname"], 'rsa-servers', attr.replace('_', '-')))
+                                requests.append(self.get_delete_attr_request(rsa_server["hostname"], 'rsa-servers', attr.replace('_', '-')))
                     if cmd:
                         cmd["hostname"] = matching_rsa_server.get("hostname")
                         commands.append(cmd)
                     if len(rsa_server) == 1 and "hostname" in rsa_server:
                         cmd["hostname"] = matching_rsa_server.get("hostname")
                         commands.append(cmd)
-                        requests.append(self.get_delete_attr(rsa_server["hostname"], 'rsa-servers'))
+                        requests.append(self.get_delete_attr_request(rsa_server["hostname"], 'rsa-servers'))
         return commands, requests
 
     def get_delete_cac_piv_global_requests(self, want_cac_piv_global, have_cac_piv_global):
@@ -576,20 +576,19 @@ class Mfa(ConfigBase):
                 have_value = have_cac_piv_global.get(cac_piv_global_option)
                 if want_value and want_value == have_value:
                     commands[cac_piv_global_option] = have_cac_piv_global.get(cac_piv_global_option)
-                    requests.append(self.get_delete_attr(cac_piv_global_std_paths[cac_piv_global_option], 'cac-piv-global'))
+                    requests.append(self.get_delete_attr_request(cac_piv_global_std_paths[cac_piv_global_option], 'cac-piv-global'))
                 else:
                     want_cac_piv_global.pop(cac_piv_global_option)
         return commands, requests
 
-    def get_delete_attr(self, attr, module, sub_attr=''):
+    def get_delete_attr_request(self, attr, module, sub_attr=''):
         if module == 'rsa-servers':
             url = f"{MFA_PATH}/{module}/rsa-server={attr}"
             if sub_attr:
                 url = url + f"/config/{sub_attr}"
         else:
             url = f"{MFA_PATH}/{module}/config/{attr}"
-        request = {'path': url, 'method': DELETE}
-        return request
+        return {'path': url, 'method': DELETE}
 
     def remove_default_entries(self, data):
         mfa_defaults = {'mfa_global': ['key_seed_encrypted', 'client_secret_encrypted'],
@@ -655,12 +654,11 @@ class Mfa(ConfigBase):
                             (read_timeout and read_timeout != cfg_read_timeout)):
                         rsa_servers_list.append(cfg_rsa_server)
                         if server_port and server_port != cfg_server_port:
-                            requests.append(self.get_delete_attr(hostname, 'rsa-servers', 'port-number'))
+                            requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'port-number'))
                         if connection_timeout and connection_timeout != cfg_connection_timeout:
-                            requests.append(self.get_delete_attr(hostname, 'rsa-servers', 'connection-timeout'))
+                            requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'connection-timeout'))
                         if read_timeout and read_timeout != cfg_read_timeout:
-                            requests.append(self.get_delete_attr(hostname, 'rsa-servers', 'read-timeout'))
-
+                            requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'read-timeout'))
         return rsa_servers_list, requests
 
     def sort_lists_in_config(self, config):
