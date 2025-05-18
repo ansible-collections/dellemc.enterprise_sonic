@@ -61,7 +61,12 @@ class Radius_serverArgs(object):  # pylint: disable=R0903
                                 'name': {'type': 'str'},
                                 'port': {'type': 'int', 'default': 1812},
                                 'priority': {'type': 'int'},
+                                'protocol': {
+                                    'choices': ['TLS', 'UDP'],
+                                    'type': 'str'
+                                },
                                 'retransmit': {'type': 'int'},
+                                'security_profile': {'type': 'str'},
                                 'source_interface': {'type': 'str'},
                                 'timeout': {'type': 'int'},
                                 'vrf': {'type': 'str'}
