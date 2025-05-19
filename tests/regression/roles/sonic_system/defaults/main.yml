@@ -16,6 +16,8 @@ tests:
       #load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
       concurrent_session_limit: 4
+      password_complexity:
+        min_lower_case: 2
 
   - name: test_case_02
     description: Update created System properties
@@ -27,6 +29,8 @@ tests:
       #load_share_hash_algo: JENKINS_HASH_LO 
       audit_rules: DETAIL
       concurrent_session_limit: 5
+      password_complexity:
+        min_upper_case: 1
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -48,6 +52,9 @@ tests:
       #load_share_hash_algo: JENKINS_HASH_LO 
       audit_rules: BASIC
       concurrent_session_limit: 5
+      password_complexity:
+        min_upper_case: 1
+        min_lower_case: 2
 
   - name: test_case_05
     description: Delete System associated anycast mac address
@@ -70,6 +77,8 @@ tests:
       #load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
       concurrent_session_limit: 4
+      password_complexity:
+        min_numerals: 1
 
   - name: test_case_07
     description: Replace some System configuration
@@ -95,6 +104,8 @@ tests:
       #load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
       concurrent_session_limit: 5
+      password_complexity:
+        min_lower_case: 1
 
   - name: test_case_09
     description: Update System properties
