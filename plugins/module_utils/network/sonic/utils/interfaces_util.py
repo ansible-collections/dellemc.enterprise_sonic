@@ -69,6 +69,8 @@ intf_speed_to_number_map = {
 }
 
 interface_port_num_map = {}
+
+
 # To create Loopback, VLAN interfaces
 def build_interfaces_create_request(interface_name):
     url = "data/openconfig-interfaces:interfaces"
@@ -182,8 +184,8 @@ def retrieve_port_num(module, intf_name):
     '''This function is used to retrieve the port_num from interface name.'''
     port_num = 65535
     method = "get"
-    if(interface_port_num_map.get(intf_name) is not None):
-       return (interface_port_num_map[intf_name])
+    if (interface_port_num_map.get(intf_name) is not None):
+        return (interface_port_num_map[intf_name])
 
     if "Ethernet" in intf_name:
         port_num = intf_name.replace("Ethernet", "")
@@ -201,4 +203,3 @@ def retrieve_port_num(module, intf_name):
             port_num = alias.replace("Ethernet", "")
     interface_port_num_map[intf_name] = int(port_num)
     return int(port_num)
-

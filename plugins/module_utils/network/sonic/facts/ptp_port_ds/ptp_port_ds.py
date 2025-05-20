@@ -19,9 +19,7 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    remove_empties_from_list
-)
+
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.ptp_port_ds.ptp_port_ds import Ptp_port_dsArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -66,7 +64,6 @@ class Ptp_port_dsFacts(object):
         if obj:
             params = utils.validate_config(self.argument_spec, {'config': obj})
             facts['ptp_port_ds'] = utils.remove_empties({'config': params['config']})['config']
-#           facts['ptp_port_ds'] = remove_empties_from_list(params['config'])
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts

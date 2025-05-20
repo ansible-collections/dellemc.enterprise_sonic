@@ -43,7 +43,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
-import re
 
 TEST_KEYS = [
     {'config': {'interface': ''}}
@@ -285,7 +284,6 @@ class Ptp_port_ds(ConfigBase):
 
                     if command:
                         command['interface'] = intf_name
-                        #command['portnum'] = port_num_int
                         commands.append(command)
                         requests.extend(self.get_delete_requests(have_conf, command, port_num_int))
 
