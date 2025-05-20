@@ -9,7 +9,11 @@ It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
 """
+from __future__ import absolute_import, division, print_function
+__metaclass__ = type
+
 import re
+
 from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
@@ -62,31 +66,16 @@ class Ptp_port_dsFacts(object):
         if obj:
             params = utils.validate_config(self.argument_spec, {'config': obj})
             facts['ptp_port_ds'] = utils.remove_empties({'config': params['config']})['config']
-            facts['ptp_port_ds'] = remove_empties_from_list(params['config'])
-#           #params = utils.validate_config(self.argument_spec, {'config': objs})
-#           #facts['ptp_port_ds'] = params['config']
+#           facts['ptp_port_ds'] = remove_empties_from_list(params['config'])
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def get_all_ptp_port(self):
         """Get all PTP port configurations available in chassis"""
         ptp_port_path = 'data/ietf-ptp:ptp/instance-list=0/port-ds-list'
         request = [{'path': ptp_port_path, 'method': GET}]
 
-        ptp_op = []
         ptp_port_configs = []
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -96,16 +85,16 @@ class Ptp_port_dsFacts(object):
             else:
                 self._module.fail_json(msg=str(exc), code=exc.code)
 
-        if (response[0][1].get('ietf-ptp:port-ds-list')):
-            raw_ptp_port_data = response[0][1].get('ietf-ptp:port-ds-list')
+        if response[0][1].get('ietf-ptp:port-ds-list'):
+            raw_ptp_port_data = response[0][1]['ietf-ptp:port-ds-list']
             for port in raw_ptp_port_data:
                 ptp_port_data = {}
                 ptp_port_data['interface'] = port['underlying-interface']
                 if 'ietf-ptp-ext:role' in port:
-                    ptp_port_data['role'] = port['ietf-ptp-ext:role']
+                    ptp_port_data['role'] = port['ietf-ptp-ext:role'].lower()
                 if 'ietf-ptp-ext:local-priority' in port:
-                    ptp_port_data['localpriority'] = port['ietf-ptp-ext:local-priority']
+                    ptp_port_data['local_priority'] = port['ietf-ptp-ext:local-priority']
                 if 'ietf-ptp-ext:unicast-table' in port:
-                    ptp_port_data['unicasttable'] = port['ietf-ptp-ext:unicast-table']
+                    ptp_port_data['unicast_table'] = port['ietf-ptp-ext:unicast-table']
                 ptp_port_configs.append(ptp_port_data)
         return ptp_port_configs

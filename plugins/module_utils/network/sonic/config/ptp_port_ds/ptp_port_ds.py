@@ -24,7 +24,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
-    get_port_num
+    retrieve_port_num
 )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
@@ -78,16 +78,16 @@ class Ptp_port_ds(ConfigBase):
 
     ptp_instance_path = 'data/ietf-ptp:ptp/instance-list=0'
     ptp_port_path = ptp_instance_path + '/port-ds-list={number}'
-    ptp_port_path_del_all = 'data/ietf-ptp:ptp/instance-list=0/port-ds-list'
+    ptp_port_path_del_all = ptp_instance_path + '/port-ds-list'
 
     ptp_port_config_path = {
         'interface': ptp_port_path + '/underlying-interface',
         'role': ptp_port_path + '/ietf-ptp-ext:role',
-        'localpriority': ptp_port_path + '/ietf-ptp-ext:local-priority',
-        'unicasttable': ptp_port_path + '/ietf-ptp-ext:unicast-table',
+        'local_priority': ptp_port_path + '/ietf-ptp-ext:local-priority',
+        'unicast_table': ptp_port_path + '/ietf-ptp-ext:unicast-table',
     }
 
-    ptp_port_options = ('role', 'localpriority', 'unicasttable')
+    ptp_port_options = ('role', 'local_priority', 'unicast_table')
 
     def __init__(self, module):
         super(Ptp_port_ds, self).__init__(module)
@@ -120,10 +120,7 @@ class Ptp_port_ds(ConfigBase):
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
-                    if re.search("code.*404", str(exc)) or re.search("code.*400", str(exc)):
-                        pass
-                    else:
-                        self._module.fail_json(msg=str(exc), code=exc.code)
+                    self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
 
         sleep(1)
@@ -138,7 +135,6 @@ class Ptp_port_ds(ConfigBase):
         else:
             new_config = changed_ptp_port_ds_facts
             new_config = remove_empties_from_list(new_config)
-            new_config.sort(key=lambda x: x['interface'])
             if result['changed']:
                 result['after'] = new_config
 
@@ -201,7 +197,7 @@ class Ptp_port_ds(ConfigBase):
         state = self._module.params['state']
         if have:
             for have_conf in have:
-                port_num = get_port_num(self._module, have_conf['interface'])
+                port_num = retrieve_port_num(self._module, have_conf['interface'])
                 intf_name = have_conf['interface']
                 conf = next((cfg for cfg in want if cfg['interface'] == intf_name), None)
 #                Delete all PTP port configurations , if
@@ -244,7 +240,7 @@ class Ptp_port_ds(ConfigBase):
 
         commands = diff
         requests = []
-        requests.extend(self.get_modify_ptp_port_ds_param_requests(commands))
+        requests = self.get_modify_ptp_port_ds_param_requests(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
         else:
@@ -265,11 +261,11 @@ class Ptp_port_ds(ConfigBase):
             return commands, requests
         elif not want:
             commands = have
-            requests.extend(self.get_delete_ptp_all_config_request(commands))
+            requests.extend(self.get_delete_all_ptp_port_request(commands))
         else:
             for conf in want:
                 if 'interface' in conf:
-                    port_num = get_port_num(self._module, conf['interface'])
+                    port_num = retrieve_port_num(self._module, conf['interface'])
                     port_num_int = int(port_num)
                 intf_name = conf['interface']
                 have_conf = next((cfg for cfg in have if cfg['interface'] == intf_name), None)
@@ -289,9 +285,9 @@ class Ptp_port_ds(ConfigBase):
 
                     if command:
                         command['interface'] = intf_name
-                        command['portnum'] = port_num_int
+                        #command['portnum'] = port_num_int
                         commands.append(command)
-                        requests.extend(self.get_delete_requests(have_conf, command))
+                        requests.extend(self.get_delete_requests(have_conf, command, port_num_int))
 
         if commands:
             commands = update_states(commands, "deleted")
@@ -305,25 +301,25 @@ class Ptp_port_ds(ConfigBase):
         requests = []
         for command in commands:
             if 'interface' in command:
-                port_num = get_port_num(self._module, command['interface'])
+                port_num = retrieve_port_num(self._module, command['interface'])
                 port_num_int = int(port_num)
                 url = self.ptp_port_path.format(number=port_num_int)
                 payload = {"ietf-ptp:port-ds-list": [{"port-number": port_num_int, "underlying-interface": command['interface']}]}
                 requests.append({'path': url, 'method': PUT, 'data': payload})
 
             if 'role' in command and command['role'] is not None:
-                payload = {'ietf-ptp-ext:role': command['role']}
+                payload = {'ietf-ptp-ext:role': command['role'].upper()}
                 url = self.ptp_port_config_path['role'].format(number=port_num)
                 requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-            if 'localpriority' in command and command['localpriority'] is not None:
-                payload = {'ietf-ptp-ext:local-priority': command['localpriority']}
-                url = self.ptp_port_config_path['localpriority'].format(number=port_num)
+            if 'local_priority' in command and command['local_priority'] is not None:
+                payload = {'ietf-ptp-ext:local-priority': command['local_priority']}
+                url = self.ptp_port_config_path['local_priority'].format(number=port_num)
                 requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-            if 'unicasttable' in command and command['unicasttable'] is not None:
-                url = self.ptp_port_config_path['unicasttable'].format(number=port_num)
-                payload = {'ietf-ptp-ext:unicast-table': command['unicasttable']}
+            if 'unicast_table' in command and command['unicast_table'] is not None:
+                url = self.ptp_port_config_path['unicast_table'].format(number=port_num)
+                payload = {'ietf-ptp-ext:unicast-table': command['unicast_table']}
                 unicast = ",".join(payload['ietf-ptp-ext:unicast-table'])
                 unicasttbl = unicast.split()
                 payload['ietf-ptp-ext:unicast-table'] = unicasttbl
@@ -331,23 +327,22 @@ class Ptp_port_ds(ConfigBase):
 
         return requests
 
-    def get_delete_specific_ptp_port_param_requests(self, command):
+    def get_delete_specific_ptp_port_param_requests(self, command, port_num):
         """Get requests to delete specific PTP Port configurations"""
         requests = []
-        port_num = command['portnum']
         for option in self.ptp_port_options:
             if option in command:
                 requests.append({'path': self.ptp_port_config_path[option].format(number=port_num), 'method': DELETE})
         return requests
 
-    def get_delete_requests(self, have_conf, del_command):
-        """Get requests to delete interface PIM configurations"""
+    def get_delete_requests(self, have_conf, del_command, port_num_int):
+        """Get requests to delete PTP port configurations"""
         requests = []
 
         if have_conf == del_command:
-            requests.append(self.get_delete_ptp_port_request(del_command['portnum']))
+            requests.append(self.get_delete_ptp_port_request(port_num_int))
         else:
-            requests.extend(self.get_delete_specific_ptp_port_param_requests(del_command))
+            requests.extend(self.get_delete_specific_ptp_port_param_requests(del_command, port_num_int))
 
         return requests
 
@@ -356,7 +351,7 @@ class Ptp_port_ds(ConfigBase):
         in the specified port"""
         return {'path': self.ptp_port_path.format(number=port_num), 'method': DELETE}
 
-    def get_delete_ptp_all_config_request(self, have):
+    def get_delete_all_ptp_port_request(self, have):
         """Get request to delete all PTP configurations
         in the specified port"""
         requests = []

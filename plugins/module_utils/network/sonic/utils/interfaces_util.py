@@ -68,7 +68,7 @@ intf_speed_to_number_map = {
     "SPEED_800GB": 800000
 }
 
-
+interface_port_num_map = {}
 # To create Loopback, VLAN interfaces
 def build_interfaces_create_request(interface_name):
     url = "data/openconfig-interfaces:interfaces"
@@ -177,41 +177,28 @@ def retrieve_valid_intf_speed(module, intf_name):
     else:
         module.fail_json(msg="Unable to retrieve valid port speeds for the interface {0}".format(intf_name))
 
-def get_port_num(module, interface):
+
+def retrieve_port_num(module, intf_name):
+    '''This function is used to retrieve the port_num from interface name.'''
     port_num = 65535
     method = "get"
-#    if "Vlan" in interface:
-#        port_num = str(int(interface.replace("Vlan", "")) + 1000)
-#    else:
-#        naming_mode_url = 'data/openconfig-system:system/state/openconfig-system-deviation:intf-naming-mode'
-#        request = {"path": naming_mode_url, "method": method}
-#        try:
-#            response = edit_config(module, to_request(module, request))
-#        except ConnectionError as exc:
-#            module.fail_json(msg=str(exc), code=exc.code)
-#        if ('openconfig-system-deviation:intf-naming-mode' in response[0][1]
-#             and "standard" in response[0][1].get('openconfig-system-deviation:intf-naming-mode', '')):
-#            name = interface
-#            interface_url = 'data/sonic-port:sonic-port/PORT_TABLE/PORT_TABLE_LIST=' + interface + '/alias'
-#            request = {"path": interface_url, "method": method}
-#            try:
-#                tmp_response = edit_config(module, to_request(module, request))
-#            except ConnectionError as exc:
-#               module.fail_json(msg=str(exc), code=exc.code)
-#            if tmp_response is not None and "sonic-port:alias" in tmp_response:
-#                interface = tmp_response["sonic-port:alias"]
-    if "Ethernet" in interface:
-        port_num = interface.replace("Ethernet", "")
-    elif "Eth" in interface:
-        name = interface
-        alias_url = f'data/sonic-port:sonic-port/PORT_TABLE/PORT_TABLE_LIST={name}/alias'
+    if(interface_port_num_map.get(intf_name) is not None):
+       return (interface_port_num_map[intf_name])
+
+    if "Ethernet" in intf_name:
+        port_num = intf_name.replace("Ethernet", "")
+    elif "Eth" in intf_name:
+        alias_url = f'data/sonic-port:sonic-port/PORT_TABLE/PORT_TABLE_LIST={intf_name}/alias'
         request = {"path": alias_url, "method": method}
         try:
             port_response = edit_config(module, to_request(module, request))
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
-        if port_response is not None and "sonic-port:alias" in port_response[0][1]:
-            first_element = port_response[0][1]
-            intf = first_element["sonic-port:alias"]
-            port_num = intf.replace("Ethernet", "")
-    return port_num
+        if "sonic-port:alias" in port_response[0][1]:
+            alias = port_response[0][1].get("sonic-port:alias")
+            if not alias:
+                module.fail_json(msg="Unable to retrieve port number for interface {0}".format(intf_name))
+            port_num = alias.replace("Ethernet", "")
+    interface_port_num_map[intf_name] = int(port_num)
+    return int(port_num)
+

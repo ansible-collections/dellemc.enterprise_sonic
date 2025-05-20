@@ -1,54 +1,51 @@
 ---
 ansible_connection: httpapi
-module_name: ptp_port_ds
 
-preparations_tests:
-
-tests:
+sonic_ptp_port_ds_tests:
   - name: test_case_01
     description: Add PTP port configuration
     state: merged
     input:
       - interface: '{{ interface1 }}'
-        role: SLAVE
-        localpriority: 10
-        unicasttable: ['1.1.1.1']
+        role: slave
+        local_priority: 10
+        unicast_table: ['1.1.1.1']
       - interface: '{{ interface2 }}'
-        role: MASTER
+        role: master
 
   - name: test_case_02
     description: Update PTP port configuration
     state: merged
     input:
       - interface: '{{ interface2 }}'
-        localpriority: 50
+        local_priority: 50
       - interface: '{{ interface3 }}'
-        role: SLAVE
-        localpriority: 99
+        role: slave
+        local_priority: 99
   
   - name: test_case_03
     description: Replaced PTP port configuration
     state: replaced
     input:
       - interface: '{{ interface2 }}'
-        localpriority: 22
-        role: SLAVE
+        local_priority: 22
+        role: slave
   
   - name: test_case_04
     description: Delete Specific PTP port field configuration
     state: deleted
     input:
       - interface: '{{ interface3 }}'
-        role: SLAVE
-        localpriority: 99
+        role: slave
+        local_priority: 99
 
   - name: test_case_05
     description: Overridden PTP port configuration
     state: overridden
     input:
       - interface: '{{ interface2 }}'
-        localpriority: 44
-        role: DYNAMIC
+        local_priority: 44
+        role: dynamic
   
   - name: test_case_06
     description: Delete Specific PTP port configuration
@@ -61,9 +58,9 @@ tests:
     state: overridden
     input:
       - interface: '{{ interface2 }}'
-        localpriority: 44
-        role: DYNAMIC
-        unicasttable: ["1.1.1.1", "2.2.2.2"]
+        local_priority: 44
+        role: dynamic
+        unicast_table: ["1.1.1.1", "2.2.2.2"]
   
   - name: test_case_08
     description: Delete all PTP port configuration

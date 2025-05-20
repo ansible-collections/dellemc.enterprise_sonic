@@ -3,8 +3,8 @@ merged_01:
   module_args:
     config:
       - interface: Ethernet0
-        role: SLAVE
-        unicasttable: ["1.1.1.1", "1.1.1.2"]
+        role: slave
+        unicast_table: ["1.1.1.1", "1.1.1.2"]
     state: merged
   existing_ptp_port_ds_config:
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
@@ -27,9 +27,9 @@ merged_02:
   module_args:
     config:
       - interface: Ethernet4
-        role: DYNAMIC
-        localpriority: 22
-        unicasttable: ["1.1.1.1", "1.1.1.2"]
+        role: dynamic
+        local_priority: 22
+        unicast_table: ["1.1.1.1", "1.1.1.2"]
     state: merged
   existing_ptp_port_ds_config:
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
@@ -68,8 +68,8 @@ replaced_01:
   module_args:
     config:
       - interface: Ethernet4
-        role: SLAVE
-        localpriority: 44
+        role: slave
+        local_priority: 44
     state: replaced
   existing_ptp_port_ds_config:
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
@@ -116,8 +116,7 @@ deleted_01:
   module_args:
     config:
       - interface: Ethernet4
-        role: SLAVE
-        localpriority: 44
+        role: slave
     state: deleted
   existing_ptp_port_ds_config:
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
@@ -143,8 +142,6 @@ deleted_01:
           ]
   expected_config_requests:
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:role"
-      method: "delete"
-    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:local-priority"
       method: "delete"
 deleted_02:
   module_args:
@@ -180,8 +177,8 @@ overridden_01:
   module_args:
     config:
       - interface: Ethernet0
-        role: SLAVE
-        localpriority: 55
+        role: slave
+        local_priority: 55
     state: overridden
   existing_ptp_port_ds_config:
     - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
