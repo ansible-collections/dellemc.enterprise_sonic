@@ -148,7 +148,7 @@ class Evpn_esi_multihome(ConfigBase):
             return commands, requests
 
         del_commands = get_diff(have, want)
-        merged_commands = None 
+        merged_commands = None
         merged_request = None
 
         if del_commands:
@@ -226,7 +226,7 @@ class Evpn_esi_multihome(ConfigBase):
 
         if not config:
             return request
-        
+
         if config.get('df_election_time') is not None:
             cfg_dict['df-election-time'] = config['df_election_time']
         if config.get('es_activation_delay') is not None:
