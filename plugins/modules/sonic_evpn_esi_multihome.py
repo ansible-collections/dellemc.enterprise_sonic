@@ -120,9 +120,8 @@ EXAMPLES = """
 # --------------
 #
 # sonic# show running-configuration evpn-mh
-# (no "evpn-mh" configuration present)
-#
-#
+# (No "evpn-mh" configuration present)
+
 
 # Using "merged" state
 #
@@ -130,7 +129,7 @@ EXAMPLES = """
 # ---------------
 #
 # sonic# show running-configuration evpn-mh
-# (no "evpn-mh" configuration present)
+# (No "evpn-mh" configuration present)
 
 - name: Merge specific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
