@@ -173,7 +173,7 @@ class Evpn_esi_multihome(ConfigBase):
         else:
             commands = []
 
-        if len(requests) > 0:
+        if requests:
             new_have = {}
         else:
             new_have = have
@@ -181,65 +181,52 @@ class Evpn_esi_multihome(ConfigBase):
         diff = get_diff(want, new_have)
         merged_commands = diff
 
-        replaced_snmp = self.get_create_evpn_esi_mh_request(merged_commands)
-        requests.extend(replaced_snmp)
-        if merged_commands and len(replaced_snmp) > 0:
+        replaced_evpn_esi_mh = [self.get_create_evpn_esi_mh_request(merged_commands)]
+        requests.extend(replaced_evpn_esi_mh)
+        if merged_commands and len(replaced_evpn_esi_mh) > 0:
             merged_commands = update_states(merged_commands, 'replaced')
-            new_commands = []
-            for command in merged_commands:
-                new_commands.append(remove_none(command))
-            commands = new_commands
-        else:
-            commands = []
+            commands.extend(merged_commands)
 
         return commands, requests
 
     def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
-
+        """
+        The command generator when state is overridden
         :rtype: Two lists
-        :returns: the commands and requests necessary to migrate the current configuration
+        :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
         commands = []
         requests = []
-        if want is None or have is None:
-            return commands, requests
-
+		
         if not want:
             return commands, requests
 
-        diff_want = get_diff(want, have)
-        diff_dont_want = get_diff(have, want)
+        del_commands = get_diff(have, want)
+        merged_commands = None 
+        merged_request = None
 
-        if diff_want is None and diff_dont_want is None:
-            return commands, requests
-        if not diff_want:
-            return commands, requests
-
-        commands = have
-        requests = list(self.get_delete_evpn_esi_mh_requests(commands, True))
-
-        if commands and len(requests) > 0:
-            commands = update_states(commands, "deleted")
-
-        merged_commands = want
-        overridden_requests = self.get_create_evpn_esi_mh_request(merged_commands)
-
-        requests.extend(overridden_requests)
-
-        if want and len(overridden_requests) > 0:
-            merged_commands = update_states(want, "overridden")
-            commands = merged_commands
+        if del_commands:
+            del_requests = self.get_delete_evpn_esi_mh_requests(have, True)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            merged_commands = want
+            merged_request = self.get_create_evpn_esi_mh_request(merged_commands)
         else:
-            commands = []
+            merged_commands = get_diff(want, have)
+            if merged_commands:
+                merged_request = self.get_create_evpn_esi_mh_request(merged_commands)
+			
+        if merged_request:
+            requests.append(merged_request)
+            commands.extend(update_states(merged_commands, "overridden"))
 
         return commands, requests
 
     def _state_merged(self, want, have):
         """ The command generator when state is merged
 
-        :rtype: Two lists
+        :rtype: A list and a dict
         :returns: the commands and requests necessary to merge the provided into
                   the current configuration
         """
@@ -275,7 +262,7 @@ class Evpn_esi_multihome(ConfigBase):
             diff = get_diff(want, have)
             commands = get_diff(want, diff)
 
-        requests = list(self.get_delete_evpn_esi_mh_requests(commands, delete_all))
+        requests = self.get_delete_evpn_esi_mh_requests(commands, delete_all)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -287,13 +274,12 @@ class Evpn_esi_multihome(ConfigBase):
     def get_create_evpn_esi_mh_request(self, config):
         """ Creates the request for creating the evpn_esi_mh object
 
-        :rtype: A list
+        :rtype: A dict
         :returns: the request for creating the evpn_esi_mh object
         """
         request_info = {}
         method = PATCH
         path = EVPN_MH_PATH
-        requests = []
 
         request_info['openconfig-network-instance:config'] = {
             'df-election-time': config.get('df_election_time'),
@@ -302,11 +288,15 @@ class Evpn_esi_multihome(ConfigBase):
             'neigh-holdtime': config.get('neigh_holdtime'),
             'startup-delay': config.get('startup_delay')}
 
-        request = {}
         request = {'path': path, 'method': method, 'data': request_info}
-        requests.append(request)
+        return request
 
-        return requests
+    def get_delete_evpn_esi_mh_request(self, attr=None):
+        url = EVPN_MH_PATH
+        if attr:
+            url = '{0}/{1}'.format(url, attr)
+        request = {'path': url, 'method': DELETE}
+        return request
 
     def get_delete_evpn_esi_mh_requests(self, configs, delete_all):
         """ Creates the request for deleting the evpn_esi_mh object
@@ -315,44 +305,26 @@ class Evpn_esi_multihome(ConfigBase):
         :returns: the requests for deleting the evpn_esi_mh object
         """
         requests = []
-        path = EVPN_MH_PATH
         if not configs:
             return requests
 
-        df_election_time = 'df_election_time' in configs
-        es_activation_delay = 'es_activation_delay' in configs
-        mac_holdtime = 'mac_holdtime' in configs
-        neigh_holdtime = 'neigh_holdtime' in configs
-        startup_delay = 'startup_delay' in configs
-
         if delete_all:
-            delete_all_request = {'path': path, 'method': DELETE}
-            requests.append(delete_all_request)
+            requests.append(self.get_delete_evpn_esi_mh_request())
             return requests
 
-        if df_election_time and configs.get('df_election_time') is not None:
-            df_election_time_url = '{0}/{1}'.format(path, 'df-election-time')
-            df_election_time_request = {'path': df_election_time_url, 'method': DELETE}
-            requests.append(df_election_time_request)
+        if configs.get('df_election_time') is not None:
+            requests.append(self.get_delete_evpn_esi_mh_request('df-election-time'))
 
-        if es_activation_delay and configs.get('es_activation_delay') is not None:
-            es_activation_delay_url = '{0}/{1}'.format(path, 'es-activation-delay')
-            es_activation_delay_request = {'path': es_activation_delay_url, 'method': DELETE}
-            requests.append(es_activation_delay_request)
+        if configs.get('es_activation_delay') is not None:
+            requests.append(self.get_delete_evpn_esi_mh_request('es-activation-delay'))
 
-        if mac_holdtime:
-            mac_holdtime_url = '{0}/{1}'.format(path, 'mac-holdtime')
-            mac_holdtime_delay_request = {'path': mac_holdtime_url, 'method': DELETE}
-            requests.append(mac_holdtime_delay_request)
+        if configs.get('mac_holdtime') is not None:
+            requests.append(self.get_delete_evpn_esi_mh_request('mac-holdtime'))
 
-        if neigh_holdtime:
-            neigh_holdtime_url = '{0}/{1}'.format(path, 'neigh-holdtime')
-            neigh_holdtime_request = {'path': neigh_holdtime_url, 'method': DELETE}
-            requests.append(neigh_holdtime_request)
+        if configs.get('neigh_holdtime') is not None:
+            requests.append(self.get_delete_evpn_esi_mh_request('neigh-holdtime'))
 
-        if startup_delay:
-            startup_delay_url = '{0}/{1}'.format(path, 'startup-delay')
-            startup_delay_request = {'path': startup_delay_url, 'method': DELETE}
-            requests.append(startup_delay_request)
+        if configs.get('startup_delay') is not None:
+            requests.append(self.get_delete_evpn_esi_mh_request('startup-delay'))
 
         return requests

@@ -31,33 +31,33 @@ options:
       df_election_time:
         description:
           - Election timer value in seconds
-          - Has a range between 0 and 86400
+          - Has a range of 0 to 86400
           - Default is 3
         type: int
       es_activation_delay:
         description:
           - Activation delay in seconds
-          - Has a range between 0 and 1200000
+          - Has a range of 0 to 1200000
           - Default is 0
         type: int
       mac_holdtime:
         description:
           - MAC hold time in seconds
-          - Has a range between 0 and 86400
+          - Has a range of 0 to 86400
           - Default is 1080
           - Specify 0 to disable MAC hold time
         type: int
       neigh_holdtime:
         description:
           - Neighbor hold time in seconds
-          - Has a range between 0 and 86400
+          - Has a range of 0 to 86400
           - Default is 1080
           - Specify 0 to disable neighbor hold time
         type: int
       startup_delay:
         description:
           - Startup delay in seconds
-          - Has a range between 0 and 3600
+          - Has a range of 0 to 3600
           - Default is 300
           - Specify 0 to disable startup delay
         type: int
@@ -68,8 +68,9 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # ---------------
@@ -99,7 +100,7 @@ EXAMPLES = """
 #
 
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # ---------------
@@ -126,7 +127,7 @@ EXAMPLES = """
 #
 
 
-# Using Merged
+# Using "merged" state
 #
 # Before state:
 # ---------------
@@ -152,7 +153,7 @@ EXAMPLES = """
 #  es-activation-delay 3000
 
 
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # ----------------
@@ -182,7 +183,7 @@ EXAMPLES = """
 #  df-election-time: 600
 
 
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # ----------------

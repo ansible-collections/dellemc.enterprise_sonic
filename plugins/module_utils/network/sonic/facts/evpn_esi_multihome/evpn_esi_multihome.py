@@ -68,7 +68,7 @@ class Evpn_esi_multihomeFacts(object):
         return ansible_facts
 
     def get_all_evpn_esi_mh(self):
-        """ Get all evpn esi multihome servers in the device
+        """ Get all EVPN ESI multihoming configuration on the device
         """
         path = "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
         method = "GET"
@@ -83,22 +83,22 @@ class Evpn_esi_multihomeFacts(object):
         if "openconfig-network-instance:config" in response[0][1]:
             evpn_response = response[0][1].get("openconfig-network-instance:config", {})
             df_election_time = evpn_response.get('df-election-time')
-            if df_election_time:
+            if df_election_time is not None:
                 evpn_esi_mh_dict['df_election_time'] = df_election_time
 
             es_activation_delay = evpn_response.get('es-activation-delay')
-            if es_activation_delay:
+            if es_activation_delay is not None:
                 evpn_esi_mh_dict['es_activation_delay'] = es_activation_delay
 
             neigh_holdtime = evpn_response.get('neigh-holdtime')
-            if neigh_holdtime:
+            if neigh_holdtime is not None:
                 evpn_esi_mh_dict['neigh_holdtime'] = neigh_holdtime
 
             mac_holdtime = evpn_response.get('mac-holdtime')
-            if mac_holdtime:
+            if mac_holdtime is not None:
                 evpn_esi_mh_dict['mac_holdtime'] = mac_holdtime
 
             startup_delay = evpn_response.get('startup-delay')
-            if startup_delay:
+            if startup_delay is not None:
                 evpn_esi_mh_dict['startup_delay'] = startup_delay
         return evpn_esi_mh_dict
