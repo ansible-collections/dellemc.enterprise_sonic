@@ -198,12 +198,12 @@ class Evpn_esi_multihome(ConfigBase):
         """
         commands = []
         requests = []
-		
+
         if not want:
             return commands, requests
 
         del_commands = get_diff(have, want)
-        merged_commands = None 
+        merged_commands = None
         merged_request = None
 
         if del_commands:
@@ -216,7 +216,7 @@ class Evpn_esi_multihome(ConfigBase):
             merged_commands = get_diff(want, have)
             if merged_commands:
                 merged_request = self.get_create_evpn_esi_mh_request(merged_commands)
-			
+
         if merged_request:
             requests.append(merged_request)
             commands.extend(update_states(merged_commands, "overridden"))
