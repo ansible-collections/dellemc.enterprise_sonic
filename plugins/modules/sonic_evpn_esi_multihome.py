@@ -121,6 +121,8 @@ EXAMPLES = """
 #
 # sonic# show running-configuration evpn-mh
 # (no "evpn-mh" configuration present)
+#
+#
 
 # Using "merged" state
 #
