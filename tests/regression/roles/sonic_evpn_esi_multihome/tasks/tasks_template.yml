@@ -1,12 +1,4 @@
 ---
-- name: "{{ item.name ~ ' , ' ~ item.description }} - Check mode"
-  sonic_evpn_esi_multihome:
-    config: "{{ item.input }}"
-    state: "{{ item.state }}"
-  register: check_task_output
-  ignore_errors: true
-  check_mode: true
-
 - name: "{{ item.name ~ ' , ' ~ item.description }}"
   sonic_evpn_esi_multihome:
     config: "{{ item.input }}"
