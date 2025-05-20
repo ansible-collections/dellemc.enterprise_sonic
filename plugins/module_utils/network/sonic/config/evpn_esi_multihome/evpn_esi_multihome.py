@@ -100,6 +100,7 @@ class Evpn_esi_multihome(ConfigBase):
         if self._module.check_mode:
             result.pop('after', None)
             new_config = get_new_config(commands, existing_evpn_esi_multihome_facts)
+            result['after(generated)'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
