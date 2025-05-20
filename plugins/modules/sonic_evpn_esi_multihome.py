@@ -75,15 +75,14 @@ EXAMPLES = """
 # Before state:
 # ---------------
 #
-# show running-configuration evpn-mh
-#
+# sonic# show running-configuration evpn-mh
+# !
 # evpn esi-multihoming
 #  mac-holdtime 1080
 #  neigh-holdtime 1080
 #  startup-delay 300
-#
 
-- name: Delete soecific option from evpn_esi_multihome configuration
+- name: Delete specific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
       mac-holdtime: 1080
@@ -92,12 +91,11 @@ EXAMPLES = """
 # After State:
 # --------------
 #
-# show running-configuration evpn-mh
-#
+# sonic# show running-configuration evpn-mh
+# !
 # evpn esi-multihoming
 #  neigh-holdtime 1080
 #  startup-delay 300
-#
 
 
 # Using "deleted" state
@@ -105,15 +103,15 @@ EXAMPLES = """
 # Before state:
 # ---------------
 #
-# show running-configuration evpn-mh
-#
+# sonic# show running-configuration evpn-mh
+# !
 # evpn esi-multihoming
 #  mac-holdtime 1080
 #  neigh-holdtime 1080
 #  startup-delay 300
 #  df-election-time 3
 
-- name: Delete soecific option from evpn_esi_multihome configuration
+- name: Delete all evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config: {}
     state: deleted
@@ -121,20 +119,16 @@ EXAMPLES = """
 # After State:
 # --------------
 #
-# show running-configuration evpn-mh
-#
-#
-#
-
+# sonic# show running-configuration evpn-mh
+# No "evpn-mh" configuration present
 
 # Using "merged" state
 #
 # Before state:
 # ---------------
 #
-# show running-configuration evpn-mh
-#
-#
+# sonic# show running-configuration evpn-mh
+# No "evpn-mh" configuration present
 
 - name: Merge specific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
@@ -146,8 +140,8 @@ EXAMPLES = """
 # After State:
 # --------------
 #
-# show running-configuration evpn-mh
-#
+# sonic# show running-configuration evpn-mh
+# !
 # evpn esi-multihoming
 #  startup-delay 300
 #  es-activation-delay 3000
@@ -158,15 +152,15 @@ EXAMPLES = """
 # Before state:
 # ----------------
 #
-# show running-configuration evpn-mh
-#
+# sonic# show running-configuration evpn-mh
+# !
 # evpn esi-multihoming
 #  mac-holdtime 1080
 #  neigh-holdtime 1080
 #  startup-delay 300
 #  df-election-time: 3
 
-- name: Replace specific option from evpn_esi_multihome configuration
+- name: Replace evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
       neigh-holdtime: 200
@@ -176,8 +170,8 @@ EXAMPLES = """
 # After State:
 # --------------
 #
-# show running-configuration evpn-mh
-#
+# sonic# show running-configuration evpn-mh
+# !
 # evpn esi-multihoming
 #  neigh-holdtime 200
 #  df-election-time: 600
@@ -188,15 +182,14 @@ EXAMPLES = """
 # Before state:
 # ----------------
 #
-# show running-configuration evpn-mh
-#
+# sonic# show running-configuration evpn-mh
+# !
 # evpn esi-multihoming
 #  mac-holdtime 1080
 #  neigh-holdtime 1080
 #  startup-delay 300
-#
 
-- name: Override specific option from evpn_esi_multihome configuration
+- name: Override evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
       startup-delay: 200
@@ -206,8 +199,8 @@ EXAMPLES = """
 # After State:
 # --------------
 #
-# show running-configuration evpn-mh
-#
+# sonic# show running-configuration evpn-mh
+# !
 # evpn esi-multihoming
 #  startup-delay 200
 #  mac_holdtime: 500
@@ -215,21 +208,19 @@ EXAMPLES = """
 
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-     of the parameters above.
+  type: dict
 after:
-  description: The resulting configuration model invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-     of the parameters above.
+  type: dict
+after(generated):
+  description: The configuration that would result from non-check-mode module invocation.
+  returned: when C(check_mode)
+  type: dict
 commands:
-  description: The set of commands pushed to the remote device.
+  description: The set of commands pushed to the remote device. In C(check_mode) the needed commands are displayed, but not pushed to the device.
   returned: always
   type: list
   sample: ['command 1', 'command 2', 'command 3']

@@ -3,44 +3,54 @@ ansible_connection: httpapi
 module_name: sonic_evpn_esi_multihome
 
 tests:
-  - name: test_case_01_merged_df_election_time
-    description: Add df_election_time option
-    state: merged
-    input:
-      df_election_time: 1080
-  - name: test_case_02_merged_es_activation_delay
-    description: Add es_activation_delay option
+  - name: test_case_01_merged_es_activation_delay_and_df_election_time
+    description: Add es_activation_delay and df_election_time options
     state: merged
     input:
       es_activation_delay: 300
-  - name: test_case_03_merged_mac_holdtime_and_startup_delay
-    description: Add mac_holdtime and startup_delay options
+      df_election_time: 1080
+
+  - name: test_case_02_merged_mac_holdtime_neigh_holdtime_and_startup_delay
+    description: Add mac_holdtime, neigh_holdtime and startup_delay options
     state: merged
     input:
       mac_holdtime: 1080
       startup_delay: 300
-  - name: test_case_04_replaced_df_election_time
+      neigh_holdtime: 1080
+
+  - name: test_case_03_replaced_df_election_time
     description: Replace df_election_time option value with a new one
     state: replaced
     input:
       df_election_time: 3000
-  - name: test_case_05_overridden_some_options
+
+  - name: test_case_04_overridden_some_options
     description: Override the value of a few options
     state: overridden
     input:
       es_activation_delay: 3000
       df_election_time: 1080
       mac_holdtime: 3000
-  - name: test_case_06_deleted_df_election_time
-    description: Delete the df_election_time option
+      startup_delay: 3000
+      neigh_holdtime: 500
+
+  - name: test_case_06_deleted_each_option_individually
+    description: Delete each option individually
     state: deleted
     input:
       df_election_time: 1080
-  - name: test_case_07_deleted_mac_holdtime
-    description: Delete/disble any existing mac_holdtime option
-    state: deleted
-    input:
       es_activation_delay: 3000
+      mac_holdtime: 3000
+      startup_delay: 3000
+      neigh_holdtime: 500
+
+  - name: test_case_07_merged_mac_holdtime_and_startup_delay
+    description: Merge mac_holdtime and startup_delay options
+    state: merged
+    input:
+      mac_holdtime: 1080
+      startup_delay: 500
+
   - name: test_case_08_deleted_mac_holdtime_and_startup_delay
     description: Delete any existing mac_holdtime and startup_delay options
     state: deleted

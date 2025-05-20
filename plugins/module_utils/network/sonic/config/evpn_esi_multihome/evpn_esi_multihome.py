@@ -62,7 +62,6 @@ class Evpn_esi_multihome(ConfigBase):
         :rtype: A dictionary
         :returns: The current configuration as a dictionary
         """
-        evpn_esi_multihome_facts = {}
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         evpn_esi_multihome_facts = facts['ansible_network_resources'].get('evpn_esi_multihome')
         if evpn_esi_multihome_facts is None:
@@ -77,30 +76,28 @@ class Evpn_esi_multihome(ConfigBase):
         """
         result = {'changed': False}
         commands = []
-
         existing_evpn_esi_multihome_facts = self.get_evpn_esi_multihome_facts()
         commands, requests = self.set_config(existing_evpn_esi_multihome_facts)
+
         if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
-                    self._module.fail_json(msg=str(exc), code=exc.errno)
+                    self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_evpn_esi_mh_facts = self.get_evpn_esi_multihome_facts()
-
         result['before'] = existing_evpn_esi_multihome_facts
-        if result['changed']:
-            result['after'] = changed_evpn_esi_mh_facts
-
-        new_config = changed_evpn_esi_mh_facts
         old_config = existing_evpn_esi_multihome_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
             new_config = get_new_config(commands, existing_evpn_esi_multihome_facts)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_evpn_esi_multihome_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
@@ -129,71 +126,18 @@ class Evpn_esi_multihome(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
-        elif state == 'deleted':
+        if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
+        elif state == 'overridden' or state == 'replaced':
+            commands, requests = self._state_replaced_or_overridden(want, have, state)
         return commands, requests
 
-    def _state_replaced(self, want, have):
-        """ The command generator when state is replaced
-
-        :rtype: Two list
-        :returns: the commands and requests necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        requests = []
-        commands = []
-        delete_all = False
-
-        if want is None or have is None:
-            return commands, requests
-        if not want:
-            return commands, requests
-
-        diff_want = get_diff(want, have)
-        if not diff_want:
-            return commands, requests
-
-        commands = deepcopy(want)
-        diff = get_diff(have, want)
-        if diff is None:
-            delete_all = True
-            commands = have
-        else:
-            commands = get_diff(want, diff)
-
-        requests = self.get_delete_evpn_esi_mh_requests(commands, delete_all)
-
-        if len(commands) > 0 and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
-        else:
-            commands = []
-
-        if requests:
-            new_have = {}
-        else:
-            new_have = have
-
-        diff = get_diff(want, new_have)
-        merged_commands = diff
-
-        replaced_evpn_esi_mh = [self.get_create_evpn_esi_mh_request(merged_commands)]
-        requests.extend(replaced_evpn_esi_mh)
-        if merged_commands and len(replaced_evpn_esi_mh) > 0:
-            merged_commands = update_states(merged_commands, 'replaced')
-            commands.extend(merged_commands)
-
-        return commands, requests
-
-    def _state_overridden(self, want, have):
+    def _state_replaced_or_overridden(self, want, have, state):
         """
         The command generator when state is overridden
-        :rtype: Two lists
+        :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
@@ -204,7 +148,7 @@ class Evpn_esi_multihome(ConfigBase):
             return commands, requests
 
         del_commands = get_diff(have, want)
-        merged_commands = None
+        merged_commands = None 
         merged_request = None
 
         if del_commands:
@@ -220,7 +164,7 @@ class Evpn_esi_multihome(ConfigBase):
 
         if merged_request:
             requests.append(merged_request)
-            commands.extend(update_states(merged_commands, "overridden"))
+            commands.extend(update_states(merged_commands, state))
 
         return commands, requests
 
@@ -274,22 +218,29 @@ class Evpn_esi_multihome(ConfigBase):
 
     def get_create_evpn_esi_mh_request(self, config):
         """ Creates the request for creating the evpn_esi_mh object
-
         :rtype: A dict
         :returns: the request for creating the evpn_esi_mh object
         """
-        request_info = {}
-        method = PATCH
-        path = EVPN_MH_PATH
+        cfg_dict = {}
+        request = None
 
-        request_info['openconfig-network-instance:config'] = {
-            'df-election-time': config.get('df_election_time'),
-            'es-activation-delay': config.get('es_activation_delay'),
-            'mac-holdtime': config.get('mac_holdtime'),
-            'neigh-holdtime': config.get('neigh_holdtime'),
-            'startup-delay': config.get('startup_delay')}
+        if not config:
+            return request
+        
+        if config.get('df_election_time') is not None:
+            cfg_dict['df-election-time'] = config['df_election_time']
+        if config.get('es_activation_delay') is not None:
+            cfg_dict['es-activation-delay'] = config['es_activation_delay']
+        if config.get('mac_holdtime') is not None:
+            cfg_dict['mac-holdtime'] = config['mac_holdtime']
+        if config.get('neigh_holdtime') is not None:
+            cfg_dict['neigh-holdtime'] = config['neigh_holdtime']
+        if config.get('startup_delay') is not None:
+            cfg_dict['startup-delay'] = config['startup_delay']
 
-        request = {'path': path, 'method': method, 'data': request_info}
+        request_info = {'openconfig-network-instance:config': cfg_dict}
+
+        request = {'path': EVPN_MH_PATH, 'method': PATCH, 'data': request_info}
         return request
 
     def get_delete_evpn_esi_mh_request(self, attr=None):
