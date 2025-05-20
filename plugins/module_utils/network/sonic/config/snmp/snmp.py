@@ -78,10 +78,10 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The result from module execution
         """
-        result = dict()
+        result = {}
         result['changed'] = False
-        warnings = list()
-        commands = list()
+        warnings = []
+        commands = []
 
         existing_snmp_facts = self.get_snmp_facts()
         commands, requests = self.set_config(existing_snmp_facts)
@@ -117,7 +117,7 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_none(self._module.params['config'])
         have = existing_snmp_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -168,11 +168,8 @@ class Snmp(ConfigBase):
         requests = []
         commands = []
         delete_all = False
-        want = remove_none(want)
 
         if want is None or have is None:
-            return commands, requests
-        if not want:
             return commands, requests
 
         diff_want = get_diff(want, have)
@@ -187,7 +184,7 @@ class Snmp(ConfigBase):
         else:
             commands = get_diff(want, diff)
 
-        requests = list(self.get_delete_snmp_request(commands, have, delete_all))
+        requests = self.get_delete_snmp_request(commands, have, delete_all)
 
         if len(commands) > 0 and len(requests) > 0:
             commands = update_states(commands, 'deleted')
@@ -206,7 +203,7 @@ class Snmp(ConfigBase):
         requests.extend(replaced_snmp)
         if merged_commands and len(replaced_snmp) > 0:
             merged_commands = update_states(merged_commands, 'replaced')
-            new_commands = list()
+            new_commands = []
             for command in merged_commands:
                 new_commands.append(remove_none(command))
             commands = new_commands
@@ -225,22 +222,17 @@ class Snmp(ConfigBase):
         requests = []
         if want is None or have is None:
             return commands, requests
-        want = remove_none(want)
-        if not want:
-            return commands, requests
 
         diff_want = get_diff(want, have)
         diff_dont_want = get_diff(have, want)
 
         if diff_want is None and diff_dont_want is None:
             return commands, requests
-        if not diff_dont_want and not diff_want:
-            return commands, requests
         if not diff_want:
             return commands, requests
 
         commands = have
-        requests = list(self.get_delete_snmp_request(commands, have, True))
+        requests = self.get_delete_snmp_request(commands, have, True)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -264,7 +256,6 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        want = remove_none(want)
         want = self.pop_encrypted_attributes(want)
         commands = get_diff(want, have)
         commands = self.check_user_exists(commands, have)
@@ -284,7 +275,7 @@ class Snmp(ConfigBase):
         :returns: the list of commands if the user does not exist
         if the user exists returns an empty list
         """
-        new_users = list()
+        new_users = []
         want_users = commands.get('user', None)
         if have.get('user') is None:
             return commands
@@ -305,7 +296,7 @@ class Snmp(ConfigBase):
         requests = []
         commands = []
 
-        if not have or have is None or have is {}:
+        if not have:
             return commands, requests
 
         delete_all = False
@@ -320,7 +311,7 @@ class Snmp(ConfigBase):
         else:
             commands = want
 
-        requests = list(self.get_delete_snmp_request(commands, have, delete_all))
+        requests = self.get_delete_snmp_request(commands, have, delete_all)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, "deleted")
@@ -420,11 +411,11 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP agentaddress
         """
         agentaddress = config.get('agentaddress', None)
-        agentaddress_list = list()
-        agentaddressdict = dict()
-        payload_url = dict()
+        agentaddress_list = []
+        agentaddressdict = {}
+        payload_url = {}
         for conf in agentaddress:
-            agentaddress_dict = dict()
+            agentaddress_dict = {}
             agentaddress_dict['name'] = self.get_agententry()
             agentaddress_dict['udp'] = {'ietf-snmp-ext:interface': conf.get('interface'), 'ip': conf.get('ip'), 'port': conf.get('port')}
             agentaddress_list.append(agentaddress_dict)
@@ -439,13 +430,13 @@ class Snmp(ConfigBase):
         :returns: The list of community requests
         """
         community = config.get('community', None)
-        community_list = list()
-        payload_url = dict()
-        community_requests = list()
+        community_list = []
+        payload_url = {}
+        community_requests = []
         community_path = "data/ietf-snmp:snmp/community"
 
         for conf in community:
-            community_dict = dict()
+            community_dict = {}
             community_dict['index'] = conf.get('name')
             group_name = conf.get('group')
 
@@ -469,16 +460,16 @@ class Snmp(ConfigBase):
         :returns: The payload for the group associated with SNMP community
         """
         community = config.get('community', None)
-        community_list = list()
-        payload_url = dict()
+        community_list = []
+        payload_url = {}
 
         for conf in community:
-            group_dict = dict()
+            group_dict = {}
             group_dict['name'] = conf.get('group')
-            member_dict = dict()
+            member_dict = {}
             member_dict['security-model'] = ['v2c']
             member_dict['security-name'] = conf.get('name')
-            member_dict_list = list()
+            member_dict_list = []
             member_dict_list.append(member_dict)
             group_dict['member'] = member_dict_list
 
@@ -495,7 +486,7 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP engine
         """
         engine = config.get('engine', None)
-        payload_url = dict()
+        payload_url = {}
 
         payload_url['engine'] = {'engine-id': engine}
         return payload_url
@@ -506,20 +497,20 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP user
         """
         user = config.get('user', None)
-        user_list = list()
-        payload_url = dict()
+        user_list = []
+        payload_url = {}
 
         for conf in user:
-            user_dict = dict()
-            auth_dict = dict()
-            priv_dict = dict()
+            user_dict = {}
+            auth_dict = {}
+            priv_dict = {}
             user_dict['name'] = conf.get('name')
             user_dict['encrypted'] = conf.get('encrypted')
 
             auth_type = conf['auth']['auth_type']
             priv_type = conf['priv']['priv_type']
-            auth_key = dict()
-            priv_key = dict()
+            auth_key = {}
+            priv_key = {}
             auth_key['key'] = conf['auth']['key']
             priv_key['key'] = conf['priv']['key']
             auth_dict[auth_type] = auth_key
@@ -537,14 +528,14 @@ class Snmp(ConfigBase):
         :rtpe: A dictionary
         :returns: The payload for SNMP group members
         """
-        group_list = list()
+        group_list = []
         group = config.get('user', None)
 
-        payload_url = dict()
+        payload_url = {}
 
         for conf in group:
-            group_dict = dict()
-            member = dict()
+            group_dict = {}
+            member = {}
             if conf.get('group') is None:
                 break
             member['security-model'] = ["usm"]
@@ -561,13 +552,13 @@ class Snmp(ConfigBase):
         :rtype: A dictonary
         :returns: The payload for SNMP view
         """
-        view_list = list()
-        payload_url = dict()
-        viewdict = dict()
+        view_list = []
+        payload_url = {}
+        viewdict = {}
         view = config.get('view', None)
 
         for conf in view:
-            view_dict = dict()
+            view_dict = {}
             view_dict['name'] = conf.get('name')
             view_dict['include'] = conf.get('included')
             view_dict['exclude'] = conf.get('excluded')
@@ -581,7 +572,7 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP contact
         """
-        payload_url = dict()
+        payload_url = {}
         contact = config.get('contact', None)
 
         payload_url['ietf-snmp-ext:contact'] = str(contact)
@@ -592,7 +583,7 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP location
         """
-        payload_url = dict()
+        payload_url = {}
         location = config.get('location', None)
 
         payload_url['ietf-snmp-ext:location'] = location
@@ -603,20 +594,20 @@ class Snmp(ConfigBase):
         :rtype: dictionaries regarding the enable traps
         :returns: The payload for SNMP enable_trap
         """
-        notification_payload_url = dict()
-        all_traps_payload_url = dict()
+        notification_payload_url = {}
+        all_traps_payload_url = {}
         enable_trap = config.get('enable_trap', None)
-        enable_trap_list = list()
+        enable_trap_list = []
 
         for conf in enable_trap:
-            enable_trap_dict = dict()
+            enable_trap_dict = {}
             trap_enable = False
             trap_type = conf
             if trap_type:
                 if trap_type == 'all':
                     trap_enable = True
                 else:
-                    notifications = dict()
+                    notifications = {}
                     if trap_type == 'auth-fail':
                         enable_trap_dict['authentication-failure-trap'] = True
                     if trap_type == 'bgp':
@@ -641,12 +632,12 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP group
         """
-        payload_url = dict()
+        payload_url = {}
         group_list = []
         group = config.get('group', None)
-        group_payload = dict()
-        for conf in list(group):
-            group_dict = dict()
+        group_payload = {}
+        for conf in group:
+            group_dict = {}
             if conf.get('name') is None:
                 break
             group_dict['name'] = conf.get('name')
@@ -661,12 +652,12 @@ class Snmp(ConfigBase):
         :rtype: A list of dictionaries
         :returns: the list of access
         """
-        access_list = list()
+        access_list = []
         access_dicts = config.get('access')
         if access_dicts is None:
             return access_list
         for access in access_dicts:
-            access_dict = dict()
+            access_dict = {}
             access_dict['context'] = 'Default'
             access_dict['notify-view'] = access.get('notify_view')
             access_dict['read-view'] = access.get('read_view')
@@ -685,16 +676,16 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP target
         """
-        payload_url = dict()
+        payload_url = {}
         target_list = []
         target = config.get('host', None)
 
         for conf in target:
-            target_dict = dict()
+            target_dict = {}
 
             target_dict['name'] = target_entry
             target_dict['retries'] = conf.get('retries')
-            tag_list = list()
+            tag_list = []
             if conf.get('tag'):
                 tag_list.append(str(conf.get('tag')) + "Notify")
             target_dict["tag"] = tag_list
@@ -714,16 +705,16 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP target
         """
-        payload_url = dict()
+        payload_url = {}
         target_params_list = []
 
         server = config.get('host', None)
 
         for conf in server:
-            target_params_dict = dict()
+            target_params_dict = {}
             target_entry_name = target_entry
             target_params_dict['name'] = target_entry_name
-            type_info = dict()
+            type_info = {}
             if conf.get('user') is None:
                 type_info['security-name'] = conf.get('community')
                 target_params_dict['v2c'] = type_info
@@ -749,7 +740,7 @@ class Snmp(ConfigBase):
         :rtype: A list
         :returns: The list of requests to delete the given configuration
         """
-        requests = list()
+        requests = []
 
         if not configs:
             return requests
@@ -789,7 +780,7 @@ class Snmp(ConfigBase):
 
         if delete_all or agentaddress:
             if have_agentaddress is not None:
-                agentaddress_requests = list()
+                agentaddress_requests = []
                 if configs['agentaddress'] is None:
                     agentaddress_url = "data/ietf-snmp:snmp/engine/listen"
                     agentaddress_request = {"path": agentaddress_url, "method": DELETE}
@@ -807,7 +798,7 @@ class Snmp(ConfigBase):
 
         if delete_all or community:
             if have_community is not None:
-                community_requests = list()
+                community_requests = []
                 if configs['community'] is None:
                     community_url = "data/ietf-snmp:snmp/community"
                     community_request = {"path": community_url, "method": DELETE}
@@ -837,7 +828,7 @@ class Snmp(ConfigBase):
 
         if delete_all or enable_trap:
             if have_enable_trap is not None:
-                enable_trap_requests = list()
+                enable_trap_requests = []
                 if configs['enable_trap'] is None:
                     enable_trap_url = ""
                     trap = have['enable_trap']
@@ -893,7 +884,7 @@ class Snmp(ConfigBase):
 
         if delete_all or group:
             if have_group is not None:
-                group_requests = list()
+                group_requests = []
 
                 if configs['group'] is None or configs['group'] == []:
                     group_url = "data/ietf-snmp:snmp/vacm/group"
@@ -914,7 +905,7 @@ class Snmp(ConfigBase):
 
         if delete_all or host:
             if have_host is not None:
-                host_requests = list()
+                host_requests = []
                 if configs['host'] is None or configs['host'] == []:
                     host_target_url = "data/ietf-snmp:snmp/target"
                     host_request = {"path": host_target_url, "method": DELETE}
@@ -943,7 +934,7 @@ class Snmp(ConfigBase):
 
         if delete_all or user:
             if have_user is not None:
-                user_requests = list()
+                user_requests = []
                 if len(configs['user']) > 0:
                     user_url = "data/ietf-snmp:snmp/usm/local/user"
                     user_request = {"path": user_url, "method": DELETE}
@@ -965,7 +956,7 @@ class Snmp(ConfigBase):
 
         if delete_all or view:
             if have_view is not None:
-                view_requests = list()
+                view_requests = []
                 if configs['view'] is None or len(configs['view']) == 0:
                     view_url = "data/ietf-snmp:snmp/vacm/view"
                     view_request = {"path": view_url, "method": DELETE}
@@ -1009,7 +1000,7 @@ class Snmp(ConfigBase):
         :rtype: A list
         :returns: the access list that matches the wanted access list
         """
-        matched_access = list()
+        matched_access = []
         for want in want_access:
             matched_want = next((each_access for each_access in access_list
                                  if each_access['security_model'] == want['security_model']

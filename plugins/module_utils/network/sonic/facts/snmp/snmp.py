@@ -72,8 +72,6 @@ class SnmpFacts(object):
             # (Skip if operating on previously fetched configuraation)
             data = self.get_all_snmps()
 
-        snmps = dict()
-        self.render_config(self.generated_spec, data)
         snmps = data
 
         facts = {}
@@ -124,8 +122,8 @@ class SnmpFacts(object):
         """
         Get snmp agent address from the snmp list
         """
-        agentaddress_dict = dict()
-        agentaddress_list = list()
+        agentaddress_dict = {}
+        agentaddress_list = []
 
         if not snmp_list.get('engine') or not snmp_list.get('engine').get('listen'):
             return agentaddress_list
@@ -144,7 +142,7 @@ class SnmpFacts(object):
         """
         Get snmp community from the snmp list
         """
-        community_list = list()
+        community_list = []
 
         if not snmp_list.get('community'):
             return community_list
@@ -174,7 +172,7 @@ class SnmpFacts(object):
         """
         Get snmp users from the snmp list
         """
-        user_list = list()
+        user_list = []
         group_config = []
 
         if not snmp_list.get('usm') or not snmp_list.get('usm').get('local') or not snmp_list.get('usm').get('local').get('user'):
@@ -186,7 +184,7 @@ class SnmpFacts(object):
         user_config = snmp_list['usm']['local'].get('user')
 
         for user in user_config:
-            user_dict = dict()
+            user_dict = {}
             auth_type = list(user.get('auth').keys())[0]
             auth_key = user.get("auth").get(auth_type).get('key')
 
@@ -215,7 +213,7 @@ class SnmpFacts(object):
         """
         Get snmp view from the snmp list
         """
-        view_list = list()
+        view_list = []
 
         if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('view'):
             return view_list
@@ -262,7 +260,7 @@ class SnmpFacts(object):
         """
         Get snmp enable trap from the snmp list
         """
-        enable_trap = list()
+        enable_trap = []
         if not snmp_list.get('ietf-snmp-ext:system'):
             return enable_trap
         server = snmp_list.get('ietf-snmp-ext:system')
@@ -296,7 +294,7 @@ class SnmpFacts(object):
         """
         Get snmp group from the snmp list
         """
-        group_list = list()
+        group_list = []
 
         if not snmp_list.get('vacm') or not snmp_list.get('vacm').get('group'):
             return group_list
@@ -304,12 +302,12 @@ class SnmpFacts(object):
         snmp_group_list = snmp_list.get('vacm').get('group')
 
         for group in snmp_group_list:
-            group_dict = dict()
+            group_dict = {}
             name = group.get('name')
             if name is None:
                 break
             group_dict['name'] = name
-            access_list = list()
+            access_list = []
             if group.get('access') is not None:
                 access_list = self.get_group_access(group.get('access'))
             group_dict['access'] = access_list
@@ -320,10 +318,10 @@ class SnmpFacts(object):
     def get_group_access(self, access_list):
         """ Get the access list from given access list
         """
-        access_l = list()
+        access_l = []
 
         for access in access_list:
-            access_dict = dict()
+            access_dict = {}
 
             access_dict['notify_view'] = access.get('notify-view')
             access_dict['read_view'] = access.get('read-view')
@@ -344,7 +342,7 @@ class SnmpFacts(object):
         """
         Get snmp hosts and targets from the snmp list
         """
-        host_list = list()
+        host_list = []
 
         if not snmp_list.get('target') or not snmp_list.get('target-params'):
             return host_list
@@ -354,7 +352,7 @@ class SnmpFacts(object):
 
         for host in target_config:
             current_target_param = host.get('target-params')
-            host_dict = dict()
+            host_dict = {}
 
             matched_target_param = next((each_tp for each_tp in target_params_config if each_tp['name'] == current_target_param), None)
             if matched_target_param is None:
@@ -365,7 +363,7 @@ class SnmpFacts(object):
                 if vc:
                     host_dict["community"] = matched_target_param.get('v2c').get("security-name")
             else:
-                user_dict = dict()
+                user_dict = {}
                 security_level = matched_target_param.get('usm').get("security-level")
                 user_security_level = "auth"
                 if security_level == 'no-auth-no-priv':
@@ -385,22 +383,11 @@ class SnmpFacts(object):
 
             host_list.append(host_dict)
 
-        current_host = dict()
+        current_host = {}
         current_host['host-info'] = host_list
         current_host['target-entry'] = host.get('name')
         autogen_target.append(current_host)
         return host_list
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def update_dict(self, dict, key, value, parent_key=None):
         if value not in [None, {}, [], ()]:

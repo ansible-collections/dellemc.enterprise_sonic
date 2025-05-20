@@ -11,13 +11,6 @@ The module file for sonic_snmp
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_snmp
@@ -294,8 +287,9 @@ options:
     choices: ['merged', 'deleted', 'replaced', 'overridden']
     default: merged
 """
+
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # ---------------
@@ -328,7 +322,7 @@ EXAMPLES = """
 # priv aes-128 priv-password U2FsdGVkX1/Xs+ffZvdV9YzfyGHgIJ+zkLRPfF3/WgYIE1S4Ribvbzhu5chpHHI7ooCBpcVxYZotAXDzgetxvQ==
 
 
-# Using deleted
+# Using "deleted" state
 #
 # Before state:
 # ---------------
@@ -360,7 +354,7 @@ EXAMPLES = """
 # snmp-server community comm1 group group-lab
 
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # ---------------
@@ -393,7 +387,7 @@ EXAMPLES = """
 # priv aes-128 priv-password U2FsdGVkX1/Xs+ffZvdV9YzfyGHgIJ+zkLRPfF3/WgYIE1S4Ribvbzhu5chpHHI7ooCBpcVxYZotAXDzgetxvQ==
 
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # ---------------
@@ -427,7 +421,7 @@ EXAMPLES = """
 # snmp-server group group-floor2 v3 priv read r_view write w_view notify n_view
 
 
-# Using merged
+# Using "merged" state
 #
 # Before state:
 # ---------------
@@ -460,7 +454,7 @@ EXAMPLES = """
 # priv aes-128 priv-password U2FsdGVkX1/Xs+ffZvdV9YzfyGHgIJ+zkLRPfF3/WgYIE1S4Ribvbzhu5chpHHI7ooCBpcVxYZotAXDzgetxvQ==
 
 
-# Using replaced
+# Using "replaced" state
 #
 # Before state:
 # ---------------
@@ -492,7 +486,7 @@ EXAMPLES = """
 #
 
 
-# Using overridden
+# Using "overridden" state
 #
 # Before state:
 # ---------------
