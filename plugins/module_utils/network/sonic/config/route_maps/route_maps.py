@@ -225,8 +225,7 @@ class Route_maps(ConfigBase):
         # Apply the commands from the playbook
         diff = get_diff(want, modify_have, TEST_KEYS)
         merged_commands = diff
-
-        replaced_requests = self.get_modify_route_maps_requests(merged_commands, want, modify_have)
+        replaced_requests = self.get_modify_route_maps_requests(merged_commands, want, have)
         requests.extend(replaced_requests)
         if merged_commands and len(replaced_requests) > 0:
             merged_commands = update_states(merged_commands, "replaced")
@@ -334,6 +333,33 @@ class Route_maps(ConfigBase):
                 self.insert_route_map_cmd_action(command, want)
             route_map_payload = self.get_modify_single_route_map_request(command, have)
             if route_map_payload:
+                try:
+                    for item in route_map_payload.get('statements').get("statement")[0].get("actions").get("openconfig-bgp-policy:bgp-actions").get("set-ext-community").get("inline").get("config").get("communities"):
+                       if "link-bandwidth" in item:
+                           remove_command = {}
+                           remove_command["map_name"] = command.get('map_name')
+                           remove_command["sequence_num"] = command.get('sequence_num')
+                           remove_command["action"] = command.get("action")
+                           remove_command["set"] = {"extcommunity": {}}
+                           for config in have:
+                               if config.get("map_name") == command.get("map_name") and config.get("sequence_num") == command.get("sequence_num"):
+                                   if config.get("set"):
+                                       if config.get("set").get("extcommunity"):
+                                           if config.get("set").get("extcommunity").get("bandwidth"):
+                                               remove_command["set"]["extcommunity"]["bandwidth"] = config.get("set").get("extcommunity").get("bandwidth")
+
+                           if remove_command.get("set").get("extcommunity"):
+                               remove_request = self.get_modify_single_route_map_request(remove_command, have)
+                               remove_request['statements']["statement"][0]["actions"]["openconfig-bgp-policy:bgp-actions"]["set-ext-community"]["config"]["options"] = "REMOVE"
+                               remove_route_maps_data = {self.route_maps_data_path: {'policy-definition': [remove_request]}}
+                               final_remove_request = {'path': self.route_maps_uri, 'method': PATCH, 'data': remove_route_maps_data}
+                               requests.append(final_remove_request)
+                except AttributeError as ex:
+                    # No pre-existing bandwidth is set
+                    pass
+                except IndexError as ex:
+                    # In case the statement list index does not exist
+                    pass
                 route_maps_payload_list.append(route_map_payload)
 
                 # Note: This is consistent with current CLI behavior, but should be
@@ -2176,42 +2202,35 @@ class Route_maps(ConfigBase):
                         if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
                             cmd_extcommunity_list_set = set(to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type]))
                             saved_cmd_set = command['set']['extcommunity'].pop(extcomm_type)
-                        bandwidth_value_found = ""
-                        transitive_value_found = ""
-                        for extcomm_number in cfg_extcommunity_list_set.difference(cmd_extcommunity_list_set):
-                            if extcomm_number in saved_cmd_set:
-                                # ignore equivalent asn:nn with different as-notation format
-                                continue
 
-                            if "bandwidth_value" in extcomm_number:
-                                bandwidth_value_found = cfg_set_top.get('extcommunity').get(extcomm_type).get(extcomm_number)
-                                if bandwidth_value_found and transitive_value_found:
-                                    bandwidth_string = self.set_extcomm_rest_names[extcomm_type] + bandwidth_value_found + ":" + transitive_value_found
-                                    set_extcommunity_delete_attrs.append(bandwidth_string)
-                                    bandwidth_value_found = ""
-                                    transitive_value_found = ""
-                            elif "transitive_value" in extcomm_number:
-                                if cfg_set_top.get('extcommunity').get(extcomm_type).get(extcomm_number):
+                        if extcomm_type == "bandwidth":
+                            bandwidth_value_found = ""
+                            transitive_value_found = ""
+                            if "bandwidth_value" in cfg_set_top.get("extcommunity").get(extcomm_type):
+                                bandwidth_value_found = cfg_set_top.get('extcommunity').get(extcomm_type).get("bandwidth_value")
+                            if "transitive_value" in cfg_set_top.get("extcommunity").get(extcomm_type):
+                                if cfg_set_top.get('extcommunity').get(extcomm_type).get("transitive_value"):
                                     transitive_value_found = "transitive"
                                 else:
                                     transitive_value_found = "non-transitive"
-                                if bandwidth_value_found and transitive_value_found:
+                                if bandwidth_value_found != "" and transitive_value_found != "":
                                     bandwidth_string = self.set_extcomm_rest_names[extcomm_type] + bandwidth_value_found + ":" + transitive_value_found
-                                    set_extcommunity_delete_attrs.append(bandwidth_string)
-                                    bandwidth_value_found = ""
-                                    transitive_value_found = ""
-                            else:
-                                set_extcommunity_delete_attrs.append(
-                                    self.set_extcomm_rest_names[extcomm_type] +
-                                    extcomm_number)
-                            set_extcommunity_delete_attrs_type.append(extcomm_number)
+                                    if bandwidth_string not in set_extcommunity_delete_attrs:
+                                        set_extcommunity_delete_attrs.append(bandwidth_string)
+                        else:
+                            for extcomm_number in cfg_extcommunity_list_set.difference(cmd_extcommunity_list_set):
+                                if extcomm_number in saved_cmd_set:
+                                    # ignore equivalent asn:nn with different as-notation format
+                                    continue
+                                set_extcommunity_delete_attrs.append(self.set_extcomm_rest_names[extcomm_type] + extcomm_number)
+                                set_extcommunity_delete_attrs_type.append(extcomm_number)
 
-                        if set_extcommunity_delete_attrs_type:
-                            # Update the list of deleted extcommunity list items of this type
-                            # in the "command" dict.
-                            if not cmd_set_top.get('extcommunity'):
-                                command['set']['extcommunity'] = {}
-                            command['set']['extcommunity'][extcomm_type] = set_extcommunity_delete_attrs_type
+                            if set_extcommunity_delete_attrs_type:
+                                # Update the list of deleted extcommunity list items of this type
+                                # in the "command" dict.
+                                if not cmd_set_top.get('extcommunity'):
+                                    command['set']['extcommunity'] = {}
+                                command['set']['extcommunity'][extcomm_type] = set_extcommunity_delete_attrs_type
 
                 if command['set'].get('extcommunity') is not None and not command['set']['extcommunity']:
                     command['set'].pop('extcommunity')
