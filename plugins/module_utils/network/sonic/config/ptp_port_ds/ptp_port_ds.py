@@ -198,9 +198,9 @@ class Ptp_port_ds(ConfigBase):
                 port_num = retrieve_port_num(self._module, have_conf['interface'])
                 intf_name = have_conf['interface']
                 conf = next((cfg for cfg in want if cfg['interface'] == intf_name), None)
-                #Delete all PTP port configurations , if
-                #1) Only the port is specified.
-                #2) State is overridden and port is not in want
+                # Delete all PTP port configurations , if
+                # 1) Only the port is specified.
+                # 2) State is overridden and port is not in want
                 if (state == 'overridden' and not conf) or (conf and len(conf.keys()) == 1):
                     del_commands.append(have_conf)
                     del_requests.append(self.get_delete_ptp_port_request(port_num))
