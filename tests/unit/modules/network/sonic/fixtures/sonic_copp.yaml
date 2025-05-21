@@ -20,11 +20,11 @@ merged_01:
           trap_ids: 'id1,id2'
           trap_group: 'copp-1'
   existing_copp_config:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       response:
         code: 200
   expected_config_requests:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       method: 'patch'
       data:
         openconfig-copp-ext:copp:
@@ -79,7 +79,7 @@ replaced_01:
           trap_group: 'copp-2'
     state: replaced
   existing_copp_config:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       response:
         code: 200
         value:
@@ -102,13 +102,13 @@ replaced_01:
                     trap-ids: 'id1,id2'
                     trap-group: 'copp-1'
   expected_config_requests:
-    - path: '/data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-ids'
+    - path: 'data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-ids'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-group'
+    - path: 'data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-group'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       method: 'patch'
       data:
         openconfig-copp-ext:copp:
@@ -155,7 +155,7 @@ overridden_01:
           cbs: '15'
     state: overridden
   existing_copp_config:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       response:
         code: 200
         value:
@@ -178,16 +178,16 @@ overridden_01:
                     trap-ids: 'id1,id2'
                     trap-group: 'copp-1'
   expected_config_requests:
-    - path: '/data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-group'
+    - path: 'data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-group'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1'
+    - path: 'data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1'
+    - path: 'data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       method: 'patch'
       data:
         openconfig-copp-ext:copp:
@@ -214,7 +214,7 @@ overridden_02:
           cbs: '45'
     state: overridden
   existing_copp_config:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       response:
         code: 200
         value:
@@ -228,7 +228,7 @@ overridden_02:
                     trap-action: 'DROP'
                     queue: 1
   expected_config_requests:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       method: 'patch'
       data:
         openconfig-copp-ext:copp:
@@ -257,7 +257,7 @@ deleted_01:
         - name: 'trap-2'
     state: deleted
   existing_copp_config:
-    - path: '/data/openconfig-copp-ext:copp'
+    - path: 'data/openconfig-copp-ext:copp'
       response:
         code: 200
         value:
@@ -291,27 +291,27 @@ deleted_01:
                   config:
                     name: 'trap-2'
   expected_config_requests:
-    - path: '/data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-ids'
+    - path: 'data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-ids'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-group'
+    - path: 'data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-1/config/trap-group'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-2'
+    - path: 'data/openconfig-copp-ext:copp/copp-traps/copp-trap=trap-2'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/trap-priority'
+    - path: 'data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/trap-priority'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/queue'
+    - path: 'data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/queue'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/cir'
+    - path: 'data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/cir'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/cbs'
+    - path: 'data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-1/config/cbs'
       method: 'delete'
       data:
-    - path: '/data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-2'
+    - path: 'data/openconfig-copp-ext:copp/copp-groups/copp-group=copp-2'
       method: 'delete'
       data:

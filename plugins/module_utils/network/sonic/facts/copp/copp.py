@@ -55,20 +55,20 @@ class CoppFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        objs = []
 
         if not data:
-            copp_cfg = self.get_copp_config(self._module)
-            data = self.update_copp_groups(copp_cfg)
-        objs = data
+            copp_cfg = self.get_config(self._module)
+            copp_data = self.update_copp(copp_cfg)
+
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+        if copp_data:
+            params = utils.validate_config(self.argument_spec, {'config': copp_data})
             facts['copp'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def update_copp_groups(self, data):
+    def update_copp(self, data):
+        """This method parses the OC copp data and returns the parsed data in argspec format"""
         config_dict = {}
         if data:
             copp_groups = data.get('copp-groups')
@@ -126,9 +126,10 @@ class CoppFacts(object):
 
         return config_dict
 
-    def get_copp_config(self, module):
+    def get_config(self, module):
+        """This method returns the copp configuration from the device"""
         copp_cfg = None
-        get_copp_path = '/data/openconfig-copp-ext:copp'
+        get_copp_path = 'data/openconfig-copp-ext:copp'
         request = {'path': get_copp_path, 'method': 'get'}
 
         try:

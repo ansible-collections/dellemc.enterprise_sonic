@@ -42,8 +42,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 
-is_delete_all = False
-COPP_PATH = '/data/openconfig-copp-ext:copp'
+delete_all = False
+COPP_PATH = 'data/openconfig-copp-ext:copp'
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
@@ -54,7 +54,7 @@ TEST_KEYS = [
 
 def __derive_groups_delete_op(key_set, command, exist_conf):
     new_conf = exist_conf
-    if is_delete_all:
+    if delete_all:
         if new_conf['copp_name'] not in reserved_copp_names:
             return True, None
     done, new_conf = __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG(key_set, command, exist_conf)
@@ -65,7 +65,7 @@ def __derive_groups_delete_op(key_set, command, exist_conf):
 
 def __derive_traps_delete_op(key_set, command, exist_conf):
     new_conf = exist_conf
-    if is_delete_all:
+    if delete_all:
         if new_conf['name'] not in reserved_copp_names:
             return True, None
     return __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
@@ -145,7 +145,6 @@ class Copp(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_copp_facts = self.get_copp_facts()
@@ -157,30 +156,24 @@ class Copp(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_copp_facts = self.get_copp_facts()
-
         result['before'] = existing_copp_facts
-        if result['changed']:
-            result['after'] = changed_copp_facts
-
-        new_config = changed_copp_facts
         old_config = existing_copp_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_copp_facts,
-                                        TEST_KEYS_generate_config)
+            new_config = get_new_config(commands, existing_copp_facts, TEST_KEYS_generate_config)
             self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
-
+        else:
+            new_config = self.get_copp_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
-        result['warnings'] = warnings
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
+
         return result
 
     def set_config(self, existing_copp_facts):
@@ -205,10 +198,8 @@ class Copp(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
-
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'overridden':
@@ -228,15 +219,14 @@ class Copp(ConfigBase):
                   to the desired configuration
         """
         self.validate_want_for_replaced_overridden(want, 'Replaced')
-        commands = []
-        mod_commands = []
-        requests = []
+        commands, requests = [], []
+        mod_commands = None
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
         if replaced_config:
             self.sort_lists_in_config(replaced_config)
             self.sort_lists_in_config(have)
-            is_delete_all = replaced_config == have
+            delete_all = replaced_config == have
 
             # trap_action cannot be deleted
             copp_groups = replaced_config.get('copp_groups', [])
@@ -244,7 +234,7 @@ class Copp(ConfigBase):
                 if 'trap_action' in group and group['trap_action']:
                     group.pop('trap_action')
 
-            del_requests = self.get_delete_copp_requests(replaced_config, is_delete_all)
+            del_requests = self.get_delete_copp_requests(replaced_config, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
@@ -270,24 +260,21 @@ class Copp(ConfigBase):
                   to the desired configuration
         """
         self.validate_want_for_replaced_overridden(want, 'Overridden')
-        global is_delete_all
-        is_delete_all = False
-        commands = []
-        requests = []
-        mod_commands = None
-        mod_request = None
+        global delete_all
+        delete_all = False
+        commands, requests = [], []
+        mod_commands, mod_request = None, None
         del_commands = self.get_unreserved_copp(get_diff(have, want, TEST_KEYS))
 
-        if not del_commands and diff:
-            mod_commands = diff
-            mod_request = self.get_modify_copp_request(mod_commands)
-
         if del_commands:
-            is_delete_all = True
-            del_requests = self.get_delete_copp_requests(del_commands, is_delete_all)
+            delete_all = True
+            del_requests = self.get_delete_copp_requests(del_commands, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(del_commands, 'deleted'))
             mod_commands = want
+            mod_request = self.get_modify_copp_request(mod_commands)
+        elif diff:
+            mod_commands = diff
             mod_request = self.get_modify_copp_request(mod_commands)
 
         if mod_request:
@@ -318,19 +305,19 @@ class Copp(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        global is_delete_all
-        is_delete_all = False
+        global delete_all
+        delete_all = False
         requests = []
 
         if not want:
-            is_delete_all = True
+            delete_all = True
             commands = deepcopy(have)
             commands = self.get_unreserved_copp(commands)
         else:
             commands = get_diff(want, diff, TEST_KEYS)
 
         if commands:
-            requests = self.get_delete_copp_requests(commands, is_delete_all)
+            requests = self.get_delete_copp_requests(commands, delete_all)
             if len(requests) > 0:
                 commands = update_states(commands, 'deleted')
         else:
@@ -339,8 +326,12 @@ class Copp(ConfigBase):
         return commands, requests
 
     def get_modify_copp_request(self, commands):
+        """This method returns a patch request generated from commands"""
         request = None
         copp_dict = {}
+
+        if not commands:
+            return request
 
         copp_groups = commands.get('copp_groups')
         if copp_groups:
@@ -404,6 +395,7 @@ class Copp(ConfigBase):
         return request
 
     def get_delete_copp_requests(self, commands, delete_all):
+        """This method returns a list of delete requests generated from commands"""
         requests = []
 
         if delete_all:
@@ -468,6 +460,7 @@ class Copp(ConfigBase):
         return requests
 
     def get_delete_copp_group_request(self, copp_name, attr):
+        """This method returns a delete request for a copp group"""
         url = '%s/copp-groups/copp-group=%s' % (COPP_PATH, copp_name)
         if attr:
             url += '/config/%s' % (attr)
@@ -475,17 +468,19 @@ class Copp(ConfigBase):
         return request
 
     def get_delete_copp_trap_request(self, name, attr):
+        """This method returns a delete request for a copp trap"""
         url = '%s/copp-traps/copp-trap=%s' % (COPP_PATH, name)
         if attr:
             url += '/config/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
 
-    def get_unreserved_copp(self, commands):
+    def get_unreserved_copp(self, config):
+        """This method returns the unsreserved copp configuration from the given config"""
         cfg_dict = {}
 
-        if commands:
-            copp_groups = commands.get('copp_groups')
+        if config:
+            copp_groups = config.get('copp_groups')
             if copp_groups:
                 copp_groups_list = []
                 for group in copp_groups:
@@ -495,7 +490,7 @@ class Copp(ConfigBase):
                 if copp_groups_list:
                     cfg_dict['copp_groups'] = copp_groups_list
 
-            copp_traps = commands.get('copp_traps')
+            copp_traps = config.get('copp_traps')
             if copp_traps:
                 copp_traps_list = []
                 for trap in copp_traps:
@@ -508,12 +503,14 @@ class Copp(ConfigBase):
         return cfg_dict
 
     def sort_lists_in_config(self, config):
+        """This method sorts the lists in the copp configuration"""
         if 'copp_groups' in config and config['copp_groups'] is not None:
             config['copp_groups'].sort(key=lambda x: x['copp_name'])
         if 'copp_traps' in config and config['copp_traps'] is not None:
             config['copp_traps'].sort(key=lambda x: x['name'])
 
     def validate_want_for_replaced_overridden(self, want, state):
+        """This method validates want for replaced and overridden operations"""
         if want:
             copp_groups = want.get('copp_groups')
             if copp_groups:
