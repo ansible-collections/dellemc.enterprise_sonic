@@ -5,7 +5,7 @@
     state: "{{ item.state }}"
   register: action_task_output
   ignore_errors: true
-  diff: true
+
 
 - name: "Import role"
   import_role:
