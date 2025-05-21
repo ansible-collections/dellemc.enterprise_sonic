@@ -123,7 +123,6 @@ class Ptp_port_ds(ConfigBase):
             result['changed'] = True
 
         sleep(1)
-        changed_ptp_port_ds_facts = self.get_ptp_port_ds_facts()
         result['before'] = existing_ptp_port_ds_facts
         old_config = existing_ptp_port_ds_facts
 
@@ -132,7 +131,7 @@ class Ptp_port_ds(ConfigBase):
             new_config = remove_empties_from_list(new_config)
             result['after(generated)'] = new_config
         else:
-            new_config = changed_ptp_port_ds_facts
+            new_config = self.get_ptp_port_ds_facts()
             new_config = remove_empties_from_list(new_config)
             if result['changed']:
                 result['after'] = new_config
@@ -174,10 +173,10 @@ class Ptp_port_ds(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        diff = get_diff(want, have, TEST_KEYS)
         if state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
+            diff = get_diff(want, have, TEST_KEYS)
             commands, requests = self._state_merged(diff)
         elif state == 'overridden' or state == 'replaced':
             commands, requests = self._state_replaced_or_overridden(want, have)
@@ -298,12 +297,11 @@ class Ptp_port_ds(ConfigBase):
         """
         requests = []
         for command in commands:
-            if 'interface' in command:
-                port_num = retrieve_port_num(self._module, command['interface'])
-                port_num_int = int(port_num)
-                url = self.ptp_port_path.format(number=port_num_int)
-                payload = {"ietf-ptp:port-ds-list": [{"port-number": port_num_int, "underlying-interface": command['interface']}]}
-                requests.append({'path': url, 'method': PUT, 'data': payload})
+            port_num = retrieve_port_num(self._module, command['interface'])
+            port_num_int = int(port_num)
+            url = self.ptp_port_path.format(number=port_num_int)
+            payload = {"ietf-ptp:port-ds-list": [{"port-number": port_num_int, "underlying-interface": command['interface']}]}
+            requests.append({'path': url, 'method': PUT, 'data': payload})
 
             if 'role' in command and command['role'] is not None:
                 payload = {'ietf-ptp-ext:role': command['role'].upper()}

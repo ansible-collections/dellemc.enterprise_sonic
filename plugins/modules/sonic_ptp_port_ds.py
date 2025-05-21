@@ -40,7 +40,7 @@ options:
         description:
           - Specifies the role of interface.
         type: str
-        choices: ['DYNAMIC', 'MASTER', 'SLAVE']
+        choices: ['dynamic', 'master', 'slave']
       local_priority:
         description:
           - Specifies the local-priority attribute used for the profile G8275-1 and G8275-2.
