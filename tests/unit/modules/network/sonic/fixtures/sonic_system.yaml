@@ -11,7 +11,9 @@ merged_01:
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: DETAIL
+      switching_mode: CUT_THROUGH
       concurrent_session_limit: 4
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -19,6 +21,7 @@ merged_01:
         value:
           openconfig-system:config:
             hostname: abcd-host
+            switching-mode: STORE_AND_FORWARD
             anycast_address:
               IPv4: true
               mac_address: 11:22:33:44:55:66
@@ -58,6 +61,10 @@ merged_01:
       data:
         openconfig-system:config:
           hostname: SONIC-Test1
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "patch"
+      data:
+        openconfig-system:switching-mode: CUT_THROUGH
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
       data:
@@ -88,10 +95,12 @@ merged_01:
       data:
         openconfig-system-ext:limit: 4
 
+
 merged_02:
   module_args:
     config:
       interface_naming: standard_extended
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -121,15 +130,18 @@ merged_02:
         value:
           openconfig-system-ext:config:
             limit: 4
+
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
       data:
         sonic-device-metadata:intf_naming_mode: standard-ext
 
+
 deleted_01:
   module_args:
     state: deleted
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -137,6 +149,7 @@ deleted_01:
         value:
           openconfig-system:config:
             hostname: SONIC-Test1
+            switching-mode: CUT_THROUGH
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
         code: 200
@@ -179,6 +192,9 @@ deleted_01:
       data:
         openconfig-system:config:
           hostname: sonic
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "delete"
+      data:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
       data:
@@ -196,19 +212,21 @@ deleted_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: 'delete'
 
+
 deleted_02:
   module_args:
     state: deleted
     config:
       hostname: SONIC-Test1
+      switching_mode: CUT_THROUGH
       interface_naming: standard_extended
       anycast_address:
         ipv6: true
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
-      auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       concurrent_session_limit: 4
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -216,6 +234,7 @@ deleted_02:
         value:
           openconfig-system:config:
             hostname: SONIC-Test1
+            switching-mode: CUT_THROUGH
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
         code: 200
@@ -261,6 +280,9 @@ deleted_02:
       data:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: 'delete'
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "delete"
+      data:
 
 replaced_01:
   module_args:
@@ -354,6 +376,7 @@ replaced_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 5
+
 
 overridden_01:
   module_args:
