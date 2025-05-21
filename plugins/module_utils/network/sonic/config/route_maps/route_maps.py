@@ -334,26 +334,28 @@ class Route_maps(ConfigBase):
             route_map_payload = self.get_modify_single_route_map_request(command, have)
             if route_map_payload:
                 try:
-                    for item in route_map_payload.get('statements').get("statement")[0].get("actions").get("openconfig-bgp-policy:bgp-actions").get("set-ext-community").get("inline").get("config").get("communities"):
-                       if "link-bandwidth" in item:
-                           remove_command = {}
-                           remove_command["map_name"] = command.get('map_name')
-                           remove_command["sequence_num"] = command.get('sequence_num')
-                           remove_command["action"] = command.get("action")
-                           remove_command["set"] = {"extcommunity": {}}
-                           for config in have:
-                               if config.get("map_name") == command.get("map_name") and config.get("sequence_num") == command.get("sequence_num"):
-                                   if config.get("set"):
-                                       if config.get("set").get("extcommunity"):
-                                           if config.get("set").get("extcommunity").get("bandwidth"):
-                                               remove_command["set"]["extcommunity"]["bandwidth"] = config.get("set").get("extcommunity").get("bandwidth")
+                    test_if_bandwidth_exists = route_map_payload.get('statements').get("statement")[0].get("actions").get("openconfig-bgp-policy:bgp-actions")
+                    test_if_bandwidth_exists = test_if_bandwidth_exists.get("set-ext-community").get("inline").get("config").get("communities")
+                    for item in test_if_bandwidth_exists:
+                        if "link-bandwidth" in item:
+                            remove_command = {}
+                            remove_command["map_name"] = command.get('map_name')
+                            remove_command["sequence_num"] = command.get('sequence_num')
+                            remove_command["action"] = command.get("action")
+                            remove_command["set"] = {"extcommunity": {}}
+                            for config in have:
+                                if config.get("map_name") == command.get("map_name") and config.get("sequence_num") == command.get("sequence_num"):
+                                    if config.get("set"):
+                                        if config.get("set").get("extcommunity"):
+                                            if config.get("set").get("extcommunity").get("bandwidth"):
+                                                remove_command["set"]["extcommunity"]["bandwidth"] = config.get("set").get("extcommunity").get("bandwidth")
 
-                           if remove_command.get("set").get("extcommunity"):
-                               remove_request = self.get_modify_single_route_map_request(remove_command, have)
-                               remove_request['statements']["statement"][0]["actions"]["openconfig-bgp-policy:bgp-actions"]["set-ext-community"]["config"]["options"] = "REMOVE"
-                               remove_route_maps_data = {self.route_maps_data_path: {'policy-definition': [remove_request]}}
-                               final_remove_request = {'path': self.route_maps_uri, 'method': PATCH, 'data': remove_route_maps_data}
-                               requests.append(final_remove_request)
+                            if remove_command.get("set").get("extcommunity"):
+                                remove_request = self.get_modify_single_route_map_request(remove_command, have)
+                                remove_request['statements']["statement"][0]["actions"]["openconfig-bgp-policy:bgp-actions"]["set-ext-community"]["config"]["options"] = "REMOVE"
+                                remove_route_maps_data = {self.route_maps_data_path: {'policy-definition': [remove_request]}}
+                                final_remove_request = {'path': self.route_maps_uri, 'method': PATCH, 'data': remove_route_maps_data}
+                                requests.append(final_remove_request)
                 except AttributeError as ex:
                     # No pre-existing bandwidth is set
                     pass
