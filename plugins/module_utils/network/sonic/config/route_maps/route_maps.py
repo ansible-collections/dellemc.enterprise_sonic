@@ -352,7 +352,9 @@ class Route_maps(ConfigBase):
 
                             if remove_command.get("set").get("extcommunity"):
                                 remove_request = self.get_modify_single_route_map_request(remove_command, have)
-                                remove_request['statements']["statement"][0]["actions"]["openconfig-bgp-policy:bgp-actions"]["set-ext-community"]["config"]["options"] = "REMOVE"
+                                remove_request_option = remove_request['statements']["statement"][0]["actions"]
+                                remove_request_option = remove_request_option["openconfig-bgp-policy:bgp-actions"]["set-ext-community"]["config"]
+                                remove_request_option["options"] = "REMOVE"
                                 remove_route_maps_data = {self.route_maps_data_path: {'policy-definition': [remove_request]}}
                                 final_remove_request = {'path': self.route_maps_uri, 'method': PATCH, 'data': remove_route_maps_data}
                                 requests.append(final_remove_request)
