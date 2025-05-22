@@ -83,7 +83,7 @@ class Snmp(ConfigBase):
         commands = []
         existing_snmp_facts = self.get_snmp_facts()
         commands, requests = self.set_config(existing_snmp_facts)
-		
+
         if commands and requests:
             if not self._module.check_mode:
                 try:
@@ -91,11 +91,11 @@ class Snmp(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
-			
+
         result['commands'] = commands
         result['before'] = existing_snmp_facts
         old_config = existing_snmp_facts
-		
+
         if self._module.check_mode:
             new_config = get_new_config(commands, existing_snmp_facts)
             result['after(generated)'] = new_config
@@ -163,7 +163,7 @@ class Snmp(ConfigBase):
         """
         commands = []
         requests = []
-		
+
         if not want:
             return commands, requests
 
@@ -172,7 +172,7 @@ class Snmp(ConfigBase):
             return commands, requests
 
         del_commands = get_diff(have, want)
-        merged_commands = None 
+        merged_commands = None
         merged_request = None
 
         if del_commands:
@@ -187,7 +187,7 @@ class Snmp(ConfigBase):
             merged_commands = self.check_user_exists(commands, have)
             if merged_commands:
                 merged_request = self.get_create_snmp_request(merged_commands)
-			
+
         if merged_request:
             requests.extend(merged_request)
             commands.extend(update_states(merged_commands, state))
@@ -220,7 +220,7 @@ class Snmp(ConfigBase):
         if the user exists returns an empty list
         """
         new_users = []
-        want_users = commands.get('user', None)
+        want_users = commands.get('user')
         if have.get('user') is None:
             return commands
         if want_users:
@@ -354,7 +354,7 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP agentaddress
         """
-        agentaddress = config.get('agentaddress', None)
+        agentaddress = config.get('agentaddress')
         agentaddress_list = []
         agentaddressdict = {}
         payload_url = {}
@@ -373,7 +373,7 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The list of community requests
         """
-        community = config.get('community', None)
+        community = config.get('community')
         community_list = []
         payload_url = {}
         community_requests = []
@@ -403,7 +403,7 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for the group associated with SNMP community
         """
-        community = config.get('community', None)
+        community = config.get('community')
         community_list = []
         payload_url = {}
 
@@ -429,7 +429,7 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP engine
         """
-        engine = config.get('engine', None)
+        engine = config.get('engine')
         payload_url = {}
 
         payload_url['engine'] = {'engine-id': engine}
@@ -440,7 +440,7 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP user
         """
-        user = config.get('user', None)
+        user = config.get('user')
         user_list = []
         payload_url = {}
 
@@ -473,7 +473,7 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP group members
         """
         group_list = []
-        group = config.get('user', None)
+        group = config.get('user')
 
         payload_url = {}
 
@@ -499,7 +499,7 @@ class Snmp(ConfigBase):
         view_list = []
         payload_url = {}
         viewdict = {}
-        view = config.get('view', None)
+        view = config.get('view')
 
         for conf in view:
             view_dict = {}
@@ -517,7 +517,7 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP contact
         """
         payload_url = {}
-        contact = config.get('contact', None)
+        contact = config.get('contact')
 
         payload_url['ietf-snmp-ext:contact'] = str(contact)
         return payload_url
@@ -528,7 +528,7 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP location
         """
         payload_url = {}
-        location = config.get('location', None)
+        location = config.get('location')
 
         payload_url['ietf-snmp-ext:location'] = location
         return payload_url
@@ -540,7 +540,7 @@ class Snmp(ConfigBase):
         """
         notification_payload_url = {}
         all_traps_payload_url = {}
-        enable_trap = config.get('enable_trap', None)
+        enable_trap = config.get('enable_trap')
         enable_trap_list = []
 
         for conf in enable_trap:
@@ -578,7 +578,7 @@ class Snmp(ConfigBase):
         """
         payload_url = {}
         group_list = []
-        group = config.get('group', None)
+        group = config.get('group')
         group_payload = {}
         for conf in group:
             group_dict = {}
@@ -622,7 +622,7 @@ class Snmp(ConfigBase):
         """
         payload_url = {}
         target_list = []
-        target = config.get('host', None)
+        target = config.get('host')
 
         for conf in target:
             target_dict = {}
@@ -652,7 +652,7 @@ class Snmp(ConfigBase):
         payload_url = {}
         target_params_list = []
 
-        server = config.get('host', None)
+        server = config.get('host')
 
         for conf in server:
             target_params_dict = {}
@@ -711,16 +711,16 @@ class Snmp(ConfigBase):
         user = 'user' in configs
         view = 'view' in configs
 
-        have_agentaddress = have.get('agentaddress', None)
-        have_community = have.get('community', None)
-        have_contact = have.get('contact', None)
-        have_enable_trap = have.get('enable_trap', None)
-        have_engine = have.get('engine', None)
-        have_group = have.get('group', None)
-        have_host = have.get('host', None)
-        have_location = have.get('location', None)
-        have_user = have.get('user', None)
-        have_view = have.get('view', None)
+        have_agentaddress = have.get('agentaddress')
+        have_community = have.get('community')
+        have_contact = have.get('contact')
+        have_enable_trap = have.get('enable_trap')
+        have_engine = have.get('engine')
+        have_group = have.get('group')
+        have_host = have.get('host')
+        have_location = have.get('location')
+        have_user = have.get('user')
+        have_view = have.get('view')
 
         if delete_all or agentaddress:
             if have_agentaddress is not None:
