@@ -75,17 +75,15 @@ class Snmp(ConfigBase):
 
     def execute_module(self):
         """ Execute the module
+
         :rtype: A dictionary
         :returns: The result from module execution
         """
-        result = {}
-        result['changed'] = False
-        warnings = []
+        result = {'changed': False}
         commands = []
-
         existing_snmp_facts = self.get_snmp_facts()
         commands, requests = self.set_config(existing_snmp_facts)
-
+		
         if commands and requests:
             if not self._module.check_mode:
                 try:
@@ -93,21 +91,21 @@ class Snmp(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+			
         result['commands'] = commands
-        changed_snmp_facts = self.get_snmp_facts()
         result['before'] = existing_snmp_facts
-        if result['changed']:
-            result['after'] = changed_snmp_facts
-
-        new_config = changed_snmp_facts
         old_config = existing_snmp_facts
+		
         if self._module.check_mode:
-            result.pop('after', None)
             new_config = get_new_config(commands, existing_snmp_facts)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_snmp_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
-        result['warnings'] = warnings
+
         return result
 
     def set_config(self, existing_snmp_facts):
@@ -148,105 +146,51 @@ class Snmp(ConfigBase):
         requests = []
         state = self._module.params['state']
 
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+        if state == 'overridden' or state == 'replaced':
+            commands, requests = self._state_replaced_or_overridden(want, have, state)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
-
         return commands, requests
 
-    def _state_replaced(self, want, have):
-        """ The command generator when state is replaced
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
+    def _state_replaced_or_overridden(self, want, have, state):
         """
-        requests = []
-        commands = []
-        delete_all = False
-
-        if want is None or have is None:
-            return commands, requests
-
-        diff_want = get_diff(want, have)
-        if not diff_want:
-            return commands, requests
-
-        commands = deepcopy(want)
-        diff = get_diff(have, want)
-        if diff is None:
-            delete_all = True
-            commands = have
-        else:
-            commands = get_diff(want, diff)
-
-        requests = self.get_delete_snmp_request(commands, have, delete_all)
-
-        if len(commands) > 0 and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
-        else:
-            commands = []
-
-        if len(requests) > 0:
-            new_have = {}
-        else:
-            new_have = have
-
-        diff = get_diff(want, new_have)
-        merged_commands = diff
-
-        replaced_snmp = self.get_create_snmp_request(merged_commands, have)
-        requests.extend(replaced_snmp)
-        if merged_commands and len(replaced_snmp) > 0:
-            merged_commands = update_states(merged_commands, 'replaced')
-            new_commands = []
-            for command in merged_commands:
-                new_commands.append(remove_none(command))
-            commands = new_commands
-        else:
-            commands = []
-
-        return commands, requests
-
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
+        The command generator when state is overridden
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
         commands = []
         requests = []
-        if want is None or have is None:
+		
+        if not want:
             return commands, requests
 
         diff_want = get_diff(want, have)
-        diff_dont_want = get_diff(have, want)
-
-        if diff_want is None and diff_dont_want is None:
-            return commands, requests
         if not diff_want:
             return commands, requests
 
-        commands = have
-        requests = self.get_delete_snmp_request(commands, have, True)
+        del_commands = get_diff(have, want)
+        merged_commands = None 
+        merged_request = None
 
-        if commands and len(requests) > 0:
-            commands = update_states(commands, "deleted")
-
-        merged_commands = want
-        overridden_requests = self.get_create_snmp_request(merged_commands, want)
-
-        requests.extend(overridden_requests)
-
-        if want and len(overridden_requests) > 0:
-            merged_commands = update_states(want, "overridden")
-            commands = merged_commands
+        if del_commands:
+            del_requests = self.get_delete_snmp_request(have, have, True)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, "deleted"))
+            merged_commands = want
+            merged_commands = self.check_user_exists(merged_commands, have)
+            merged_request = self.get_create_snmp_request(merged_commands)
         else:
-            commands = []
+            merged_commands = get_diff(want, have)
+            merged_commands = self.check_user_exists(commands, have)
+            if merged_commands:
+                merged_request = self.get_create_snmp_request(merged_commands)
+			
+        if merged_request:
+            requests.extend(merged_request)
+            commands.extend(update_states(merged_commands, state))
 
         return commands, requests
 
