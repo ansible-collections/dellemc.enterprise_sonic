@@ -185,12 +185,18 @@ class SnmpFacts(object):
 
         for user in user_config:
             user_dict = {}
-            auth_type = list(user.get('auth').keys())[0]
-            auth_key = user.get("auth").get(auth_type).get('key')
-
-            priv_type = list(user.get('priv').keys())[0]
-            priv_key = user.get("priv").get(priv_type).get('key')
-
+            if user.get('auth'):
+                auth_type = list(user['auth'].keys())[0]
+                user_dict['auth'] = {
+                    'auth_type': auth_type,
+                    'key': user['auth'][auth_type].get('key')
+                }
+            if user.get('priv'):
+                priv_type = list(user['priv'].keys())[0]
+                user_dict['priv'] = {
+                    'priv_type': priv_type,
+                    'key': user['priv'][priv_type].get('key')
+                }
             matched_user = None
             group_name = ""
             for group in group_config:
@@ -201,9 +207,9 @@ class SnmpFacts(object):
                         break
             user_dict['group'] = group_name
             user_dict['name'] = user.get('name')
-            user_dict['auth'] = {'auth_type': auth_type, 'key': auth_key}
-            user_dict['priv'] = {'priv_type': priv_type, 'key': priv_key}
-            user_dict['encrypted'] = user.get('encrypted')
+            user_dict['auth'] = {'auth_type': auth_type, 'key': user['auth'][auth_type].get('key')}
+            user_dict['priv'] = {'priv_type': priv_type, 'key': user['priv'][priv_type].get('key')}
+            user_dict['encrypted'] = user.get('ietf-snmp-ext:encrypted')
 
             user_list.append(user_dict)
 
@@ -267,7 +273,7 @@ class SnmpFacts(object):
 
         if server.get('trap-enable'):
             enable_trap.append("all")
-        if server.get('notifications'):
+        elif server.get('notifications'):
             auth_fail_trap = server.get('notifications').get('authentication-failure-trap')
             bgp_trap = server.get('notifications').get('bgp-traps')
             config_change_trap = server.get('notifications').get('config-change-trap')
@@ -373,10 +379,12 @@ class SnmpFacts(object):
                 user_dict["security_level"] = user_security_level
                 user_dict["name"] = matched_target_param.get('usm').get("user-name") if matched_target_param.get('usm') else None
                 host_dict["user"] = user_dict
-            host_dict['ip'] = host.get('udp').get("ip")
+
+            if host.get('udp'):
+                host_dict['ip'] = host['udp'].get('ip')
+                host_dict['port'] = host['udp'].get('port')
             host_dict['retries'] = host.get("retries")
-            host_dict['port'] = host.get('udp').get("port")
-            host_dict['tag'] = host.get('tag')[0][:-6]
+            host_dict['tag'] = host['tag'][0][:-6] if host.get('tag') else None
             host_dict['timeout'] = host.get("timeout")
             host_dict['source_interface'] = host.get("ietf-snmp-ext:source-interface")
             host_dict['vrf'] = host.get('udp').get('ietf-snmp-ext:vrf-name')
