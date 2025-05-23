@@ -1930,6 +1930,32 @@ replaced_01:
       data:
         openconfig-routing-policy:policy-definitions:
           policy-definition:
+          - config:
+              name: rm1
+            name: rm1
+            statements:
+              statement:
+              - actions:
+                  config:
+                    policy-result: ACCEPT_ROUTE
+                  openconfig-bgp-policy:bgp-actions:
+                    config: {}
+                    set-ext-community:
+                      config:
+                        method: INLINE
+                        options: REMOVE
+                      inline:
+                        config:
+                          communities:
+                          - link-bandwidth:num-multipaths:transitive
+                config:
+                  name: "80"
+                name: "80"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
+      method: "patch"
+      data:
+        openconfig-routing-policy:policy-definitions:
+          policy-definition:
             - name: rm1
               config:
                 name: rm1
