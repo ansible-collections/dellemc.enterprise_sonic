@@ -51,7 +51,7 @@ options:
         description:
           - Specify the AS number notation format
           - Option supported on Enterprise-Sonic releases 4.4.0 and higher.
-        choices: [ 'asdot', 'asdot+' ]
+        choices: ['asdot', 'asdot+']
         type: str
       max_med:
         description:
@@ -134,6 +134,15 @@ options:
                 description:
                   - Configures the multipath_relax_as_set values of as-path.
                 type: bool
+          bandwidth:
+            description:
+              - Link Bandwidth attribute for the bestpath selection process
+              - Options are as follows
+              - default_weight - Assign a low default weight (value 1) to paths not having link bandwidth
+              - ignore_weight - Ignore link bandwidth (i.e., do regular ECMP, not weighted)
+              - skip_missing - Ignore paths without link bandwidth for ECMP (if other paths have it)
+            choices: ['default_weight', 'ignore_weight', 'skip_missing']
+            type: str
           compare_routerid:
             description:
               - Configures the compare_routerid.
