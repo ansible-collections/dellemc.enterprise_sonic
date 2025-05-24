@@ -85,6 +85,14 @@ class Ssh_server(ConfigBase):
         'hostkeyalgorithms': 'hostkeyalgorithms',
     }
 
+    default_config = {
+        "publickey_authentication": True,
+        "ciphers": "aes128-ctr,aes192-ctr,aes256-ctr,chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com",
+        "hostkeyalgorithms": "rsa-sha2-256,rsa-sha2-512,ssh-rsa",
+        "kexalgorithms": "curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256",
+        "macs": "umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512"        
+    }
+
     def __init__(self, module):
         super(Ssh_server, self).__init__(module)
 
@@ -262,7 +270,10 @@ class Ssh_server(ConfigBase):
             commands = diff
         if commands:
             requests = self.delete_specific_ssh_server_params(commands)
-            commands = update_states(commands, "deleted")
+            if not requests:
+                commands = []
+            else:    
+                commands = update_states(commands, "deleted")
         else:
             commands = []
 
@@ -377,6 +388,9 @@ class Ssh_server(ConfigBase):
 
         for param in params:
             if param in command and command[param] is not None:
-                requests.append({'path': self.ssh_server_globals_param_config_path[param], 'method': DELETE})
+                if param not in self.default_config or command[param] != self.default_config[param]:
+                    requests.append({'path': self.ssh_server_globals_param_config_path[param], 'method': DELETE})
+                else:
+                    command.pop(param)
 
         return requests

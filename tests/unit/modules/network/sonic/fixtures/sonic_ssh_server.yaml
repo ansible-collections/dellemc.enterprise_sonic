@@ -79,8 +79,6 @@ deleted_02:
              max-auth-retries: 6
              ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
   config_requests:
-    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/publickey-authentication"
-      method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/ciphers"
@@ -110,8 +108,6 @@ replaced_01:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/permit-root-login"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
-      method: "delete"
-    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/publickey-authentication"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/macs"
       method: "delete"      
@@ -147,8 +143,6 @@ overridden_01:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/permit-root-login"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
-      method: "delete"
-    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/publickey-authentication"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/macs"
       method: "delete"      
