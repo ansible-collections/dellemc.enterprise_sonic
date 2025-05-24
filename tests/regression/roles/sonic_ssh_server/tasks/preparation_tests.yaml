@@ -1,0 +1,6 @@
+---
+- name: Delete old SSH server configurations
+  dellemc.enterprise_sonic.sonic_ssh_server:
+    config:
+    state: deleted
+  ignore_errors: yes
