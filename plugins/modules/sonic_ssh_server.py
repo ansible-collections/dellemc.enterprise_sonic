@@ -69,17 +69,17 @@ options:
             description:
               - Configure ciphers on ssh server.
             type: str
-          hostkeyalgorithms:
-            description:
-              - Configure hostkey algorithms on ssh server.
-            type: str
           macs:
             description:
               - Configure macs on ssh server.
             type: str
           kexalgorithms:
-            descriptions:
+            description:
               - Conifgure key exchange algorithms.
+            type: str
+          hostkeyalgorithms:
+            description:
+              - Configure hostkey algorithms on ssh server.
             type: str
   state:
     description:
@@ -229,6 +229,13 @@ after:
   sample: >
     The configuration returned will always be in the same format
      of the parameters above.
+after(generated):
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

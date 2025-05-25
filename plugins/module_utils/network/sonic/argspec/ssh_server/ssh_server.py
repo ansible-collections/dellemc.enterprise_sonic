@@ -76,7 +76,7 @@ class Ssh_serverArgs(object):  # pylint: disable=R0903
                             'type': 'str'
                         },
                         'hostkeyalgorithms': {
-                            'type': 'str'
+                            'type': 'str', 'no_log': False,
                         }
                     },
                     'type': 'dict'
