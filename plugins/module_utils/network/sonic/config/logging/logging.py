@@ -205,9 +205,9 @@ class Logging(ConfigBase):
         # unconfigured servers from the list of "delete" commands to be sent to the switch.
         unconfigured = get_diff(want, have, TEST_KEYS)
 
-        want_none = {'remote_servers': None}
+        want_none = {'remote_servers': None, 'security_profile': None}
         want_any = get_diff(want, want_none, TEST_KEYS)
-        # if want_any is none, then delete all NTP configurations
+        # If want_any is none, then delete all logging configuration.
 
         delete_all = False
         if not want_any:
@@ -287,6 +287,7 @@ class Logging(ConfigBase):
         commands = []
         requests = []
 
+        want.setdefault('security_profile', None)
         if have and have != want:
             delete_all = True
             del_requests = self.get_delete_requests(have, delete_all)
@@ -319,6 +320,10 @@ class Logging(ConfigBase):
 
         replaced_config = dict()
         replaced_servers = []
+
+        if have.get('security_profile') and want.get('security_profile'):
+            replaced_config['security_profile'] = have['security_profile']
+
         if 'remote_servers' in have and 'remote_servers' in want:
             for server in want['remote_servers']:
                 replaced_server = self.search_config_servers(server['host'], have['remote_servers'])
@@ -349,6 +354,12 @@ class Logging(ConfigBase):
                     if 'vrf' in server and not server['vrf']:
                         server.pop('vrf', None)
 
+            if 'remote_servers' in want and want['remote_servers'] is None:
+                want.pop('remote_servers')
+
+            if 'security_profile' in want and want['security_profile'] is None:
+                want.pop('security_profile')
+
         if state == 'replaced' or state == 'overridden':
             if 'remote_servers' in want and want['remote_servers'] is not None:
                 for server in want['remote_servers']:
@@ -366,6 +377,12 @@ class Logging(ConfigBase):
                     if 'severity' in server and not server['severity']:
                         server['severity'] = DEFAULT_SEVERITY
 
+            if 'remote_servers' in want and want['remote_servers'] is None:
+                want.pop('remote_servers')
+
+            if 'security_profile' in want and want['security_profile'] is None:
+                want.pop('security_profile')
+
     def get_merge_requests(self, configs, have):
 
         requests = []
@@ -375,6 +392,11 @@ class Logging(ConfigBase):
             servers_request = self.get_create_servers_requests(servers_config, have)
             if servers_request:
                 requests.extend(servers_request)
+
+        if 'security_profile' in configs and configs['security_profile'] is not None:
+            payload = {'openconfig-system-ext:security-profile': configs['security_profile']}
+            url = 'data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile'
+            requests.append({'path': url, 'method': PATCH, 'data': payload})
 
         return requests
 
@@ -392,6 +414,10 @@ class Logging(ConfigBase):
 
             if servers_request:
                 requests.extend(servers_request)
+
+        if configs.get('security_profile'):
+            url = 'data/openconfig-system:system/openconfig-system-ext:syslog/config/security-profile'
+            requests.append({'path': url, 'method': DELETE})
 
         return requests
 
