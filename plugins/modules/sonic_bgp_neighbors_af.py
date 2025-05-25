@@ -181,180 +181,50 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
+# sonic# show running-configuration bgp neighbor vrf default
 # !
-# router bgp 4
-#  !
-#  neighbor interface Eth1/3
-#   !
-#   address-family ipv4 unicast
-#    activate
-#    allowas-in 4
-#    route-map aa in
-#    route-map aa out
-#    route-reflector-client
-#    route-server-client
-#    send-community both
-# !
-#
-- name: Deletes neighbors address-family with specific values
-  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
-     config:
-        - bgp_as: 4
-          neighbors:
-             - neighbor: Eth1/3
-               address_family:
-                  - afi: ipv4
-                    safi: unicast
-                    allowas_in:
-                       value: 4
-                    route_map:
-                       - name: aa
-                         direction: in
-                       - name: aa
-                         direction: out
-                    route_reflector_client: true
-                    route_server_client: true
-     state: deleted
-
-# After state:
-# ------------
-# !
-# router bgp 4
-#  !
-#  neighbor interface Eth1/3
-#   !
-#   address-family ipv4 unicast
-#    send-community both
-# !
-
-
-# Using "deleted" state
-#
-# Before state:
-# -------------
-#
-# !
-# router bgp 4
-#  !
-#  neighbor interface Eth1/3
-#   !
-#   address-family ipv4 unicast
-#    activate
-#    allowas-in 4
-#    route-map aa in
-#    route-map aa out
-#    route-reflector-client
-#    route-server-client
-#    send-community both
-# !
-#  neighbor interface Eth1/5
-#   !
-#   address-family ipv4 unicast
-#    activate
-#    allowas-in origin
-#    send-community both
-# !
-#
-- name: Deletes neighbors address-family with specific values
-  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
-     config:
-     state: deleted
-
-# After state:
-# ------------
-# !
-# router bgp 4
-# !
-
-
-# Using "deleted" state
-#
-# Before state:
-# -------------
-#
-# !
-# router bgp 4
-#  !
-#  neighbor interface Eth1/3
-# !
-#
-- name: Merges neighbors address-family with specific values
-  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
-     config:
-        - bgp_as: 4
-          neighbors:
-             - neighbor: Eth1/3
-               address_family:
-                  - afi: ipv4
-                    safi: unicast
-                    allowas_in:
-                       value: 4
-                    route_map:
-                       - name: aa
-                         direction: in
-                       - name: aa
-                         direction: out
-                    route_reflector_client: true
-                    route_server_client: true
-     state: merged
-
-# After state:
-# ------------
-# !
-# router bgp 4
-#  !
-#  neighbor interface Eth1/3
-#   !
-#   address-family ipv4 unicast
-#    activate
-#    allowas-in 4
-#    route-map aa in
-#    route-map aa out
-#    route-reflector-client
-#    route-server-client
-#    send-community both
-# !
-
-
-# Using "merged" state
-#
-# Before state:
-# -------------
-#
-# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
-# (No bgp neighbor configuration present)
-- name: "Configure BGP neighbor prefix-list attributes"
-  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
-     config:
-        - bgp_as: 51
-          neighbors:
-             - neighbor: 1.1.1.1
-               address_family:
-                  - afi: ipv4
-                    safi: unicast
-                    ip_afi:
-                       default_policy_name: rmap_reg1
-                       send_default_route: true
-                    prefix_limit:
-                       max_prefixes: 1
-                       prevent_teardown: true
-                       warning_threshold: 80
-                    prefix_list_in: p1
-                    prefix_list_out: p2
-     state: merged
-# After state:
-# ------------
-#
-# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
-# !
-# neighbor 1.1.1.1
+# neighbor interface Eth1/3
 #  !
 #  address-family ipv4 unicast
-#   default-originate route-map rmap_reg1
-#   prefix-list p1 in
-#   prefix-list p2 out
+#   activate
+#   allowas-in 4
+#   route-map aa in
+#   route-map aa out
+#   route-reflector-client
+#   route-server-client
 #   send-community both
-#   maximum-prefix 1 80 warning-only
+# !
+
+- name: Delete specific BGP neighbors AF attributes
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+     config:
+        - bgp_as: 4
+          neighbors:
+             - neighbor: Eth1/3
+               address_family:
+                  - afi: ipv4
+                    safi: unicast
+                    allowas_in:
+                       value: 4
+                    route_map:
+                       - name: aa
+                         direction: in
+                       - name: aa
+                         direction: out
+                    route_reflector_client: true
+                    route_server_client: true
+     state: deleted
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp neighbor vrf default
+# !
+# neighbor interface Eth1/3
+#  !
+#  address-family ipv4 unicast
+#   send-community both
+# !
 
 
 # Using "deleted" state
@@ -362,7 +232,7 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# sonic# show running-configuration bgp neighbor vrf default
 # !
 # neighbor 1.1.1.1
 #  !
@@ -372,7 +242,8 @@ EXAMPLES = """
 #   prefix-list p2 out
 #   send-community both
 #   maximum-prefix 5 90 restart 2
-- name: "Delete BGP neighbor prefix-list attributes"
+
+- name: Delete BGP neighbors AF prefix-list attributes
   dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
      config:
         - bgp_as: 51
@@ -391,15 +262,152 @@ EXAMPLES = """
                     prefix_list_in: p1
                     prefix_list_out: p2
      state: deleted
-# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp neighbor vrf default
+# !
+# neighbor 1.1.1.1
+# !
+
+
+# Using "deleted" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp neighbor vrf default
+# !
+# neighbor interface Eth1/3
+#  !
+#  address-family ipv4 unicast
+#   activate
+#   allowas-in 4
+#   route-map aa in
+#   route-map aa out
+#   route-reflector-client
+#   route-server-client
+#   send-community both
+# !
+# neighbor interface Eth1/5
+#  !
+#  address-family ipv4 unicast
+#   activate
+#   allowas-in origin
+#   send-community both
+# !
+
+- name: Delete all BGP neighbors AF configuration
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+     config:
+     state: deleted
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp neighbor vrf default
 # (No bgp neighbor configuration present)
+
+
+# Using "merged" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp neighbor vrf default
+# !
+# neighbor interface Eth1/3
+# !
+
+- name: Merge BGP neighbors AF configuration
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+     config:
+        - bgp_as: 4
+          neighbors:
+             - neighbor: Eth1/3
+               address_family:
+                  - afi: ipv4
+                    safi: unicast
+                    allowas_in:
+                       value: 4
+                    route_map:
+                       - name: aa
+                         direction: in
+                       - name: aa
+                         direction: out
+                    route_reflector_client: true
+                    route_server_client: true
+     state: merged
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp neighbor vrf default
+# !
+# neighbor interface Eth1/3
+#  !
+#  address-family ipv4 unicast
+#   activate
+#   allowas-in 4
+#   route-map aa in
+#   route-map aa out
+#   route-reflector-client
+#   route-server-client
+#   send-community both
+# !
+
+
+# Using "merged" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp neighbor vrf default
+# (No bgp neighbor configuration present)
+
+- name: Configure BGP neighbors AF prefix-list attributes
+  dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
+     config:
+        - bgp_as: 51
+          neighbors:
+             - neighbor: 1.1.1.1
+               address_family:
+                  - afi: ipv4
+                    safi: unicast
+                    ip_afi:
+                       default_policy_name: rmap_reg1
+                       send_default_route: true
+                    prefix_limit:
+                       max_prefixes: 1
+                       prevent_teardown: true
+                       warning_threshold: 80
+                    prefix_list_in: p1
+                    prefix_list_out: p2
+     state: merged
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp neighbor vrf default
+# !
+# neighbor 1.1.1.1
+#  !
+#  address-family ipv4 unicast
+#   default-originate route-map rmap_reg1
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 1 80 warning-only
+# !
+
 
 # Using "replaced" state
 #
 # Before state:
 # -------------
 #
-# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# sonic# show running-configuration bgp neighbor vrf default
 # !
 # neighbor 1.1.1.1
 #  !
@@ -409,7 +417,9 @@ EXAMPLES = """
 #   prefix-list p2 out
 #   send-community both
 #   maximum-prefix 5 90 restart 2
-- name: "Replace BGP neighbor address-family attributes"
+# !
+
+- name: Replace BGP neighbors AF attributes
   dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
      config:
         - bgp_as: 51
@@ -428,10 +438,11 @@ EXAMPLES = """
                     prefix_list_in: p1
                     prefix_list_out: p2
      state: replaced
+
 # After state:
 # ------------
 #
-# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# sonic# show running-configuration bgp neighbor vrf default
 # !
 # neighbor 1.1.1.1
 #  !
@@ -441,14 +452,15 @@ EXAMPLES = """
 #   prefix-list p2 out
 #   send-community both
 #   maximum-prefix 1 80 warning-only
-#
-#
+# !
+
+
 # Using "overridden" state
 #
 # Before state:
 # -------------
 #
-# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# sonic# show running-configuration bgp neighbor vrf default
 # !
 # neighbor 1.1.1.1
 #  !
@@ -458,7 +470,9 @@ EXAMPLES = """
 #   prefix-list p2 out
 #   send-community both
 #   maximum-prefix 5 90 restart 2
-- name: "Override BGP neighbors"
+# !
+
+- name: Override BGP neighbors AF configuration
   dellemc.enterprise_sonic.sonic_bgp_neighbors_af:
      config:
         - bgp_as: 51
@@ -476,13 +490,14 @@ EXAMPLES = """
                        warning_threshold: 80
                     prefix_list_in: p1
                     prefix_list_out: p2
-     state: replaced
+     state: overridden
+
 # After state:
 # ------------
 #
-# sonic# show running-configuration bgp neighbor vrf default 1.1.1.1
+# sonic# show running-configuration bgp neighbor vrf default
 # !
-# neighbor 1.1.1.1
+# neighbor 2.2.2.2
 #  !
 #  address-family ipv4 unicast
 #   default-originate route-map rmap_reg1
@@ -490,6 +505,7 @@ EXAMPLES = """
 #   prefix-list p2 out
 #   send-community both
 #   maximum-prefix 1 80 warning-only
+# !
 """
 
 RETURN = """

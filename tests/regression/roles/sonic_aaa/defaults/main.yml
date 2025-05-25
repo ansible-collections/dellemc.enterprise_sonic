@@ -12,6 +12,7 @@ sonic_aaa_tests:
           - ldap
         console_auth_local: true
         failthrough: true
+        mfa_auth_method: 'rsa-securid'
       authorization:
         commands_auth_method:
           - local
@@ -49,6 +50,7 @@ sonic_aaa_tests:
           - tacacs+
         console_auth_local: false
         failthrough: false
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - tacacs+
@@ -76,6 +78,9 @@ sonic_aaa_tests:
     state: replaced
     input:
       authentication:
+        auth_method:
+          - cac-piv
+          - local
         console_auth_local: true
       authorization:
         login_auth_method:
@@ -94,6 +99,8 @@ sonic_aaa_tests:
           - radius
         console_auth_local: true
         failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -131,6 +138,8 @@ sonic_aaa_tests:
           - radius
         console_auth_local: true
         failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -168,6 +177,8 @@ sonic_aaa_tests:
           - tacacs+
         console_auth_local: false
         failthrough: false
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - tacacs+
