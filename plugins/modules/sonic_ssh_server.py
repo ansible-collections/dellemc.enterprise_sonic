@@ -77,6 +77,10 @@ options:
             description:
               - Configure macs on ssh server.
             type: str
+          kexalgorithms:
+            descriptions:
+              - Conifgure key exchange algorithms.
+            type: str
   state:
     description:
       - The state specifies the type of configuration update to be performed on the device.
@@ -101,12 +105,12 @@ EXAMPLES = """
 # ip ssh disable-publickey-authentication true
 # sonic#
 
-  - name: Delete specified SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh_server:
-      config:
-        server_globals:
-          publickey_authentication: false
-      state: deleted
+- name: Delete specified SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh_server:
+    config:
+      server_globals:
+        publickey_authentication: false
+    state: deleted
 
 # After State:
 # ------------
@@ -125,10 +129,10 @@ EXAMPLES = """
 # ip ssh disable-publickey-authentication true
 # sonic#
 
-  - name: Delete all SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh_server:
-      config:
-      state: deleted
+- name: Delete all SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh_server:
+    config:
+    state: deleted
 
 # After State:
 # ------------
@@ -146,12 +150,12 @@ EXAMPLES = """
 # ip ssh disable-publickey-authentication false
 # sonic#
 
-  - name: Modify SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh_server:
-      config:
-        server_globals:
-          publickey_authentication: false
-      state: merged
+- name: Modify SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh_server:
+    config:
+      server_globals:
+        publickey_authentication: false
+    state: merged
 
 # After State:
 # ------------
@@ -172,13 +176,13 @@ EXAMPLES = """
 # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 # sonic#
 
-  - name: Modify SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh:
-      config:
-        server_globals:
-          cipher: 'aes256-ctr'
-          kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
-      state: replaced
+- name: Modify SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh:
+    config:
+      server_globals:
+        cipher: 'aes256-ctr'
+        kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
+    state: replaced
 
 # After State:
 # ------------
@@ -198,12 +202,12 @@ EXAMPLES = """
 # ip ssh disable-publickey-authentication false
 # sonic#
 
-  - name: Modify SSH configurations
-    dellemc.enterprise_sonic.sonic_ssh:
-      config:
-        serve_globals:
-          publickey_authentication: false
-      state: overridden
+- name: Modify SSH configurations
+  dellemc.enterprise_sonic.sonic_ssh:
+    config:
+      serve_globals:
+        publickey_authentication: false
+    state: overridden
 
 # After State:
 # ------------
@@ -211,8 +215,6 @@ EXAMPLES = """
 # sonic# show running-configuration | grep "ip ssh"
 # ip ssh disable-publickey-authentication true
 # sonic#
-
-
 """
 RETURN = """
 before:
