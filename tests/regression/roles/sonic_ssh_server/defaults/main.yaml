@@ -4,8 +4,6 @@ module_name: ssh_server
 #suggest test cases
 
 tests:
-  
-tests:
   - name: test_case_01
     description: Add SSH server configuration
     state: merged
