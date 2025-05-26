@@ -11,7 +11,7 @@
     name: common
     tasks_from: action.facts.report.yaml
 
-- name: "{{ item.name }} , {{ item.description }} Idempotent"
+- name: "{{ item.name ~ ' , ' ~ item.description ~ ' Idempotent' }}"
   dellemc.enterprise_sonic.sonic_ptp_port_ds:
     config: "{{ item.input }}"
     state: "{{ item.state }}"

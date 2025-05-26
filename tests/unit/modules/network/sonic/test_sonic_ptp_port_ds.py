@@ -89,6 +89,13 @@ class TestSonicPtpPortDsModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_ptp_port_ds_overridden_02(self):
+        set_module_args(self.fixture_data['overridden_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_02']['existing_ptp_port_ds_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_ptp_port_ds_deleted_03(self):
         set_module_args(self.fixture_data['deleted_03']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_03']['existing_ptp_port_ds_config'])

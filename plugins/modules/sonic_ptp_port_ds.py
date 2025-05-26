@@ -49,7 +49,7 @@ options:
         default:
       unicast_table:
         description:
-          - The comma-separated list of ip addresses to use for master.
+          - List of ip addresses to use for PTP master.
         type: list
         elements: str
   state:
@@ -114,7 +114,7 @@ EXAMPLES = """
 # ptp port master-table Ethernet0 add 1.1.1.2
 # sonic#
 
-- name: Delete specified PTP configurations
+- name: Delete all PTP configurations in the specified port
   dellemc.enterprise_sonic.sonic_ptp_port_ds:
     config:
       - interface: 'Ethernet0'
@@ -143,7 +143,6 @@ EXAMPLES = """
 - name: Delete all PTP configurations
   dellemc.enterprise_sonic.sonic_ptp_port_ds:
     config:
-      - []
     state: deleted
 
 # After State:

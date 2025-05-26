@@ -68,8 +68,6 @@ intf_speed_to_number_map = {
     "SPEED_800GB": 800000
 }
 
-interface_port_num_map = {}
-
 
 # To create Loopback, VLAN interfaces
 def build_interfaces_create_request(interface_name):
@@ -181,11 +179,25 @@ def retrieve_valid_intf_speed(module, intf_name):
 
 
 def retrieve_port_num(module, intf_name):
-    '''This function is used to retrieve the port_num from interface name.'''
-    port_num = 65535
+    """
+    Get the port number from the interface name.
+
+    This function finds the port number for a given interface name. It first checks a cache,
+    and if not found, it extracts the number from the name or fetches it from a remote source.
+
+    Args:
+        module: The Ansible module object.
+        intf_name (str): The interface name.
+
+    Returns:
+        int: The port number.
+
+    Raises:
+        ConnectionError: If there is a connection issue while fetching the port number.
+        Exception: If the port number cannot be retrieved.
+    """
+
     method = "get"
-    if (interface_port_num_map.get(intf_name) is not None):
-        return (interface_port_num_map[intf_name])
 
     if "Ethernet" in intf_name:
         port_num = intf_name.replace("Ethernet", "")
@@ -201,5 +213,4 @@ def retrieve_port_num(module, intf_name):
             if not alias:
                 module.fail_json(msg="Unable to retrieve port number for interface {0}".format(intf_name))
             port_num = alias.replace("Ethernet", "")
-    interface_port_num_map[intf_name] = int(port_num)
     return int(port_num)
