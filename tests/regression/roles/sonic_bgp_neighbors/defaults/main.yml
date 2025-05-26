@@ -1151,7 +1151,7 @@ replaced_tasks:
             remote_as:
               peer_as: 112
   - name: test_case_replace_03
-    description: Modify BGP peer-group prefix-limit attributes
+    description: Replace BGP peer-group prefix-limit attributes
     state: replaced
     input:
       - bgp_as: "{{bgp_as_1}}"
