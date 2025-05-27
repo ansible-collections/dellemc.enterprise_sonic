@@ -412,3 +412,52 @@ overridden_02:
     - path: 'data/ietf-snmp:snmp/vacm/group=group-floor2'
       method: 'delete'
       data:
+
+overridden_03:
+  module_args:
+    state: overridden
+    config:
+      community:
+        - group: 'grouplab2'
+          name: 'comm1'
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+        value:
+          ietf-snmp:snmp:
+            target:
+              - name: 'targetEntry1'
+                retries: 10
+                tag:
+                  - 'informNotify'
+                target-params: 'targetEntry1'
+                timeout: 20000
+                udp:
+                  ip: '1.2.3.4.5'
+                  port: 162
+                  ietf-snmp-ext:vrf-name: 'default'
+                ietf-snmp-ext:source-interface: 'eth0'
+            community:
+              - index: 'comm1'
+                security-name: 'group-lab'
+  expected_config_requests:
+    - path: 'data/ietf-snmp:snmp/community'
+      method: 'patch'
+      data:
+        community:
+          - index: 'comm1'
+            security-name: 'grouplab2'
+    - path: 'data/ietf-snmp:snmp/community=comm1'
+      method: 'delete'
+      data:
+    - path: 'data/ietf-snmp:snmp/vacm'
+      method: 'patch'
+      data:
+        ietf-snmp:vacm:
+          group:
+            - name: 'grouplab2'
+              member:
+                - security-model:
+                    - 'v2c'
+                  security-name: 'comm1'

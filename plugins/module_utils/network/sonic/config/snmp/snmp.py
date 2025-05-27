@@ -384,7 +384,7 @@ class Snmp(ConfigBase):
             community_dict['index'] = conf.get('name')
             group_name = conf.get('group')
 
-            if len(have) > 0 and have.get('group'):
+            if have and len(have) > 0 and have.get('group'):
                 matched_group = next((each_group for each_group in have['group'] if each_group['name'] == group_name), None)
                 if matched_group:
                     group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
