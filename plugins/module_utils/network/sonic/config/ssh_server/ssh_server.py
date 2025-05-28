@@ -314,9 +314,8 @@ class Ssh_server(ConfigBase):
             commands = have
             delete_all = True
         else:
-            # diff = get_diff(want, have)
-            # commands  = (want, diff)
-            commands = self.get_matched_commands(want, have)
+            diff = get_diff(want, have)
+            commands = get_diff(want, diff)
 
         if commands:
             if delete_all:
@@ -345,27 +344,6 @@ class Ssh_server(ConfigBase):
         url = self.ssh_server_globals_config_path
         requests.append({'path': url, 'method': PATCH, 'data': total_payload})
         return requests
-
-    def get_matched_commands(self, want, have):
-        """Matched commands from the input and available configurations
-        """
-        commands = {}
-        match = {}
-        for key in ['password_authentication', 'publickey_authentication',
-                    'max_auth_retries', 'permit_root_login',
-                    'permit_user_environment', 'disable_forwarding',
-                    'permit_user_rc', 'x11_forwarding',
-                    'ciphers', 'kexalgorithms', 'macs', 'hostkeyalgorithms']:
-            if want.get('server_globals') and have.get('server_globals') and \
-               want['server_globals'].get(key) is not None and \
-               have['server_globals'].get(key) is not None and \
-               want['server_globals'].get(key) == have['server_globals'].get(key):
-                match[key] = want['server_globals'].get(key)
-
-        if match:
-            commands['server_globals'] = match
-
-        return commands
 
     def delete_all_ssh_server_params(self):
         """Requests to delete SSH server configurations on the chassis
