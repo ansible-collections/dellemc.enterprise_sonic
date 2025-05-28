@@ -163,7 +163,6 @@ class Ssh_server(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
         want = remove_empties(self._module.params['config'])
         have = existing_ssh_server_facts
         resp = self.set_state(want, have)
