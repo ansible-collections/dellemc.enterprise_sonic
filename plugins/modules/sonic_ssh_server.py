@@ -101,7 +101,7 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh"
-# ip ssh disable-publickey-authentication false
+# ip ssh disable-publickey-authentication true
 # sonic#
 
 - name: Delete specified SSH configurations
@@ -115,7 +115,7 @@ EXAMPLES = """
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh"
-# ip ssh disable-publickey-authentication true
+# ip ssh disable-publickey-authentication false
 # sonic#
 
 
@@ -154,7 +154,7 @@ EXAMPLES = """
 # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
 # sonic#
 
-- name: Modify SSH configurations
+- name: Replace SSH configurations
   dellemc.enterprise_sonic.sonic_ssh:
     config:
       server_globals:
@@ -180,7 +180,7 @@ EXAMPLES = """
 # ip ssh disable-publickey-authentication false
 # sonic#
 
-- name: Modify SSH configurations
+- name: Override SSH configurations
   dellemc.enterprise_sonic.sonic_ssh:
     config:
       serve_globals:
@@ -194,6 +194,7 @@ EXAMPLES = """
 # ip ssh disable-publickey-authentication true
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the model invocation.
