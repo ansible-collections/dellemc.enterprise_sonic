@@ -101,7 +101,7 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh"
-# ip ssh disable-publickey-authentication true
+# ip ssh disable-publickey-authentication false
 # sonic#
 
 - name: Delete specified SSH configurations
@@ -117,27 +117,6 @@ EXAMPLES = """
 # sonic# show running-configuration | grep "ip ssh"
 # ip ssh disable-publickey-authentication true
 # sonic#
-
-
-# Using "deleted" state
-#
-# Before state:
-# -------------
-#
-# sonic# show running-configuration | grep "ip ssh"
-# ip ssh disable-publickey-authentication true
-# sonic#
-
-- name: Delete all SSH configurations
-  dellemc.enterprise_sonic.sonic_ssh_server:
-    config:
-    state: deleted
-
-# After state:
-# ------------
-#
-# sonic# show running-configuration | grep "ip ssh"
-# sonic# ip ssh disable-publickey-authentication false
 
 
 # Using "merged" state
