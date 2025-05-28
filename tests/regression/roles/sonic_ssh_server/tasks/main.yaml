@@ -9,9 +9,6 @@
   ansible.builtin.include_tasks: tasks_template.yaml
   loop: "{{ tests }}"
 
-- name: "Cleanup of {{ module_name }}"
-  ansible.builtin.include_tasks: cleanup_tests.yaml
-
 - name: Display all variables/facts known for a host
   ansible.builtin.debug:
     var: hostvars[inventory_hostname].ansible_facts.test_reports

@@ -23,7 +23,8 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
-    update_states
+    update_states,
+    remove_empties
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -89,9 +90,9 @@ class Ssh_server(ConfigBase):
         "publickey_authentication": True,
         "ciphers": "aes128-ctr,aes192-ctr,aes256-ctr,chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com",
         "hostkeyalgorithms": "rsa-sha2-256,rsa-sha2-512,ssh-rsa",
-        "kexalgorithms": "curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,\
-                          ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,\
-                          diffie-hellman-group18-sha512,diffie-hellman-group14-sha256",
+        "kexalgorithms": ("curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,"
+                          "ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,"
+                          "diffie-hellman-group18-sha512,diffie-hellman-group14-sha256"),
         "macs": "umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512"
     }
 
@@ -117,8 +118,7 @@ class Ssh_server(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
-        commands = list()
+        commands = []
 
         existing_ssh_server_facts = self.get_ssh_server_facts()
         commands, requests = self.set_config(existing_ssh_server_facts)
@@ -153,7 +153,6 @@ class Ssh_server(ConfigBase):
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_ssh_server_facts):
@@ -165,6 +164,7 @@ class Ssh_server(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
+        want = remove_empties(self._module.params['config'])
         have = existing_ssh_server_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -203,9 +203,9 @@ class Ssh_server(ConfigBase):
 
         server_want = {}
         server_have = {}
-        if want and want.get('server_globals', None):
+        if want and want.get('server_globals'):
             server_want['server_globals'] = want['server_globals']
-        if have and have.get('server_globals', None):
+        if have and have.get('server_globals'):
             server_have['server_globals'] = have['server_globals']
         commands, requests = self.handle_ssh_server_replaced_overridden(server_want, server_have)
 
@@ -223,9 +223,9 @@ class Ssh_server(ConfigBase):
 
         server_want = {}
         server_have = {}
-        if want and want.get('server_globals', None):
+        if want and want.get('server_globals'):
             server_want['server_globals'] = want['server_globals']
-        if have and have.get('server_globals', None):
+        if have and have.get('server_globals'):
             server_have['server_globals'] = have['server_globals']
         server_commands, server_requests = self.handle_ssh_server_merged(server_want, server_have)
         requests.extend(server_requests)
@@ -247,9 +247,9 @@ class Ssh_server(ConfigBase):
 
         server_want = {}
         server_have = {}
-        if want and want.get('server_globals', None):
+        if want and want.get('server_globals'):
             server_want['server_globals'] = want['server_globals']
-        if have and have.get('server_globals', None):
+        if have and have.get('server_globals'):
             server_have['server_globals'] = have['server_globals']
         server_commands, server_requests = self.handle_ssh_server_deleted(server_want, server_have)
         requests.extend(server_requests)
@@ -315,6 +315,8 @@ class Ssh_server(ConfigBase):
             commands = have
             delete_all = True
         else:
+            # diff = get_diff(want, have)
+            # commands  = (want, diff)
             commands = self.get_matched_commands(want, have)
 
         if commands:

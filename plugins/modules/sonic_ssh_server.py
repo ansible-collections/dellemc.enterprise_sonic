@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -14,10 +14,10 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_ssh_server
-version_added: '1.0.0'
+version_added: '3.1.0'
 short_description: Manage SSH server configurations on SONiC
 description:
-  - This module provides SSH configuration management to specify the
+  - This module provides SSH server configuration management to specify the
      algorithms used for SSH connection in devices running SONiC.
 author: Bhavesh (@bhaveshdell)
 options:
@@ -28,22 +28,23 @@ options:
     suboptions:
       server_globals:
         description:
-          SSH server configuration
+          SSH server global configuration.
         type: dict
         suboptions:
           password_authentication:
             description:
               - Configure password authentication on ssh server.
-                By default it is enabled.
+              - By default it is enabled.
             type: bool
           publickey_authentication:
             description:
               - Configure publickey authentication on ssh server.
-                By default it is enabled.
+              - By default it is enabled.
             type: bool
           max_auth_retries:
             description:
               - Number of authentication retries allowed before session terminates.
+              - Range 0-10.
             type: int
           disable_forwarding:
             description:
@@ -83,9 +84,7 @@ options:
             type: str
   state:
     description:
-      - The state specifies the type of configuration update to be performed on the device.
-         If the state is "merged", merge specified attributes with existing configured attributes.
-         For "deleted", delete the specified attributes from existing configuration.
+      - The state of the configuration after module completion.
     type: str
     choices:
       - merged
@@ -96,9 +95,9 @@ options:
 """
 
 EXAMPLES = """
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh"
@@ -112,7 +111,7 @@ EXAMPLES = """
         publickey_authentication: false
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh"
@@ -120,9 +119,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using deleted
+# Using "deleted" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh"
@@ -134,16 +133,16 @@ EXAMPLES = """
     config:
     state: deleted
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh"
 # sonic# ip ssh disable-publickey-authentication false
 
 
-# Using merged
+# Using "merged" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh"
@@ -157,7 +156,7 @@ EXAMPLES = """
         publickey_authentication: false
     state: merged
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh"
@@ -165,9 +164,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using replaced
+# Using "replaced" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -184,7 +183,7 @@ EXAMPLES = """
         kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
     state: replaced
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh client"
@@ -193,9 +192,9 @@ EXAMPLES = """
 # sonic#
 
 
-# Using overridden
+# Using "overridden" state
 #
-# Before State:
+# Before state:
 # -------------
 #
 # sonic# show running-configuration | grep "ip ssh"
@@ -209,7 +208,7 @@ EXAMPLES = """
         publickey_authentication: false
     state: overridden
 
-# After State:
+# After state:
 # ------------
 #
 # sonic# show running-configuration | grep "ip ssh"
