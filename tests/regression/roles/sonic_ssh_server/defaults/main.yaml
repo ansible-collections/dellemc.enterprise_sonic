@@ -21,7 +21,7 @@ tests:
         hostkeyalgorithms: rsa-sha2-256,rsa-sha2-512
 
   - name: test_case_02
-    description: Add SSH server configuration
+    description: Update SSH server configuration
     state: merged
     input:
       server_globals:
@@ -53,7 +53,7 @@ tests:
         hostkeyalgorithms: rsa-sha2-256,rsa-sha2-512
 
   - name: test_case_04
-    description: Delete SSH server configuration
+    description: Add SSH server configuration
     state: merged
     input:
       server_globals:
