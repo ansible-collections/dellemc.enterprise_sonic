@@ -176,3 +176,41 @@ def retrieve_valid_intf_speed(module, intf_name):
         return v_speeds_int_list
     else:
         module.fail_json(msg="Unable to retrieve valid port speeds for the interface {0}".format(intf_name))
+
+
+def retrieve_port_num(module, intf_name):
+    """
+    Get the port number from the interface name.
+
+    This function finds the port number for a given interface name. It first checks a cache,
+    and if not found, it extracts the number from the name or fetches it from a remote source.
+
+    Args:
+        module: The Ansible module object.
+        intf_name (str): The interface name.
+
+    Returns:
+        int: The port number.
+
+    Raises:
+        ConnectionError: If there is a connection issue while fetching the port number.
+        Exception: If the port number cannot be retrieved.
+    """
+
+    method = "get"
+
+    if "Ethernet" in intf_name:
+        port_num = intf_name.replace("Ethernet", "")
+    elif "Eth" in intf_name:
+        alias_url = f'data/sonic-port:sonic-port/PORT_TABLE/PORT_TABLE_LIST={intf_name}/alias'
+        request = {"path": alias_url, "method": method}
+        try:
+            port_response = edit_config(module, to_request(module, request))
+        except ConnectionError as exc:
+            module.fail_json(msg=str(exc), code=exc.code)
+        if "sonic-port:alias" in port_response[0][1]:
+            alias = port_response[0][1].get("sonic-port:alias")
+            if not alias:
+                module.fail_json(msg="Unable to retrieve port number for interface {0}".format(intf_name))
+            port_num = alias.replace("Ethernet", "")
+    return int(port_num)

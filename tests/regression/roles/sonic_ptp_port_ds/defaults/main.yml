@@ -1,0 +1,91 @@
+---
+ansible_connection: httpapi
+
+sonic_ptp_port_ds_tests:
+  - name: test_case_01
+    description: Add PTP port configuration
+    state: merged
+    input:
+      - interface: '{{ interface1 }}'
+        role: slave
+        local_priority: 10
+        unicast_table: 
+          - "1.1.1.1"
+      - interface: '{{ interface2 }}'
+        role: master
+
+  - name: test_case_02
+    description: Update PTP port configuration
+    state: merged
+    input:
+      - interface: '{{ interface1 }}'
+        unicast_table:
+          - "2.1.1.1"
+          - "3.1.1.1"
+      - interface: '{{ interface2 }}'
+        local_priority: 50
+      - interface: '{{ interface3 }}'
+        role: slave
+        local_priority: 99
+        unicast_table:
+          - "10.1.1.1"
+          - "99.1.1.1"
+  
+  - name: test_case_03
+    description: Replaced PTP port configuration
+    state: replaced
+    input:
+      - interface: '{{ interface2 }}'
+        local_priority: 22
+        role: slave
+  
+  - name: test_case_04
+    description: Delete Specific PTP port field configuration
+    state: deleted
+    input:
+      - interface: '{{ interface3 }}'
+        role: slave
+        local_priority: 99
+        unicast_table:
+          - "10.1.1.1"
+
+  - name: test_case_05
+    description: Overridden PTP port configuration
+    state: overridden
+    input:
+      - interface: '{{ interface2 }}'
+        local_priority: 44
+        role: dynamic
+  
+  - name: test_case_06
+    description: Overridden PTP port configuration
+    state: overridden
+    input:
+      - interface: '{{ interface1 }}'
+        unicast_table:
+          - "2.1.1.1"
+          - "13.1.1.1"
+
+  - name: test_case_07
+    description: Overridden PTP port configuration
+    state: overridden
+    input:
+      - interface: '{{ interface2 }}'
+        local_priority: 44
+        role: dynamic
+        unicast_table: 
+          - "1.1.1.1"
+          - "2.2.2.2"
+      - interface: '{{ interface3 }}'
+        local_priority: 55
+
+  - name: test_case_08
+    description: Delete Specific PTP port configuration
+    state: deleted
+    input:
+      - interface: '{{ interface2 }}'
+  
+  - name: test_case_09
+    description: Delete all PTP port configuration
+    state: deleted
+    input: []
