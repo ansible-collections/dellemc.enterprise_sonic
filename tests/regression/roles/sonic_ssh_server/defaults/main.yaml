@@ -78,7 +78,7 @@ tests:
     input:
       server_globals:
         publickey_authentication: false
-        max_auth_retries: 6
+        max_auth_retries: 9
         disable_forwarding: true     
 
   - name: test_case_07
