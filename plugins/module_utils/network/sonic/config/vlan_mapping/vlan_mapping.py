@@ -377,7 +377,7 @@ class Vlan_mapping(ConfigBase):
                         vlan_ids_list.append(vlan)
                     max_id = max(vlan_ids_list)
                     min_id = min(vlan_ids_list)
-                    vlan_ids= min_id + ".." + max_id
+                    vlan_ids = min_id + ".." + max_id
                     path = vlan_ids_url.format(interface_name, service_vlan, vlan_ids)
                     request = {"path": path, "method": method}
                     requests.append(request)
