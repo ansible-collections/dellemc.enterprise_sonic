@@ -191,9 +191,10 @@ EXAMPLES = """
 - name: Replace PTP configurations for specified port
   dellemc.enterprise_sonic.sonic_ptp_port_ds:
     config:
-      - interface:'Ethernet0'
-        role:'slave'
-        unicast_table:["2.2.2.2"]
+      - interface: 'Ethernet0'
+        role: 'slave'
+        unicast_table:
+          - '2.2.2.2'
     state: replaced
 
 # After State:

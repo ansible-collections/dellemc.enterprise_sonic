@@ -88,9 +88,7 @@ class Ptp_port_ds(ConfigBase):
         'unicast_table': ptp_port_path + '/ietf-ptp-ext:unicast-table',
     }
 
-    ptp_port_unicast_table_del_path = {
-        'unicast_table': ptp_port_path + '/ietf-ptp-ext:unicast-table={value}',
-    }
+    ptp_port_unicast_table_del_path = ptp_port_path + '/ietf-ptp-ext:unicast-table={value}'
 
     ptp_port_options = ('role', 'local_priority', 'unicast_table')
 
@@ -124,11 +122,11 @@ class Ptp_port_ds(ConfigBase):
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
+                    sleep(1)
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
 
-        sleep(1)
         result['before'] = existing_ptp_port_ds_facts
         old_config = existing_ptp_port_ds_facts
 
@@ -213,13 +211,14 @@ class Ptp_port_ds(ConfigBase):
                 elif conf:
                     del_command = {}
                     for option in self.ptp_port_options:
-                        if 'unicast_table' in option and have_conf.get(option) is not None:
-                            res = [item for item in have_conf[option] if item not in conf.get(option, [])]
-                            if res:
-                                del_command[option] = res
-                        else:
-                            if have_conf.get(option) and option not in conf:
-                                del_command[option] = have_conf[option]
+                        if have_conf.get(option):
+                            if option == 'unicast_table':
+                                res = [item for item in have_conf[option] if item not in conf.get(option, [])]
+                                if res:
+                                    del_command[option] = res
+                            else:
+                                if option not in conf:
+                                    del_command[option] = have_conf[option]
                     if del_command:
                         del_command['interface'] = intf_name
                         del_commands.append(del_command)
@@ -273,10 +272,8 @@ class Ptp_port_ds(ConfigBase):
             requests.append(self.get_delete_all_ptp_port_request())
         else:
             for conf in want:
-                if 'interface' in conf:
-                    interface_name = conf['interface']
-                    port_num_int = self.get_port_num_from_intf_name(interface_name)
                 intf_name = conf['interface']
+                port_num_int = self.get_port_num_from_intf_name(intf_name)
                 have_conf = next((cfg for cfg in have if cfg['interface'] == intf_name), None)
                 if not have_conf:
                     continue
@@ -289,13 +286,14 @@ class Ptp_port_ds(ConfigBase):
                 else:
                     command = {}
                     for option in self.ptp_port_options:
-                        if 'unicast_table' in option:
-                            res = set(conf[option]).intersection(have_conf.get(option, []))
-                            if res:
-                                command[option] = res
-                        else:
-                            if conf.get(option) and conf[option] == have_conf.get(option):
-                                command[option] = conf[option]
+                        if conf.get(option):
+                            if option == 'unicast_table':
+                                res = set(conf[option]).intersection(have_conf.get(option, []))
+                                if res:
+                                    command[option] = res
+                            else:
+                                if conf.get(option) and conf[option] == have_conf.get(option):
+                                    command[option] = conf[option]
 
                     if command:
                         command['interface'] = intf_name
@@ -343,8 +341,8 @@ class Ptp_port_ds(ConfigBase):
         requests = []
 
         for option in self.ptp_port_options:
-            if 'unicast_table' in option:
-                requests.append({'path': self.ptp_port_unicast_table_del_path[option].format(number=port_num, value="%2c".join(command[option])),
+            if option == 'unicast_table':
+                requests.append({'path': self.ptp_port_unicast_table_del_path.format(number=port_num, value="%2c".join(command[option])),
                                  'method': DELETE})
             elif option in command:
                 requests.append({'path': self.ptp_port_config_path[option].format(number=port_num), 'method': DELETE})
