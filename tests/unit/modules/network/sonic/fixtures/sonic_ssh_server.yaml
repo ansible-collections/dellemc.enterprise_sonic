@@ -19,7 +19,7 @@ merged_01:
         code: 200
         value:
           openconfig-system-ext:config:
-             publickey-authentication: true
+            publickey-authentication: true
   config_requests:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
       method: "patch"
@@ -47,13 +47,13 @@ deleted_01:
         code: 200
         value:
           openconfig-system-ext:config:
-             publickey-authentication: true
-             max-auth-retries: 6
-             disable-forwarding: true
-             permit-root-login: true
-             password-authentication: true
-             ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
-             macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
+            publickey-authentication: true
+            max-auth-retries: 6
+            disable-forwarding: true
+            permit-root-login: true
+            password-authentication: true
+            ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
+            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
   config_requests:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
       method: "delete"
@@ -82,7 +82,7 @@ deleted_02:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/ciphers"
-      method: "delete"      
+      method: "delete"
 
 replaced_01:
   module_args:
@@ -99,11 +99,11 @@ replaced_01:
         code: 200
         value:
           openconfig-system-ext:config:
-             permit-root-login: true
-             disable-forwarding: true
-             publickey-authentication: true
-             max-auth-retries: 6
-             macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
+            permit-root-login: true
+            disable-forwarding: true
+            publickey-authentication: true
+            max-auth-retries: 6
+            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
   config_requests:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/permit-root-login"
       method: "delete"
@@ -134,18 +134,18 @@ overridden_01:
         code: 200
         value:
           openconfig-system-ext:config:
-             permit-root-login: true
-             disable-forwarding: true
-             publickey-authentication: true
-             max-auth-retries: 6
-             macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
+            permit-root-login: true
+            disable-forwarding: true
+            publickey-authentication: true
+            max-auth-retries: 6
+            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
   config_requests:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/permit-root-login"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/macs"
-      method: "delete"      
+      method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
       method: "patch"
       data:

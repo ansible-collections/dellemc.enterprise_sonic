@@ -2,7 +2,7 @@
 ansible_connection: httpapi
 module_name: ssh_server
 
-tests:
+sonic_ssh_server_tests:
   - name: test_case_01
     description: Add SSH server configuration
     state: merged
@@ -79,7 +79,7 @@ tests:
       server_globals:
         publickey_authentication: false
         max_auth_retries: 9
-        disable_forwarding: true     
+        disable_forwarding: true
 
   - name: test_case_07
     description: Delete all SSH server configurations
