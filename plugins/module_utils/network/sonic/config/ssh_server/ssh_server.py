@@ -40,6 +40,58 @@ import time
 PATCH = 'patch'
 DELETE = 'delete'
 
+delete_all = False
+
+default_config = {
+    "publickey_authentication": True,
+    "ciphers": "aes128-ctr,aes192-ctr,aes256-ctr,chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com",
+    "hostkeyalgorithms": "rsa-sha2-256,rsa-sha2-512,ssh-rsa",
+    "kexalgorithms": ("curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,"
+                      "ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,"
+                      "diffie-hellman-group18-sha512,diffie-hellman-group14-sha256"),
+    "macs": "umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512"
+}
+
+
+def __server_globals_delete_op(key_set, command, exist_conf):
+    if delete_all:
+        return True, {}
+
+    new_conf = exist_conf
+
+    # default handling
+    if command.get('ciphers'):
+        new_conf['ciphers'] = default_config['ciphers']
+    if command.get('macs'):
+        new_conf['macs'] = default_config['macs']
+    if command.get('kexalgorithms'):
+        new_conf['kexalgorithms'] = default_config['kexalgorithms']
+    if command.get('hostkeyalgorithms'):
+        new_conf['hostkeyalgorithms'] = default_config['hostkeyalgorithms']
+    if 'publickey_authentication' in command:
+        new_conf['publickey_authentication'] = default_config['publickey_authentication']
+
+    # non-default handling
+    if 'max_auth_retries' in command:
+        new_conf.pop('max_auth_retries', None)
+    if 'disable_forwarding' in command:
+        new_conf.pop('disable_forwarding', None)
+    if 'permit_root_login' in command:
+        new_conf.pop('permit_root_login', None)
+    if 'permit_user_environment' in command:
+        new_conf.pop('permit_user_environment', None)
+    if 'permit_user_rc' in command:
+        new_conf.pop('permit_user_rc', None)
+    if 'x11_forwarding' in command:
+        new_conf.pop('x11_forwarding', None)
+
+    return True, new_conf
+
+
+TEST_KEYS_generate_config = [
+    {'server_globals': {'__delete_op': __server_globals_delete_op}}
+]
+
 
 class Ssh_server(ConfigBase):
     """
@@ -84,16 +136,6 @@ class Ssh_server(ConfigBase):
         'kexalgorithms': 'kexalgorithms',
         'macs': 'macs',
         'hostkeyalgorithms': 'hostkeyalgorithms',
-    }
-
-    default_config = {
-        "publickey_authentication": True,
-        "ciphers": "aes128-ctr,aes192-ctr,aes256-ctr,chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com",
-        "hostkeyalgorithms": "rsa-sha2-256,rsa-sha2-512,ssh-rsa",
-        "kexalgorithms": ("curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,"
-                          "ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,"
-                          "diffie-hellman-group18-sha512,diffie-hellman-group14-sha256"),
-        "macs": "umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512"
     }
 
     def __init__(self, module):
@@ -147,8 +189,11 @@ class Ssh_server(ConfigBase):
         new_config = changed_ssh_server_facts
         old_config = existing_ssh_server_facts
         if self._module.check_mode:
+
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_ssh_server_facts)
+            new_config = get_new_config(commands, existing_ssh_server_facts,
+                                        TEST_KEYS_generate_config)
+
             result['after(generated)'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
@@ -309,6 +354,7 @@ class Ssh_server(ConfigBase):
         commands = []
         requests = []
 
+        global delete_all
         delete_all = False
         if not want:
             commands = have
@@ -369,7 +415,7 @@ class Ssh_server(ConfigBase):
 
         for param in params:
             if param in command and command[param] is not None:
-                if param not in self.default_config or command[param] != self.default_config[param]:
+                if param not in default_config or command[param] != default_config[param]:
                     requests.append({'path': self.ssh_server_globals_param_config_path[param], 'method': DELETE})
                 else:
                     command.pop(param)
