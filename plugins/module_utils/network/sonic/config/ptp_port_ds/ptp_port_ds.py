@@ -247,7 +247,6 @@ class Ptp_port_ds(ConfigBase):
         """
 
         commands = diff
-        requests = []
         requests = self.get_modify_ptp_port_ds_param_requests(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
@@ -288,7 +287,7 @@ class Ptp_port_ds(ConfigBase):
                     for option in self.ptp_port_options:
                         if conf.get(option):
                             if option == 'unicast_table':
-                                res = set(conf[option]).intersection(have_conf.get(option, []))
+                                res = list(set(conf[option]).intersection(have_conf.get(option, [])))
                                 if res:
                                     command[option] = res
                             else:

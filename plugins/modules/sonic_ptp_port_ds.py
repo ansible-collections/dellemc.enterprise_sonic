@@ -80,7 +80,7 @@ EXAMPLES = """
 # ptp port master-table Ethernet0 add 1.1.1.2
 # sonic#
 
-- name: Delete specified PTP configurations
+- name: Delete specified PTP port configurations
   dellemc.enterprise_sonic.sonic_ptp_port_ds:
     config:
       - interface: 'Ethernet4'
@@ -140,7 +140,7 @@ EXAMPLES = """
 # ptp port master-table Ethernet0 add 1.1.1.2
 # sonic#
 
-- name: Delete all PTP configurations
+- name: Delete all PTP port configurations
   dellemc.enterprise_sonic.sonic_ptp_port_ds:
     config:
     state: deleted
