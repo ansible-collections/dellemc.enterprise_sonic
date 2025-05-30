@@ -87,6 +87,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.br_l2pt.br_l2pt import Br_l2ptFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mirroring.mirroring import MirroringFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx.dcbx import DcbxFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ssh_server.ssh_server import Ssh_serverFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -156,7 +157,8 @@ FACT_RESOURCE_SUBSETS = dict(
     fbs_classifiers=Fbs_classifiersFacts,
     br_l2pt=Br_l2ptFacts,
     mirroring=MirroringFacts,
-    dcbx=DcbxFacts
+    dcbx=DcbxFacts,
+    ssh_server=Ssh_serverFacts
 )
 
 
