@@ -1,0 +1,3 @@
+---
+trivial:
+  - sonic-vlan-mapping - Fix the vlan_mapping ression test failures (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/563).
