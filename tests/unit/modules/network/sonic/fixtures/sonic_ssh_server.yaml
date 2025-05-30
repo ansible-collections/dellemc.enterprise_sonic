@@ -72,12 +72,12 @@ deleted_02:
         code: 200
         value:
           openconfig-system-ext:config:
-             disable-forwarding: true
-             permit-root-login: true
-             password-authentication: true
-             publickey-authentication: true
-             max-auth-retries: 6
-             ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
+            disable-forwarding: true
+            permit-root-login: true
+            password-authentication: true
+            publickey-authentication: true
+            max-auth-retries: 6
+            ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
   config_requests:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
       method: "delete"
@@ -110,7 +110,7 @@ replaced_01:
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
       method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/macs"
-      method: "delete"      
+      method: "delete"
     - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
       method: "patch"
       data:
