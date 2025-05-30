@@ -36,6 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 import time
+from copy import deepcopy
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -245,13 +246,7 @@ class Ssh_server(ConfigBase):
         commands = []
         requests = []
 
-        server_want = {}
-        server_have = {}
-        if want and want.get('server_globals'):
-            server_want['server_globals'] = want['server_globals']
-        if have and have.get('server_globals'):
-            server_have['server_globals'] = have['server_globals']
-        commands, requests = self.handle_ssh_server_replaced_overridden(server_want, server_have)
+        commands, requests = self.handle_ssh_server_replaced_overridden(want, have)
 
         return commands, requests
 
@@ -265,13 +260,7 @@ class Ssh_server(ConfigBase):
         commands = []
         requests = []
 
-        server_want = {}
-        server_have = {}
-        if want and want.get('server_globals'):
-            server_want['server_globals'] = want['server_globals']
-        if have and have.get('server_globals'):
-            server_have['server_globals'] = have['server_globals']
-        server_commands, server_requests = self.handle_ssh_server_merged(server_want, server_have)
+        server_commands, server_requests = self.handle_ssh_server_merged(want, have)
         requests.extend(server_requests)
 
         if server_commands and len(requests) > 0:
@@ -289,13 +278,7 @@ class Ssh_server(ConfigBase):
         commands = []
         requests = []
 
-        server_want = {}
-        server_have = {}
-        if want and want.get('server_globals'):
-            server_want['server_globals'] = want['server_globals']
-        if have and have.get('server_globals'):
-            server_have['server_globals'] = have['server_globals']
-        server_commands, server_requests = self.handle_ssh_server_deleted(server_want, server_have)
+        server_commands, server_requests = self.handle_ssh_server_deleted(want, have)
         requests.extend(server_requests)
 
         if server_commands and len(requests) > 0:
@@ -357,7 +340,7 @@ class Ssh_server(ConfigBase):
         global delete_all
         delete_all = False
         if not want:
-            commands = have
+            commands = deepcopy(have)
             delete_all = True
         else:
             diff = get_diff(want, have)
