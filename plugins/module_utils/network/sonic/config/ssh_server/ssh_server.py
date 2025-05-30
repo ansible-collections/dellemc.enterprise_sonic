@@ -36,7 +36,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 import time
-from copy import deepcopy
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -340,7 +339,7 @@ class Ssh_server(ConfigBase):
         global delete_all
         delete_all = False
         if not want:
-            commands = deepcopy(have)
+            commands = have
             delete_all = True
         else:
             diff = get_diff(want, have)
