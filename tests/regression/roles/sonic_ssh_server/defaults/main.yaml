@@ -64,7 +64,6 @@ sonic_ssh_server_tests:
         permit_user_rc: true
         x11_forwarding: false
 
-
   - name: test_case_05
     description: Replace SSH server configuration
     state: replaced
