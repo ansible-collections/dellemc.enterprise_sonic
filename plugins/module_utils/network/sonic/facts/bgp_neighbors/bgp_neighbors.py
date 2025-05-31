@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -67,6 +67,7 @@ class Bgp_neighborsFacts(object):
         'enabled': ['ebgp-multihop', 'enabled'],
         'multihop_ttl': ['ebgp-multihop', 'multihop-ttl'],
         'v6only': 'openconfig-bgp-ext:v6only',
+        'discard-extra': 'openconfig-bgp-ext:discard-extra',
         'passive': ['transport', 'config', 'passive-mode']
     }
 
