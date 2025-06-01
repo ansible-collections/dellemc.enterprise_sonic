@@ -90,6 +90,12 @@ options:
           - DETAIL
           - CUSTOM
           - NONE
+      adjust_txrx_clock_freq:
+        description:
+          - Adjust TX/RX clock frequency to platform specific value.
+          - Operational default value is C(false).
+        version_added: 3.1.0
+        type: bool
       concurrent_session_limit:
         version_added: 3.1.0
         description:
@@ -120,6 +126,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
 # login concurrent-session limit 4
+# system adjust-txrx-clock-freq
 
 - name: Delete System configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -130,6 +137,7 @@ EXAMPLES = """
         ipv6: true
       load_share_hash_algo: JENKINS_HASH_HI
       concurrent_session_limit: 4
+      adjust_txrx_clock_freq: true
     state: deleted
 
 # After state:
@@ -186,6 +194,7 @@ EXAMPLES = """
         mac_address: aa:bb:cc:dd:ee:ff
       load_share_hash_algo: JENKINS_HASH_HI
       concurrent_session_limit: 4
+      adjust_txrx_clock_freq: true
     state: merged
 
 # After state:
@@ -200,6 +209,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
 # login concurrent-session limit 4
+# system adjust-txrx-clock-freq
 
 # Using "replaced" state
 #
