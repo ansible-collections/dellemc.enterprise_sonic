@@ -35,52 +35,67 @@ options:
             description:
               - Configure password authentication on ssh server.
               - By default it is enabled.
+              - Default is True.
             type: bool
           publickey_authentication:
             description:
               - Configure publickey authentication on ssh server.
-              - By default it is enabled.
+              - Default is True.
             type: bool
           max_auth_retries:
             description:
               - Number of authentication retries allowed before session terminates.
               - Range 0-10.
+              - Default is 6.
             type: int
           disable_forwarding:
             description:
               - Configure disable forwarding on ssh server.
+              - Default is False.
             type: bool
           permit_root_login:
             description:
               - Configure permit root login on ssh server.
+              - Default is False.
             type: bool
           permit_user_rc:
             description:
               - Configure permit user rc on ssh server.
+              - Default is True.
             type: bool
           x11_forwarding:
             description:
               - Configure x11 forwarding on ssh server.
+              - Default is False.
             type: bool
           permit_user_environment:
             description:
               - Configure permit user environment on ssh server.
+              - Default is False.
             type: bool
           ciphers:
             description:
               - Configure ciphers on ssh server.
+              - Defaults are aes128-ctr,aes192-ctr,aes256-ctr,chacha20-poly1305@openssh.com,
+                aes128-gcm@openssh.com,aes256-gcm@openssh.com.
             type: str
           macs:
             description:
               - Configure macs on ssh server.
+              - Defaults are umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,
+                hmac-sha2-512-etm@openssh.com,umac-128@openssh.com,hmac-sha2-256,hmac-sha2-512.
             type: str
           kexalgorithms:
             description:
-              - Conifgure key exchange algorithms.
+              - Configure key exchange algorithms.
+              - Defaults are curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,
+                ecdh-sha2-nistp384,ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,
+                diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,diffie-hellman-group14-sha256,
             type: str
           hostkeyalgorithms:
             description:
               - Configure hostkey algorithms on ssh server.
+              - Defaults are ecdsa-sha2-nistp256,ecdsa-sha2-nistp384,ecdsa-sha2-nistp521,rsa-sha2-256,rsa-sha2-512,ssh-rsa.
             type: str
   state:
     description:
