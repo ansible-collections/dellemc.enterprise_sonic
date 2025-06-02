@@ -36,6 +36,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'copp',
         'dhcp_relay',
         'dhcp_snooping',
+        'evpn_esi_multihome',
         'fbs_classifiers',
         'fips',
         'interfaces',
@@ -89,7 +90,6 @@ class FactsArgs(object):  # pylint: disable=R0903
         'vrfs',
         'vrrp',
         'vxlans'
-        'evpn_esi_multihome'
     ]
 
     argument_spec = {
