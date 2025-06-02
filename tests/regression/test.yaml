@@ -79,4 +79,5 @@
     - sonic_fbs_classifiers
     - sonic_mirroring
     - sonic_evpn_esi_multihome
+    - sonic_ssh_server
     - test_reports

@@ -148,3 +148,5 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_vrrp
     vxlans:
       redirect: dellemc.enterprise_sonic.sonic_vxlans
+    ssh_server:
+      redirect: dellemc.enterprise_sonic.sonic_ssh_server
