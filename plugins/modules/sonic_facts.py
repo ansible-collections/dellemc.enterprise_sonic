@@ -119,6 +119,7 @@ options:
       - ssh
       - lst
       - fbs_classifiers
+      - evpn_esi_multihome
 """
 
 EXAMPLES = """

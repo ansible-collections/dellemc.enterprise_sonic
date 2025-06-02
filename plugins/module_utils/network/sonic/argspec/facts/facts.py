@@ -89,6 +89,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'vrfs',
         'vrrp',
         'vxlans'
+        'evpn_esi_multihome'
     ]
 
     argument_spec = {
