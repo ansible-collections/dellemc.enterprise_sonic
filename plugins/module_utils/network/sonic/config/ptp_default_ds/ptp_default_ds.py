@@ -41,6 +41,7 @@ from ansible.module_utils.connection import ConnectionError
 PATCH = 'patch'
 DELETE = 'delete'
 
+
 class Ptp_default_ds(ConfigBase):
     """
     The sonic_ptp_default_ds class
@@ -256,7 +257,10 @@ class Ptp_default_ds(ConfigBase):
             return requests
 
         # The order of PTP default ds modify requests are to be retained to avoid REST failures
-        options = ('priority1', 'priority2', 'clock_type', 'network_transport', 'unicast_multicast', 'domain_number', 'domain_profile', 'two_step_flag', 'source_interface', 'log_announce_interval', 'announce_receipt_timeout', 'log_sync_interval', 'log_min_delay_req_interval')
+        options = ('priority1', 'priority2', 'clock_type', 'network_transport', 'unicast_multicast',
+                   'domain_number', 'domain_profile', 'two_step_flag', 'source_interface',
+                   'log_announce_interval', 'announce_receipt_timeout', 'log_sync_interval',
+                   'log_min_delay_req_interval')
         for option in options:
             if command.get(option) is not None:
                 path = self.ptp_default_ds_config_path[option]
@@ -286,7 +290,10 @@ class Ptp_default_ds(ConfigBase):
             return requests
 
         # The order of PTP default ds delete requests are to be retained to avoid REST failures
-        options = ('priority1', 'priority2', 'source_interface', 'log_announce_interval', 'announce_receipt_timeout', 'log_sync_interval', 'log_min_delay_req_interval', 'two_step_flag', 'domain_profile', 'domain_number', 'network_transport', 'unicast_multicast', 'clock_type')
+        options = ('priority1', 'priority2', 'source_interface', 'log_announce_interval',
+                   'announce_receipt_timeout', 'log_sync_interval', 'log_min_delay_req_interval',
+                   'two_step_flag', 'domain_profile', 'domain_number', 'network_transport',
+                   'unicast_multicast', 'clock_type')
         for option in options:
             if option in command:
                 requests.append({'path': self.ptp_default_ds_config_path[option], 'method': DELETE})

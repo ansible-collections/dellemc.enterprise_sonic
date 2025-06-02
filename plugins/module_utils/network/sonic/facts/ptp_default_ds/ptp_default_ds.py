@@ -40,6 +40,7 @@ payload_to_option_map = {
     "ietf-ptp-ext:source-interface": "source_interface"
 }
 
+
 class Ptp_default_dsFacts(object):
     """ The sonic ptp_default_ds fact class
     """
