@@ -21,11 +21,11 @@ merged_01:
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
       method: "patch"
       data:
-        ietf-ptp:priority1: 136
+        priority1: 136
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
       method: "patch"
       data:
-        ietf-ptp:priority2: 132
+        priority2: 132
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:clock-type"
       method: "patch"
       data:
@@ -33,7 +33,7 @@ merged_01:
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/domain-number"
       method: "patch"
       data:
-        ietf-ptp:domain-number: 24
+        domain-number: 24
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:domain-profile"
       method: "patch"
       data:
@@ -92,11 +92,11 @@ merged_02:
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
       method: "patch"
       data:
-        ietf-ptp:priority1: 134
+        priority1: 134
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
       method: "patch"
       data:
-        ietf-ptp:priority2: 135
+        priority2: 135
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:source-interface"
       method: "patch"
       data:
@@ -104,7 +104,7 @@ merged_02:
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/two-step-flag"
       method: "patch"
       data:
-        ietf-ptp:two-step-flag: false
+        two-step-flag: false
 
 deleted_01:
   module_args:
@@ -196,11 +196,11 @@ replaced_01:
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
       method: "patch"
       data:
-        ietf-ptp:priority1: 128
+        priority1: 128
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
       method: "patch"
       data:
-        ietf-ptp:priority2: 129
+        priority2: 129
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:announce-receipt-timeout"
       method: "patch"
       data:
@@ -232,11 +232,11 @@ overridden_01:
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
       method: "patch"
       data:
-        ietf-ptp:priority1: 135
+        priority1: 135
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
       method: "patch"
       data:
-        ietf-ptp:priority2: 135
+        priority2: 135
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:clock-type"
       method: "patch"
       data:
@@ -244,7 +244,7 @@ overridden_01:
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/domain-number"
       method: "patch"
       data:
-        ietf-ptp:domain-number: 25
+        domain-number: 25
     - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:domain-profile"
       method: "patch"
       data:

@@ -29,13 +29,6 @@ The module file for sonic_ptp_default_ds
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-ANSIBLE_METADATA = {
-    'metadata_version': '1.1',
-    'status': ['preview'],
-    'supported_by': 'community',
-    'license': 'Apache 2.0'
-}
-
 DOCUMENTATION = """
 ---
 module: sonic_ptp_default_ds
@@ -104,7 +97,6 @@ options:
       unicast_multicast:
         description:
           - Specifies whether the network transport uses unicast or multicast communication.
-          - The permitted values are (unicast)|(multicast)
         type: str
         choices: ['unicast', 'multicast']
       domain_profile:

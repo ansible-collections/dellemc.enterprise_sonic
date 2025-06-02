@@ -24,6 +24,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
+    get_normalize_interface_name,
+    remove_empties
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -38,57 +40,6 @@ from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
-
-
-def __derive_ptp_default_ds_delete_op(key_set, command, exist_conf):
-    new_conf = exist_conf
-
-    if command.get('announce_receipt_timeout', None):
-        new_conf.pop('announce_receipt_timeout', None)
-
-    if command.get('clock_type', None):
-        new_conf.pop('clock_type', None)
-
-    if command.get('domain_number', None):
-        new_conf.pop('domain_number', None)
-
-    if command.get('domain_profile', None):
-        new_conf.pop('domain_profile', None)
-
-    if command.get('log_announce_interval', None):
-        new_conf.pop('log_announce_interval', None)
-
-    if command.get('log_min_delay_req_interval', None):
-        new_conf.pop('log_min_delay_req_interval', None)
-
-    if command.get('log_sync_interval', None):
-        new_conf.pop('log_sync_interval', None)
-
-    if command.get('network_transport', None):
-        new_conf.pop('network_transport', None)
-
-    if command.get('priority1', None):
-        new_conf.pop('priority1', None)
-
-    if command.get('priority2', None):
-        new_conf.pop('priority2', None)
-
-    if command.get('unicast_multicast', None):
-        new_conf.pop('unicast_multicast', None)
-
-    if command.get('source_interface', None):
-        new_conf.pop('source_interface', None)
-
-    if command.get('two_step_flag', None):
-        new_conf.pop('two_step_flag', None)
-
-    return True, new_conf
-
-
-TEST_KEYS_generate_config = [
-    {'config': {'__delete_op': __derive_ptp_default_ds_delete_op}},
-]
-
 
 class Ptp_default_ds(ConfigBase):
     """
@@ -186,6 +137,13 @@ class Ptp_default_ds(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
+        state = self._module.params['state']
+
+        if want:
+            want = remove_empties(want)
+
+            if want.get("source_interface") is not None :
+                want["source_interface"] = get_normalize_interface_name(want["source_interface"], self._module)
         have = existing_ptp_default_ds_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -220,26 +178,25 @@ class Ptp_default_ds(ConfigBase):
         commands = []
         requests = []
 
-        if len(have) == 1 and have.get("domain_number") is not None :
+        if len(have) == 1 and have.get("domain_number") is not None:
             if len(want) == 1 and want.get("domain_number") is not None and want == have:
                 return commands, requests
             if have["domain_number"] == 0:
                 have.pop("domain_number")
 
-        if want and have and not get_diff(want, have) and not get_diff(have, want):
+        if want == have:
             return commands, requests
 
-        del_requests = self.get_delete_ptp_default_ds_completely_requests(have)
-        requests.extend(del_requests)
-        commands.extend(update_states(have, "deleted"))
-        have = {}
+        if have:
+            requests.extend(self.get_delete_ptp_default_ds_completely_requests(have))
+            commands.extend(update_states(have, "deleted"))
+            have = {}
 
-        if not have and want:
+        if want:
             mod_requests = self.get_modify_specific_ptp_default_ds_param_requests(want)
-            mod_commands = want
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
-                commands.extend(update_states(mod_commands, state))
+                commands.extend(update_states(want, state))
 
         return commands, requests
 
@@ -251,8 +208,7 @@ class Ptp_default_ds(ConfigBase):
                   the current configuration
         """
         commands = diff
-        requests = []
-        requests.extend(self.get_modify_specific_ptp_default_ds_param_requests(commands))
+        requests = self.get_modify_specific_ptp_default_ds_param_requests(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
         else:
@@ -274,7 +230,9 @@ class Ptp_default_ds(ConfigBase):
         if len(new_have) == 1 and new_have.get("domain_number") is not None:
             new_have.pop("domain_number")
 
-        if not want or len(want) == 0:
+        if not have:
+            return commands, requests
+        elif not want:
             commands = new_have
             requests.extend(self.get_delete_ptp_default_ds_completely_requests(commands))
         else:
@@ -288,7 +246,6 @@ class Ptp_default_ds(ConfigBase):
 
         return commands, requests
 
-# The order of PTP default ds modify requests are to be retained to avoid rest failures
     def get_modify_specific_ptp_default_ds_param_requests(self, command):
         """Get requests to modify specific PTP default ds configurations
         based on the command specified for the interface
@@ -297,70 +254,14 @@ class Ptp_default_ds(ConfigBase):
 
         if not command:
             return requests
-        if 'priority1' in command and command['priority1'] is not None:
-            payload = {'ietf-ptp:priority1': command['priority1']}
-            url = self.ptp_default_ds_config_path['priority1']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        if 'priority2' in command and command['priority2'] is not None:
-            payload = {'ietf-ptp:priority2': command['priority2']}
-            url = self.ptp_default_ds_config_path['priority2']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'clock_type' in command and command['clock_type'] is not None:
-            payload = {'ietf-ptp-ext:clock-type': command['clock_type']}
-            url = self.ptp_default_ds_config_path['clock_type']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'network_transport' in command and command['network_transport'] is not None:
-            payload = {'ietf-ptp-ext:network-transport': command['network_transport']}
-            url = self.ptp_default_ds_config_path['network_transport']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'unicast_multicast' in command and command['unicast_multicast'] is not None:
-            payload = {'ietf-ptp-ext:unicast-multicast': command['unicast_multicast']}
-            url = self.ptp_default_ds_config_path['unicast_multicast']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'domain_number' in command and command['domain_number'] is not None:
-            payload = {'ietf-ptp:domain-number': command['domain_number']}
-            url = self.ptp_default_ds_config_path['domain_number']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'domain_profile' in command and command['domain_profile'] is not None:
-            payload = {'ietf-ptp-ext:domain-profile': command['domain_profile']}
-            url = self.ptp_default_ds_config_path['domain_profile']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'two_step_flag' in command and command['two_step_flag'] is not None:
-            payload = {'ietf-ptp:two-step-flag': command['two_step_flag']}
-            url = self.ptp_default_ds_config_path['two_step_flag']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'source_interface' in command and command['source_interface'] is not None:
-            payload = {'ietf-ptp-ext:source-interface': command['source_interface']}
-            url = self.ptp_default_ds_config_path['source_interface']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'log_announce_interval' in command and command['log_announce_interval'] is not None:
-            payload = {'ietf-ptp-ext:log-announce-interval': command['log_announce_interval']}
-            url = self.ptp_default_ds_config_path['log_announce_interval']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'announce_receipt_timeout' in command and command['announce_receipt_timeout'] is not None:
-            payload = {'ietf-ptp-ext:announce-receipt-timeout': command['announce_receipt_timeout']}
-            url = self.ptp_default_ds_config_path['announce_receipt_timeout']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'log_sync_interval' in command and command['log_sync_interval'] is not None:
-            payload = {'ietf-ptp-ext:log-sync-interval': command['log_sync_interval']}
-            url = self.ptp_default_ds_config_path['log_sync_interval']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
-
-        if 'log_min_delay_req_interval' in command and command['log_min_delay_req_interval'] is not None:
-            payload = {'ietf-ptp-ext:log-min-delay-req-interval': command['log_min_delay_req_interval']}
-            url = self.ptp_default_ds_config_path['log_min_delay_req_interval']
-            requests.append({'path': url, 'method': PATCH, 'data': payload})
+        # The order of PTP default ds modify requests are to be retained to avoid REST failures
+        options = ('priority1', 'priority2', 'clock_type', 'network_transport', 'unicast_multicast', 'domain_number', 'domain_profile', 'two_step_flag', 'source_interface', 'log_announce_interval', 'announce_receipt_timeout', 'log_sync_interval', 'log_min_delay_req_interval')
+        for option in options:
+            if command.get(option) is not None:
+                path = self.ptp_default_ds_config_path[option]
+                payload = {path.split("/")[-1]: command[option]}
+                requests.append({'path': path, 'method': PATCH, 'data': payload})
 
         return requests
 
@@ -370,12 +271,11 @@ class Ptp_default_ds(ConfigBase):
         """
         requests = []
         if have:
-            url = 'data/ietf-ptp:ptp/instance-list=0/default-ds'
+            url = self.ptp_default_ds_path
             requests.append({'path': url, 'method': DELETE})
 
         return requests
 
-# The order of PTP default ds delett requests are to be retained to avoid rest failures
     def get_delete_specific_ptp_default_ds_param_requests(self, command, config):
         """Get requests to delete specific PTP default ds configurations
         based on the command specified for the interface
@@ -385,56 +285,10 @@ class Ptp_default_ds(ConfigBase):
         if not command:
             return requests
 
-        if 'priority1' in command:
-            url = self.ptp_default_ds_config_path['priority1']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'priority2' in command:
-            url = self.ptp_default_ds_config_path['priority2']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'source_interface' in command:
-            url = self.ptp_default_ds_config_path['source_interface']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'log_announce_interval' in command:
-            url = self.ptp_default_ds_config_path['log_announce_interval']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'announce_receipt_timeout' in command:
-            url = self.ptp_default_ds_config_path['announce_receipt_timeout']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'log_sync_interval' in command:
-            url = self.ptp_default_ds_config_path['log_sync_interval']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'log_min_delay_req_interval' in command:
-            url = self.ptp_default_ds_config_path['log_min_delay_req_interval']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'two-step-flag' in command:
-            url = self.ptp_default_ds_config_path['two_step_flag']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'domain_profile' in command:
-            url = self.ptp_default_ds_config_path['domain_profile']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'domain_number' in command:
-            url = self.ptp_default_ds_config_path['domain_number']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'network_transport' in command:
-            url = self.ptp_default_ds_config_path['network_transport']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'unicast_multicast' in command:
-            url = self.ptp_default_ds_config_path['unicast_multicast']
-            requests.append({'path': url, 'method': DELETE})
-
-        if 'clock_type' in command:
-            url = self.ptp_default_ds_config_path['clock_type']
-            requests.append({'path': url, 'method': DELETE})
+        # The order of PTP default ds delete requests are to be retained to avoid REST failures
+        options = ('priority1', 'priority2', 'source_interface', 'log_announce_interval', 'announce_receipt_timeout', 'log_sync_interval', 'log_min_delay_req_interval', 'two_step_flag', 'domain_profile', 'domain_number', 'network_transport', 'unicast_multicast', 'clock_type')
+        for option in options:
+            if option in command:
+                requests.append({'path': self.ptp_default_ds_config_path[option], 'method': DELETE})
 
         return requests

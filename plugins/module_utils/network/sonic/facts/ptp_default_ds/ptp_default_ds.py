@@ -24,6 +24,21 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
+payload_to_option_map = {
+    "priority1": "priority1",
+    "priority2": "priority2",
+    "domain-number": "domain_number",
+    "ietf-ptp-ext:log-announce-interval": "log_announce_interval",
+    "ietf-ptp-ext:announce-receipt-timeout": "announce_receipt_timeout",
+    "ietf-ptp-ext:log-sync-interval": "log_sync_interval",
+    "ietf-ptp-ext:log-min-delay-req-interval": "log_min_delay_req_interval",
+    "two-step-flag": "two_step_flag",
+    "ietf-ptp-ext:clock-type": "clock_type",
+    "ietf-ptp-ext:network-transport": "network_transport",
+    "ietf-ptp-ext:unicast-multicast": "unicast_multicast",
+    "ietf-ptp-ext:domain-profile": "domain_profile",
+    "ietf-ptp-ext:source-interface": "source_interface"
+}
 
 class Ptp_default_dsFacts(object):
     """ The sonic ptp_default_ds fact class
@@ -65,18 +80,6 @@ class Ptp_default_dsFacts(object):
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
-
     def get_ptp_default_ds(self):
         """Get all the global ptp default ds configured in the device"""
         request = [{"path": "data/ietf-ptp:ptp/instance-list=0/default-ds", "method": "get"}]
@@ -88,31 +91,8 @@ class Ptp_default_dsFacts(object):
 
         if 'ietf-ptp:default-ds' in response[0][1]:
             raw_ptp_default_ds_data = response[0][1]['ietf-ptp:default-ds']
-            if 'priority1' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['priority1'] = raw_ptp_default_ds_data['priority1']
-            if 'priority2' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['priority2'] = raw_ptp_default_ds_data['priority2']
-            if 'domain-number' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['domain_number'] = raw_ptp_default_ds_data['domain-number']
-            if 'ietf-ptp-ext:log-announce-interval' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['log_announce_interval'] = raw_ptp_default_ds_data['ietf-ptp-ext:log-announce-interval']
-            if 'ietf-ptp-ext:announce-receipt-timeout' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['announce_receipt_timeout'] = raw_ptp_default_ds_data['ietf-ptp-ext:announce-receipt-timeout']
-            if 'ietf-ptp-ext:log-sync-interval' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['log_sync_interval'] = raw_ptp_default_ds_data['ietf-ptp-ext:log-sync-interval']
-            if 'ietf-ptp-ext:log-min-delay-req-interval' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['log_min_delay_req_interval'] = raw_ptp_default_ds_data['ietf-ptp-ext:log-min-delay-req-interval']
-            if 'two-step-flag' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['two_step_flag'] = raw_ptp_default_ds_data['two-step-flag']
-            if 'ietf-ptp-ext:clock-type' in raw_ptp_default_ds_data and raw_ptp_default_ds_data['ietf-ptp-ext:clock-type'] != "":
-                ptp_default_ds_data['clock_type'] = raw_ptp_default_ds_data['ietf-ptp-ext:clock-type']
-            if 'ietf-ptp-ext:network-transport' in raw_ptp_default_ds_data and raw_ptp_default_ds_data['ietf-ptp-ext:network-transport'] != "":
-                ptp_default_ds_data['network_transport'] = raw_ptp_default_ds_data['ietf-ptp-ext:network-transport']
-            if 'ietf-ptp-ext:unicast-multicast' in raw_ptp_default_ds_data and raw_ptp_default_ds_data['ietf-ptp-ext:unicast-multicast'] != "":
-                ptp_default_ds_data['unicast_multicast'] = raw_ptp_default_ds_data['ietf-ptp-ext:unicast-multicast']
-            if 'ietf-ptp-ext:domain-profile' in raw_ptp_default_ds_data and raw_ptp_default_ds_data['ietf-ptp-ext:domain-profile'] != "":
-                ptp_default_ds_data['domain_profile'] = raw_ptp_default_ds_data['ietf-ptp-ext:domain-profile']
-            if 'ietf-ptp-ext:source-interface' in raw_ptp_default_ds_data:
-                ptp_default_ds_data['source_interface'] = raw_ptp_default_ds_data['ietf-ptp-ext:source-interface']
+            for key, option in payload_to_option_map.items():
+                if raw_ptp_default_ds_data.get(key) not in (None, ""):
+                    ptp_default_ds_data[option] = raw_ptp_default_ds_data[key]
 
         return ptp_default_ds_data
