@@ -78,5 +78,6 @@
     - sonic_lst
     - sonic_fbs_classifiers
     - sonic_mirroring
+    - sonic_snmp
     - sonic_evpn_esi_multihome
     - test_reports
