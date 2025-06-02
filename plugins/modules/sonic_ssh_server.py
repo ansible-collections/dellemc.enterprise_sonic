@@ -28,7 +28,8 @@ options:
     suboptions:
       server_globals:
         description:
-          SSH server global configuration.
+          - SSH server global configuration.
+          - For options of 'str' type, deletion results in restoring them to their default values.
         type: dict
         suboptions:
           password_authentication:
