@@ -174,7 +174,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                                 },
                                 'key': {
                                     'type': 'str',
-                                    'no_log': True
+                                    'no_log': False
                                 },
                             },
                             'type': 'dict'
@@ -190,7 +190,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                                 },
                                 'key': {
                                     'type': 'str',
-                                    'no_log': True
+                                    'no_log': False
                                 },
                             },
                             'type': 'dict'
