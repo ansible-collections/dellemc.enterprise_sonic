@@ -199,7 +199,7 @@ EXAMPLES = """
 - name: Override SSH configurations
   dellemc.enterprise_sonic.sonic_ssh:
     config:
-      serve_globals:
+      server_globals:
         publickey_authentication: false
     state: overridden
 
