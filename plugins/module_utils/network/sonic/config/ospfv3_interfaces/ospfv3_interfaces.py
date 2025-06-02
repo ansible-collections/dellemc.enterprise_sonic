@@ -57,9 +57,6 @@ OSPF_INT_ATTRIBUTES = {
 
 
 class Ospfv3_interfaces(ConfigBase):
-    """
-    The sonic_ospfv3_interfaces class
-    """
 
     gather_subset = [
         '!all',
@@ -74,10 +71,6 @@ class Ospfv3_interfaces(ConfigBase):
         super(Ospfv3_interfaces, self).__init__(module)
 
     def get_ospfv3_interfaces_facts(self):
-        """ Get the 'facts' (the current configuration)
-        :rtype: A dictionary
-        :returns: The current configuration as a dictionary
-        """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         ospfv3_interfaces_facts = facts['ansible_network_resources'].get('ospfv3_interfaces')
         if not ospfv3_interfaces_facts:
@@ -85,10 +78,6 @@ class Ospfv3_interfaces(ConfigBase):
         return ospfv3_interfaces_facts
 
     def execute_module(self):
-        """ Execute the module
-        :rtype: A dictionary
-        :returns: The result from module execution
-        """
         result = {'changed': False}
         warnings = list()
         commands = list()
@@ -119,23 +108,17 @@ class Ospfv3_interfaces(ConfigBase):
 
             new_config = get_new_config(new_commands, old_config, TEST_KEYS)
 
-            latest_config = self.new_cfg(new_config)
+            new_config = self.new_cfg(new_config)
             self.sort_lists_in_config(latest_config)
             result['after(generated)'] = remove_empties_from_list(latest_config)
 
         if self._module._diff:
-            result['diff'] = get_formatted_config_diff(old_config, latest_config, self._module._verbosity)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
         result['warnings'] = warnings
         return result
 
     def set_config(self, existing_ospfv3_interfaces_facts):
-        """ Collect the configuration from the args passed to the module,
-            collect the current configuration (as a dict from facts)
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
         want = self._module.params['config']
         have = existing_ospfv3_interfaces_facts
         new_want = deepcopy(want)
@@ -148,13 +131,6 @@ class Ospfv3_interfaces(ConfigBase):
         return to_list(resp)
 
     def set_state(self, want, have):
-        """ Select the appropriate function based on the state provided
-        :param want: the desired configuration as a dictionary
-        :param have: the current configuration as a dictionary
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
         commands, requests = [], []
         state = self._module.params['state']
 
@@ -168,11 +144,6 @@ class Ospfv3_interfaces(ConfigBase):
         return commands, requests
 
     def _state_replaced_or_overridden(self, want, have):
-        """ The command generator when state is replaced or overridden
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
         commands, requests = [], []
         add_config, del_config = self._get_replaced_overridden_config(want, have)
         if del_config:
@@ -190,11 +161,6 @@ class Ospfv3_interfaces(ConfigBase):
         return commands, requests
 
     def _state_merged(self, want, have):
-        """ The command generator when state is merged
-        :rtype: A list
-        :returns: the commands necessary to merge the provided into
-                  the current configuration
-        """
         commands = get_diff(want, have)
         requests = self.get_create_ospf_interfaces_requests(commands, have)
 
@@ -206,11 +172,6 @@ class Ospfv3_interfaces(ConfigBase):
         return commands, requests
 
     def _state_deleted(self, want, have):
-        """ The command generator when state is deleted
-        :rtype: A list
-        :returns: the commands necessary to remove the current configuration
-                  of the provided objects
-        """
         commands, requests = [], []
         is_delete_all = False
 
@@ -425,7 +386,6 @@ class Ospfv3_interfaces(ConfigBase):
             del_config.append(have_conf.get(del_key))
 
     def sort_lists_in_config(self, config):
-        """ Sort the lists in the config """
         if config:
             config.sort(key=lambda x: x['name'])
 

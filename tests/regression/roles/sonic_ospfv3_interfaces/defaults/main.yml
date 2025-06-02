@@ -23,6 +23,7 @@ sonic_ospfv3_interfaces_preparations_tests:
     - no router ospfv3
 
 sonic_ospfv3_interfaces_tests:
+
   - name: test_case_01
     description: Add OSPFv3 interface configurations for Ethernet interfaces
     state: merged
@@ -47,6 +48,7 @@ sonic_ospfv3_interfaces_tests:
         bfd:
           enable: true
           bfd_profile: 'profile1'
+
   - name: test_case_02
     description: Add OSPFv3 interface configurations for Lag interfaces
     state: merged
@@ -63,6 +65,7 @@ sonic_ospfv3_interfaces_tests:
           bfd_profile: 'profile1'
       - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
         area_id: '3.3.3.3'
+
   - name: test_case_03
     description: Add OSPFv3 interface configurations for Vlan and Loopback interfaces
     state: merged
@@ -77,6 +80,7 @@ sonic_ospfv3_interfaces_tests:
         network: broadcast
       - name: "{{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
         network: point_to_point
+
   - name: test_case_04
     description: Add OSPFv3 interface configurations
     state: merged
@@ -109,6 +113,7 @@ sonic_ospfv3_interfaces_tests:
           enable: true
           bfd_profile: 'profile1'
         network: point_to_point
+
   - name: test_case_del_01
     description: Delete OSPFv3 interface configurations
     state: deleted
@@ -130,6 +135,7 @@ sonic_ospfv3_interfaces_tests:
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
       - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
         network: broadcast
+
   - name: test_case_del_02
     description: Delete OSPFv3 interface configurations for interfaces default address
     state: deleted
@@ -141,6 +147,7 @@ sonic_ospfv3_interfaces_tests:
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
         area_id: 3.3.3.3
         cost: 20
+
   - name: test_case_del_03
     description: Delete entire OSPFv3 for an interface.
     state: deleted
@@ -148,6 +155,7 @@ sonic_ospfv3_interfaces_tests:
       - name: "{{ interface7 }}"
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
       - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
+
   - name: test_case_05
     description: Add OSPFv3 interface configurations for interface level
     state: merged
@@ -166,6 +174,7 @@ sonic_ospfv3_interfaces_tests:
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
         area_id: 3.3.3.3
         cost: 20
+
   - name: test_case_replace_01
     description: Replace existing OSPFv3 interface configurations for interface level
     state: replaced
@@ -184,6 +193,7 @@ sonic_ospfv3_interfaces_tests:
         bfd:
           enable: true
           bfd_profile: 'profile1'
+
   - name: test_case_replace_02
     description: Replace OSPFv3 interface configurations
     state: replaced
@@ -200,6 +210,7 @@ sonic_ospfv3_interfaces_tests:
         hello_interval: 10
         dead_interval: 40
         mtu_ignore: true
+
   - name: test_case_overridden_01
     description: Override entire OSPFv3 interface configurations
     state: overridden
@@ -214,6 +225,7 @@ sonic_ospfv3_interfaces_tests:
       - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
         area_id: '3.3.3.3'
         cost: 20
+
   - name: test_case_overridden_02
     description: Override OSPFv3 interface configurations
     state: overridden
@@ -229,6 +241,3 @@ sonic_ospfv3_interfaces_tests:
     description: Delete entire OSPFv3 interface configurations
     state: deleted
     input: []
-
-   
-  

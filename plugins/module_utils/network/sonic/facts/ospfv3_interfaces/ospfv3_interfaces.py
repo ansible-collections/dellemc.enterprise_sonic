@@ -55,7 +55,7 @@ class Ospfv3_interfacesFacts(object):
             if ospfv3_interface_config:
                 obj = self.render_config(self.generated_spec, ospfv3_interface_config)
                 if obj:
-                    objs.append(obj)
+                    objs.append(ospfv3_interface_config)
 
         ansible_facts['ansible_network_resources'].pop('ospfv3_interfaces', None)
         facts = {}
@@ -96,7 +96,6 @@ class Ospfv3_interfacesFacts(object):
                 if intf_name == "eth0":
                     continue
 
-                ospf = None
                 ospf_config = {}
 
                 if interface.get('openconfig-vlan:routed-vlan'):
@@ -109,7 +108,6 @@ class Ospfv3_interfacesFacts(object):
                     if ipv6:
                         ospf_int = ipv6.get('openconfig-ospfv3-ext:ospfv3', {})
                         if ospf_int:
-                            # for name in ospf_int.get('config', []):
                             config = ospf_int.get('config', {})
                             if config:
                                 self.update_dict(ospf_config, 'area_id', config.get('area-id'))

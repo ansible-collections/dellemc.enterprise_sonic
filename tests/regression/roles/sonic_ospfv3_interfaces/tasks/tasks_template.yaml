@@ -6,7 +6,7 @@
   register: action_task_output
   ignore_errors: true
 
-- name: "Import role"
+- name: "Update test report"
   ansible.builtin.import_role:
     name: common
     tasks_from: action.facts.report.yaml
@@ -18,7 +18,7 @@
   register: idempotent_task_output
   ignore_errors: true
 
-- name: "Import role"
+- name: "Update test report"
   ansible.builtin.import_role:
     name: common
     tasks_from: idempotent.facts.report.yaml

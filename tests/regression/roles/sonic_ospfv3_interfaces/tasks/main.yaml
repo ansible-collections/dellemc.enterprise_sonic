@@ -1,6 +1,4 @@
 ---
-- name: "Debug"
-  ansible.builtin.debug:
 
 - name: "{{ preperation_tests ~ ' , ' ~ module_name }}"
   ansible.builtin.include_tasks: preparation_tests.yaml
