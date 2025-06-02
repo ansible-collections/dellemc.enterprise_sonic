@@ -61,6 +61,6 @@ sonic_ptp_default_ds_tests:
       unicast_multicast: 'multicast'
 
 sonic_ptp_default_ds_test_delete_all:
-  - name: del_all_test_case_05
+  - name: del_all_test_case_06
     description: Delete all PTP Default DS configurations
     state: deleted

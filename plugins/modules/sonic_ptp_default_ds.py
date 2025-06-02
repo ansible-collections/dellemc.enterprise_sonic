@@ -94,13 +94,11 @@ options:
       clock_type:
         description:
           - Specifies the type of clock configured in the PTP domain.
-          - The possible values are (BC)|(P2P_TC)|(E2E_TC)|(disable)
         type: str
         choices: ['BC', 'E2E_TC', 'P2P_TC', 'disable']
       network_transport:
         description:
           - The network transport used for communication.
-          - The permitted values are (L2)|(UDPv4)|(UDPv6)
         type: str
         choices: ['L2', 'UDPv4', 'UDPv6']
       unicast_multicast:
@@ -112,7 +110,6 @@ options:
       domain_profile:
         description:
           - The method to be used when comparing data sets during the Best Master Clock Algorithm.
-          - The permitted values are (ieee1588)|(G.8275.1)|(G.8275.2)
         type: str
         choices: ['ieee1588', 'G.8275.1', 'G.8275.2']
       source_interface:
@@ -191,19 +188,12 @@ EXAMPLES = """
 - name: Delete all PTP configurations
   dellemc.enterprise_sonic.sonic_ptp:
     config:
-      announce-receipt-timeout: 3
-      network-transport: 'ipv6'
-      unicast-multicast: 'unicast'
-      domain-number: 45
-      clock-type: 'BC'
-      domain-profile: 'G.8275.2'
     state: deleted
 
 # After State:
 # ------------
 #
 # sonic# show running-configuration ptp
-
 # sonic#
 
 

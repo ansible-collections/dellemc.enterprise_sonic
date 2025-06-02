@@ -13,6 +13,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+import copy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -166,8 +167,7 @@ class Ptp_default_ds(ConfigBase):
         old_config = existing_ptp_default_ds_facts
         if self._module.check_mode:
             result.pop('after', None)
-            new_config = get_new_config(commands, existing_ptp_default_ds_facts,
-                                        TEST_KEYS_generate_config)
+            new_config = get_new_config(commands, existing_ptp_default_ds_facts)
             result['after(generated)'] = new_config
 
         if self._module._diff:
@@ -269,16 +269,17 @@ class Ptp_default_ds(ConfigBase):
         """
         commands = []
         requests = []
+        new_have = copy.deepcopy(have)
 
-        if len(have) == 1 and have.get("domain_number") is not None:
-            have.pop("domain_number")
+        if len(new_have) == 1 and new_have.get("domain_number") is not None:
+            new_have.pop("domain_number")
 
         if not want or len(want) == 0:
-            commands = have
+            commands = new_have
             requests.extend(self.get_delete_ptp_default_ds_completely_requests(commands))
         else:
             commands = get_diff(want, diff)
-            requests.extend(self.get_delete_specific_ptp_default_ds_param_requests(commands, have))
+            requests.extend(self.get_delete_specific_ptp_default_ds_param_requests(commands, new_have))
         if len(requests) == 0:
             commands = []
 
