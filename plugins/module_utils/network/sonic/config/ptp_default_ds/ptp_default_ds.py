@@ -138,12 +138,11 @@ class Ptp_default_ds(ConfigBase):
                   to the desired configuration
         """
         want = self._module.params['config']
-        state = self._module.params['state']
 
         if want:
             want = remove_empties(want)
 
-            if want.get("source_interface") is not None :
+            if want.get("source_interface") is not None:
                 want["source_interface"] = get_normalize_interface_name(want["source_interface"], self._module)
         have = existing_ptp_default_ds_facts
         resp = self.set_state(want, have)
@@ -179,19 +178,20 @@ class Ptp_default_ds(ConfigBase):
         commands = []
         requests = []
 
-        if len(have) == 1 and have.get("domain_number") is not None:
-            if len(want) == 1 and want.get("domain_number") is not None and want == have:
-                return commands, requests
-            if have["domain_number"] == 0:
-                have.pop("domain_number")
+        new_have = copy.deepcopy(have)
 
-        if want == have:
+        if len(new_have) == 1 and new_have.get("domain_number") is not None:
+            if len(want) == 1 and want.get("domain_number") is not None and want == new_have:
+                return commands, requests
+            if new_have["domain_number"] == 0:
+                new_have.pop("domain_number")
+
+        if want == new_have:
             return commands, requests
 
-        if have:
-            requests.extend(self.get_delete_ptp_default_ds_completely_requests(have))
-            commands.extend(update_states(have, "deleted"))
-            have = {}
+        if new_have:
+            requests.extend(self.get_delete_ptp_default_ds_completely_requests(new_have))
+            commands.extend(update_states(new_have, "deleted"))
 
         if want:
             mod_requests = self.get_modify_specific_ptp_default_ds_param_requests(want)
@@ -231,7 +231,7 @@ class Ptp_default_ds(ConfigBase):
         if len(new_have) == 1 and new_have.get("domain_number") is not None:
             new_have.pop("domain_number")
 
-        if not have:
+        if not new_have:
             return commands, requests
         elif not want:
             commands = new_have
