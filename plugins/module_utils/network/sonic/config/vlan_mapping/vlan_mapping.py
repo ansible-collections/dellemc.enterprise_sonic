@@ -30,6 +30,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    get_ranges_in_list
+)
 from ansible.module_utils.connection import ConnectionError
 
 
@@ -370,17 +373,22 @@ class Vlan_mapping(ConfigBase):
 
             # Delete vlan ids
             if vlan_ids and have_vlan_ids:
-                vlan_ids_list = []
-                same_vlan_ids_list = self.get_vlan_ids_diff(vlan_ids, have_vlan_ids, same=True)
-                if same_vlan_ids_list:
-                    for vlan in same_vlan_ids_list:
-                        vlan_ids_list.append(vlan)
-                    max_id = max(vlan_ids_list)
-                    min_id = min(vlan_ids_list)
-                    vlan_ids = min_id + ".." + max_id
-                    path = vlan_ids_url.format(interface_name, service_vlan, vlan_ids)
-                    request = {"path": path, "method": method}
-                    requests.append(request)
+                vlan_ids_str = ""
+                num_have_vlan_ids = list(map(int, have_vlan_ids))
+                num_vlan_ids = list(map(int, vlan_ids))
+                range_in_list = list(get_ranges_in_list(num_have_vlan_ids))
+                for vlan in num_vlan_ids:
+                    vlan_ids_str = ""
+                    for sublist in range_in_list:
+                        if vlan in sublist:
+                            if len(vlan_ids_str) > 0:
+                                vlan_ids_str = vlan_ids_str + ", " + str(vlan)
+                            else:
+                                vlan_ids_str = str(vlan)
+                    if len(vlan_ids_str) > 0:
+                        path = vlan_ids_url.format(interface_name, service_vlan, vlan_ids_str)
+                        request = {"path": path, "method": method}
+                        requests.append(request)
         # Delete entire dot1q_tunnel
         else:
             if have_vlan_ids or have_priority:
