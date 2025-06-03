@@ -191,10 +191,11 @@ class L3_interfaces(ConfigBase):
         requests, del_requests = [], []
 
         if have:
+            want_dict = {item['name']: item for item in want} if want else {}
             for have_conf in have:
                 intf_name = have_conf['name']
                 have_conf = self.remove_defaults(have_conf)
-                conf = next((item for item in want if item['name'] == intf_name), None)
+                conf = want_dict.get(intf_name)
                 if not conf:
                     # Delete all L3 interfaces that are not specified in 'overridden'
                     if state == 'overridden':
@@ -304,9 +305,10 @@ class L3_interfaces(ConfigBase):
                 commands.append({'name': have_conf['name']})
                 requests.extend(self.get_delete_l3_interface_requests(have_conf, have_conf))
         else:
+            have_dict = {item['name']: item for item in have}
             for conf in want:
                 intf_name = conf['name']
-                have_conf = next((item for item in have if item['name'] == intf_name), None)
+                have_conf = have_dict.get(intf_name)
                 if not have_conf:
                     continue
 
@@ -328,7 +330,7 @@ class L3_interfaces(ConfigBase):
                     if not (option in conf and have_conf.get(option)):
                         continue
 
-                    # If ipv6/ipv6 is specified as empty, then delete all ipv4/ipv6 config
+                    # If ipv4/ipv6 is specified as empty, then delete all ipv4/ipv6 config
                     if conf[option] == {}:
                         command[option] = have_conf[option]
                         continue
@@ -655,9 +657,10 @@ class L3_interfaces(ConfigBase):
 
     def get_diff(self, want, have):
         updated_want = []
+        have_dict = {item['name']: item for item in have} if have else {}
         for conf in want:
             if conf.get('ipv6'):
-                have_conf = next((item for item in have if item['name'] == conf['name']), {})
+                have_conf = have_dict.get(conf['name'], {})
                 conf = self.remove_defaults(have_conf, conf, False)
             if conf.get('ipv4') or conf.get('ipv6'):
                 updated_want.append(conf)
@@ -669,12 +672,13 @@ class L3_interfaces(ConfigBase):
         existing configuration"""
         state = self._module.params['state']
         new_conf = get_new_config(commands, have, TEST_KEYS_formatted_diff)
+        new_conf_dict = {item['name']: item for item in new_conf} if new_conf else {}
         if state != 'deleted':
             for command in commands:
                 if command['state'] == 'deleted' or not command.get('ipv4', {}).get('addresses'):
                     continue
 
-                conf = next((cfg for cfg in new_conf if cfg['name'] == command['name']), {})
+                conf = new_conf_dict.get(command['name'], {})
                 if not conf.get('ipv4', {}).get('addresses'):
                     continue
 
