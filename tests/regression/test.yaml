@@ -77,6 +77,7 @@
     - sonic_ssh
     - sonic_lst
     - sonic_fbs_classifiers
+    - sonic_ptp_default_ds
     - sonic_mirroring
     - sonic_evpn_esi_multihome
     - sonic_ssh_server

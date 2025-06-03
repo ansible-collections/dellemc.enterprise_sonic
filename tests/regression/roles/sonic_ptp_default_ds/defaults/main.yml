@@ -1,0 +1,66 @@
+---
+ansible_connection: httpapi
+
+sonic_ptp_default_ds_lo0: Loopback0
+
+sonic_ptp_default_ds_tests:
+  - name: test_case_01
+    description: Add PTP Default DS configuration
+    state: merged
+    input:
+      clock_type: 'BC'
+      domain_number: 24
+      domain_profile: 'G.8275.1'
+      network_transport: 'L2'
+      priority1: 130
+      priority2: 131
+      unicast_multicast: 'multicast'
+
+  - name: test_case_02
+    description: Update PTP Default DS configuration
+    state: merged
+    input:
+      clock_type: 'BC'
+      announce_receipt_timeout: 3
+      log_announce_interval: -3
+      log_min_delay_req_interval: -4
+      log_sync_interval: -4
+      priority1: 134
+      priority2: 135
+      source_interface: "{{ sonic_ptp_default_ds_lo0 }}"
+      two_step_flag: false
+
+  - name: test_case_03
+    description: Delete specific PTP Default DS configuration
+    state: deleted
+    input:
+      announce_receipt_timeout: 3
+      priority1: 134
+      priority2: 135
+
+  - name: test_case_04
+    description: Replace PTP Default DS configuration
+    state: replaced
+    input:
+      clock_type: 'BC'
+      announce_receipt_timeout: 3
+      domain_number: 24
+      priority1: 129
+      priority2: 129
+
+  - name: test_case_05
+    description: Override PTP Default DS configuration
+    state: overridden
+    input:
+      clock_type: 'BC'
+      domain_number: 25
+      domain_profile: 'G.8275.1'
+      network_transport: 'L2'
+      priority1: 135
+      priority2: 135
+      unicast_multicast: 'multicast'
+
+sonic_ptp_default_ds_test_delete_all:
+  - name: del_all_test_case_06
+    description: Delete all PTP Default DS configurations
+    state: deleted
