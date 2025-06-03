@@ -160,6 +160,22 @@ class SystemFacts(object):
                     data["adjust-txrx-clock-freq"] = False
         return data
 
+    def get_password_attributes(self):
+        """Get all the password attribute configured in the device"""
+        request = [{"path": "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config", "method": GET}]
+        data = {}
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if 'openconfig-system-ext:config' in response[0][1]:
+                    data = response[0][1]['openconfig-system-ext:config']
+
+        return data
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for system
         :param connection: the device connection
@@ -176,6 +192,9 @@ class SystemFacts(object):
         anycast_addr = self.get_anycast_addr()
         if anycast_addr:
             data.update(anycast_addr)
+        pwd_configs = self.get_password_attributes()
+        if pwd_configs:
+            data.update(pwd_configs)
         load_share_hash_algo = self.get_load_share_hash_algo()
         if load_share_hash_algo:
             data.update(load_share_hash_algo)
@@ -237,5 +256,15 @@ class SystemFacts(object):
                 config['concurrent_session_limit'] = conf['concurrent_session_limit']
             if ('adjust-txrx-clock-freq' in conf):
                 config['adjust_txrx_clock_freq'] = conf['adjust-txrx-clock-freq']
+            if ('min-lower-case' in conf) and (conf['min-lower-case']):
+                config['password_complexity']['min_lower_case'] = conf['min-lower-case']
+            if ('min-upper-case' in conf) and (conf['min-upper-case']):
+                config['password_complexity']['min_upper_case'] = conf['min-upper-case']
+            if ('min-numerals' in conf) and (conf['min-numerals']):
+                config['password_complexity']['min_numerals'] = conf['min-numerals']
+            if ('min-special-char' in conf) and (conf['min-special-char']):
+                config['password_complexity']['min_spl_char'] = conf['min-special-char']
+            if ('min-len' in conf) and (conf['min-len']):
+                config['password_complexity']['min_length'] = conf['min-len']
 
         return utils.remove_empties(config)
