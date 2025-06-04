@@ -374,7 +374,6 @@ class Vlan_mapping(ConfigBase):
             # Delete vlan ids
             if vlan_ids and have_vlan_ids:
                 vlan_ids_str = ""
-                
                 same_vlan_ids_list = self.get_vlan_ids_diff(vlan_ids, have_vlan_ids, same=True)
                 num_same_vlan_ids = list(map(int, same_vlan_ids_list))
                 range_in_list = get_ranges_in_list(num_same_vlan_ids)
