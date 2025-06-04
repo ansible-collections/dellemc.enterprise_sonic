@@ -17,7 +17,7 @@ merged_01:
           cbs: '90'
       copp_traps:
         - name: 'trap-1'
-          trap_ids: 'id1,id2'
+          trap_protocol_ids: 'id1,id2'
           trap_group: 'copp-1'
   existing_copp_config:
     - path: 'data/openconfig-copp-ext:copp'
@@ -252,7 +252,7 @@ deleted_01:
         - copp_name: 'copp-2'
       copp_traps:
         - name: 'trap-1'
-          trap_ids: 'id1,id2'
+          trap_protocol_ids: 'id1,id2'
           trap_group: 'copp-1'
         - name: 'trap-2'
     state: deleted
