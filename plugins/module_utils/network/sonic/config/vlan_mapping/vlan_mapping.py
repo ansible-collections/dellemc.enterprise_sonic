@@ -374,21 +374,23 @@ class Vlan_mapping(ConfigBase):
             # Delete vlan ids
             if vlan_ids and have_vlan_ids:
                 vlan_ids_str = ""
-                num_have_vlan_ids = list(map(int, have_vlan_ids))
-                num_vlan_ids = list(map(int, vlan_ids))
-                range_in_list = list(get_ranges_in_list(num_have_vlan_ids))
-                for vlan in num_vlan_ids:
+                
+                same_vlan_ids_list = self.get_vlan_ids_diff(vlan_ids, have_vlan_ids, same=True)
+                num_same_vlan_ids = list(map(int, same_vlan_ids_list))
+                range_in_list = get_ranges_in_list(num_same_vlan_ids)
+
+                for sublist in range_in_list:
                     vlan_ids_str = ""
-                    for sublist in range_in_list:
-                        if vlan in sublist:
-                            if len(vlan_ids_str) > 0:
-                                vlan_ids_str = vlan_ids_str + ", " + str(vlan)
-                            else:
-                                vlan_ids_str = str(vlan)
-                    if len(vlan_ids_str) > 0:
-                        path = vlan_ids_url.format(interface_name, service_vlan, vlan_ids_str)
-                        request = {"path": path, "method": method}
-                        requests.append(request)
+                    if len(sublist) > 1:
+                        min_num = min(sublist)
+                        max_num = max(sublist)
+                        vlan_ids_str = str(min_num) + ".." + str(max_num)
+                    else:
+                        vlan_ids_str = str(sublist[0])
+
+                    path = vlan_ids_url.format(interface_name, service_vlan, vlan_ids_str)
+                    request = {"path": path, "method": method}
+                    requests.append(request)
         # Delete entire dot1q_tunnel
         else:
             if have_vlan_ids or have_priority:
