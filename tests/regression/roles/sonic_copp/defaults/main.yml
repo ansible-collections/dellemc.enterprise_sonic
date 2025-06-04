@@ -27,10 +27,10 @@ sonic_copp_tests:
           cbs: '33'
       copp_traps:
         - name: 'trap-1'
-          trap_ids: 'id1,id2,id3'
+          trap_protocol_ids: 'id1,id2,id3'
           trap_group: 'copp-1'
         - name: 'trap-2'
-          trap_ids: 'id4,id5'
+          trap_protocol_ids: 'id4,id5'
           trap_group: 'copp-2'
   - name: test_case_02
     description: Update CoPP configuration
@@ -45,10 +45,10 @@ sonic_copp_tests:
           cbs: '32'
       copp_traps:
         - name: 'trap-1'
-          trap_ids: 'id1,id3'
+          trap_protocol_ids: 'id1,id3'
           trap_group: 'copp-2'
         - name: 'trap-2'
-          trap_ids: 'id4'
+          trap_protocol_ids: 'id4'
           trap_group: 'copp-1'
   - name: test_case_03
     description: Replace CoPP configuration
@@ -67,7 +67,7 @@ sonic_copp_tests:
         - name: 'trap-2'
           trap_group: 'copp-1'
         - name: 'trap-3'
-          trap_ids: 'id6, id7'
+          trap_protocol_ids: 'id6, id7'
           trap_group: 'copp-3'
         - name: 'trap-4'
   - name: test_case_04
@@ -87,7 +87,7 @@ sonic_copp_tests:
         - name: 'trap-2'
           trap_group: 'copp-1'
         - name: 'trap-3'
-          trap_ids: 'id6, id7'
+          trap_protocol_ids: 'id6, id7'
           trap_group: 'copp-3'
         - name: 'trap-4'
   - name: test_case_05
@@ -103,7 +103,7 @@ sonic_copp_tests:
           cbs: '15'
       copp_traps:
         - name: 'trap-5'
-          trap_ids: 'id1, id2'
+          trap_protocol_ids: 'id1, id2'
           trap_group: 'copp-5'
   - name: test_case_06
     description: Delete all CoPP groups

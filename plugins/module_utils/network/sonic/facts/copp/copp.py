@@ -111,12 +111,12 @@ class CoppFacts(object):
                         trap_dict = {}
                         name = trap['name']
                         config = trap['config']
-                        trap_ids = config.get('trap-ids')
+                        trap_protocol_ids = config.get('trap-ids')
                         trap_group = config.get('trap-group')
 
                         trap_dict['name'] = name
-                        if trap_ids:
-                            trap_dict['trap_ids'] = trap_ids
+                        if trap_protocol_ids:
+                            trap_dict['trap_protocol_ids'] = trap_protocol_ids
                         if trap_group:
                             trap_dict['trap_group'] = trap_group
                         if trap_dict:

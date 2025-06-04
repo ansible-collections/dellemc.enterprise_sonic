@@ -372,14 +372,14 @@ class Copp(ConfigBase):
                 config_dict = {}
                 trap_dict = {}
                 name = trap.get('name')
-                trap_ids = trap.get('trap_ids')
+                trap_protocol_ids = trap.get('trap_protocol_ids')
                 trap_group = trap.get('trap_group')
 
                 if name:
                     config_dict['name'] = name
                     trap_dict['name'] = name
-                if trap_ids:
-                    config_dict['trap-ids'] = trap_ids
+                if trap_protocol_ids:
+                    config_dict['trap-ids'] = trap_protocol_ids
                 if trap_group:
                     config_dict['trap-group'] = trap_group
                 if config_dict:
@@ -423,14 +423,14 @@ class Copp(ConfigBase):
         if copp_traps:
             for trap in copp_traps:
                 name = trap.get('name')
-                trap_ids = trap.get('trap_ids')
+                trap_protocol_ids = trap.get('trap_protocol_ids')
                 trap_group = trap.get('trap_group')
 
-                if trap_ids:
+                if trap_protocol_ids:
                     requests.append(self.get_delete_copp_trap_request(name, 'trap-ids'))
                 if trap_group:
                     requests.append(self.get_delete_copp_trap_request(name, 'trap-group'))
-                if not trap_ids and not trap_group:
+                if not trap_protocol_ids and not trap_group:
                     requests.append(self.get_delete_copp_trap_request(name, None))
 
         # Handle copp_groups deletion

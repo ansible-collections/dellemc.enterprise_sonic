@@ -41,7 +41,7 @@ class CoppArgs(object):  # pylint: disable=R0903
                     'elements': 'dict',
                     'options': {
                         'name': {'required': True, 'type': 'str'},
-                        'trap_ids': {'type': 'str'},
+                        'trap_protocol_ids': {'type': 'str'},
                         'trap_group': {'type': 'str'}
                     },
                     'type': 'list'
