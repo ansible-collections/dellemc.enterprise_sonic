@@ -37,8 +37,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 
-is_delete_all = False
-is_replaced = False
+delete_all = False
+replaced = False
 FBS_PATH = 'data/openconfig-fbs-ext:fbs'
 PATCH = 'patch'
 DELETE = 'delete'
@@ -50,7 +50,7 @@ TEST_KEYS = [
 
 
 def __derive_fbs_groups_delete_op(key_set, command, exist_conf):
-    if is_delete_all or is_replaced:
+    if delete_all or replaced:
         new_conf = []
         return True, new_conf
     done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
@@ -100,7 +100,6 @@ class Fbs_groups(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_fbs_groups_facts = self.get_fbs_groups_facts()
@@ -112,26 +111,24 @@ class Fbs_groups(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_fbs_groups_facts = self.get_fbs_groups_facts()
-
         result['before'] = existing_fbs_groups_facts
-        if result['changed']:
-            result['after'] = changed_fbs_groups_facts
-
-        new_config = changed_fbs_groups_facts
         old_config = existing_fbs_groups_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
             new_config = remove_empties(get_new_config(commands, existing_fbs_groups_facts, TEST_KEYS_generate_config))
             self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_fbs_groups_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
-        result['warnings'] = warnings
+
         return result
 
     def set_config(self, existing_fbs_groups_facts):
@@ -195,14 +192,13 @@ class Fbs_groups(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        mod_commands = []
-        global is_replaced
-        is_replaced = False
+        global replaced
+        replaced = False
+        commands, mod_commands = [], []
         replaced_config, requests = self.get_replaced_config(want, have)
 
         if replaced_config:
-            is_replaced = True
+            replaced = True
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
         else:
@@ -224,24 +220,21 @@ class Fbs_groups(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
-        mod_commands = None
-        mod_request = None
-        global is_delete_all
-        is_delete_all = False
+        global delete_all
+        delete_all = False
+        commands, requests = [], []
+        mod_commands, mod_request = None, None
         del_commands = get_diff(have, want, TEST_KEYS)
 
-        if not del_commands and diff:
-            mod_commands = diff
-            mod_request = self.get_modify_fbs_groups_request(mod_commands)
-
         if del_commands:
-            is_delete_all = True
-            del_requests = self.get_delete_fbs_groups_requests(del_commands, is_delete_all)
+            delete_all = True
+            del_requests = self.get_delete_fbs_groups_requests(del_commands, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             mod_commands = want
+            mod_request = self.get_modify_fbs_groups_request(mod_commands)
+        elif diff:
+            mod_commands = diff
             mod_request = self.get_modify_fbs_groups_request(mod_commands)
 
         if mod_request:
@@ -256,19 +249,19 @@ class Fbs_groups(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        global is_delete_all
-        is_delete_all = False
+        global delete_all
+        delete_all = False
         requests = []
         diff = get_diff(want, have, TEST_KEYS)
 
         if not want:
             commands = deepcopy(have)
-            is_delete_all = True
+            delete_all = True
         else:
             commands = get_diff(want, diff, TEST_KEYS)
 
         if commands:
-            requests = self.get_delete_fbs_groups_requests(commands, is_delete_all)
+            requests = self.get_delete_fbs_groups_requests(commands, delete_all)
             if len(requests) > 0:
                 commands = update_states(commands, 'deleted')
         else:
@@ -277,7 +270,7 @@ class Fbs_groups(ConfigBase):
         return commands, requests
 
     def get_modify_fbs_groups_request(self, commands):
-        """Returns a single OC patch request constructed from commands"""
+        """This method returns a single OC patch request constructed from commands"""
         request = None
         fbs_dict = {}
 
@@ -298,8 +291,8 @@ class Fbs_groups(ConfigBase):
         return request
 
     def get_group_list_payload(self, groups_cfg, enum_prefix):
-        """Returns OC formatted list constructed from groups_cfg that will
-        be a part of request payload"""
+        """This method returns the OC formatted list constructed from groups_cfg that will
+        be a part of the request payload"""
         group_list = []
         enum_dict = {
             'next_hop_group_ipv4': 'NEXT_HOP_GROUP_TYPE_IPV4',
@@ -358,13 +351,13 @@ class Fbs_groups(ConfigBase):
 
         return group_list
 
-    def get_delete_fbs_groups_requests(self, commands, is_delete_all):
+    def get_delete_fbs_groups_requests(self, commands, delete_all):
         """Returns OC delete requests"""
         requests = []
 
         if not commands:
             return requests
-        if is_delete_all:
+        if delete_all:
             requests.append(self.get_delete_groups_request('next-hop-group', None, None))
             requests.append(self.get_delete_groups_request('replication-group', None, None))
             return requests
@@ -380,7 +373,7 @@ class Fbs_groups(ConfigBase):
         return requests
 
     def update_delete_fbs_groups_data(self, requests, groups, oc_group):
-        """Updates requests for deletion"""
+        """This method updates the requests for deletion"""
 
         for group in groups:
             group_name = group.get('group_name')
@@ -432,6 +425,8 @@ class Fbs_groups(ConfigBase):
         return request
 
     def get_modify_diff(self, want, have):
+        """This method calculates the diff for modification, while taking into account 
+        the required non-key attributes"""
         config_dict = {}
         group_tuple = ('next_hop_groups', 'replication_groups')
 
@@ -525,6 +520,7 @@ class Fbs_groups(ConfigBase):
         return config_dict
 
     def get_replaced_config(self, want, have):
+        """This method returns the replaced FBS configuration and the corresponding delete requests"""
         requests = []
         config_dict = {}
         group_tuple = ('next_hop_groups', 'replication_groups')
@@ -553,6 +549,7 @@ class Fbs_groups(ConfigBase):
         return config_dict, requests
 
     def sort_lists_in_config(self, config):
+        """This method sorts the lists in the FBS groups configuration"""
         if config:
             if config.get('next_hop_groups'):
                 config['next_hop_groups'].sort(key=lambda x: x['group_name'])
@@ -564,19 +561,3 @@ class Fbs_groups(ConfigBase):
                 for group in config['replication_groups']:
                     if group.get('next_hops'):
                         group['next_hops'].sort(key=lambda x: x['entry_id'])
-
-    def post_process_generated_config(self, config):
-        fbs_groups = ['next_hop_groups', 'replication_groups']
-
-        for groups in fbs_groups:
-            pop_list = []
-            if config.get(groups):
-                for group in config[groups]:
-                    if 'next_hops' in group and not group['next_hops']:
-                        group.pop('next_hops')
-                    if 'group_name' in group and len(group) == 1:
-                        pop_list.insert(0, config[groups].index(group))
-                for idx in pop_list:
-                    config[groups].pop(idx)
-                    if not config[groups]:
-                        config.pop(groups)
