@@ -18,6 +18,10 @@ tests:
       concurrent_session_limit: 4
       # Use only on switch that support this.
       #adjust_txrx_clock_freq: false
+      password_complexity:
+        min_lower_case: 2
+        min_length: 10
+        min_spl_char: 1
 
   - name: test_case_02
     description: Update created System properties
@@ -31,6 +35,9 @@ tests:
       concurrent_session_limit: 5
       # Use only on switch that support this.
       #adjust_txrx_clock_freq: true
+      password_complexity:
+        min_upper_case: 1
+        min_numerals: 2
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -54,6 +61,12 @@ tests:
       concurrent_session_limit: 5
       # Use only on switch that support this.
       #adjust_txrx_clock_freq: true
+      password_complexity:
+        min_upper_case: 1
+        min_lower_case: 2
+        min_numerals: 2
+        min_length: 10
+        min_spl_char: 1
 
   - name: test_case_05
     description: Delete System associated anycast mac address
@@ -78,6 +91,12 @@ tests:
       concurrent_session_limit: 4
       # Use only on switch that support this.
       #adjust_txrx_clock_freq: true
+      password_complexity:
+        min_upper_case: 1
+        min_lower_case: 2
+        min_numerals: 2
+        min_length: 10
+        min_spl_char: 1
 
   - name: test_case_07
     description: Replace some System configuration
@@ -107,6 +126,9 @@ tests:
       concurrent_session_limit: 5
       # Use only on switch that support this.
       #adjust_txrx_clock_freq: true
+      password_complexity:
+        min_lower_case: 1
+        min_upper_case: 2
 
   - name: test_case_09
     description: Update System properties

@@ -62,6 +62,17 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
         new_conf['load_share_hash_algo'] = None
     if 'audit_rules' in command:
         new_conf['audit_rules'] = 'NONE'
+    if 'password_complexity' in command and 'password_complexity' in new_conf:
+        if 'min_lower_case' in command['password_complexity']:
+            new_conf['password_complexity']['min_lower_case'] = None
+        if 'min_upper_case' in command['password_complexity']:
+            new_conf['password_complexity']['min_upper_case'] = None
+        if 'min_numeral' in command['password_complexity']:
+            new_conf['password_complexity']['min_numeral'] = None
+        if 'min_spl_char' in command['password_complexity']:
+            new_conf['password_complexity']['min_spl_char'] = None
+        if 'min_length' in command['password_complexity']:
+            new_conf['password_complexity']['min_length'] = 8
     if 'concurrent_session_limit' in command:
         new_conf['concurrent_session_limit'] = None
     if 'adjust_txrx_clock_freq' in command:
@@ -249,6 +260,9 @@ class System(ConfigBase):
             },
             'auto_breakout': 'DISABLE',
             'adjust_txrx_clock_freq': False,
+            'password_complexity': {
+                'min_length': 8
+            }
         }
         del_request_method = {
             'hostname': self.get_hostname_delete_request,
@@ -293,6 +307,27 @@ class System(ConfigBase):
             if have_anycast:
                 del_command['anycast_address'] = have_anycast
                 del_requests.extend(self.get_anycast_delete_request(del_command['anycast_address']))
+
+        want_password_complexity = new_want.get('password_complexity', {})
+        have_password_complexity = new_have.get('password_complexity', {})
+        if want_password_complexity:
+            for option in ('min_length', 'min_spl_char', 'min_lower_case', 'min_upper_case', 'min_numerals'):
+                if option in want_password_complexity:
+                    if want_password_complexity[option] != have_password_complexity.get(option):
+                        add_command.setdefault('password_complexity', {})
+                        add_command['password_complexity'][option] = want_password_complexity[option]
+                else:
+                    if option in have_password_complexity and have_password_complexity[option] != default_values['password_complexity'].get(option):
+                        del_command.setdefault('password_complexity', {})
+                        del_command['password_complexity'][option] = have_password_complexity[option]
+            if del_command.get('password_complexity'):
+                del_requests.extend(self.get_password_complexity_delete_request(del_command['password_complexity']))
+        else:
+            if have_password_complexity:
+                for option in ('min_length', 'min_spl_char', 'min_lower_case', 'min_upper_case', 'min_numerals'):
+                    if option in have_password_complexity and have_password_complexity[option] != default_values['password_complexity'].get(option):
+                        del_command['password_complexity'] = have_password_complexity
+                        del_requests.extend(self.get_password_complexity_delete_request(del_command['password_complexity']))
 
         if del_command:
             commands = update_states(del_command, 'deleted')
@@ -343,6 +378,11 @@ class System(ConfigBase):
             request = {'path': audit_rules_path, 'method': method, 'data': audit_rules_payload}
             requests.append(request)
 
+        password_complexity_path = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config'
+        password_complexity_payload = self.build_create_password_complexity_payload(commands)
+        if password_complexity_payload:
+            request = {'path': password_complexity_path, 'method': method, 'data': password_complexity_payload}
+            requests.append(request)
         # Payload creation for concurrent session limit attribute
         session_limit_path = 'data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit'
         session_limit_payload = self.build_create_session_limit_payload(commands)
@@ -391,6 +431,23 @@ class System(ConfigBase):
         payload = {}
         if "auto_breakout" in commands and commands["auto_breakout"]:
             payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
+        return payload
+
+    def build_create_password_complexity_payload(self, commands):
+        payload = {}
+        config_dict = {}
+        if "password_complexity" in commands and commands["password_complexity"]:
+            if "min_lower_case" in commands["password_complexity"] and commands["password_complexity"]["min_lower_case"] != 0:
+                config_dict['min-lower-case'] = commands["password_complexity"]["min_lower_case"]
+            if "min_upper_case" in commands["password_complexity"] and commands["password_complexity"]["min_upper_case"] != 0:
+                config_dict['min-upper-case'] = commands["password_complexity"]["min_upper_case"]
+            if "min_numerals" in commands["password_complexity"] and commands["password_complexity"]["min_numerals"] != 0:
+                config_dict['min-numerals'] = commands["password_complexity"]["min_numerals"]
+            if "min_spl_char" in commands["password_complexity"] and commands["password_complexity"]["min_spl_char"] != 0:
+                config_dict['min-special-char'] = commands["password_complexity"]["min_spl_char"]
+            if "min_length" in commands["password_complexity"] and commands["password_complexity"]["min_length"] != 0:
+                config_dict['min-len'] = commands["password_complexity"]["min_length"]
+            payload = {"openconfig-system-ext:config": config_dict}
         return payload
 
     def build_create_load_share_hash_algo_payload(self, commands):
@@ -442,6 +499,25 @@ class System(ConfigBase):
                 if mac is not None:
                     new_anycast["mac_address"] = mac
             new_data["anycast_address"] = new_anycast
+            new_password_complexity = {}
+            password_complexity = data.get('password_complexity', None)
+            if password_complexity:
+                min_lower_case = password_complexity.get("min_lower_case", None)
+                if min_lower_case is not None:
+                    new_password_complexity["min_lower_case"] = min_lower_case
+                min_upper_case = password_complexity.get("min_upper_case", None)
+                if min_upper_case is not None:
+                    new_password_complexity["min_upper_case"] = min_upper_case
+                min_numerals = password_complexity.get("min_numerals", None)
+                if min_numerals is not None:
+                    new_password_complexity["min_numerals"] = min_numerals
+                min_spl_char = password_complexity.get("min_spl_char", None)
+                if min_spl_char is not None:
+                    new_password_complexity["min_spl_char"] = min_spl_char
+                min_length = password_complexity.get("min_length", None)
+                if min_length != 8:
+                    new_password_complexity["min_length"] = min_length
+            new_data["password_complexity"] = new_password_complexity
             auto_breakout_mode = data.get('auto_breakout', None)
             if auto_breakout_mode != "DISABLE":
                 new_data["auto_breakout"] = auto_breakout_mode
@@ -470,6 +546,9 @@ class System(ConfigBase):
         if "anycast_address" in have:
             request = self.get_anycast_delete_request(have["anycast_address"])
             requests.extend(request)
+        if "password_complexity" in have:
+            request = self.get_password_complexity_delete_request(have["password_complexity"])
+            requests.extend(request)
         if "auto_breakout" in have:
             request = self.get_auto_breakout_delete_request()
             requests.append(request)
@@ -485,6 +564,25 @@ class System(ConfigBase):
         if "adjust_txrx_clock_freq" in have and have["adjust_txrx_clock_freq"]:
             request = self.get_adjust_txrx_clock_freq_delete_request()
             requests.append(request)
+        return requests
+
+    def get_password_complexity_delete_request(self, password_complexity):
+        requests = []
+        if 'min_lower_case' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-lower-case'
+            requests.append({'path': url, 'method': DELETE})
+        if 'min_upper_case' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-upper-case'
+            requests.append({'path': url, 'method': DELETE})
+        if 'min_spl_char' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-special-char'
+            requests.append({'path': url, 'method': DELETE})
+        if 'min_numerals' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-numerals'
+            requests.append({'path': url, 'method': DELETE})
+        if 'min_length' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-len'
+            requests.append({'path': url, 'method': DELETE})
         return requests
 
     def get_hostname_delete_request(self):
