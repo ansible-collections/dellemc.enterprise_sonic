@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -66,6 +66,7 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'type': 'str'
                 },
                 'concurrent_session_limit': {'type': 'int'},
+                'adjust_txrx_clock_freq': {'type': 'bool'},
             },
             'type': 'dict'
         },

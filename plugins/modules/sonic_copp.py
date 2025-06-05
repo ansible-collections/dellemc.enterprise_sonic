@@ -38,7 +38,7 @@ options:
             description:
               - Name of CoPP classifier
             type: str
-            required: True
+            required: true
           trap_priority:
             description:
               - CoPP trap priority
@@ -47,6 +47,7 @@ options:
             description:
               - CoPP trap action
             type: str
+            choices: ['copy', 'copy_cancel', 'deny', 'drop', 'forward', 'log', 'transit', 'trap']
           queue:
             description:
               - CoPP queue ID
@@ -58,6 +59,26 @@ options:
           cbs:
             description:
               - Committed bucket size in packets or bytes
+            type: str
+      copp_traps:
+        description:
+          - List of CoPP entries that comprise a CoPP trap
+        type: list
+        elements: dict
+        version_added: 3.1.0
+        suboptions:
+          name:
+            description:
+              - Name of CoPP trap
+            type: str
+            required: true
+          trap_protocol_ids:
+            description:
+              - Comma separated string of trap protocol IDs
+            type: str
+          trap_group:
+            description:
+              - Name of CoPP group
             type: str
   state:
     description:
@@ -75,24 +96,30 @@ EXAMPLES = """
 #
 # sonic# show copp actions
 # (No "copp actions" configuration present)
+# sonic# show copp classifiers
+# (No "copp classifiers" configuration present)
 
-- name: Merge CoPP groups configuration
+- name: Merge CoPP configuration
   dellemc.enterprise_sonic.sonic_copp:
-  config:
-    copp_groups:
-      - copp_name: 'copp-1'
-        trap_priority: 1
-        trap_action: 'DROP'
-        queue: 1
-        cir: '45'
-        cbs: '45'
-      - copp_name: 'copp-2'
-        trap_priority: 2
-        trap_action: 'FORWARD'
-        queue: 2
-        cir: '90'
-        cbs: '90'
-  state: merged
+    config:
+      copp_groups:
+        - copp_name: 'copp-1'
+          trap_priority: 1
+          trap_action: 'drop'
+          queue: 1
+          cir: '45'
+          cbs: '45'
+        - copp_name: 'copp-2'
+          trap_priority: 2
+          trap_action: 'forward'
+          queue: 2
+          cir: '90'
+          cbs: '90'
+      copp_traps:
+        - name: 'trap-1'
+          trap_protocol_ids: 'id1,id2,id3'
+          trap_group: 'copp-1'
+    state: merged
 
 # After state:
 # ------------
@@ -108,8 +135,13 @@ EXAMPLES = """
 #    trap-priority 2
 #    trap-queue 2
 #    police cir 90 cbs 90
-#
-#
+# sonic# show copp classifiers
+# Class-map trap-1 match-type copp
+#   protocol id1
+#   protocol id2
+#   protocol id3
+
+
 # Using "replaced" state
 #
 # Before state:
@@ -121,22 +153,36 @@ EXAMPLES = """
 #    trap-priority 1
 #    trap-queue 1
 #    police cir 45 cbs 45
+# CoPP action group copp-2
+#    trap-action forward
+#    trap-priority 2
+#    trap-queue 2
+#    police cir 55 cbs 55
+# sonic# show copp classifiers
+# Class-map trap-1 match-type copp
+#   protocol id1
+#   protocol id2
+#   protocol id3
 
-- name: Replace CoPP groups configuration
+- name: Replace CoPP configuration
   dellemc.enterprise_sonic.sonic_copp:
-  config:
-    copp_groups:
-      - copp_name: 'copp-1'
-        trap_priority: 2
-        trap_action: 'FORWARD'
-        queue: 2
-      - copp_name: 'copp-3'
-        trap_priority: 3
-        trap_action: 'DROP'
-        queue: 3
-        cir: '1000'
-        cbs: '1000'
-  state: replaced
+    config:
+      copp_groups:
+        - copp_name: 'copp-1'
+          trap_priority: 2
+          trap_action: 'forward'
+          queue: 2
+        - copp_name: 'copp-3'
+          trap_priority: 3
+          trap_action: 'drop'
+          queue: 3
+          cir: '1000'
+          cbs: '1000'
+      copp_traps:
+        - name: 'trap-1'
+          trap_protocol_ids: 'id1'
+          trap_group: 'copp-2'
+    state: replaced
 
 # After state:
 # ------------
@@ -146,13 +192,21 @@ EXAMPLES = """
 #    trap-action forward
 #    trap-priority 2
 #    trap-queue 2
+# CoPP action group copp-2
+#    trap-action forward
+#    trap-priority 2
+#    trap-queue 2
+#    police cir 55 cbs 55
 # CoPP action group copp-3
 #    trap-action drop
 #    trap-priority 3
 #    trap-queue 3
 #    police cir 1000 cbs 1000
-#
-#
+# sonic# show copp classifiers
+# Class-map trap-1 match-type copp
+#   protocol id1
+
+
 # Using "overridden" state
 #
 # Before state:
@@ -168,18 +222,20 @@ EXAMPLES = """
 #    trap-priority 3
 #    trap-queue 3
 #    police cir 1000 cbs 1000
+# Class-map trap-1 match-type copp
+#   protocol id1
 
-- name: Override CoPP groups configuration
+- name: Override CoPP configuration
   dellemc.enterprise_sonic.sonic_copp:
-  config:
-    copp_groups:
-      - copp_name: 'copp-4'
-        trap_priority: 4
-        trap_action: 'FORWARD'
-        queue: 4
-        cir: 200
-        cbs: 200
-  state: overridden
+    config:
+      copp_groups:
+        - copp_name: 'copp-4'
+          trap_priority: 4
+          trap_action: 'forward'
+          queue: 4
+          cir: 200
+          cbs: 200
+    state: overridden
 
 # After state:
 # ------------
@@ -190,8 +246,8 @@ EXAMPLES = """
 #    trap-priority 4
 #    trap-queue 4
 #    police cir 200 cbs 200
-#
-#
+
+
 # Using "deleted" state
 #
 # Before state:
@@ -208,17 +264,19 @@ EXAMPLES = """
 #    trap-priority 2
 #    trap-queue 2
 #    police cir 90 cbs 90
+# Class-map trap-1 match-type copp
 
-- name: Delete CoPP groups configuration
+- name: Delete CoPP configuration
   dellemc.enterprise_sonic.sonic_copp:
-  config:
-    copp_groups:
-      - copp_name: 'copp-1'
-        trap_action: 'DROP'
-        cir: '45'
-        cbs: '45'
-      - copp_name: 'copp-2'
-  state: deleted
+    config:
+      copp_groups:
+        - copp_name: 'copp-1'
+          cir: '45'
+          cbs: '45'
+        - copp_name: 'copp-2'
+      copp_traps:
+        - name: 'trap-1'
+    state: deleted
 
 # After state:
 # ------------
@@ -226,31 +284,23 @@ EXAMPLES = """
 # sonic# show copp actions
 # CoPP action group copp-1
 #    trap-action drop
-#    police cir 45 cbs 45
+#    trap-priority 1
+#    trap-queue 1
 """
 
 RETURN = """
 before:
   description: The configuration prior to the module invocation.
   returned: always
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
+  type: dict
 after:
-  description: The resulting configuration module invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
+  type: dict
 after(generated):
-  description: The generated configuration module invocation.
+  description: The configuration that would be generated by non-check mode module invocation.
   returned: when C(check_mode)
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
+  type: dict
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

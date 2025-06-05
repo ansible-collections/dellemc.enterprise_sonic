@@ -57,6 +57,7 @@ options:
       - interfaces
       - l2_interfaces
       - l3_interfaces
+      - ipv6_router_advertisement
       - lag_interfaces
       - bgp
       - bgp_af
@@ -117,7 +118,11 @@ options:
       - lst
       - fbs_classifiers
       - fbs_groups
+      - br_l2pt
+      - dcbx
       - mirroring
+      - evpn_esi_multihome
+      - ssh_server
 """
 
 EXAMPLES = """
