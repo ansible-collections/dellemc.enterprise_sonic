@@ -110,7 +110,7 @@ tests:
                 port_priority: 45
           - mst_id: 3
             bridge_priority: 3072
-
+  
   - name: test_case_04
     description: Replace at mstp level
     state: replaced
