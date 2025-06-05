@@ -117,6 +117,7 @@ options:
       - ssh
       - lst
       - fbs_classifiers
+      - fbs_groups
       - br_l2pt
       - dcbx
       - mirroring
