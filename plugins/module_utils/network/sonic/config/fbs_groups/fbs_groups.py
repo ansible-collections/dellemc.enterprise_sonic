@@ -425,7 +425,7 @@ class Fbs_groups(ConfigBase):
         return request
 
     def get_modify_diff(self, want, have):
-        """This method calculates the diff for modification, while taking into account 
+        """This method calculates the diff for modification, while taking into account
         the required non-key attributes"""
         config_dict = {}
         group_tuple = ('next_hop_groups', 'replication_groups')
