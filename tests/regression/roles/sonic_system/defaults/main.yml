@@ -15,6 +15,9 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
+      concurrent_session_limit: 4
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: false
 
   - name: test_case_02
     description: Update created System properties
@@ -25,6 +28,9 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: JENKINS_HASH_LO 
       audit_rules: DETAIL
+      concurrent_session_limit: 5
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: true
 
   - name: test_case_03
     description: Update System properties - associate mac address
@@ -45,6 +51,9 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: JENKINS_HASH_LO 
       audit_rules: BASIC
+      concurrent_session_limit: 5
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: true
 
   - name: test_case_05
     description: Delete System associated anycast mac address
@@ -66,6 +75,9 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
+      concurrent_session_limit: 4
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: true
 
   - name: test_case_07
     description: Replace some System configuration
@@ -77,6 +89,8 @@ tests:
         mac_address: 00:09:5B:EC:EE:F2
       auto_breakout: DISABLE
       audit_rules: DETAIL
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: false
 
   - name: test_case_08
     description: Replace System configuration
@@ -90,7 +104,10 @@ tests:
       # Use only on switch models that support this.
       #load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
-  
+      concurrent_session_limit: 5
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: true
+
   - name: test_case_09
     description: Update System properties
     state: merged

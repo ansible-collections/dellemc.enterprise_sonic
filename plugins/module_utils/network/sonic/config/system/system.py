@@ -62,6 +62,10 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
         new_conf['load_share_hash_algo'] = None
     if 'audit_rules' in command:
         new_conf['audit_rules'] = 'NONE'
+    if 'concurrent_session_limit' in command:
+        new_conf['concurrent_session_limit'] = None
+    if 'adjust_txrx_clock_freq' in command:
+        new_conf['adjust_txrx_clock_freq'] = False
 
     return True, new_conf
 
@@ -202,6 +206,7 @@ class System(ConfigBase):
         """
         commands = []
         requests = []
+        want = utils.remove_empties(want)
         new_have = self.remove_default_entries(have)
         if not want:
             if have:
@@ -209,9 +214,8 @@ class System(ConfigBase):
                 if len(requests) > 0:
                     commands = update_states(have, "deleted")
         else:
-            want = utils.remove_empties(want)
-            d_diff = get_diff(want, new_have, is_skeleton=True)
-            diff_want = get_diff(want, d_diff, is_skeleton=True)
+            d_diff = get_diff(want, new_have)
+            diff_want = get_diff(want, d_diff)
             if diff_want:
                 requests = self.get_delete_all_system_request(diff_want)
                 if len(requests) > 0:
@@ -243,20 +247,25 @@ class System(ConfigBase):
                 'ipv4': True,
                 'ipv6': True
             },
-            'auto_breakout': 'DISABLE'
+            'auto_breakout': 'DISABLE',
+            'adjust_txrx_clock_freq': False,
         }
         del_request_method = {
             'hostname': self.get_hostname_delete_request,
             'interface_naming': self.get_intfname_delete_request,
             'auto_breakout': self.get_auto_breakout_delete_request,
             'load_share_hash_algo': self.get_load_share_hash_algo_delete_request,
-            'audit_rules': self.get_audit_rules_delete_request
+            'audit_rules': self.get_audit_rules_delete_request,
+            'concurrent_session_limit': self.get_session_limit_delete_request,
+            'adjust_txrx_clock_freq': self.get_adjust_txrx_clock_freq_delete_request,
         }
 
         new_have = remove_empties(have)
         new_want = remove_empties(want)
 
-        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo', 'audit_rules'):
+        options = ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo',
+                   'audit_rules', 'concurrent_session_limit', 'adjust_txrx_clock_freq')
+        for option in options:
             if option in new_want:
                 if new_want[option] != new_have.get(option):
                     add_command[option] = new_want[option]
@@ -318,6 +327,11 @@ class System(ConfigBase):
         if auto_breakout_payload:
             request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
             requests.append(request)
+        adjust_txrx_clock_freq_path = 'data/openconfig-system:system/config/adjust-txrx-clock-freq'
+        adjust_txrx_clock_freq_payload = self.build_create_adjust_txrx_clock_freq_payload(commands)
+        if adjust_txrx_clock_freq_payload:
+            request = {'path': adjust_txrx_clock_freq_path, 'method': method, 'data': adjust_txrx_clock_freq_payload}
+            requests.append(request)
         load_share_hash_algo_path = "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
         load_share_hash_algo_payload = self.build_create_load_share_hash_algo_payload(commands)
         if load_share_hash_algo_payload:
@@ -327,6 +341,13 @@ class System(ConfigBase):
         audit_rules_payload = self.build_create_audit_rules_payload(commands)
         if audit_rules_payload:
             request = {'path': audit_rules_path, 'method': method, 'data': audit_rules_payload}
+            requests.append(request)
+
+        # Payload creation for concurrent session limit attribute
+        session_limit_path = 'data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit'
+        session_limit_payload = self.build_create_session_limit_payload(commands)
+        if session_limit_payload:
+            request = {'path': session_limit_path, 'method': method, 'data': session_limit_payload}
             requests.append(request)
         return requests
 
@@ -385,6 +406,18 @@ class System(ConfigBase):
             payload.update({'openconfig-system-ext:audit-rules': commands["audit_rules"]})
         return payload
 
+    def build_create_session_limit_payload(self, commands):
+        payload = {}
+        if "concurrent_session_limit" in commands and commands["concurrent_session_limit"]:
+            payload.update({'openconfig-system-ext:limit': commands['concurrent_session_limit']})
+        return payload
+
+    def build_create_adjust_txrx_clock_freq_payload(self, commands):
+        payload = {}
+        if "adjust_txrx_clock_freq" in commands:
+            payload.update({'openconfig-system:adjust-txrx-clock-freq': commands["adjust_txrx_clock_freq"]})
+        return payload
+
     def remove_default_entries(self, data):
         new_data = {}
         if not data:
@@ -418,6 +451,12 @@ class System(ConfigBase):
             audit_rules = data.get('audit_rules', None)
             if audit_rules is not None and audit_rules != "NONE":
                 new_data["audit_rules"] = audit_rules
+            concurrent_session_limit = data.get("concurrent_session_limit", None)
+            if concurrent_session_limit is not None:
+                new_data["concurrent_session_limit"] = concurrent_session_limit
+            adjust_txrx_clock_freq = data.get('adjust_txrx_clock_freq', None)
+            if adjust_txrx_clock_freq:
+                new_data["adjust_txrx_clock_freq"] = adjust_txrx_clock_freq
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -440,7 +479,12 @@ class System(ConfigBase):
         if "audit_rules" in have:
             request = self.get_audit_rules_delete_request()
             requests.append(request)
-
+        if "concurrent_session_limit" in have:
+            request = self.get_session_limit_delete_request()
+            requests.append(request)
+        if "adjust_txrx_clock_freq" in have and have["adjust_txrx_clock_freq"]:
+            request = self.get_adjust_txrx_clock_freq_delete_request()
+            requests.append(request)
         return requests
 
     def get_hostname_delete_request(self):
@@ -490,6 +534,18 @@ class System(ConfigBase):
 
     def get_audit_rules_delete_request(self):
         path = 'data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_session_limit_delete_request(self):
+        path = 'data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_adjust_txrx_clock_freq_delete_request(self):
+        path = 'data/openconfig-system:system/config/adjust-txrx-clock-freq'
         method = DELETE
         request = {'path': path, 'method': method}
         return request

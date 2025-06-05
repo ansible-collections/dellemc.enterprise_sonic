@@ -1,4 +1,28 @@
 ---
+- name: Create a directory if it does not exist
+  vars:
+    ansible_connection: ssh
+  ansible.builtin.file:
+    path: /home/admin/imageverify
+    state: directory
+    mode: '0755'
+
+- name: Transfer SONiC artifacts zip file
+  vars:
+    ansible_connection: ssh
+  ansible.builtin.copy:
+    src: "/usr/local/share/script_files/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.zip"
+    dest: "/home/admin/imageverify"
+    checksum: ""
+
+- name: Unarchive the zip file
+  vars:
+    ansible_connection: ssh
+  ansible.builtin.unarchive:
+    src: "/home/admin/imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.zip"
+    dest: "/home/admin/imageverify"
+    remote_src: yes
+
 - name: Get current image name
   dellemc.enterprise_sonic.sonic_image_management:
     image:

@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -122,6 +122,44 @@ class SystemFacts(object):
                             data['audit-rules'] = audit_rules
         return data
 
+    def get_concurrent_session_limit(self):
+        """Get concurrent session limit configured on chassis"""
+        request = [{"path": "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config", "method": GET}]
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        data = {}
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if ('openconfig-system-ext:config' in response[0][1]):
+                    session_limit = response[0][1]['openconfig-system-ext:config']
+                    if 'limit' in session_limit:
+                        data['concurrent_session_limit'] = session_limit['limit']
+        return data
+
+    def get_adjust_txrx_clock_freq(self):
+        """
+        Get adjust-txrx-clock-freq configuration if available in chassis
+        """
+        request = [{"path": "data/openconfig-system:system/config/adjust-txrx-clock-freq", "method": GET}]
+        data = {}
+
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            if 'Resource not found' in str(exc):
+                return data
+
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if ('openconfig-system:adjust-txrx-clock-freq' in response[0][1]):
+                    data["adjust-txrx-clock-freq"] = response[0][1]['openconfig-system:adjust-txrx-clock-freq']
+                else:
+                    data["adjust-txrx-clock-freq"] = False
+        return data
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for system
         :param connection: the device connection
@@ -144,6 +182,12 @@ class SystemFacts(object):
         auditd_rules = self.get_auditd_rules()
         if auditd_rules:
             data.update(auditd_rules)
+        session_limit = self.get_concurrent_session_limit()
+        if session_limit:
+            data.update(session_limit)
+        adjust_txrx_clock_freq = self.get_adjust_txrx_clock_freq()
+        if adjust_txrx_clock_freq:
+            data.update(adjust_txrx_clock_freq)
         objs = []
         objs = self.render_config(self.generated_spec, data)
         facts = {}
@@ -189,5 +233,9 @@ class SystemFacts(object):
                 config['load_share_hash_algo'] = conf['algorithm']
             if ('audit-rules' in conf) and (conf['audit-rules']):
                 config['audit_rules'] = conf['audit-rules']
+            if ('concurrent_session_limit' in conf) and (conf['concurrent_session_limit']):
+                config['concurrent_session_limit'] = conf['concurrent_session_limit']
+            if ('adjust-txrx-clock-freq' in conf):
+                config['adjust_txrx_clock_freq'] = conf['adjust-txrx-clock-freq']
 
         return utils.remove_empties(config)

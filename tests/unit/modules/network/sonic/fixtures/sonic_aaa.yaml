@@ -6,10 +6,10 @@ merged_01:
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -50,17 +50,17 @@ merged_01:
       response:
         code: 200
   expected_config_requests:
-    - path: '/data/openconfig-system:system/aaa/authentication/config' 
+    - path: '/data/openconfig-system:system/aaa/authentication/config'
       method: 'patch'
       data:
         openconfig-system:config:
           authentication-method:
             - local
             - ldap
-            - radius
-            - tacacs+
-          console-authentication-local: True
+          console-authentication-local: true
           failthrough: 'True'
+          openconfig-mfa:login-mfa-console: 'enable'
+          openconfig-mfa:mfa-authentication-method: 'rsa-securid'
     - path: '/data/openconfig-system:system/aaa/authorization'
       method: 'patch'
       data:
@@ -102,7 +102,10 @@ replaced_01:
   module_args:
     config:
       authentication:
-        console_auth_local: True
+        auth_method:
+          - cac-piv
+          - local
+        console_auth_local: true
       authorization:
         commands_auth_method:
           - local
@@ -119,14 +122,14 @@ replaced_01:
             authentication-method:
               - local
               - ldap
-              - radius
-              - tacacs+
-            console-authentication-local: True
+            console-authentication-local: true
             failthrough: 'True'
+            openconfig-mfa:login-mfa-console: 'disable'
+            openconfig-mfa:mfa-authentication-method: 'rsa-securid'
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
       response:
         code: 200
-        value: 
+        value:
           openconfig-aaa-tacacsplus-ext:authorization-method:
             - local
             - tacacs+
@@ -175,7 +178,10 @@ replaced_01:
       method: 'patch'
       data:
         openconfig-system:config:
-          console-authentication-local: True
+          authentication-method:
+            - cac-piv
+            - local
+          console-authentication-local: true
     - path: '/data/openconfig-system:system/aaa/authorization'
       method: 'patch'
       data:
@@ -196,12 +202,12 @@ overridden_01:
     config:
       authentication:
         auth_method:
-          - local
-          - ldap
           - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+          - local
+        console_auth_local: true
+        failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -235,7 +241,7 @@ overridden_01:
         code: 200
         value:
           openconfig-system:config:
-            console-authentication-local: False
+            console-authentication-local: false
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
       response:
         code: 200
@@ -267,12 +273,12 @@ overridden_01:
       data:
         openconfig-system:config:
           authentication-method:
-            - local
-            - ldap
             - radius
-            - tacacs+
-          console-authentication-local: True
+            - local
+          console-authentication-local: true
           failthrough: 'True'
+          openconfig-mfa:login-mfa-console: 'enable'
+          openconfig-mfa:mfa-authentication-method: 'rsa-securid'
     - path: '/data/openconfig-system:system/aaa/authorization'
       method: 'patch'
       data:
@@ -315,12 +321,12 @@ deleted_01:
     config:
       authentication:
         auth_method:
-          - local
-          - ldap
           - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+          - local
+        console_auth_local: true
+        failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -355,12 +361,12 @@ deleted_01:
         value:
           openconfig-system:config:
             authentication-method:
-              - local
-              - ldap
               - radius
-              - tacacs+
-            console-authentication-local: True
+              - local
+            console-authentication-local: true
             failthrough: 'True'
+            openconfig-mfa:login-mfa-console: 'enable'
+            openconfig-mfa:mfa-authentication-method: 'rsa-securid'
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
       response:
         code: 200
@@ -409,6 +415,12 @@ deleted_01:
     - path: '/data/openconfig-system:system/aaa/authentication/config/failthrough'
       method: 'delete'
       data:
+    - path: '/data/openconfig-system:system/aaa/authentication/config/openconfig-mfa:mfa-authentication-method'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-system:system/aaa/authentication/config/openconfig-mfa:login-mfa-console'
+      method: 'delete'
+      data:
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
       method: 'delete'
       data:
@@ -442,12 +454,12 @@ deleted_02:
         value:
           openconfig-system:config:
             authentication-method:
-              - local
-              - ldap
-              - radius
               - tacacs+
-            console-authentication-local: True
+              - local
+            console-authentication-local: true
             failthrough: 'True'
+            openconfig-mfa:mfa-authentication-method: 'rsa-securid'
+            openconfig-mfa:login-mfa-console: 'disable'
     - path: '/data/openconfig-system:system/aaa/authorization/openconfig-aaa-tacacsplus-ext:commands/config/authorization-method'
       response:
         code: 200

@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -57,6 +57,7 @@ options:
       - interfaces
       - l2_interfaces
       - l3_interfaces
+      - ipv6_router_advertisement
       - lag_interfaces
       - bgp
       - bgp_af
@@ -117,6 +118,11 @@ options:
       - lst
       - fbs_classifiers
       - fbs_groups
+      - br_l2pt
+      - dcbx
+      - mirroring
+      - evpn_esi_multihome
+      - ssh_server
 """
 
 EXAMPLES = """
