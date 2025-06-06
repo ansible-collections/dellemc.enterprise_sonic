@@ -140,7 +140,7 @@ class AaaFacts(object):
             if accounting_method:
                 commands_acct_dict['accounting_method'] = accounting_method
             if accounting_record_type:
-                commands_acct_dict['accounting_record_type'] = accounting_record_type
+                commands_acct_dict['accounting_record_type'] = accounting_record_type.lower().replace('_', '-')
             if accounting_console_exempt is not None:
                 commands_acct_dict['accounting_console_exempt'] = accounting_console_exempt
             if commands_acct_dict:
@@ -156,7 +156,7 @@ class AaaFacts(object):
             if accounting_method:
                 session_acct_dict['accounting_method'] = accounting_method
             if accounting_record_type:
-                session_acct_dict['accounting_record_type'] = accounting_record_type
+                session_acct_dict['accounting_record_type'] = accounting_record_type.lower().replace('_', '-')
             if accounting_console_exempt is not None:
                 session_acct_dict['accounting_console_exempt'] = accounting_console_exempt
             if session_acct_dict:

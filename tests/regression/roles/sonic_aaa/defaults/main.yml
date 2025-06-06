@@ -18,12 +18,12 @@ sonic_aaa_tests:
           accounting_method:
             - tacacs+
             - logging
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
       authorization:
         commands_auth_method:
@@ -67,7 +67,7 @@ sonic_aaa_tests:
         commands_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
         session_accounting:
           accounting_method:
             - tacacs+
@@ -111,7 +111,7 @@ sonic_aaa_tests:
         session_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
       authorization:
         login_auth_method:
           - local
@@ -135,12 +135,12 @@ sonic_aaa_tests:
         commands_accounting:
           accounting_method:
             - tacacs+
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
           accounting_console_exempt: true
       authorization:
         commands_auth_method:
@@ -185,7 +185,7 @@ sonic_aaa_tests:
         commands_accounting:
           accounting_method:
             - tacacs+
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
         session_accounting:
           accounting_method:
             - logging
@@ -234,13 +234,13 @@ sonic_aaa_tests:
           accounting_method:
             - logging
             - tacacs+
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
             - tacacs+
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
       authorization:
         commands_auth_method:

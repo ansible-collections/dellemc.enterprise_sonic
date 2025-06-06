@@ -21,13 +21,13 @@ merged_01:
         commands_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
             - tacacs+
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
       name_service:
         group:
@@ -146,9 +146,9 @@ replaced_01:
           - local
       accounting:
         commands_accounting:
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
         session_accounting:
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
       name_service:
         group:
           - local
@@ -293,12 +293,12 @@ overridden_01:
         commands_accounting:
           accounting_method:
             - tacacs+
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
       name_service:
         group:
@@ -457,12 +457,12 @@ deleted_01:
         commands_accounting:
           accounting_method:
             - tacacs+
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
       name_service:
         group:

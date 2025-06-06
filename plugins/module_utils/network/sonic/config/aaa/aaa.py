@@ -44,6 +44,8 @@ AAA_SESSION_ACCOUNTING_PATH = '/data/openconfig-system:system/aaa/accounting/ope
 AAA_NAME_SERVICE_PATH = '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
 PATCH = 'patch'
 DELETE = 'delete'
+ACCOUNTING_PATHS = {'commands_accounting': AAA_COMMANDS_ACCOUNTING_PATH,
+                    'session_accounting': AAA_SESSION_ACCOUNTING_PATH}
 
 
 class Aaa(ConfigBase):
@@ -295,10 +297,7 @@ class Aaa(ConfigBase):
             # Accounting modification handling
             accounting = commands.get('accounting')
             if accounting:
-                for acct_key, path in [
-                        ('commands_accounting', AAA_COMMANDS_ACCOUNTING_PATH),
-                        ('session_accounting', AAA_SESSION_ACCOUNTING_PATH)
-                ]:
+                for acct_key, path in ACCOUNTING_PATHS.items():
                     acct_data = accounting.get(acct_key)
                     if acct_data:
                         accounting_cfg_dict = {}
@@ -308,7 +307,7 @@ class Aaa(ConfigBase):
                         if accounting_method:
                             accounting_cfg_dict['accounting-method'] = accounting_method
                         if accounting_record_type:
-                            accounting_cfg_dict['accounting-record-type'] = accounting_record_type
+                            accounting_cfg_dict['accounting-record-type'] = accounting_record_type.upper().replace('-', '_')
                         if accounting_console_exempt is not None:
                             accounting_cfg_dict['accounting-console-exempt'] = accounting_console_exempt
                         if accounting_cfg_dict:
@@ -396,10 +395,7 @@ class Aaa(ConfigBase):
         # Accounting deletion handling
         accounting = commands.get('accounting')
         if accounting:
-            for acct_key, path in [
-                    ('commands_accounting', AAA_COMMANDS_ACCOUNTING_PATH),
-                    ('session_accounting', AAA_SESSION_ACCOUNTING_PATH)
-            ]:
+            for acct_key, path in ACCOUNTING_PATHS.items():
                 acct_data = accounting.get(acct_key)
                 if acct_data:
                     if acct_data.get('accounting_method'):
