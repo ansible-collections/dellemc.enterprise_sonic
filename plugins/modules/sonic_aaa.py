@@ -87,7 +87,7 @@ options:
         description:
           - AAA accounting configuration.
         type: dict
-        version_added: 3.1.0
+        version_added: 3.2.0
         suboptions:
           commands_accounting:
             description:
@@ -96,7 +96,7 @@ options:
             suboptions:
               accounting_method:
                 description:
-                  - Specifies the order of methods in which to perform accounting.
+                  - Specifies the methods in which to perform accounting.
                 type: list
                 elements: str
                 choices: ['tacacs+', 'logging']
@@ -105,11 +105,11 @@ options:
                   - Specifies the type of record to be sent to the accounting server.
                 type: str
                 choices:
-                  - START_STOP
-                  - STOP_ONLY
+                  - start-stop
+                  - stop-only
               accounting_console_exempt:
                 description:
-                  - Exempts accounting of events from console.
+                  - Exempt accounting of events from console.
                 type: bool
           session_accounting:
             description:
@@ -118,7 +118,7 @@ options:
             suboptions:
               accounting_method:
                 description:
-                  - Specifies the order of methods in which to perform accounting.
+                  - Specifies the methods in which to perform accounting.
                 type: list
                 elements: str
                 choices: ['tacacs+', 'logging']
@@ -127,11 +127,11 @@ options:
                   - Specifies the type of record to be sent to the accounting server.
                 type: str
                 choices:
-                  - START_STOP
-                  - STOP_ONLY
+                  - start-stop
+                  - stop-only
               accounting_console_exempt:
                 description:
-                  - Exempts accounting of events from console.
+                  - Exempt accounting of events from console.
                 type: bool
       name_service:
         description:

@@ -1,3 +1,3 @@
 ---
 minor_changes:
-  - sonic_aaa - Add Accounting support for AAA module (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/559).
+  - sonic_aaa - Add support for accounting options (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/559).

@@ -41,7 +41,6 @@ AAA_AUTHENTICATION_PATH = '/data/openconfig-system:system/aaa/authentication/con
 AAA_AUTHORIZATION_PATH = '/data/openconfig-system:system/aaa/authorization'
 AAA_COMMANDS_ACCOUNTING_PATH = '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
 AAA_SESSION_ACCOUNTING_PATH = '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
-AA_AUTHORIZATION_PATH = '/data/openconfig-system:system/aaa/authorization'
 AAA_NAME_SERVICE_PATH = '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
 PATCH = 'patch'
 DELETE = 'delete'
@@ -367,8 +366,9 @@ class Aaa(ConfigBase):
             requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, None))
             requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH, None))
             requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, None))
-            requests.append(self.get_delete_request(AAA_COMMANDS_ACCOUNTING_PATH, None))
-            requests.append(self.get_delete_request(AAA_SESSION_ACCOUNTING_PATH, None))
+            if commands.get('accounting'):
+                requests.append(self.get_delete_request(AAA_COMMANDS_ACCOUNTING_PATH, None))
+                requests.append(self.get_delete_request(AAA_SESSION_ACCOUNTING_PATH, None))
             return requests
 
         # Authentication deletion handling
@@ -495,7 +495,7 @@ class Aaa(ConfigBase):
         accounting = base_cfg.get('accounting')
         if accounting:
             accounting_dict = {}
-            for acct_type in ['commands_accounting', 'session_accounting']:
+            for acct_type in ('commands_accounting', 'session_accounting'):
                 acct = accounting.get(acct_type)
                 if acct:
                     accounting_method = acct.get('accounting_method')
@@ -628,7 +628,7 @@ class Aaa(ConfigBase):
                     data.pop('authorization')
             if accounting:
                 default_entries = {'accounting_console_exempt': False}
-                for acct_key in ['commands_accounting', 'session_accounting']:
+                for acct_key in ('commands_accounting', 'session_accounting'):
                     acct_data = accounting.get(acct_key)
                     if acct_data:
                         if 'accounting_method' in acct_data and not acct_data['accounting_method']:
@@ -658,11 +658,11 @@ class Aaa(ConfigBase):
                     data.pop('authentication')
             accounting = data.get('accounting')
             if accounting:
-                for acct_key in ['commands_accounting', 'session_accounting']:
+                for acct_key in ('commands_accounting', 'session_accounting'):
                     acct_data = accounting.get(acct_key)
                     if acct_data and acct_data.get('accounting_console_exempt') is False:
                         acct_data.pop('accounting_console_exempt')
                         if not acct_data:
                             accounting.pop(acct_key)
-                    if not accounting:
-                        data.pop('accounting')
+                if not accounting:
+                    data.pop('accounting')
