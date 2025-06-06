@@ -84,7 +84,7 @@ merged_01:
       data:
         openconfig-network-instance:ospfv3:
           global:
-            openconfig-ospfv3-ext:timers:              
+            openconfig-ospfv3-ext:timers:
               spf:
                 config:
                   initial-delay: 20

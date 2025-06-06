@@ -7,6 +7,6 @@
 
 - name: Delete test VRFs
   dellemc.enterprise_sonic.sonic_vrfs:
-    config: "{{ preparations_tests.vrfs }}"
+    config: "{{ sonic_ospfv3_preparations_tests.vrfs }}"
     state: deleted
   ignore_errors: yes

@@ -28,7 +28,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
-    remove_matching_defaults,
     remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
@@ -66,9 +65,6 @@ TEST_KEYS_diff = [
     {'graceful_restart': {'helper': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}}
 ]
 
-DEFAULT_ENTRIES = [
-    #
-]
 
 PROTOCOL_MAP = {
     'bgp': 'BGP',
@@ -336,8 +332,6 @@ class Ospfv3(ConfigBase):
             self.sort_lists_in_config(have)
             new_want = deepcopy(want)
             new_have = deepcopy(have)
-            for default_entry in DEFAULT_ENTRIES:
-                remove_matching_defaults(new_have, default_entry)
             new_have = remove_empties_from_list(new_have)
             new_want = remove_empties_from_list(new_want)
         commands, requests = self.get_delete_ospfv3_commands_requests(new_want, have, is_delete_all)

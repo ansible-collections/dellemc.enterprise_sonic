@@ -7,7 +7,7 @@
 
 - name: "Test {{ module_name }} started"
   ansible.builtin.include_tasks: tasks_template.yaml
-  loop: "{{ tests }}"
+  loop: "{{ sonic_ospfv3_tests }}"
 
 - name: "Cleanup of {{ module_name }}"
   ansible.builtin.include_tasks: cleanup_tests.yaml

@@ -1,5 +1,5 @@
 ---
-- name: "{{ item.name }} , {{ item.description }}"
+- name: "{{ item.name ~ ' , ' ~ item.description }}"
   dellemc.enterprise_sonic.sonic_ospfv3:
     config: "{{ item.input }}"
     state: "{{ item.state }}"
@@ -10,7 +10,7 @@
     name: common
     tasks_from: action.facts.report.yaml
 
-- name: "{{ item.name }} , {{ item.description }} Idempotent"
+- name: "{{ item.name ~ ' , ' ~ item.description ~ ' Idempotent' }}"
   dellemc.enterprise_sonic.sonic_ospfv3:
     config: "{{ item.input }}"
     state: "{{ item.state }}"
