@@ -82,7 +82,7 @@ class AaaArgs(object):  # pylint: disable=R0903
                                     'type': 'list'
                                 },
                                 'accounting_record_type': {
-                                    'choices': ['START_STOP', 'STOP_ONLY'],
+                                    'choices': ['start-stop', 'stop-only'],
                                     'type': 'str'
                                 },
                                 'accounting_console_exempt': {'type': 'bool'}
@@ -97,7 +97,7 @@ class AaaArgs(object):  # pylint: disable=R0903
                                     'type': 'list'
                                 },
                                 'accounting_record_type': {
-                                    'choices': ['START_STOP', 'STOP_ONLY'],
+                                    'choices': ['start-stop', 'stop-only'],
                                     'type': 'str'
                                 },
                                 'accounting_console_exempt': {'type': 'bool'}
