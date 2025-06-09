@@ -25,7 +25,7 @@ description:
   - This module provides configuration management of OSPFv3 interface mode parameters on devices running SONiC.
   - Configure VRF instance before configuring OSPFv3 in a VRF.
   - Configure OSPFv3 instance before configuring OSPFv3 in interfaces.
-author: " Mansi Jharia (@Mansi062001)"
+author: "Mansi Jharia (@Mansi062001)"
 options:
       config:
         description:
