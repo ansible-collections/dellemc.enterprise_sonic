@@ -110,6 +110,7 @@ options:
         - sflow
         - snmp
         - ssh
+        - ssh_server
         - static_routes
         - stp
         - system

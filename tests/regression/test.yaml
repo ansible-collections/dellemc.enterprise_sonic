@@ -80,4 +80,5 @@
     - sonic_mirroring
     - sonic_snmp
     - sonic_evpn_esi_multihome
+    - sonic_ssh_server
     - test_reports

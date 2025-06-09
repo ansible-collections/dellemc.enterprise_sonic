@@ -80,6 +80,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'sflow',
         'snmp',
         'ssh',
+        'ssh_server',
         'static_routes',
         'stp',
         'system',
@@ -89,7 +90,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'vlan_mapping',
         'vrfs',
         'vrrp',
-        'vxlans'
+        'vxlans
     ]
 
     argument_spec = {
