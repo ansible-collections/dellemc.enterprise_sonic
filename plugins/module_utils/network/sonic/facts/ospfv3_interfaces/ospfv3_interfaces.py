@@ -53,9 +53,7 @@ class Ospfv3_interfacesFacts(object):
 
         for ospfv3_interface_config in all_ospfv3_interface_configs:
             if ospfv3_interface_config:
-                obj = self.render_config(self.generated_spec, ospfv3_interface_config)
-                if obj:
-                    objs.append(ospfv3_interface_config)
+                objs.append(ospfv3_interface_config)
 
         ansible_facts['ansible_network_resources'].pop('ospfv3_interfaces', None)
         facts = {}
@@ -65,17 +63,6 @@ class Ospfv3_interfacesFacts(object):
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def get_ospfv3_interfaces(self):
         """Get all OSPFv3 interfaces available in chassis"""
@@ -95,14 +82,11 @@ class Ospfv3_interfacesFacts(object):
                 intf_name = interface.get('name')
                 if intf_name == "eth0":
                     continue
-
                 ospf_config = {}
-
                 if interface.get('openconfig-vlan:routed-vlan'):
                     ospf = interface.get('openconfig-vlan:routed-vlan', {})
                 else:
                     ospf = interface.get('subinterfaces', {}).get('subinterface', [{}])[0]
-
                 if ospf:
                     ipv6 = ospf.get('openconfig-if-ip:ipv6', {})
                     if ipv6:
@@ -120,7 +104,6 @@ class Ospfv3_interfacesFacts(object):
                                 self.update_dict(ospf_config, 'transmit_delay', config.get('transmit-delay'))
                                 self.update_dict(ospf_config, 'passive', config.get('passive'))
                                 self.update_dict(ospf_config, 'advertise', config.get('advertise'))
-
                                 if 'network-type' in config:
                                     network = "broadcast" if 'BROADCAST' in config['network-type'] else "point_to_point"
                                     ospf_config['network'] = network
@@ -132,7 +115,6 @@ class Ospfv3_interfacesFacts(object):
                                     self.update_dict(bfd_cfg, 'enable', cfg.get('enabled'))
                                     self.update_dict(bfd_cfg, 'bfd_profile', cfg.get('bfd-profile'))
                                     self.update_dict(ospf_config, 'bfd', bfd_cfg)
-
                 if ospf_config:
                     ospf_config['name'] = intf_name
                     ospf_configs.append(ospf_config)

@@ -89,7 +89,6 @@ class Ospfv3_interfaces(ConfigBase):
         result = {'changed': False}
         warnings = list()
         commands = list()
-        latest_config = []
 
         existing_ospfv3_interfaces_facts = self.get_ospfv3_interfaces_facts()
         commands, requests = self.set_config(existing_ospfv3_interfaces_facts)
@@ -113,11 +112,9 @@ class Ospfv3_interfaces(ConfigBase):
         if self._module.check_mode:
             result.pop('after', None)
             new_commands = deepcopy(commands)
-
             new_config = get_new_config(new_commands, old_config, TEST_KEYS)
-
             new_config = self.new_cfg(new_config)
-            self.sort_lists_in_config(latest_config)
+            new_config.sort(key=lambda x: x['name'])
             result['after(generated)'] = remove_empties_from_list(latest_config)
 
         if self._module._diff:
@@ -139,15 +136,15 @@ class Ospfv3_interfaces(ConfigBase):
         new_have = deepcopy(have)
         new_want = remove_empties_from_list(want)
         new_have = remove_empties_from_list(have)
-        self.sort_lists_in_config(new_want)
-        self.sort_lists_in_config(new_have)
+        new_want.sort(key=lambda x: x['name'])
+        new_have.sort(key=lambda x: x['name'])
         resp = self.set_state(new_want, new_have)
         return to_list(resp)
 
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
-        :param want: the desired configuration as a dictionary
-        :param have: the current configuration as a dictionary
+        :param want: the desired configuration as a list
+        :param have: the current configuration as a list
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -421,11 +418,6 @@ class Ospfv3_interfaces(ConfigBase):
         elif have_conf and not conf.get(key):
             del_config.append(have_conf.get(del_key))
 
-    def sort_lists_in_config(self, config):
-        """ Sort the lists in the config """
-        if config:
-            config.sort(key=lambda x: x['name'])
-
     def new_cfg(self, new_config):
         new_list = []
         for d in new_config:
@@ -434,4 +426,4 @@ class Ospfv3_interfaces(ConfigBase):
             else:
                 new_list.append(d)
         latest_config = new_list
-        return latest_config
+        return new_list
