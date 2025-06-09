@@ -218,12 +218,12 @@ EXAMPLES = """
           accounting_method:
             - tacacs+
             - logging
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
       name_service:
         group:
@@ -336,7 +336,7 @@ EXAMPLES = """
           accounting_method:
             - tacacs+
         session_accounting:
-          accounting_record_type: 'START_STOP'
+          accounting_record_type: 'start-stop'
       name_service:
         group:
           - ldap
@@ -433,12 +433,12 @@ EXAMPLES = """
           accounting_method:
             - tacacs+
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
     state: overridden
 
@@ -532,12 +532,12 @@ EXAMPLES = """
           accounting_method:
             - tacacs+
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
-          accounting_record_type: 'STOP_ONLY'
+          accounting_record_type: 'stop-only'
           accounting_console_exempt: true
       name_service:
         group:
