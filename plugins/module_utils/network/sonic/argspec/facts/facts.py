@@ -68,6 +68,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'port_breakout',
         'port_group',
         'prefix_lists',
+        'ptp_default_ds',
         'qos_buffer',
         'qos_interfaces',
         'qos_maps',

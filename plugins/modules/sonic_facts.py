@@ -98,6 +98,7 @@ options:
         - port_breakout
         - port_group
         - prefix_lists
+        - ptp_default_ds
         - qos_buffer
         - qos_interfaces
         - qos_maps
