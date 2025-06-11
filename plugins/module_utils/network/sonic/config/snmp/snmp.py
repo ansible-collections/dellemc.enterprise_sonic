@@ -266,13 +266,11 @@ class Snmp(ConfigBase):
             return commands, requests
 
         delete_all = False
-        want = remove_none(want)
-        have = remove_none(have)
 
         if have is None:
             return commands, requests
         if not want or want is None:
-            commands = deepcopy(have)
+            commands = have
             delete_all = True
         else:
             commands = want
@@ -648,9 +646,11 @@ class Snmp(ConfigBase):
 
         for conf in target:
             target_dict = {}
-
+            retries = conf.get('retries')
+            if retries is None:
+                retries = 3
             target_dict['name'] = target_entry
-            target_dict['retries'] = conf.get('retries')
+            target_dict['retries'] = retries
             tag_list = []
             if conf.get('tag'):
                 tag_list.append(str(conf.get('tag')) + "Notify")
@@ -658,7 +658,10 @@ class Snmp(ConfigBase):
 
             target_dict['target-params'] = target_entry
             target_dict['timeout'] = conf.get('timeout')
-            target_dict['udp'] = {'ip': conf.get('ip'), 'port': conf.get('port'), 'ietf-snmp-ext:vrf-name': conf.get('vrf')}
+            port = conf.get('port')
+            if not port:
+                port = 162
+            target_dict['udp'] = {'ip': conf.get('ip'), 'port': port, 'ietf-snmp-ext:vrf-name': conf.get('vrf')}
             target_dict['source-interface'] = conf.get('source_interface')
             target_list.append(target_dict)
 
