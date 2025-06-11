@@ -293,7 +293,7 @@ before:
   returned: always
   type: dict
 after:
-  description: The resulting configuration model invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
   type: dict
 after(generated):
