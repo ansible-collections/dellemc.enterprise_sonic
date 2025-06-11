@@ -49,7 +49,7 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'type': 'dict'
                 },
                 'hostname': {'type': 'str'},
-                'audit_rules' : {
+                'audit_rules': {
                     'choices': ['BASIC', 'DETAIL', 'CUSTOM', 'NONE'],
                     'type': 'str'
                 },
@@ -64,6 +64,17 @@ class SystemArgs(object):  # pylint: disable=R0903
                 'load_share_hash_algo': {
                     'choices': ['CRC', 'XOR', 'CRC_32LO', 'CRC_32HI', 'CRC_CCITT', 'CRC_XOR', 'JENKINS_HASH_LO', 'JENKINS_HASH_HI'],
                     'type': 'str'
+                },
+                'password_complexity': {
+                    'options': {
+                        'min_length': {'type': 'int'},
+                        'min_lower_case': {'type': 'int'},
+                        'min_numerals': {'type': 'int'},
+                        'min_spl_char': {'type': 'int'},
+                        'min_upper_case': {'type': 'int'}
+                    },
+                    'type': 'dict',
+                    'no_log': False
                 },
                 'concurrent_session_limit': {'type': 'int'},
                 'adjust_txrx_clock_freq': {'type': 'bool'},
