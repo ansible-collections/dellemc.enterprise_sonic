@@ -57,11 +57,12 @@ TEST_KEYS_formatted_diff = [
     {'agentaddress': {'ip': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'community': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'group': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'access': {'security_model':'', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'access': {'security_model': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'host': {'ip': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'user': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
     {'view': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
 ]
+
 
 class Snmp(ConfigBase):
     """
