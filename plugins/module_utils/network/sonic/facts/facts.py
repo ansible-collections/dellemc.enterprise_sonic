@@ -167,7 +167,7 @@ FACT_RESOURCE_SUBSETS = dict(
     dcbx=DcbxFacts,
     evpn_esi_multihome=Evpn_esi_multihomeFacts,
     ssh_server=Ssh_serverFacts
-`)
+)
 
 
 class Facts(FactsBase):
