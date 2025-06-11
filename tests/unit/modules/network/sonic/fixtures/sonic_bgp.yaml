@@ -25,6 +25,11 @@ merged_01:
           on_startup:
             timer: 667
             med_val: 7878
+        graceful_restart:
+            enabled: True
+            restart_time: 100
+            stale_routes_time: 1000
+            preserve_fw_state: True
       - bgp_as: 10.5
         router_id: 10.2.2.5
         as_notation: "asdot"
@@ -98,6 +103,15 @@ merged_01:
           router-id: "10.2.2.5"
           as: "10.5"
           as-notation: "ASDOT"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config"
+      method: "patch"
+      data:
+        openconfig-network-instance:config:
+          enabled: True
+          restart-time: 100
+          stale-routes-time: 1000
+          preserve-fw-state: True
+
 deleted_01:
   module_args:
     config:
@@ -124,6 +138,9 @@ deleted_01:
            on_startup:
              timer: 667
              med_val: 7878
+         graceful_restart:
+           stale_routes_time: 1000
+           preserve_fw_state: True
     state: deleted
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -158,6 +175,12 @@ deleted_01:
               config:
                 time: 667
                 max-med-val: 7878
+            graceful-restart:
+              config:
+                enabled: True
+                restart-time: 100
+                stale-routes-time: 1000
+                preserve-fw-state: True
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -195,6 +218,10 @@ deleted_01:
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-missing-as-worst"
       method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/stale-routes-time"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/preserve-fw-state"
+      method: "delete"
 
 deleted_02:
   module_args:
@@ -229,6 +256,10 @@ deleted_02:
                 config:
                   allow-multiple-as: False
                   as-set: False
+            graceful-restart:
+              config:
+                enabled: True
+                restart-time: 100
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -255,6 +286,9 @@ replaced_01:
           on_startup:
             timer: 776
             med_val: 8787
+        graceful_restart:
+          enabled: True
+          preserve_fw_state: True
     state: replaced
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -289,6 +323,12 @@ replaced_01:
               config:
                 time: 667
                 max-med-val: 7878
+            graceful-restart:
+              config:
+                enabled: True
+                restart-time: 100
+                stale-routes-time: 1000
+                preserve-fw-state: False
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global"
       response:
         code: 200
@@ -330,6 +370,10 @@ replaced_01:
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-missing-as-worst"
       method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/restart-time"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/stale-routes-time"
+      method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
       method: "patch"
       data:
@@ -367,6 +411,11 @@ replaced_01:
       method: "patch"
       data:
         keepalive-interval: 30
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config"
+      method: "patch"
+      data:
+        openconfig-network-instance:config:
+          preserve-fw-state: True
 
 overridden_01:
   module_args:
@@ -392,6 +441,8 @@ overridden_01:
           on_startup:
             timer: 776
             med_val: 8787
+        graceful_restart:
+          preserve_fw_state: True
     state: overridden
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -426,6 +477,10 @@ overridden_01:
               config:
                 time: 667
                 max-med-val: 7878
+            graceful-restart:
+              config:
+                enabled: True
+                preserve-fw-state: True
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global"
       response:
         code: 200
@@ -465,6 +520,8 @@ overridden_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med/config/time"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/always-compare-med"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/enabled"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp"
       method: "delete"

@@ -57,6 +57,7 @@ options:
       - interfaces
       - l2_interfaces
       - l3_interfaces
+      - ipv6_router_advertisement
       - lag_interfaces
       - bgp
       - bgp_af
@@ -91,6 +92,7 @@ options:
       - l2_acls
       - l3_acls
       - lldp_global
+      - ptp_default_ds
       - mac
       - bfd
       - copp
@@ -117,8 +119,11 @@ options:
       - lst
       - ptp_port_ds
       - fbs_classifiers
+      - br_l2pt
       - dcbx
       - mirroring
+      - evpn_esi_multihome
+      - ssh_server
 """
 
 EXAMPLES = """

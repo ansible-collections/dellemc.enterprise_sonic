@@ -54,6 +54,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'logging',
         'pki',
         'ip_neighbor',
+        'ipv6_router_advertisement',
         'port_group',
         'dhcp_relay',
         'dhcp_snooping',
@@ -77,6 +78,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'qos_wred',
         'qos_interfaces',
         'pim_global',
+        'ptp_default_ds',
         'pim_interfaces',
         'ptp_port_ds',
         'login_lockout',
@@ -86,7 +88,10 @@ class FactsArgs(object):  # pylint: disable=R0903
         'ssh',
         'lst',
         'fbs_classifiers',
-        'mirroring'
+        'mirroring',
+        'br_l2pt',
+        'evpn_esi_multihome',
+        'ssh_server'
     ]
 
     argument_spec = {
