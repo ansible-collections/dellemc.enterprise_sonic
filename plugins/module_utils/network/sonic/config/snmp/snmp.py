@@ -29,11 +29,12 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
-    remove_none
+    remove_none,
+    remove_empties
 )
 
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    __DELETE_CONFIG,
     get_new_config,
     get_formatted_config_diff
 )
@@ -54,13 +55,13 @@ TEST_KEYS = [
 ]
 
 TEST_KEYS_formatted_diff = [
-    {'agentaddress': {'ip': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'community': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'group': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'access': {'security_model': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'host': {'ip': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'user': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'view': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'agentaddress': {'ip': '', '__delete_op': __DELETE_CONFIG}},
+    {'community': {'name': '', '__delete_op': __DELETE_CONFIG}},
+    {'group': {'name': '', '__delete_op': __DELETE_CONFIG}},
+    {'access': {'security_model': '', '__delete_op': __DELETE_CONFIG}},
+    {'host': {'ip': '', '__delete_op': __DELETE_CONFIG}},
+    {'user': {'name': '', '__delete_op': __DELETE_CONFIG}},
+    {'view': {'name': '', '__delete_op': __DELETE_CONFIG}},
 ]
 
 
@@ -119,7 +120,7 @@ class Snmp(ConfigBase):
 
         if self._module.check_mode:
             new_config = get_new_config(commands, existing_snmp_facts, TEST_KEYS_formatted_diff)
-            result['after(generated)'] = new_config
+            result['after(generated)'] = remove_empties(new_config)
         else:
             new_config = self.get_snmp_facts()
             if result['changed']:
@@ -188,11 +189,11 @@ class Snmp(ConfigBase):
         if not want:
             return commands, requests
 
-        diff_want = get_diff(want, have, TEST_KEYS)
+        diff_want = get_diff(want, have)
         if not diff_want:
             return commands, requests
 
-        del_commands = get_diff(have, want, TEST_KEYS)
+        del_commands = get_diff(have, want)
         merged_commands = None
         merged_request = None
 
@@ -204,7 +205,7 @@ class Snmp(ConfigBase):
             merged_commands = self.check_user_exists(merged_commands, have)
             merged_request = self.get_create_snmp_request(merged_commands)
         else:
-            merged_commands = get_diff(want, have, TEST_KEYS)
+            merged_commands = get_diff(want, have)
             merged_commands = self.check_user_exists(commands, have)
             if merged_commands:
                 merged_request = self.get_create_snmp_request(merged_commands)
