@@ -13,7 +13,6 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
-from copy import deepcopy
 from ansible.module_utils.connection import ConnectionError
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import ConfigBase

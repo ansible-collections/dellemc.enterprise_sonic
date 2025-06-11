@@ -281,6 +281,7 @@ replaced_03:
             target-params: 'targetEntry1'
             udp:
               ip: '1.2.3.4.5'
+              port: 162
     - path: 'data/ietf-snmp:snmp/target-params'
       method: 'patch'
       data:
