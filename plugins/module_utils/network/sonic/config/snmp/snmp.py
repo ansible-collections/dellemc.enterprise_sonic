@@ -197,7 +197,7 @@ class Snmp(ConfigBase):
         merged_request = None
 
         if del_commands:
-            del_requests = self.get_delete_snmp_request(have, have, True)
+            del_requests = self.get_delete_snmp_request(del_commands, have, True)
             requests.extend(del_requests)
             commands.extend(update_states(have, "deleted"))
             merged_commands = want

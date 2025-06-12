@@ -115,7 +115,14 @@ tests:
     description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted
     input:
-      group: []
+      group:
+        - name: 'group-lab'
+          access:
+            - security_model: 'v2c'
+              security_level: 'auth-no-priv'
+              read_view: 'r_view'
+              write_view: 'w_view'
+              notify_view: 'n_view'
 
   - name: test_case_08_deleted_all
     description: Delete all SNMP server configuration
