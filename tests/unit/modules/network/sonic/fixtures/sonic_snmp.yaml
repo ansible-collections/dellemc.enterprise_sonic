@@ -410,9 +410,9 @@ overridden_02:
               access:
                 - context: 'Default'
                   security-model: 'v3'
-    - path: 'data/ietf-snmp:snmp/vacm/group=group-floor2'
+    - path: 'data/ietf-snmp:snmp/vacm/group'
       method: 'delete'
-      data:
+      data: 
 
 overridden_03:
   module_args:

@@ -854,12 +854,12 @@ class Snmp(ConfigBase):
             if have_group is not None:
                 group_requests = []
 
-                if configs['group'] is None or configs['group'] == []:
+                if 'vacm' not in configs or configs['vacm']['group'] is None:
                     group_url = "data/ietf-snmp:snmp/vacm/group"
                     group_request = {"path": group_url, "method": DELETE}
                     group_requests.append(group_request)
                 else:
-                    for want in configs['group']:
+                    for want in configs['vacm']['group']:
                         if want.get('name') is None:
                             break
                         matched_group = next((each_snmp for each_snmp in have['group'] if each_snmp['name'] == want['name']), None)
