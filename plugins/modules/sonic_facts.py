@@ -117,6 +117,7 @@ options:
       - ospf_area
       - ssh
       - lst
+      - ptp_port_ds
       - fbs_classifiers
       - br_l2pt
       - dcbx

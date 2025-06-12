@@ -106,6 +106,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_port_group
     prefix_lists:
       redirect: dellemc.enterprise_sonic.sonic_prefix_lists
+    ptp_port_ds:
+      redirect: dellemc.enterprise_sonic.sonic_ptp_port_ds
     ptp_default_ds:
       redirect: dellemc.enterprise_sonic.sonic_ptp_default_ds
     qos_buffer:
