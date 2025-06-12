@@ -38,7 +38,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
     get_new_config,
     get_formatted_config_diff
 )
@@ -47,11 +46,6 @@ from ansible.module_utils.connection import ConnectionError
 TEST_KEYS = [
     {'config': {'interface': ''}}
 ]
-
-TEST_KEYS_formatted_diff = [
-    {'config': {'interface': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-]
-
 
 TEST_KEYS_GENERATE_CONFIG = [{'config': {'interface': ''}}]
 
@@ -107,6 +101,21 @@ class Ptp_port_ds(ConfigBase):
             return []
         return ptp_port_ds_facts
 
+    @staticmethod
+    def get_generated_config(commands, have):
+        """Get generated config"""
+        generated_config = []
+        new_config = remove_empties_from_list(get_new_config(commands, have, TEST_KEYS_GENERATE_CONFIG))
+        if new_config:
+            for conf in new_config:
+                if 'unicast_table' in conf and not conf['unicast_table']:
+                    conf.pop('unicast_table', None)
+
+                if len(conf.keys()) > 1:
+                    generated_config.append(conf)
+
+        return generated_config
+
     def execute_module(self):
         """ Execute the module
 
@@ -131,8 +140,7 @@ class Ptp_port_ds(ConfigBase):
         old_config = existing_ptp_port_ds_facts
 
         if self._module.check_mode:
-            new_config = get_new_config(commands, existing_ptp_port_ds_facts, TEST_KEYS_GENERATE_CONFIG)
-            new_config = remove_empties_from_list(new_config)
+            new_config = self.get_generated_config(commands, existing_ptp_port_ds_facts)
             result['after(generated)'] = new_config
         else:
             new_config = self.get_ptp_port_ds_facts()
