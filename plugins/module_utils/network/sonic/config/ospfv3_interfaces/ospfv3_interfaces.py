@@ -115,7 +115,7 @@ class Ospfv3_interfaces(ConfigBase):
             new_config = get_new_config(new_commands, old_config, TEST_KEYS)
             new_config = self.new_cfg(new_config)
             new_config.sort(key=lambda x: x['name'])
-            result['after(generated)'] = remove_empties_from_list(latest_config)
+            result['after(generated)'] = remove_empties_from_list(new_config)
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
@@ -162,7 +162,7 @@ class Ospfv3_interfaces(ConfigBase):
         return commands, requests
 
     def _state_replaced_or_overridden(self, want, have):
-         """ The command generator when state is replaced or overridden
+        """ The command generator when state is replaced or overridden
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -425,5 +425,4 @@ class Ospfv3_interfaces(ConfigBase):
                 pass
             else:
                 new_list.append(d)
-        latest_config = new_list
         return new_list
