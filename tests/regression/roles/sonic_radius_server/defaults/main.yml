@@ -5,7 +5,7 @@ module_name: radius_server
 preparations_tests:
   delete_radius_server:
     - name: delete_all
-      description: Configure radius server
+      description: Configure radius server with TLS protocol and attach a security profile
       state: deleted
       input:
 tests:
@@ -44,6 +44,13 @@ tests:
             port: 57
             source_interface: "{{ interface3 }}"
             retransmit: 9
+          - name: "10.10.10.10"
+            protocol: "TLS"
+            security_profile: "rad-sec-prof"
+          - name: "20.20.20.20"
+            protocol: "TLS"
+            security_profile: "rad-sec-prof"
+
   - name: test_case_02
     description: Update specific params of radius server
     state: merged
@@ -57,6 +64,9 @@ tests:
             port: 45
             timeout: 9
             vrf: mgmt
+          - name: "20.20.20.20"
+            protocol: "TLS"
+            security_profile: "radius-sec-profile"
   - name: test_case_03
     description: Delete all params of a radius server host
     state: deleted
@@ -66,6 +76,27 @@ tests:
       servers:
         host:
           - name: my-host.dell
+
+  - name: test_case_03_1
+    description: Delete the security profile for a radius server host
+    state: deleted
+    input:
+      key: login
+      timeout: 24
+      servers:
+        host:
+          - name: "20.20.20.20"
+
+  - name: test_case_03_2
+    description: Delete the security profile for a radius server host
+    state: deleted
+    input:
+      key: login
+      timeout: 24
+      servers:
+        host:
+          - name: "10.10.10.10"
+
   - name: test_case_04
     description: Delete all hosts configurations
     state: deleted

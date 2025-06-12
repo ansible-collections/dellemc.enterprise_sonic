@@ -12,6 +12,9 @@ created
 """
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
+
+from time import sleep
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -91,6 +94,7 @@ class Radius_server(ConfigBase):
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
+                    sleep(5)
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
@@ -148,6 +152,8 @@ class Radius_server(ConfigBase):
         if not want:
             want = {}
 
+        self.remove_default_entries(have)
+        self.remove_default_entries(want)
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'overridden':
@@ -214,6 +220,7 @@ class Radius_server(ConfigBase):
         """
         commands = []
         requests = []
+
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
         add_commands = []
@@ -232,6 +239,17 @@ class Radius_server(ConfigBase):
                 commands.extend(update_states(add_commands, "replaced"))
 
         return commands, requests
+
+    def remove_default_entries(self, data):
+        new_data = {}
+        if not data:
+            return
+        else:
+            servers = data.get('servers')
+            if servers and servers.get('host'):
+                for host_entry in servers.get('host', []):
+                    if host_entry.get('protocol') == 'UDP':
+                        host_entry.pop('protocol', None)
 
     def _state_overridden(self, want, have, diff):
         """ The command generator when state is overridden
@@ -317,6 +335,10 @@ class Radius_server(ConfigBase):
                     radius_port_key_cfg['secret-key'] = host['key']
                 if host.get('retransmit', None):
                     radius_port_key_cfg['retransmit-attempts'] = host['retransmit']
+                if host.get('protocol', None):
+                    radius_port_key_cfg['protocol'] = host['protocol']
+                if host.get('security_profile', None):
+                    radius_port_key_cfg['security-profile'] = host['security_profile']
                 if host.get('source_interface', None):
                     radius_port_key_cfg['openconfig-aaa-radius-ext:source-interface'] = host['source_interface']
 
@@ -429,8 +451,14 @@ class Radius_server(ConfigBase):
         if mat_hosts and hosts:
             for host in hosts:
                 if next((m_host for m_host in mat_hosts if m_host['name'] == host['name']), None):
-                    requests.append({'path': url + host['name'], 'method': DELETE})
+                    if host.get('security_profile', None):
+                        host_name = host['name']
+                        server_url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server={name}'.format(name=host_name)
+                        sec_prof_url = server_url + '/radius/config/security-profile'
+                        requests.append({'path': sec_prof_url , 'method': DELETE})
+                        return requests
 
+                    requests.append({'path': url + host['name'], 'method': DELETE})
         return requests
 
     def get_delete_radius_server_requests(self, command, have):
@@ -441,5 +469,4 @@ class Radius_server(ConfigBase):
         requests.extend(self.get_delete_global_params(command, have))
         requests.extend(self.get_delete_global_ext_params(command, have))
         requests.extend(self.get_delete_servers(command, have))
-
         return requests
