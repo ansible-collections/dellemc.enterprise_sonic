@@ -34,6 +34,9 @@ tests:
         mtu: 6445
         enabled: false
         unreliable_los: UNRELIABLE_LOS_MODE_AUTO
+        # Use only on platform that support this.
+        #auto_negotiate: true
+        #autoneg_mode: AUTONEG_MODE_MSA
   - name: test_case_02
     description: Update interface parameters
     state: merged
@@ -43,11 +46,17 @@ tests:
         mtu: 6444
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
+        # Use only on platform that support this.
+        #auto_negotiate: true
+        #autoneg_mode: AUTONEG_MODE_BAM
       - name: "{{ interface8 }}"
         description: ansible Ethernet100
         mtu: 6000
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_ON
+        # Use only on platform that support this.
+        #auto_negotiate: true
+        #autoneg_mode: AUTONEG_MODE_MSA
       - name: "{{ interface10 }}"
         description: ansible Ethernet108
         mtu: 5666
@@ -86,6 +95,8 @@ tests:
     input:
       - name: "{{ interface7 }}"
         description:
+        # Use only on platform that support this.
+        #autoneg_mode: AUTONEG_MODE_MSA
       - name: "{{ interface8 }}"
         mtu: 6000
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
@@ -236,6 +247,10 @@ tests:
         description: Ansible Interface2
       - name: "{{ lo1 }}"
         description: Ansible Loopback1 Replace
+      # Use only on platform that support this.
+      #- name: "{{ interface7 }}"
+      #  auto_negotiate: true
+      #  autoneg_mode: AUTONEG_MODE_MSA
   - name: test_case_21
     description: Override interface parameters
     state: overridden
@@ -244,5 +259,8 @@ tests:
         description: Interface1
         mtu: 3300
         enabled: true
+        # Use only on platform that support this.
+        #auto_negotiate: true
+        #autoneg_mode: AUTONEG_MODE_BAM
       - name: "{{ lo2 }}"
         description: Ansible Loopback2

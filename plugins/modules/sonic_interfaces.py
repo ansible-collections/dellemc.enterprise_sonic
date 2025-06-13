@@ -66,6 +66,7 @@ options:
         - SPEED_100GB
         - SPEED_200GB
         - SPEED_400GB
+        - SPEED_800GB
       auto_negotiate:
         description:
         - auto-negotiate transmission parameters with peer interface.
@@ -97,6 +98,14 @@ options:
         - UNRELIABLE_LOS_MODE_ON
         - UNRELIABLE_LOS_MODE_OFF
         - UNRELIABLE_LOS_MODE_AUTO
+      autoneg_mode:
+        description:
+        - BAM/MSA configuration for autonegotiation
+        - Applicable only for Ethernet interfaces.
+        type: str
+        choices:
+        - AUTONEG_MODE_BAM
+        - AUTONEG_MODE_MSA
   state:
     description:
     - The state the configuration should be left in.
