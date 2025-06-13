@@ -112,6 +112,7 @@ options:
       - qos_interfaces
       - pim_global
       - pim_interfaces
+      - loadshare_mode
       - login_lockout
       - mgmt_servers
       - ospf_area

@@ -83,6 +83,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'ptp_port_ds',
         'login_lockout',
         'poe',
+        'loadshare_mode',
         'mgmt_servers',
         'ospf_area',
         'ssh',
