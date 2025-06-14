@@ -332,13 +332,12 @@ class SnmpFacts(object):
             access_dict['notify_view'] = access.get('notify-view')
             access_dict['read_view'] = access.get('read-view')
             access_dict['write_view'] = access.get('write-view')
-
+            if access.get('security-model') is None:
+                break
             if access.get("security-level"):
                 access_dict['security_level'] = access.get('security-level')
             if access.get("security-model"):
                 access_dict['security_model'] = access.get('security-model')
-            if access.get('security-model') is None:
-                break
 
             access_l.append(access_dict)
 
