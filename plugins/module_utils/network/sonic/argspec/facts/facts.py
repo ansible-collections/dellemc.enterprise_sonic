@@ -78,7 +78,9 @@ class FactsArgs(object):  # pylint: disable=R0903
         'qos_wred',
         'qos_interfaces',
         'pim_global',
+        'ptp_default_ds',
         'pim_interfaces',
+        'ptp_port_ds',
         'login_lockout',
         'poe',
         'mgmt_servers',
@@ -89,7 +91,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'mirroring',
         'mfa',
         'br_l2pt',
-        'mirroring'
+        'evpn_esi_multihome',
+        'ssh_server'
     ]
 
     argument_spec = {
