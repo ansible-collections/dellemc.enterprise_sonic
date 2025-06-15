@@ -897,7 +897,6 @@ class Snmp(ConfigBase):
                     group_requests.append(group_request)
                 else:
                     for want in configs['group']:
-                        print('\n Want: {0}'.format(want), file=open('snmp.log', 'a'))
                         if want.get('name') is None:
                             break
                         matched_group = next((each_snmp for each_snmp in have_group['group'] if each_snmp['name'] == want['name']), None)
@@ -906,7 +905,8 @@ class Snmp(ConfigBase):
 
                             if 'access' in want:
                                 for access in want['access']:
-                                    matched_access = next((each_access for each_access in matched_group['access'] if each_access['security_model'] == access.get('security_model')), None)
+                                    matched_access = next(
+                                        (each_access for each_access in matched_group['access'] if each_access['security_model'] == access.get('security_model')), None)
                                     matched_security_model = matched_access['security_model']
                                     if matched_security_model:
                                         security_model = access.get('security_model')
@@ -915,18 +915,22 @@ class Snmp(ConfigBase):
                                         write_view = matched_access.get('write_view')
                                         notify_view = matched_access.get('notify_view')
                                         if security_model and security_level and access['security_model'] == security_model:
-                                            group_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}".format(group_name, security_model, security_level)
+                                            group_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}".format(
+                                                group_name, security_model, security_level)
                                             if not (read_view and write_view and notify_view):
                                                 if read_view:
-                                                    group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}/read-view".format(group_name, security_model, security_level)
+                                                    group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}/read-view".format(
+                                                        group_name, security_model, security_level)
                                                     group_request = {"path": group_access_url, "method": DELETE}
                                                     group_requests.append(group_request)
                                                 elif write_view:
-                                                    group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}/write-view".format(group_name, security_model, security_level)
+                                                    group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}/write-view".format(
+                                                        group_name, security_model, security_level)
                                                     group_request = {"path": group_access_url, "method": DELETE}
                                                     group_requests.append(group_request)
                                                 elif notify_view:
-                                                    group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}/notify-view".format(group_name, security_model, security_level)
+                                                    group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}/notify-view".format(
+                                                        group_name, security_model, security_level)
                                                     group_request = {"path": group_access_url, "method": DELETE}
                                                     group_requests.append(group_request)
                                             elif security_model and read_view and write_view and notify_view:
@@ -941,7 +945,6 @@ class Snmp(ConfigBase):
 
                 if group_requests:
                     group_requests_list.extend(group_requests)
-                    print('\n group requests list: {0}'.format(group_requests_list), file=open('snmp.log', 'a'))
 
         if delete_all or host:
             if have_host is not None:

@@ -207,8 +207,6 @@ class SnmpFacts(object):
                         break
             user_dict['group'] = group_name
             user_dict['name'] = user.get('name')
-            user_dict['auth'] = {'auth_type': auth_type, 'key': user['auth'][auth_type].get('key')}
-            user_dict['priv'] = {'priv_type': priv_type, 'key': user['priv'][priv_type].get('key')}
             user_dict['encrypted'] = user.get('ietf-snmp-ext:encrypted')
 
             user_list.append(user_dict)
