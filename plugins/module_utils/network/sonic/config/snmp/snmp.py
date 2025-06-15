@@ -173,7 +173,7 @@ class Snmp(ConfigBase):
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
             commands, requests = self._state_merged(want, have)
-        
+
         return commands, requests
 
     def _state_replaced_or_overridden(self, want, have, state):
@@ -190,10 +190,9 @@ class Snmp(ConfigBase):
             return commands, requests
 
         diff_want = get_diff(want, have)
-        if not diff_want:
-            return commands, requests
-
         del_commands = get_diff(have, want)
+        if not diff_want or not del_commands:
+            return commands, requests
         merged_commands = None
         merged_request = None
 
@@ -202,7 +201,6 @@ class Snmp(ConfigBase):
             requests.extend(del_requests)
             commands.extend(update_states(have, "deleted"))
             merged_commands = want
-            merged_commands = self.check_user_exists(merged_commands, have)
             merged_request = self.get_create_snmp_request(merged_commands)
         else:
             merged_commands = get_diff(want, have)
@@ -222,7 +220,6 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        want = self.pop_encrypted_attributes(want)
         commands = get_diff(want, have, TEST_KEYS)
         commands = self.check_user_exists(commands, have)
 
@@ -289,13 +286,15 @@ class Snmp(ConfigBase):
     def get_configured_option(self, want, config):
         """ Gets the already configured option when want contains an empty list
 
-        :rtype: A list
+        :rtype: A dict
         :returns: the already configured option
         """
         new_config = {}
         for key, value in want.items():
-            if value is not None and value == [] and key in config:
+            if value == [] and key in config:
                 new_config[key] = config[key]
+            else:
+                new_config[key] = value
         return new_config
 
     def get_create_snmp_request(self, config, have=None):
@@ -764,7 +763,7 @@ class Snmp(ConfigBase):
         if delete_all or agentaddress:
             if have_agentaddress is not None:
                 agentaddress_requests = []
-                if delete_all or configs['agentaddress'] == have_agentaddress:
+                if delete_all or self.check_dicts_matched(have_agentaddress, configs['agentaddress']):
                     agentaddress_url = "data/ietf-snmp:snmp/engine/listen"
                     agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                     agentaddress_requests.append(agentaddress_request)
@@ -803,7 +802,7 @@ class Snmp(ConfigBase):
         if delete_all or community:
             if have_community is not None:
                 community_requests = []
-                if delete_all or configs['community'] == have_community:
+                if delete_all or self.check_dicts_matched(have_community, configs['community']):
                     community_url = "data/ietf-snmp:snmp/community"
                     community_request = {"path": community_url, "method": DELETE}
                     community_requests.append(community_request)
@@ -892,15 +891,16 @@ class Snmp(ConfigBase):
         if delete_all or group:
             if have_group is not None:
                 group_requests = []
-                if delete_all or configs['group'] == have['group']:
+                if delete_all or self.check_dicts_matched(have_group, configs['group']):
                     group_url = "data/ietf-snmp:snmp/vacm/group"
                     group_request = {"path": group_url, "method": DELETE}
                     group_requests.append(group_request)
                 else:
                     for want in configs['group']:
+                        print('\n Want: {0}'.format(want), file=open('snmp.log', 'a'))
                         if want.get('name') is None:
                             break
-                        matched_group = next((each_snmp for each_snmp in have['group'] if each_snmp['name'] == want['name']), None)
+                        matched_group = next((each_snmp for each_snmp in have_group['group'] if each_snmp['name'] == want['name']), None)
                         if matched_group:
                             group_name = matched_group['name']
 
@@ -941,11 +941,12 @@ class Snmp(ConfigBase):
 
                 if group_requests:
                     group_requests_list.extend(group_requests)
+                    print('\n group requests list: {0}'.format(group_requests_list), file=open('snmp.log', 'a'))
 
         if delete_all or host:
             if have_host is not None:
                 host_requests = []
-                if delete_all or configs['host'] == have_host:
+                if delete_all or self.check_dicts_matched(have_host, configs['host']) or configs['host'] == []:
                     host_target_url = "data/ietf-snmp:snmp/target"
                     host_request = {"path": host_target_url, "method": DELETE}
                     host_requests.append(host_request)
@@ -1047,7 +1048,7 @@ class Snmp(ConfigBase):
                     host_requests_list.extend(host_requests)
 
         if delete_all or location:
-            if delete_all or have_location is not None and have_location == configs['location']:
+            if delete_all or have_location is not None and self.check_dicts_matched(have_location, configs['location']):
                 location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
                 location_request = {"path": location_url, "method": DELETE}
                 location_requests_list.append(location_request)
@@ -1055,13 +1056,13 @@ class Snmp(ConfigBase):
         if delete_all or user:
             if have_user is not None:
                 user_requests = []
-                if delete_all or configs['user'] == have_user:
+                if delete_all or self.check_dicts_matched(have_user, configs['user']):
                     user_url = "data/ietf-snmp:snmp/usm/local/user"
                     user_request = {"path": user_url, "method": DELETE}
                     user_requests.append(user_request)
                 else:
                     for want in configs['user']:
-                        matched_user = next((each_snmp for each_snmp in have['user'] if each_snmp['name'] == want['name']), None)
+                        matched_user = next((each_snmp for each_snmp in have_user['user'] if each_snmp['name'] == want['name']), None)
                         if matched_user:
                             user_name = matched_user['name']
                             user_url = "data/ietf-snmp:snmp/usm/local/user={0}".format(user_name)
@@ -1071,11 +1072,11 @@ class Snmp(ConfigBase):
                             priv_key = want.get('priv').get('key')
                             encrypted = want.get('encrypted')
                             if auth and auth_key or auth:
-                                auth_url = user_url + "/auth/".format(auth)
+                                auth_url = "{0}/auth/{1}".format(user_url, auth)
                                 user_request = {"path": auth_url, "method": DELETE}
                                 user_requests.append(user_request)
                             if  priv and priv_key or priv:
-                                priv_url = user_url + "/priv/".format(priv)
+                                priv_url = "{0}/priv/{1}".format(user_url, priv)
                                 user_request = {"path": priv_url, "method": DELETE}
                                 user_requests.append(user_request)
                             if encrypted:
@@ -1097,36 +1098,36 @@ class Snmp(ConfigBase):
         if delete_all or view:
             if have_view is not None:
                 view_requests = []
-                if delete_all or configs['view'] == have_view:
+                if delete_all or self.check_dicts_matched(have_view, configs['view']):
                     view_url = "data/ietf-snmp:snmp/vacm/view"
                     view_request = {"path": view_url, "method": DELETE}
                     view_requests.append(view_request)
                 else:
                     for want in configs['view']:
-                        matched_view = next((each_snmp for each_snmp in have['view'] if each_snmp['name'] == want['name']), None)
+                        matched_view = next((each_snmp for each_snmp in have_view if each_snmp['name'] == want['name']), None)
                         if matched_view:
                             view_name = matched_view['name']
                             view_url = "data/ietf-snmp:snmp/vacm/view={0}".format(view_name)
-                            include = want.get('include')
-                            exclude = want.get('exclude')
-                            if include and (include != matched_view['include'] or len(include) > 0):
+                            include = want.get('included')
+                            exclude = want.get('excluded')
+                            if include and (len(include) == 0 or len(include) == len(matched_view['included'])):
+                                include_url = view_url + "/include"
+                                view_request = {"path": include_url, "method": DELETE}
+                                view_requests.append(view_request)
+                            elif include and (include != matched_view['included'] and len(include) > 0):
                                 for include_view in include:
                                     include_view_url = view_url + "/include={0}".format(include_view)
                                     view_request = {"path": include_view_url, "method": DELETE}
                                     view_requests.append(view_request)
-                            if include and len(include) == 0:
-                                include_url = view_url + "/exclude"
-                                view_request = {"path": include_url, "method": DELETE}
+                            if exclude and (len(exclude) == 0 or len(exclude) == len(matched_view['excluded'])):
+                                exclude_url = view_url + "/exclude"
+                                view_request = {"path": exclude_url, "method": DELETE}
                                 view_requests.append(view_request)
-                            if exclude and (exclude != matched_view['exclude'] or len(exclude) > 0):
+                            elif exclude and (exclude != matched_view['excluded'] and len(exclude) > 0):
                                 for exclude_view in exclude:
                                     exclude_view_url = view_url + "/exclude={0}".format(exclude_view)
                                     view_request = {"path": exclude_view_url, "method": DELETE}
                                     view_requests.append(view_request)
-                            if exclude and len(exclude) == 0:
-                                exclude_url = view_url + "/exclude"
-                                view_request = {"path": exclude_url, "method": DELETE}
-                                view_requests.append(view_request)
                             else:
                                 view_request = {"path": view_url, "method": DELETE}
                                 view_requests.append(view_request)
@@ -1155,6 +1156,16 @@ class Snmp(ConfigBase):
             requests.extend(view_requests_list)
 
         return requests
+
+    def check_dicts_matched(self, have_list, config_list):
+        """ Checks if all dicts in config_list are in have_list
+        rtype: boolean
+        returns: True if all dicts in config_list are in have_list
+        """
+        for option in have_list:
+            if option not in config_list:
+                return False
+        return True
 
     def get_matched_access(self, access_list, want_access):
         """ Finds and returns the access list that matches the wanted access list
