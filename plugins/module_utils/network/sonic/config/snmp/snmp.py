@@ -906,7 +906,8 @@ class Snmp(ConfigBase):
                             if 'access' in want:
                                 for access in want['access']:
                                     matched_access = next(
-                                        (each_access for each_access in matched_group['access'] if each_access['security_model'] == access.get('security_model')), None)
+                                        (each_access for each_access in matched_group['access'] 
+                                         if each_access['security_model'] == access.get('security_model')), None)
                                     matched_security_model = matched_access['security_model']
                                     if matched_security_model:
                                         security_model = access.get('security_model')
@@ -982,7 +983,7 @@ class Snmp(ConfigBase):
                                     host_request = {"path": host_tg_url, "method": DELETE}
                                     host_requests.append(host_request)
                                 if tag:
-                                    host_tag_url = host_target_url +'/tag'
+                                    host_tag_url = host_target_url + '/tag'
                                     if len(tag) != len(matched_host['tag']):
                                         for tg in tag:
                                             host_tag_url += "={0}".format(tg)
@@ -996,7 +997,7 @@ class Snmp(ConfigBase):
                                     host_request = {"path": host_udp_url, "method": DELETE}
                                     host_requests.append(host_request)
                                 elif ip:
-                                    host_udp_url = host_target_url +'/udp/ip'
+                                    host_udp_url = host_target_url + '/udp/ip'
                                     host_request = {"path": host_udp_url, "method": DELETE}
                                     host_requests.append(host_request)
                                 elif port:
@@ -1078,7 +1079,7 @@ class Snmp(ConfigBase):
                                 auth_url = "{0}/auth/{1}".format(user_url, auth)
                                 user_request = {"path": auth_url, "method": DELETE}
                                 user_requests.append(user_request)
-                            if  priv and priv_key or priv:
+                            if priv and priv_key or priv:
                                 priv_url = "{0}/priv/{1}".format(user_url, priv)
                                 user_request = {"path": priv_url, "method": DELETE}
                                 user_requests.append(user_request)
