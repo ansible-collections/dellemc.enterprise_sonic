@@ -906,7 +906,7 @@ class Snmp(ConfigBase):
                             if 'access' in want:
                                 for access in want['access']:
                                     matched_access = next(
-                                        (each_access for each_access in matched_group['access'] 
+                                        (each_access for each_access in matched_group['access']
                                          if each_access['security_model'] == access.get('security_model')), None)
                                     matched_security_model = matched_access['security_model']
                                     if matched_security_model:
