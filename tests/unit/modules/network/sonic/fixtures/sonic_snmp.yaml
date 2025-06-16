@@ -257,7 +257,7 @@ replaced_03:
     state: replaced
     config:
       host:
-        - ip: '1.2.3.4.5'
+        - ip: '1.2.3.5'
           user:
             name: 'user1'
           retries: 50
@@ -275,7 +275,7 @@ replaced_03:
                 target-params: 'targetEntry1'
                 timeout: 20000
                 udp:
-                  ip: '1.2.3.4.5'
+                  ip: '1.2.3.5'
                   port: 162
                   ietf-snmp-ext:vrf-name: 'default'
                 ietf-snmp-ext:source-interface: 'eth0'
@@ -302,7 +302,7 @@ replaced_03:
             retries: 50
             target-params: 'targetEntry1'
             udp:
-              ip: '1.2.3.4.5'
+              ip: '1.2.3.5'
               port: 162
     - path: 'data/ietf-snmp:snmp/target-params'
       method: 'delete'
@@ -336,7 +336,7 @@ overridden_01:
                 target-params: 'targetEntry1'
                 timeout: 20000
                 udp:
-                  ip: '1.2.3.4.5'
+                  ip: '1.2.3.5'
                   port: 162
                   ietf-snmp-ext:vrf-name: 'default'
                 ietf-snmp-ext:source-interface: 'eth0'
@@ -400,7 +400,7 @@ overridden_02:
                 target-params: 'targetEntry1'
                 timeout: 20000
                 udp:
-                  ip: '1.2.3.4.5'
+                  ip: '1.2.3.5'
                   port: 162
                   ietf-snmp-ext:vrf-name: 'default'
                 ietf-snmp-ext:source-interface: 'eth0'
@@ -466,7 +466,7 @@ overridden_03:
                 target-params: 'targetEntry1'
                 timeout: 20000
                 udp:
-                  ip: '1.2.3.4.5'
+                  ip: '1.2.3.5'
                   port: 162
                   ietf-snmp-ext:vrf-name: 'default'
                 ietf-snmp-ext:source-interface: 'eth0'
