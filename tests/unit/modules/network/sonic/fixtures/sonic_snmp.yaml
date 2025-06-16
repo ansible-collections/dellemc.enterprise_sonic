@@ -124,7 +124,7 @@ deleted_02:
             vacm:
               view:
                 - name: 'view1'
-                  included:
+                  include:
                     - '1.2.3.4.5.6.7.8.9.2'
   expected_config_requests:
     - path: 'data/ietf-snmp:snmp/vacm/view'
@@ -144,7 +144,7 @@ deleted_03:
             vacm:
               view:
                 - name: 'view1'
-                  included:
+                  include:
                     - '1.2.3.4.5.6.7.8.9.2'
             engine:
               listen:
