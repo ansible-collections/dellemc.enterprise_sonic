@@ -312,7 +312,7 @@ class SnmpFacts(object):
                 break
             group_dict['name'] = name
             access_list = []
-            if group.get('access') is not None:
+            if group.get('access'):
                 access_list = self.get_group_access(group.get('access'))
             group_dict['access'] = access_list
             group_list.append(group_dict)

@@ -271,8 +271,8 @@ class Snmp(ConfigBase):
             delete_all = True
         else:
             want = self.get_configured_option(want, have)
-            reverse_diff = get_diff(have, want)
-            commands = get_diff(have, reverse_diff)
+            reverse_diff = get_diff(want, have)
+            commands = get_diff(want, reverse_diff)
 
         requests = self.get_delete_snmp_request(commands, have, delete_all)
 
@@ -769,7 +769,7 @@ class Snmp(ConfigBase):
                     agentaddress_requests.append(agentaddress_request)
                 else:
                     for want in configs['agentaddress']:
-                        matched_agentaddress = next((each_snmp for each_snmp in have['agentaddress'] if each_snmp['ip'] == want['ip']), None)
+                        matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['ip'] == want['ip']), None)
                         if matched_agentaddress:
                             name = self.get_delete_agententry(matched_agentaddress)
                             agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
@@ -808,10 +808,10 @@ class Snmp(ConfigBase):
                     community_requests.append(community_request)
                 else:
                     for want in configs['community']:
-                        matched_community = next((each_snmp for each_snmp in have['community'] if each_snmp['name'] == want['name']), None)
+                        matched_community = next((each_snmp for each_snmp in have_community if each_snmp['name'] == want['name']), None)
                         if matched_community:
-                            community_name = matched_community['name']
-                            group_name = want['group']
+                            community_name = matched_community.get('name')
+                            group_name = want.get('group')
                             community_url = "data/ietf-snmp:snmp/community={0}".format(community_name)
                             if group_name:
                                 community_sn_url = community_url + "/security-name"
@@ -837,7 +837,7 @@ class Snmp(ConfigBase):
                 enable_trap_requests = []
                 if configs['enable_trap'] is None:
                     enable_trap_url = ""
-                    trap = have['enable_trap']
+                    trap = have_enable_trap
                     if trap == 'all':
                         enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
                     if trap == 'link-down':
@@ -856,7 +856,7 @@ class Snmp(ConfigBase):
                     enable_trap_requests.append(enable_trap_request)
                 else:
                     for want in configs['enable_trap']:
-                        matched_enable_trap = next((each_snmp for each_snmp in have['enable_trap'] if each_snmp[0] == want[0]), None)
+                        matched_enable_trap = next((each_snmp for each_snmp in have_enable_trap if each_snmp[0] == want[0]), None)
                         enable_trap_url = ""
                         if matched_enable_trap:
                             if matched_enable_trap == 'all':
@@ -899,7 +899,7 @@ class Snmp(ConfigBase):
                     for want in configs['group']:
                         if want.get('name') is None:
                             break
-                        matched_group = next((each_snmp for each_snmp in have_group['group'] if each_snmp['name'] == want['name']), None)
+                        matched_group = next((each_snmp for each_snmp in have_group if each_snmp['name'] == want['name']), None)
                         if matched_group:
                             group_name = matched_group['name']
 
@@ -912,10 +912,10 @@ class Snmp(ConfigBase):
                                     if matched_security_model:
                                         security_model = access.get('security_model')
                                         security_level = matched_access.get('security_level')
-                                        read_view = matched_access.get('read_view')
-                                        write_view = matched_access.get('write_view')
-                                        notify_view = matched_access.get('notify_view')
-                                        if security_model and security_level and access['security_model'] == security_model:
+                                        read_view = access.get('read_view')
+                                        write_view = access.get('write_view')
+                                        notify_view = access.get('notify_view')
+                                        if security_model and security_level:
                                             group_url = "data/ietf-snmp:snmp/vacm/group={0}/access=default,{1},{2}".format(
                                                 group_name, security_model, security_level)
                                             if not (read_view and write_view and notify_view):
@@ -934,9 +934,10 @@ class Snmp(ConfigBase):
                                                         group_name, security_model, security_level)
                                                     group_request = {"path": group_access_url, "method": DELETE}
                                                     group_requests.append(group_request)
-                                            elif security_model and read_view and write_view and notify_view:
-                                                group_request = {"path": group_url, "method": DELETE}
-                                                group_requests.append(group_request)
+                                                else:
+                                                    group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
+                                                    group_request = {"path": group_url, "method": DELETE}
+                                                    group_requests.append(group_request)
                             else:
                                 if want.get('name') is None:
                                     break
@@ -1066,7 +1067,7 @@ class Snmp(ConfigBase):
                     user_requests.append(user_request)
                 else:
                     for want in configs['user']:
-                        matched_user = next((each_snmp for each_snmp in have_user['user'] if each_snmp['name'] == want['name']), None)
+                        matched_user = next((each_snmp for each_snmp in have_user if each_snmp['name'] == want['name']), None)
                         if matched_user:
                             user_name = matched_user['name']
                             user_url = "data/ietf-snmp:snmp/usm/local/user={0}".format(user_name)
