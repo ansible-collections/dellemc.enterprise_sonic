@@ -38,6 +38,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_facts
     fbs_classifiers:
       redirect: dellemc.enterprise_sonic.sonic_fbs_classifiers
+    fbs_policies:
+      redirect: dellemc.enterprise_sonic.sonic_fbs_policies
     fips:
       redirect: dellemc.enterprise_sonic.sonic_fips
     image_management:
