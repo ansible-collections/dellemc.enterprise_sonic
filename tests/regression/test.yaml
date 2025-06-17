@@ -78,7 +78,9 @@
     - sonic_lst
     - sonic_fbs_classifiers
     - sonic_fbs_groups
+    - sonic_ptp_default_ds
     - sonic_mirroring
+    - sonic_ptp_port_ds
     - sonic_evpn_esi_multihome
     - sonic_ssh_server
     - test_reports
