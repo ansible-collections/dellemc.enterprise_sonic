@@ -6,13 +6,13 @@
   collections:
     - dellemc.enterprise_sonic
   tasks:
-    - name: "Test patch_api"
+    - name: "Test patch_api_1"
       sonic_api:
         url: data/openconfig-interfaces:interfaces/interface=Eth1%2f26/config/description
         method: "PATCH"
         status_code: 204
         body: {"openconfig-interfaces:description": "hi "}
-    - name: "Test patch_api"
+    - name: "Test patch_api_2"
       sonic_api:
         url: data/openconfig-interfaces:interfaces/interface=Eth1%2f26/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/
         method: "PATCH"
