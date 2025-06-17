@@ -1,0 +1,280 @@
+---
+merged_01:
+  module_args:
+    config:
+      priority1: 136
+      priority2: 132
+      clock_type: "BC"
+      domain_number: 24
+      domain_profile: "G.8275.1"
+      network_transport: "L2"
+      unicast_multicast: "multicast"
+    state: merged
+  existing_ptp_default_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      response:
+        code: 200
+        value:
+          ietf-ptp:default-ds:
+            domain-number: 0
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
+      method: "patch"
+      data:
+        priority1: 136
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
+      method: "patch"
+      data:
+        priority2: 132
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:clock-type"
+      method: "patch"
+      data:
+        ietf-ptp-ext:clock-type: "BC"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/domain-number"
+      method: "patch"
+      data:
+        domain-number: 24
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:domain-profile"
+      method: "patch"
+      data:
+        ietf-ptp-ext:domain-profile: "G.8275.1"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:network-transport"
+      method: "patch"
+      data:
+        ietf-ptp-ext:network-transport: "L2"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:unicast-multicast"
+      method: "patch"
+      data:
+        ietf-ptp-ext:unicast-multicast: "multicast"
+
+merged_02:
+  module_args:
+    config:
+      announce_receipt_timeout: 3
+      log_announce_interval: -3
+      log_min_delay_req_interval: -4
+      log_sync_interval: -4
+      priority1: 134
+      priority2: 135
+      source_interface: "Loopback0"
+      two_step_flag: false
+    state: merged
+  existing_ptp_default_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      response:
+        code: 200
+        value:
+          ietf-ptp:default-ds:
+            ietf-ptp-ext:clock-type: "BC"
+            domain-number: 24
+            ietf-ptp-ext:domain-profile: "G.8275.1"
+            ietf-ptp-ext:network-transport: "L2"
+            priority1: 136
+            priority2: 132
+            ietf-ptp-ext:unicast-multicast: "multicast"
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:announce-receipt-timeout"
+      method: "patch"
+      data:
+        ietf-ptp-ext:announce-receipt-timeout: 3
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:log-announce-interval"
+      method: "patch"
+      data:
+        ietf-ptp-ext:log-announce-interval: -3
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:log-min-delay-req-interval"
+      method: "patch"
+      data:
+        ietf-ptp-ext:log-min-delay-req-interval: -4
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:log-sync-interval"
+      method: "patch"
+      data:
+        ietf-ptp-ext:log-sync-interval: -4
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
+      method: "patch"
+      data:
+        priority1: 134
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
+      method: "patch"
+      data:
+        priority2: 135
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:source-interface"
+      method: "patch"
+      data:
+        ietf-ptp-ext:source-interface: "Loopback0"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/two-step-flag"
+      method: "patch"
+      data:
+        two-step-flag: false
+
+deleted_01:
+  module_args:
+    config:
+      priority1: 134
+      priority2: 135
+      announce_receipt_timeout: 3
+      clock_type: "BC"
+      network_transport: "L2"
+      unicast_multicast: "multicast"
+      log_announce_interval: -3
+      log_min_delay_req_interval: -4
+      log_sync_interval: -4
+      domain_number: 24
+      source_interface: "Loopback0"
+      domain_profile: "G.8275.1"
+    state: deleted
+  existing_ptp_default_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      response:
+        code: 200
+        value:
+          ietf-ptp:default-ds:
+            ietf-ptp-ext:announce-receipt-timeout: 3
+            ietf-ptp-ext:log-announce-interval: -3
+            ietf-ptp-ext:log-min-delay-req-interval: -4
+            ietf-ptp-ext:log-sync-interval: -4
+            priority1: 134
+            priority2: 135
+            ietf-ptp-ext:source-interface: "Loopback0"
+            two-step-flag: false
+            ietf-ptp-ext:clock-type: "BC"
+            domain-number: 24
+            ietf-ptp-ext:domain-profile: "G.8275.1"
+            ietf-ptp-ext:network-transport: "L2"
+            ietf-ptp-ext:unicast-multicast: "multicast"
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:clock-type"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:network-transport"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:unicast-multicast"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:log-announce-interval"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:log-min-delay-req-interval"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:log-sync-interval"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:announce-receipt-timeout"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/domain-number"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:domain-profile"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:source-interface"
+      method: "delete"
+
+replaced_01:
+  module_args:
+    config:
+      priority1: 128
+      priority2: 129
+      announce_receipt_timeout: 3
+    state: replaced
+  existing_ptp_default_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      response:
+        code: 200
+        value:
+          ietf-ptp:default-ds:
+            ietf-ptp-ext:log-announce-interval: -3
+            ietf-ptp-ext:log-min-delay-req-interval: -4
+            ietf-ptp-ext:log-sync-interval: -4
+            ietf-ptp-ext:source-interface: "Loopback0"
+            two-step-flag: false
+            ietf-ptp-ext:clock-type: "BC"
+            domain-number: 24
+            ietf-ptp-ext:domain-profile: "G.8275.1"
+            ietf-ptp-ext:network-transport: "L2"
+            ietf-ptp-ext:unicast-multicast: "multicast"
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
+      method: "patch"
+      data:
+        priority1: 128
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
+      method: "patch"
+      data:
+        priority2: 129
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:announce-receipt-timeout"
+      method: "patch"
+      data:
+        ietf-ptp-ext:announce-receipt-timeout: 3
+
+overridden_01:
+  module_args:
+    config:
+      priority1: 135
+      priority2: 135
+      clock_type: "BC"
+      domain_number: 25
+      domain_profile: "G.8275.1"
+      network_transport: "L2"
+      unicast_multicast: "multicast"
+    state: overridden
+  existing_ptp_default_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      response:
+        code: 200
+        value:
+          ietf-ptp:default-ds:
+            priority1: 128
+            priority2: 129
+            ietf-ptp-ext:announce-receipt-timeout: 3
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority1"
+      method: "patch"
+      data:
+        priority1: 135
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/priority2"
+      method: "patch"
+      data:
+        priority2: 135
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:clock-type"
+      method: "patch"
+      data:
+        ietf-ptp-ext:clock-type: "BC"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/domain-number"
+      method: "patch"
+      data:
+        domain-number: 25
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:domain-profile"
+      method: "patch"
+      data:
+        ietf-ptp-ext:domain-profile: "G.8275.1"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:network-transport"
+      method: "patch"
+      data:
+        ietf-ptp-ext:network-transport: "L2"
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds/ietf-ptp-ext:unicast-multicast"
+      method: "patch"
+      data:
+        ietf-ptp-ext:unicast-multicast: "multicast"
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_ptp_default_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      response:
+        code: 200
+        value:
+          ietf-ptp:default-ds:
+            ietf-ptp-ext:clock-type: "BC"
+            domain-number: 25
+            ietf-ptp-ext:domain-profile: "G.8275.1"
+            ietf-ptp-ext:network-transport: "L2"
+            priority1: 135
+            priority2: 135
+            ietf-ptp-ext:unicast-multicast: "multicast"
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/default-ds"
+      method: "delete"

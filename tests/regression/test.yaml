@@ -11,6 +11,7 @@
     - sonic_api
     - sonic_command
     - sonic_config
+    - sonic_dcbx
     - sonic_image_management
     - sonic_system
     - sonic_interfaces
@@ -26,6 +27,7 @@
     - sonic_bgp_af
     - sonic_bgp_neighbors
     - sonic_bgp_neighbors_af
+    - sonic_br_l2pt
     - sonic_ospfv2_interfaces
     - sonic_ospfv2
     - sonic_dhcp_snooping
@@ -44,6 +46,7 @@
     - sonic_ntp
     - sonic_logging
     - sonic_ip_neighbor
+    - sonic_ipv6_router_advertisement
     - sonic_port_group
     - sonic_dhcp_relay
     - sonic_acl_interfaces
@@ -75,5 +78,9 @@
     - sonic_lst
     - sonic_fbs_classifiers
     - sonic_network_policy
+    - sonic_ptp_default_ds
     - sonic_mirroring
+    - sonic_ptp_port_ds
+    - sonic_evpn_esi_multihome
+    - sonic_ssh_server
     - test_reports
