@@ -94,7 +94,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'evpn_esi_multihome',
         'ssh_server'
     ]
-    
+
     argument_spec = {
         'gather_subset': dict(default=['!config'], type='list', elements='str'),
         'gather_network_resources': dict(choices=choices, type='list', elements='str'),
