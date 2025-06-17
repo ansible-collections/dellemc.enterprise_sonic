@@ -278,7 +278,7 @@ EXAMPLES = """
   sonic_loadshare_mode:
     config:
       hash_algorithm: CRC_32LO
-      hash_ingress_port: True
+      hash_ingress_port: true
       hash_offset:
         flow_based: true
       hash_seed: 9999
@@ -292,15 +292,15 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-#sonic# show running-configuration | grep load-share
-#ip load-share hash offset flow-based
-#ip load-share hash seed 9999
-#ip load-share hash ipv4 ipv4-src-ip
-#ip load-share hash ipv4 ipv4-ip-proto
-#ip load-share hash ipv4 ipv4-l4-src-port
-#ip load-share hash ipv4 ipv4-l4-dst-port
-#ip load-share hash algorithm CRC_32LO
-#ip load-share hash ingress-port
+# sonic# show running-configuration | grep load-share
+# ip load-share hash offset flow-based
+# ip load-share hash seed 9999
+# ip load-share hash ipv4 ipv4-src-ip
+# ip load-share hash ipv4 ipv4-ip-proto
+# ip load-share hash ipv4 ipv4-l4-src-port
+# ip load-share hash ipv4 ipv4-l4-dst-port
+# ip load-share hash algorithm CRC_32LO
+# ip load-share hash ingress-port
 """
 
 RETURN = """
