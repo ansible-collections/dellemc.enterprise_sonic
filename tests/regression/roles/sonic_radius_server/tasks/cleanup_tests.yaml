@@ -7,6 +7,6 @@
 - name: Delete test VRF 
   sonic_vrfs:
     config: []
-    #  - name: VrfAnsibleTest
+      - name: VrfAnsibleTest
     state: deleted
   ignore_errors: yes
