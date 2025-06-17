@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -33,6 +33,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'bgp_as_paths',
         'bgp_communities',
         'bgp_ext_communities',
+        'dcbx',
         'ospfv2_interfaces',
         'ospfv2',
         'mclag',
@@ -53,6 +54,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'logging',
         'pki',
         'ip_neighbor',
+        'ipv6_router_advertisement',
         'port_group',
         'dhcp_relay',
         'dhcp_snooping',
@@ -76,7 +78,9 @@ class FactsArgs(object):  # pylint: disable=R0903
         'qos_wred',
         'qos_interfaces',
         'pim_global',
+        'ptp_default_ds',
         'pim_interfaces',
+        'ptp_port_ds',
         'login_lockout',
         'poe',
         'mgmt_servers',
@@ -84,7 +88,11 @@ class FactsArgs(object):  # pylint: disable=R0903
         'ssh',
         'lst',
         'fbs_classifiers',
-        'ars'
+        'ars',
+        'mirroring',
+        'br_l2pt',
+        'evpn_esi_multihome',
+        'ssh_server'
     ]
 
     argument_spec = {
