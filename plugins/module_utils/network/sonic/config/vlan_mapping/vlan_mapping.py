@@ -30,6 +30,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    get_ranges_in_list
+)
 from ansible.module_utils.connection import ConnectionError
 
 
@@ -372,12 +375,18 @@ class Vlan_mapping(ConfigBase):
             if vlan_ids and have_vlan_ids:
                 vlan_ids_str = ""
                 same_vlan_ids_list = self.get_vlan_ids_diff(vlan_ids, have_vlan_ids, same=True)
-                if same_vlan_ids_list:
-                    for vlan in same_vlan_ids_list:
-                        if vlan_ids_str:
-                            vlan_ids_str = vlan_ids_str + "%2C" + vlan
-                        else:
-                            vlan_ids_str = vlan
+                num_same_vlan_ids = list(map(int, same_vlan_ids_list))
+                range_in_list = get_ranges_in_list(num_same_vlan_ids)
+
+                for sublist in range_in_list:
+                    vlan_ids_str = ""
+                    if len(sublist) > 1:
+                        min_num = min(sublist)
+                        max_num = max(sublist)
+                        vlan_ids_str = str(min_num) + ".." + str(max_num)
+                    else:
+                        vlan_ids_str = str(sublist[0])
+
                     path = vlan_ids_url.format(interface_name, service_vlan, vlan_ids_str)
                     request = {"path": path, "method": method}
                     requests.append(request)
