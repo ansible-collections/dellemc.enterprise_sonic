@@ -70,6 +70,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_lldp_global
     lldp_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_lldp_interfaces
+    loadshare_mode:
+      redirect: dellemc.enterprise_sonic.sonic_loadshare_mode
     logging:
       redirect: dellemc.enterprise_sonic.sonic_logging
     login_lockout:
@@ -128,6 +130,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_sflow
     ssh:
       redirect: dellemc.enterprise_sonic.sonic_ssh
+    ssh_server:
+      redirect: dellemc.enterprise_sonic.sonic_ssh_server
     static_routes:
       redirect: dellemc.enterprise_sonic.sonic_static_routes
     stp:
@@ -148,5 +152,3 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_vrrp
     vxlans:
       redirect: dellemc.enterprise_sonic.sonic_vxlans
-    ssh_server:
-      redirect: dellemc.enterprise_sonic.sonic_ssh_server
