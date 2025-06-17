@@ -34,6 +34,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_relay
     dhcp_snooping:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
+    drop_counter:
+      redirect: dellemc.enterprise_sonic.sonic_drop_counter
     facts:
       redirect: dellemc.enterprise_sonic.sonic_facts
     fbs_classifiers:
