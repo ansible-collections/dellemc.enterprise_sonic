@@ -1,5 +1,5 @@
 ---
-- name: "Delete old snmps"
+- name: "Delete old SNMP configuration"
   vars:
     ansible_connection: httpapi
   dellemc.enterprise_sonic.sonic_snmp:

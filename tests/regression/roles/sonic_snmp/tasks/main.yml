@@ -13,6 +13,3 @@
 - name: "Test {{ module_name }} started ..."
   include_tasks: tasks_template.yaml
   loop: "{{ tests }}"
-
-- name: "Cleanup started ..."
-  include_tasks: cleanup_tests.yml

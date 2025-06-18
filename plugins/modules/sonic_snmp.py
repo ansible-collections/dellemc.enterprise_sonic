@@ -14,7 +14,10 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_snmp
-version_added: 4.5.0
+version_added: 3.1.0
+notes:
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
 author: Aida Shumburo (@aida-shumburo)
 short_description: Manage SNMP configuration on SONiC
 description:
@@ -70,7 +73,7 @@ options:
         type: str
       enable_trap:
         description:
-          - Specify trap(s) to enable. The all choice indicates all traps should be enabled
+          - Specify trap(s) to enable. The "all" choice indicates all traps should be enabled
         type: list
         elements: str
         choices:
@@ -360,8 +363,7 @@ EXAMPLES = """
 # ---------------
 #
 # show running-configuration | grep snmp
-# (no snmp-server configuration present)
-#
+# (No snmp-server configuration present)
 
 - name: Merge specific option snmp-server configuration
   sonic_snmp:
@@ -393,8 +395,7 @@ EXAMPLES = """
 # ---------------
 #
 # show running-configuration | grep snmp
-# (no snmp-server configuration present)
-#
+# (No snmp-server configuration present)
 
 - name: Merge specific option snmp-server configuration
   sonic_snmp:
@@ -427,8 +428,8 @@ EXAMPLES = """
 # ---------------
 #
 # show running-configuration | grep snmp
-# (no snmp-server configuration present)
-#
+# (No snmp-server configuration present)
+
 
 - name: Merge specific option snmp-server configuration
   sonic_snmp:
@@ -466,7 +467,6 @@ EXAMPLES = """
 # md5 auth-password
 # U2FsdGVkX18J+L+L9OyQYWpAkGUrTgcg/6xzZoDjCbQw1ISHJ5mxmxrYZgQypEUXDeNe6rBupsc9sVDJBKxrwA==
 # priv aes-128 priv-password U2FsdGVkX1/Xs+ffZvdV9YzfyGHgIJ+zkLRPfF3/WgYIE1S4Ribvbzhu5chpHHI7ooCBpcVxYZotAXDzgetxvQ==
-#
 
 - name: Replace snmp-server configuration
   sonic_snmp:
@@ -498,7 +498,6 @@ EXAMPLES = """
 # md5 auth-password
 # U2FsdGVkX18J+L+L9OyQYWpAkGUrTgcg/6xzZoDjCbQw1ISHJ5mxmxrYZgQypEUXDeNe6rBupsc9sVDJBKxrwA==
 # priv aes-128 priv-password U2FsdGVkX1/Xs+ffZvdV9YzfyGHgIJ+zkLRPfF3/WgYIE1S4Ribvbzhu5chpHHI7ooCBpcVxYZotAXDzgetxvQ==
-#
 
 - name: Override snmp-server configuration
   sonic_snmp:

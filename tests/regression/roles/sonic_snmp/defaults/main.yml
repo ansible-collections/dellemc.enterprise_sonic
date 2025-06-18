@@ -4,7 +4,7 @@ module_name: sonic_snmp
 
 tests_single_run:
   - name: test_case_01_merged
-    description: Merge snmp enable_trap contact, user and location configuration
+    description: Merge SNMP enable_trap contact, user and location configuration
     state: merged
     task_condition_type: action
     input:
@@ -24,7 +24,7 @@ tests_single_run:
 
 tests:
   - name: test_case_01_merge_encrypted_user
-    description: Merge snmp encrypted user configuration
+    description: Merge SNMP encrypted user configuration
     state: merged
     input:
       user:
@@ -38,7 +38,7 @@ tests:
           encrypted: True
 
   - name: test_case_02_merged_group_community_view
-    description: Merge some of the snmp configuration
+    description: Merge some of the SNMP configuration
     state: merged
     input:
       group:
@@ -72,7 +72,7 @@ tests:
           interface: 'Eth1/30'
 
   - name: test_case_04_replaced_group
-    description: Replace some of a snmp group
+    description: Replace some of a SNMP group
     state: replaced
     input:
       group:
@@ -93,15 +93,12 @@ tests:
           timeout: 400
           tag: 'inform'
           retries: 20
+          port: 162
 
   - name: test_case_06_overridden_host
     description: Override host and group
     state: overridden
     input:
-      host:
-        - ip: '1.2.3.5'
-          timeout: 600
-          tag: 'inform'
       group:
         - name: 'group-lab'
           access:
@@ -111,7 +108,7 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_07_deleted
+  - name: test_case_07_delete_group
     description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted
     input:
@@ -120,7 +117,21 @@ tests:
           access:
             - security_model: 'v2c'
 
-  - name: test_case_08_deleted_all
+  - name: test_case_08_merge_community_and_view
+    description: Merge some of the SNMP configuration
+    state: merged
+    input:
+      group:
+        - name: 'group-lab'
+      community:
+        - group: 'group-lab'
+          name: 'comm1'
+      view:
+        - name: 'view2'
+          excluded:
+            - '1.2.3.4.5.6.7.8.9.2'
+
+  - name: test_case_09_deleted_all
     description: Delete all SNMP server configuration
     state: deleted
     input: {}

@@ -191,7 +191,7 @@ class Snmp(ConfigBase):
 
         diff_want = get_diff(want, have)
         del_commands = get_diff(have, want)
-        if not diff_want or not del_commands:
+        if not diff_want and not del_commands:
             return commands, requests
         merged_commands = None
         merged_request = None
@@ -200,15 +200,9 @@ class Snmp(ConfigBase):
             del_requests = self.get_delete_snmp_request(del_commands, have, True)
             requests.extend(del_requests)
             commands.extend(update_states(have, "deleted"))
+
             merged_commands = want
             merged_request = self.get_create_snmp_request(merged_commands)
-        else:
-            merged_commands = get_diff(want, have)
-            merged_commands = self.check_user_exists(commands, have)
-            if merged_commands:
-                merged_request = self.get_create_snmp_request(merged_commands)
-
-        if merged_request:
             requests.extend(merged_request)
             commands.extend(update_states(merged_commands, state))
 
@@ -701,7 +695,7 @@ class Snmp(ConfigBase):
                 type_info['security-name'] = conf.get('community')
                 target_params_dict['v2c'] = type_info
             else:
-                server_level = conf.get('user').get('security_level', None)
+                server_level = conf.get('user').get('security_level')
                 if server_level == "auth":
                     type_info['security-level'] = 'auth-no-priv'
                 if server_level == "noauth":
