@@ -39,7 +39,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 ARS_PATH = 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
 PATCH = 'patch'
 DELETE = 'delete'
-is_delete_all = False
+delete_all = False
 is_replaced = False
 TEST_KEYS = [
     {'ars_objects': {'name': ''}},
@@ -64,30 +64,35 @@ enum_dict = {
     'packet_quality': 'ARS_MODE_PER_PACKET_QUALITY',
     'packet_random': 'ARS_MODE_PER_PACKET_RANDOM'
 }
-default_entries = {
-    'algo': 'EWMA',
-    'enable': False,
-    'idle_time': 80,
-    'load_current_max_val': 6291456,
-    'load_current_min_val': 1048576,
-    'load_future_max_val': 12582912,
-    'load_future_min_val': 2097152,
-    'load_future_weight': 10,
-    'load_past_max_val': 6000,
-    'load_past_min_val': 3000,
-    'load_past_weight': 80,
-    'load_scaling_factor': 0.0,
-    'max_flows': 256,
-    'mode': 'flowlet_quality',
-    'port_load_current': False,
-    'port_load_exponent': 2,
-    'port_load_future': True,
-    'port_load_future_weight': 2,
-    'port_load_past': True,
-    'port_load_past_weight': 2,
-    'random_seed': 10,
-    'sampling_interval': 16,
-
+DEFAULTS_MAP = {
+    'ars_objects': {
+        'idle_time': 80,
+        'max_flows': 256,
+        'mode': 'flowlet_quality'
+    },
+    'port_profiles': {
+        'enable': False,
+        'load_future_weight': 10,
+        'load_past_weight': 80,
+        'load_scaling_factor': 0.0,
+    },
+    'profiles': {
+        'algo': 'EWMA',
+        'load_current_max_val': 6291456,
+        'load_current_min_val': 1048576,
+        'load_future_max_val': 12582912,
+        'load_future_min_val': 2097152,
+        'load_past_max_val': 6000,
+        'load_past_min_val': 3000,
+        'port_load_current': False,
+        'port_load_exponent': 2,
+        'port_load_future': True,
+        'port_load_future_weight': 2,
+        'port_load_past': True,
+        'port_load_past_weight': 2,
+        'random_seed': 10,
+        'sampling_interval': 16
+    }
 }
 
 
@@ -139,9 +144,9 @@ class Ars(ConfigBase):
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
-
         result['before'] = existing_ars_facts
         old_config = existing_ars_facts
+
         if self._module.check_mode:
             new_config = self.get_new_config(commands, existing_ars_facts)
             self.sort_lists_dicts_in_config(new_config)
@@ -179,8 +184,7 @@ class Ars(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
 
@@ -201,11 +205,11 @@ class Ars(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
+        global is_replaced
+        is_replaced = False
         commands = []
         mod_commands = None
         replaced_config, requests = self.get_replaced_config(want, have)
-        global is_replaced
-        is_replaced = False
 
         if replaced_config:
             is_replaced = True
@@ -216,7 +220,6 @@ class Ars(ConfigBase):
 
         if mod_commands:
             mod_request = self.get_modify_ars_request(mod_commands)
-
             if mod_request:
                 requests.append(mod_request)
                 commands.extend(update_states(mod_commands, 'replaced'))
@@ -230,25 +233,22 @@ class Ars(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
-        mod_commands = None
-        mod_request = None
-        global is_delete_all
-        is_delete_all = False
+        global delete_all
+        delete_all = False
+        commands, requests = [], []
+        mod_commands, mod_request = None, None
         self.add_default_entries(want)
         del_commands = get_diff(have, want, TEST_KEYS)
 
-        if not del_commands and diff:
-            mod_commands = diff
-            mod_request = self.get_modify_ars_request(mod_commands)
-
         if del_commands:
-            is_delete_all = True
-            del_requests = self.get_delete_ars_requests(del_commands, is_delete_all)
+            delete_all = True
+            del_requests = self.get_delete_ars_requests(del_commands, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             mod_commands = want
+            mod_request = self.get_modify_ars_request(mod_commands)
+        elif diff:
+            mod_commands = diff
             mod_request = self.get_modify_ars_request(mod_commands)
 
         if mod_request:
@@ -281,19 +281,19 @@ class Ars(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        global is_delete_all
-        is_delete_all = False
+        global delete_all
+        delete_all = False
         requests = []
 
         if not want:
             commands = deepcopy(have)
-            is_delete_all = True
+            delete_all = True
         else:
             commands = get_diff(want, diff, TEST_KEYS)
             self.remove_default_entries(commands)
 
         if commands:
-            requests = self.get_delete_ars_requests(commands, is_delete_all)
+            requests = self.get_delete_ars_requests(commands, delete_all)
             if len(requests) > 0:
                 commands = update_states(commands, 'deleted')
         else:
@@ -379,12 +379,12 @@ class Ars(ConfigBase):
                 if len(obj) == 1:
                     requests.append(self.get_delete_ars_object(name))
                     continue
-                if obj.get('idle_time'):
-                    requests.append(self.get_delete_ars_object(name, 'idle-time'))
-                if obj.get('max_flows'):
-                    requests.append(self.get_delete_ars_object(name, 'max-flows'))
-                if obj.get('mode'):
-                    requests.append(self.get_delete_ars_object(name, 'mode'))
+                for key in obj:
+                    if key == 'name':
+                        continue
+                    if obj.get(key):
+                        attr = key.replace('_', '-')
+                        requests.append(self.get_delete_ars_object(name, attr))
 
         if commands.get('port_bindings'):
             for bind in commands['port_bindings']:
@@ -410,14 +410,12 @@ class Ars(ConfigBase):
                 if len(profile) == 1:
                     requests.append(self.get_delete_port_profile(name))
                     continue
-                if profile.get('enable') is not None:
-                    requests.append(self.get_delete_port_profile(name, 'enable'))
-                if profile.get('load_future_weight'):
-                    requests.append(self.get_delete_port_profile(name, 'load-future-weight'))
-                if profile.get('load_past_weight') is not None:
-                    requests.append(self.get_delete_port_profile(name, 'load-past-weight'))
-                if profile.get('load_scaling_factor') is not None:
-                    requests.append(self.get_delete_port_profile(name, 'load-scaling-factor'))
+                for key in profile:
+                    if key == 'name':
+                        continue
+                    if profile.get(key) is not None:
+                        attr = key.replace('_', '-')
+                        requests.append(self.get_delete_port_profile(name, attr))
 
         if commands.get('profiles'):
             for profile in commands.get('profiles'):
@@ -425,36 +423,12 @@ class Ars(ConfigBase):
                 if len(profile) == 1:
                     requests.append(self.get_delete_profile(name))
                     continue
-                if profile.get('algo'):
-                    requests.append(self.get_delete_profile(name, 'algo'))
-                if profile.get('load_current_max_val') is not None:
-                    requests.append(self.get_delete_profile(name, 'load-current-max-val'))
-                if profile.get('load_current_min_val') is not None:
-                    requests.append(self.get_delete_profile(name, 'load-current-min-val'))
-                if profile.get('load_future_max_val') is not None:
-                    requests.append(self.get_delete_profile(name, 'load-future-max-val'))
-                if profile.get('load_future_min_val') is not None:
-                    requests.append(self.get_delete_profile(name, 'load-future-min-val'))
-                if profile.get('load_past_max_val') is not None:
-                    requests.append(self.get_delete_profile(name, 'load-past-max-val'))
-                if profile.get('load_past_min_val') is not None:
-                    requests.append(self.get_delete_profile(name, 'load-past-min-val'))
-                if profile.get('port_load_current') is not None:
-                    requests.append(self.get_delete_profile(name, 'port-load-current'))
-                if profile.get('port_load_exponent'):
-                    requests.append(self.get_delete_profile(name, 'port-load-exponent'))
-                if profile.get('port_load_future') is not None:
-                    requests.append(self.get_delete_profile(name, 'port-load-future'))
-                if profile.get('port_load_future_weight'):
-                    requests.append(self.get_delete_profile(name, 'port-load-future-weight'))
-                if profile.get('port_load_past') is not None:
-                    requests.append(self.get_delete_profile(name, 'port-load-past'))
-                if profile.get('port_load_past_weight'):
-                    requests.append(self.get_delete_profile(name, 'port-load-past-weight'))
-                if profile.get('random_seed') is not None:
-                    requests.append(self.get_delete_profile(name, 'random-seed'))
-                if profile.get('sampling_interval'):
-                    requests.append(self.get_delete_profile(name, 'sampling-interval'))
+                for key in profile:
+                    if key == 'name':
+                        continue
+                    if profile.get(key) is not None:
+                        attr = key.replace('_', '-')
+                        requests.append(self.get_delete_profile(name, attr))
 
         return requests
 
@@ -506,40 +480,17 @@ class Ars(ConfigBase):
     def sort_lists_dicts_in_config(self, config):
         """This method sorts the lists and dicts in the ARS configuration"""
         if config:
-            if config.get('ars_objects'):
-                dict_list = []
-                for obj in config['ars_objects']:
-                    dict_list.append(dict(sorted(obj.items())))
-                dict_list.sort(key=lambda x: x['name'])
-                config['ars_objects'] = dict_list
-            if config.get('port_bindings'):
-                dict_list = []
-                for bind in config['port_bindings']:
-                    dict_list.append(dict(sorted(bind.items())))
-                dict_list.sort(key=lambda x: x['name'])
-                config['port_bindings'] = dict_list
-            if config.get('port_profiles'):
-                dict_list = []
-                for profile in config['port_profiles']:
-                    dict_list.append(dict(sorted(profile.items())))
-                dict_list.sort(key=lambda x: x['name'])
-                config['port_profiles'] = dict_list
-            if config.get('profiles'):
-                dict_list = []
-                for profile in config['profiles']:
-                    dict_list.append(dict(sorted(profile.items())))
-                dict_list.sort(key=lambda x: x['name'])
-                config['profiles'] = dict_list
-            if config.get('switch_bindings'):
-                dict_list = []
-                for bind in config['switch_bindings']:
-                    dict_list.append(dict(sorted(bind.items())))
-                dict_list.sort(key=lambda x: x['name'])
-                config['switch_bindings'] = dict_list
+            ars_lists = ['ars_objects', 'port_bindings', 'port_profiles', 'profiles', 'switch_bindings']
+            for ars_list in ars_lists:
+                if config.get(ars_list):
+                    dict_list = []
+                    for item in config[ars_list]:
+                        dict_list.append(dict(sorted(item.items())))
+                    dict_list.sort(key=lambda x: x['name'])
+                    config[ars_list] = dict_list
 
     def remove_default_entries(self, data):
         """This method removes the default entries from the ARS configuration"""
-
         if data:
             ars_lists = ['ars_objects', 'port_profiles', 'profiles']
             for ars_list in ars_lists:
@@ -550,9 +501,9 @@ class Ars(ConfigBase):
                             continue
                         key_pop_list = []
                         for key in ars_dict:
-                            if key not in default_entries:
+                            if key not in DEFAULTS_MAP[ars_list]:
                                 continue
-                            if ars_dict[key] == default_entries[key]:
+                            if ars_dict[key] == DEFAULTS_MAP[ars_list][key]:
                                 key_pop_list.append(key)
                         for key in key_pop_list:
                             ars_dict.pop(key)
@@ -566,61 +517,17 @@ class Ars(ConfigBase):
 
     def add_default_entries(self, data):
         """This method adds the default entries to the ARS configuration"""
+        ars_lists = ['ars_objects', 'port_profiles', 'profiles']
 
-        if data.get('ars_objects'):
-            for obj in data['ars_objects']:
-                if 'idle_time' not in obj:
-                    obj['idle_time'] = 80
-                if 'max_flows' not in obj:
-                    obj['max_flows'] = 256
-                if 'mode' not in obj:
-                    obj['mode'] = 'flowlet_quality'
-        if data.get('port_profiles'):
-            for profile in data['port_profiles']:
-                if 'enable' not in profile:
-                    profile['enable'] = False
-                if 'load_future_weight' not in profile:
-                    profile['load_future_weight'] = 10
-                if 'load_past_weight' not in profile:
-                    profile['load_past_weight'] = 80
-                if 'load_scaling_factor' not in profile:
-                    profile['load_scaling_factor'] = 0.0
-        if data.get('profiles'):
-            for profile in data['profiles']:
-                if 'algo' not in profile:
-                    profile['algo'] = 'EWMA'
-                if 'load_current_max_val' not in profile:
-                    profile['load_current_max_val'] = 6291456
-                if 'load_current_min_val' not in profile:
-                    profile['load_current_min_val'] = 1048576
-                if 'load_future_max_val' not in profile:
-                    profile['load_future_max_val'] = 12582912
-                if 'load_future_min_val' not in profile:
-                    profile['load_future_min_val'] = 2097152
-                if 'load_past_max_val' not in profile:
-                    profile['load_past_max_val'] = 6000
-                if 'load_past_min_val' not in profile:
-                    profile['load_past_min_val'] = 3000
-                if 'port_load_current' not in profile:
-                    profile['port_load_current'] = False
-                if 'port_load_exponent' not in profile:
-                    profile['port_load_exponent'] = 2
-                if 'port_load_future' not in profile:
-                    profile['port_load_future'] = True
-                if 'port_load_future_weight' not in profile:
-                    profile['port_load_future_weight'] = 2
-                if 'port_load_past' not in profile:
-                    profile['port_load_past'] = True
-                if 'port_load_past_weight' not in profile:
-                    profile['port_load_past_weight'] = 2
-                if 'random_seed' not in profile:
-                    profile['random_seed'] = 10
-                if 'sampling_interval' not in profile:
-                    profile['sampling_interval'] = 16
+        for ars_list in ars_lists:
+            if data.get(ars_list):
+                for item in data[ars_list]:
+                    for key in DEFAULTS_MAP[ars_list]:
+                        if key not in item:
+                            item[key] = DEFAULTS_MAP[ars_list][key]
 
     def get_replaced_config(self, want, have):
         """This method returns the ARS configuration to be deleted and the respective delete requests"""
-
         config_dict = {}
         requests = []
         new_want = deepcopy(want)
@@ -647,17 +554,18 @@ class Ars(ConfigBase):
 
     def __derive_ars_delete_op(self, key_set, command, exist_conf):
         """Returns new ARS configuration on delete operation"""
-        if is_delete_all:
+        if delete_all:
             return True, {}
 
         new_conf = exist_conf
+        ars_lists = ['ars_objects', 'port_bindings', 'port_profiles', 'profiles', 'switch_bindings']
 
-        for ars_list in command:
+        for ars_list in ars_lists:
             if is_replaced:
-                new_conf.pop(ars_list)
+                new_conf.pop(ars_list, None)
                 continue
             pop_list = []
-            for ars_dict in command[ars_list]:
+            for ars_dict in command.get(ars_list, []):
                 idx = command[ars_list].index(ars_dict)
                 if len(ars_dict) == 1:
                     pop_list.insert(0, idx)
@@ -665,13 +573,13 @@ class Ars(ConfigBase):
                 for key in ars_dict:
                     if key == 'name':
                         continue
-                    if key in default_entries:
-                        new_conf[ars_list][idx][key] = default_entries[key]
+                    if key in DEFAULTS_MAP.get(ars_list, {}):
+                        new_conf[ars_list][idx][key] = DEFAULTS_MAP[ars_list][key]
                     else:
                         new_conf[ars_list][idx].pop(key)
             for idx in pop_list:
                 new_conf[ars_list].pop(idx)
-            if not new_conf[ars_list]:
+            if ars_list in new_conf and not new_conf[ars_list]:
                 new_conf.pop(ars_list)
 
         return True, new_conf
