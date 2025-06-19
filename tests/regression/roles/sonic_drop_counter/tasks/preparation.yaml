@@ -1,5 +1,5 @@
 ---
-- name: Delete drop counter cinfiguration
+- name: Delete drop counter configuration
   sonic_drop_counter:
     config:
     state: deleted
