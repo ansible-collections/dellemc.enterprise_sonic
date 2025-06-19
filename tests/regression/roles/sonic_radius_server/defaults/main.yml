@@ -23,7 +23,7 @@ tests:
           - name: my-host1.dell
             auth_type: chap
             priority: 3
-            vrf: mgmt
+            vrf: VrfAnsibleTest
             timeout: 12
             port: 55
             source_interface: "{{ interface1 }}"
@@ -31,7 +31,7 @@ tests:
           - name: my-host2.dell
             auth_type: pap
             priority: 4
-            vrf: mgmt
+            vrf: VrfAnsibleTest
             timeout: 15
             port: 56
             source_interface: "{{ interface2 }}"
@@ -39,7 +39,7 @@ tests:
           - name: my-host3.dell
             auth_type: mschapv2
             priority: 6
-            vrf: mgmt
+            vrf: VrfAnsibleTest
             timeout: 20
             port: 57
             source_interface: "{{ interface3 }}"
@@ -56,7 +56,7 @@ tests:
             auth_type: mschapv2
             port: 45
             timeout: 9
-            vrf: mgmt
+            vrf: VrfAnsibleTest
   - name: test_case_03
     description: Delete all params of a radius server host
     state: deleted
@@ -86,7 +86,7 @@ tests:
           - name: myhost1.dell
             auth_type: chap
             priority: 3
-            vrf: mgmt
+            vrf: VrfAnsibleTest
             timeout: 12
             port: 55
             source_interface: "{{ interface1 }}"
@@ -94,7 +94,7 @@ tests:
           - name: myhost2.dell
             auth_type: pap
             priority: 4
-            vrf: mgmt
+            vrf: VrfAnsibleTest
             timeout: 15
             port: 56
             source_interface: "{{ interface2 }}"
@@ -102,7 +102,7 @@ tests:
           - name: myhost3.dell
             auth_type: mschapv2
             priority: 6
-            vrf: mgmt
+            vrf: VrfAnsibleTest
             timeout: 20
             port: 57
             source_interface: "{{ interface3 }}"
