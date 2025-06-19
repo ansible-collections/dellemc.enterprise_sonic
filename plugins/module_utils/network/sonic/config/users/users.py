@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -28,6 +28,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
+    remove_empties,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_SUBCONFIG,
@@ -152,7 +153,10 @@ class Users(ConfigBase):
         if not want:
             want = []
 
-        new_want = [{'name': conf['name'], 'role': conf['role']} for conf in want]
+        # Handle "role" and "ssh_key" options.
+        new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']}
+                    if 'ssh_key' in conf and conf['ssh_key'] else {'name': conf['name'], 'role': conf['role']} for conf in want]
+
         new_diff = get_diff(new_want, have)
 
         diff = []
@@ -161,6 +165,7 @@ class Users(ConfigBase):
             if match:
                 diff.append(match)
 
+        # Handle "password" and "update_password" options
         for cfg in want:
             if cfg['password'] and cfg['update_password'] == 'always':
                 d_match = next((d_cfg for d_cfg in diff if d_cfg['name'] == cfg['name']), None)
@@ -254,14 +259,20 @@ class Users(ConfigBase):
         requests = []
         self.sort_lists_in_config(want)
         self.sort_lists_in_config(have)
-        new_want = [{'name': conf['name'], 'role': conf['role']} for conf in want]
+
+        new_want = [{'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']}
+                    if 'ssh_key' in conf and conf['ssh_key'] else {'name': conf['name'], 'role': conf['role']} for conf in want]
+
         new_have = []
         for conf in have:
             # Exclude admin user from new_have if it isn't present in new_want
             if conf['name'] == 'admin' and not any(cfg['name'] == 'admin' for cfg in new_want):
                 continue
             else:
-                new_have.append({'name': conf['name'], 'role': conf['role']})
+                if 'ssh_key' in conf:
+                    new_have.append({'name': conf['name'], 'role': conf['role'], 'ssh_key': conf['ssh_key']})
+                else:
+                    new_have.append({'name': conf['name'], 'role': conf['role']})
 
         if diff or new_want != new_have:
             # Delete all users except admin
@@ -289,21 +300,27 @@ class Users(ConfigBase):
             clear_pwd = pwd
         return clear_pwd, hashed_pwd
 
-    def get_single_user_payload(self, name, role, password, update_pass, match):
+    def get_single_user_payload(self, name, role, password, update_pass, ssh_key, match):
         user_cfg = {'username': name}
-        if not role and match:
-            role = match['role']
+        if not ssh_key:
+            if not role and match:
+                role = match['role']
 
-        if not password and match:
-            password = match['password']
+            if not password and match:
+                password = match['password']
 
-        if role:
-            user_cfg['role'] = role
+            if role:
+                user_cfg['role'] = role
 
-        if password:
-            clear_pwd, hashed_pwd = self.get_pwd(password)
-            user_cfg['password'] = clear_pwd
-            user_cfg['password-hashed'] = hashed_pwd
+            if password:
+                clear_pwd, hashed_pwd = self.get_pwd(password)
+                user_cfg['password'] = clear_pwd
+                user_cfg['password-hashed'] = hashed_pwd
+        else:
+            if role or password:
+                err_msg = "ssh_key can not be configured at the same time as other options."
+                self._module.fail_json(msg=err_msg, code=513)
+            user_cfg['ssh-key'] = ssh_key
 
         pay_load = {'openconfig-system:user': [{'username': name, 'config': user_cfg}]}
         return pay_load
@@ -312,11 +329,12 @@ class Users(ConfigBase):
         request = None
         name = conf.get('name', None)
         role = conf.get('role', None)
+        ssh_key = conf.get('ssh_key', None)
         password = conf.get('password', None)
         update_pass = conf.get('update_password', None)
-        if role or (password and update_pass == 'always'):
+        if role or (password and update_pass == 'always') or ssh_key:
             url = 'data/openconfig-system:system/aaa/authentication/users/user=%s' % (name)
-            payload = self.get_single_user_payload(name, role, password, update_pass, match)
+            payload = self.get_single_user_payload(name, role, password, update_pass, ssh_key, match)
             request = {'path': url, 'method': PATCH, 'data': payload}
         return request
 
@@ -342,16 +360,21 @@ class Users(ConfigBase):
     def validate_new_users(self, want, have):
         new_users = self.get_new_users(want, have)
         invalid_users = []
+        invalid_users_params = []
         for user in new_users:
             params = []
             if not user['role']:
                 params.append('role')
             if not user['password']:
                 params.append('password')
+            if user.get('ssh_key'):
+                invalid_users_params.append({user['name']: 'ssh_key'})
             if params:
                 invalid_users.append({user['name']: params})
-        if invalid_users:
+
+        if invalid_users or invalid_users_params:
             err_msg = "Missing parameter(s) for new users! " + str(invalid_users)
+            err_msg += "\nInvalid parameter(s) for new users! " + str(invalid_users_params)
             self._module.fail_json(msg=err_msg, code=513)
 
     def get_delete_users_requests(self, commands, have):
@@ -361,18 +384,39 @@ class Users(ConfigBase):
 
         # Skip the admin user in 'deleted' state. we cannot delete all users
         admin_usr = None
+        admin_usr_ssh_key_update = False
 
         for conf in commands:
-            # Skip the asmin user in 'deleted' state. we cannot delete all users
+            conf = remove_empties(conf)
+            match = next((cfg for cfg in have if cfg['name'] == conf['name']), None)
+            if match:
+                if 'ssh_key' in conf and ('role' not in conf or conf['role'] is None):
+                    delete_key = False
+                    ssh_key_conf = conf.get('ssh_key')
+                    ssh_key_match = match.get('ssh_key')
+
+                    if ssh_key_conf is None:
+                        if 'ssh_key' in match:
+                            delete_key = True
+                    elif ssh_key_conf == ssh_key_match:
+                        delete_key = True
+
+                    if delete_key:
+                        url = 'data/openconfig-system:system/aaa/authentication/users/user=%s/config/ssh-key' % (conf['name'])
+                        requests.append({'path': url, 'method': DELETE})
+
+                    if conf['name'] == 'admin':
+                        admin_usr_ssh_key_update = True
+                    continue
+            # Skip the admin user in 'deleted' state. we cannot delete all users
             if conf['name'] == 'admin':
                 admin_usr = conf
                 continue
-            match = next((cfg for cfg in have if cfg['name'] == conf['name']), None)
             if match:
                 url = 'data/openconfig-system:system/aaa/authentication/users/user=%s' % (conf['name'])
                 requests.append({'path': url, 'method': DELETE})
 
-        if admin_usr:
+        if admin_usr and not admin_usr_ssh_key_update:
             commands.remove(admin_usr)
         return requests
 
