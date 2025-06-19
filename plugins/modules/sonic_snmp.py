@@ -377,6 +377,7 @@ EXAMPLES = """
             priv_type: aes
             key: aes-128
           encrypted: false
+      engine: 80:00:01:37:03:e8:b5:d0:cc:0f:cc
     state: merged
 
 # After State:
@@ -387,6 +388,7 @@ EXAMPLES = """
 # snmp-server user user2 group group-lab
 # auth sha auth-password U2FsdGVkX18J+L+L9OyQYWpAkGUrTgcg/6xzZoDjCbQw1ISHJ5mxmxrYZgQypEUXDeNe6rBupsc9sVDJBKxrwA==
 # priv aes-128 priv-password U2FsdGVkX1/Xs+ffZvdV9YzfyGHgIJ+zkLRPfF3/WgYIE1S4Ribvbzhu5chpHHI7ooCBpcVxYZotAXDzgetxvQ==
+# snmp-server engine 80:00:01:37:03:e8:b5:d0:cc:0f:cc
 
 
 # Using "merged" state
@@ -481,7 +483,7 @@ EXAMPLES = """
 # ---------------
 #
 # show running-configuration | grep snmp
-#
+
 # snmp-server agentaddress 1.2.3.5 port 1024 interface Eth1/30
 #
 

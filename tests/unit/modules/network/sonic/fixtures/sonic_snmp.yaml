@@ -244,7 +244,6 @@ replaced_02:
               udp:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
-                port: 1024
     - path: 'data/ietf-snmp:snmp/engine/listen'
       method: 'delete'
       data:
@@ -312,8 +311,6 @@ replaced_03:
       data:
         target-params:
           - name: 'targetEntry1'
-            usm:
-              user-name: 'user1'
 
 overridden_01:
   module_args:

@@ -3,14 +3,12 @@ ansible_connection: httpapi
 module_name: sonic_snmp
 
 tests_single_run:
-  - name: test_case_01_merged
-    description: Merge SNMP enable_trap contact, user and location configuration
+  - name: test_case_01_merged_unencrypted_user
+    description: Merge SNMP unencrypted user configuration
     state: merged
     task_condition_type: action
     input:
-      enable_trap:
-        - bgp
-      contact: Dell Support
+
       user:
         - name: 'user1'
           auth:
@@ -23,8 +21,8 @@ tests_single_run:
       location: 'Lab1, Rack-10'
 
 tests:
-  - name: test_case_01_merge_encrypted_user
-    description: Merge SNMP encrypted user configuration
+  - name: test_case_01_merge
+    description: Merge SNMP enable_trap contact, encrypted user, engine ID, and location configuration
     state: merged
     input:
       user:
@@ -36,6 +34,27 @@ tests:
             priv_type: 'aes'
             key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
           encrypted: True
+      engine: '80:00:01:37:03:e8:b5:d0:cc:0f:cc'
+      location: 'Lab1, Rack-10'
+      enable_trap:
+        - 'bgp'
+      contact: 'Dell Support'
+  
+  - name: test_case_01_merge_user
+    description: Merge SNMP user configuration
+    state: merged
+    input:
+      user:
+        - name: 'user3'
+          auth:
+            auth_type: 'sha2-256'
+            key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
+          priv:
+            priv_type: 'des'
+            key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
+          encrypted: True
+      enable_trap:
+        - 'auth-fail'
 
   - name: test_case_02_merged_group_community_view
     description: Merge some of the SNMP configuration

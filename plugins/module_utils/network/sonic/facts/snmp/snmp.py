@@ -103,7 +103,6 @@ class SnmpFacts(object):
 
         snmp_list = response[0][1].get("ietf-snmp:snmp", {})
         if "ietf-snmp:snmp" in response[0][1] and snmp_list:
-
             snmp_dict.update({'agentaddress': self.get_snmp_agentaddress(snmp_list)})
             snmp_dict.update({'community': self.get_snmp_community(snmp_list)})
             snmp_dict.update({'engine': self.get_snmp_engine(snmp_list)})
@@ -165,12 +164,12 @@ class SnmpFacts(object):
         """
         engine = ''
 
-        if not snmp_list.get('engine'):
+        if not snmp_list.get('engine') or not snmp_list.get('engine').get('engine-id'):
             return engine
 
-        engine_config = snmp_list['engine'].get('engine-id')
+        engine_config = snmp_list['engine']
 
-        return engine_config
+        return engine_config.get('engine-id')
 
     def get_snmp_users(self, snmp_list):
         """
@@ -190,10 +189,15 @@ class SnmpFacts(object):
         for user in user_config:
             user_dict = {}
             if user.get('auth'):
-                auth_type = list(user['auth'].keys())[0]
+                auth_type_path = list(user['auth'].keys())[0]
+                auth_type = auth_type_path
+                if ":" in auth_type:
+                    part = auth_type_path.split(':')
+                    auth_type = part[1].strip()
+                    auth_type = auth_type.replace("_", "-")
                 user_dict['auth'] = {
                     'auth_type': auth_type,
-                    'key': user['auth'][auth_type].get('key')
+                    'key': user['auth'][auth_type_path].get('key')
                 }
             if user.get('priv'):
                 priv_type = list(user['priv'].keys())[0]
@@ -214,7 +218,6 @@ class SnmpFacts(object):
             user_dict['encrypted'] = user.get('ietf-snmp-ext:encrypted')
 
             user_list.append(user_dict)
-
         return user_list
 
     def get_snmp_view(self, snmp_list):

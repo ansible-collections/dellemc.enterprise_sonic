@@ -46,7 +46,8 @@ DELETE = 'delete'
 TEST_KEYS = [
     {'agentaddress': {'ip': ''}},
     {'community': {'name': ''}},
-    {'group': {'name': ''}},
+    {'group': {'name': '', 'access': {'security_model': ''}}},
+    {'engine': ''},
     {'access': {'security_model': ''}},
     {'host': {'ip': ''}},
     {'user': {'name': ''}},
@@ -141,20 +142,6 @@ class Snmp(ConfigBase):
         resp = self.set_state(want, have)
         return to_list(resp)
 
-    def pop_encrypted_attributes(self, config):
-        """ Remove the encrypted attributes from the config
-        :param config: the config to remove the encrypted attributes from
-        :rtype: None
-        :returns: None
-        """
-        if config:
-            users = config.get('user', [])
-            if users:
-                for user in users:
-                    if user.get('encrypted'):
-                        user.pop('encrypted')
-        return config
-
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
         :param want: the desired configuration as a dictionary
@@ -189,8 +176,8 @@ class Snmp(ConfigBase):
         if not want:
             return commands, requests
 
-        diff_want = get_diff(want, have)
-        del_commands = get_diff(have, want)
+        diff_want = get_diff(want, have, TEST_KEYS)
+        del_commands = get_diff(have, want, TEST_KEYS)
         if not diff_want and not del_commands:
             return commands, requests
         merged_commands = None
@@ -199,9 +186,9 @@ class Snmp(ConfigBase):
         if del_commands:
             del_requests = self.get_delete_snmp_request(del_commands, have, True)
             requests.extend(del_requests)
-            commands.extend(update_states(have, "deleted"))
+            commands.extend(update_states(del_commands, "deleted"))
 
-            merged_commands = want
+            merged_commands = diff_want
             merged_request = self.get_create_snmp_request(merged_commands)
             requests.extend(merged_request)
             commands.extend(update_states(merged_commands, state))
@@ -215,7 +202,6 @@ class Snmp(ConfigBase):
                   the current configuration
         """
         commands = get_diff(want, have, TEST_KEYS)
-        commands = self.check_user_exists(commands, have)
 
         requests = self.get_create_snmp_request(commands, have)
 
@@ -265,8 +251,8 @@ class Snmp(ConfigBase):
             delete_all = True
         else:
             want = self.get_configured_option(want, have)
-            reverse_diff = get_diff(want, have)
-            commands = get_diff(want, reverse_diff)
+            reverse_diff = get_diff(have, want, TEST_KEYS)
+            commands = get_diff(want, reverse_diff, TEST_KEYS)
 
         requests = self.get_delete_snmp_request(commands, have, delete_all)
 
@@ -358,6 +344,7 @@ class Snmp(ConfigBase):
             requests.append(location_request)
 
         if config.get('user'):
+            config = self.check_user_exists(config, have)
             user_path = "data/ietf-snmp:snmp/usm/local/user"
             payload = self.build_create_user_payload(config)
             users_request = {'path': user_path, "method": method, 'data': payload}
@@ -456,10 +443,10 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: The payload for SNMP engine
         """
-        engine = config.get('engine')
+        engine = str(config.get('engine'))
         payload_url = {}
 
-        payload_url['engine'] = {'engine-id': engine}
+        payload_url['ietf-snmp:engine'] = {'engine-id': engine}
         return payload_url
 
     def build_create_user_payload(self, config):
@@ -635,8 +622,6 @@ class Snmp(ConfigBase):
             access_dict['write-view'] = access.get('write_view')
             security_level = access.get('security_level')
             security_model = access.get('security_model')
-            if security_model == 'usm':
-                security_model = "v3"
             access_dict['security-level'] = security_level
             access_dict['security-model'] = security_model
             access_list.append(access_dict)
