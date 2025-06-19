@@ -122,6 +122,7 @@ options:
       - br_l2pt
       - dcbx
       - mirroring
+      - drop_counter
       - evpn_esi_multihome
       - ssh_server
 """

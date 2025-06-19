@@ -38,6 +38,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_relay
     dhcp_snooping:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
+    drop_counter:
+      redirect: dellemc.enterprise_sonic.sonic_drop_counter
     evpn_esi_multihome:
       redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
     facts:
