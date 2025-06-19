@@ -119,6 +119,7 @@ options:
       - lst
       - ptp_port_ds
       - fbs_classifiers
+      - fbs_policies
       - br_l2pt
       - dcbx
       - mirroring
