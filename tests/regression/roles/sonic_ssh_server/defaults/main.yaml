@@ -1,0 +1,86 @@
+---
+ansible_connection: httpapi
+module_name: ssh_server
+
+sonic_ssh_server_tests:
+  - name: test_case_01
+    description: Add SSH server configuration
+    state: merged
+    input:
+      server_globals:
+        publickey_authentication: false
+        max_auth_retries: 7
+        disable_forwarding: true
+        permit_root_login: true
+        permit_user_rc: true
+        x11_forwarding: false
+        permit_user_environment: true
+        ciphers: aes128-ctr,aes192-ctr,aes256-ctr
+        macs: hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
+        kexalgorithms: diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,curve25519-sha256
+        hostkeyalgorithms: rsa-sha2-256,rsa-sha2-512
+
+  - name: test_case_02
+    description: Update SSH server configuration
+    state: merged
+    input:
+      server_globals:
+        publickey_authentication: true
+        max_auth_retries: 5
+        disable_forwarding: false
+        permit_root_login: false
+        x11_forwarding: true
+        permit_user_environment: true
+        ciphers: aes128-ctr,aes192-ctr,aes256-ctr
+        macs: hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
+        kexalgorithms: diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,curve25519-sha256
+        hostkeyalgorithms: rsa-sha2-256,rsa-sha2-512
+
+  - name: test_case_03
+    description: Delete SSH server configuration
+    state: deleted
+    input:
+      server_globals:
+        publickey_authentication: true
+        max_auth_retries: 5
+        disable_forwarding: false
+        permit_root_login: false
+        x11_forwarding: true
+        permit_user_environment: true
+        ciphers: aes128-ctr,aes192-ctr,aes256-ctr
+        kexalgorithms: diffie-hellman-group16-sha512,diffie-hellman-group18-sha512,curve25519-sha256
+        macs: hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com
+        hostkeyalgorithms: rsa-sha2-256,rsa-sha2-512
+
+  - name: test_case_04
+    description: Add SSH server configuration
+    state: merged
+    input:
+      server_globals:
+        publickey_authentication: false
+        max_auth_retries: 7
+        disable_forwarding: true
+        permit_root_login: true
+        permit_user_rc: true
+        x11_forwarding: false
+
+  - name: test_case_05
+    description: Replace SSH server configuration
+    state: replaced
+    input:
+      server_globals:
+        max_auth_retries: 6
+
+  - name: test_case_06
+    description: Override SSH server configurations
+    state: overridden
+    input:
+      server_globals:
+        publickey_authentication: false
+        max_auth_retries: 9
+        disable_forwarding: true
+
+  - name: test_case_07
+    description: Delete all SSH server configurations
+    state: deleted
+    input: {}
