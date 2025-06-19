@@ -16,9 +16,9 @@ DOCUMENTATION = """
 module: sonic_vrfs
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies.
-- Supports C(check_mode).
-short_description: Manage VRFs and associate VRFs to interfaces such as, Eth, LAG, VLAN, and loopback
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
+  - This module does not support the deletion of mgmt VRF. Deletion of mgmt VRF can be done via SONiC CLI or REST API.
 description: Manages VRF and VRF interface attributes in Enterprise SONiC Distribution by Dell Technologies.
 author: Abirami N (@abirami-n)
 options:
