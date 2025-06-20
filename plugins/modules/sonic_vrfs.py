@@ -18,7 +18,9 @@ version_added: 1.0.0
 notes:
   - Tested against Enterprise SONiC Distribution by Dell Technologies.
   - Supports C(check_mode).
-  - This module does not support the deletion of mgmt VRF. Deletion of mgmt VRF can be done using the "sonic_config" resource module as shown in "playbooks/common_examples/mgmt_vrf_off.yaml". It can also be done using the SONiC CLI or by using a standalone REST API.
+  - This module does not support the deletion of mgmt VRF.
+    Deletion of mgmt VRF can be done using the "sonic_config" resource module as shown in "playbooks/common_examples/mgmt_vrf_off.yaml".
+    It can also be done using the SONiC CLI or by using a standalone REST API.
 short_description: Manage VRFs and associate VRFs to interfaces such as, Eth, LAG, VLAN, and loopback
 description: Manages VRF and VRF interface attributes in Enterprise SONiC Distribution by Dell Technologies.
 author: Abirami N (@abirami-n)
