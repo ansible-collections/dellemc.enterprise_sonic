@@ -26,4 +26,4 @@
           - vlan_id: 12
         state: merged
     - name: Turn off management VRF
-      ansible.builtin.include_tasks: mgmt_vrf_off.yaml          
+      ansible.builtin.include_tasks: mgmt_vrf_off.yaml
