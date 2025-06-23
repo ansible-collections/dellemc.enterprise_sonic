@@ -56,7 +56,10 @@ class LoggingArgs(object):  # pylint: disable=R0903
                         'vrf': {'type': 'str'}
                     },
                     'type': 'list'
-                }
+                },
+                'security_profile': {
+                    'type': 'str'
+                },
             },
             'type': 'dict'
         },

@@ -75,7 +75,8 @@ class Bgp_neighbors_afArgs(object):  # pylint: disable=R0903
                                         'max_prefixes': {'type': 'int'},
                                         'prevent_teardown': {'default': False, 'type': 'bool'},
                                         'warning_threshold': {'type': 'int'},
-                                        'restart_timer': {'type': 'int'}
+                                        'restart_timer': {'type': 'int'},
+                                        'discard_extra': {'default': False, 'type': 'bool'}
                                     },
                                     'type': 'dict'
                                 },

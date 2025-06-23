@@ -1,0 +1,6 @@
+---
+- name: Delete old SSH server configurations
+  sonic_ssh_server:
+    config: {}
+    state: deleted
+  failed_when: false
