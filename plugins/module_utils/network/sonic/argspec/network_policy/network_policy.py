@@ -26,7 +26,7 @@ class Network_policyArgs(object):  # pylint: disable=R0903
                     'elements': 'dict',
                     'options': {
                         'app_type': {
-                            'choices': ['voice', 'voice_signaling'],
+                            'choices': ['voice', 'voice-signaling'],
                             'required': True,
                             'type': 'str'
                         },

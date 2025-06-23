@@ -44,12 +44,12 @@ TEST_KEYS = [
     {'config': {'number': ''}},
     {'applications': {'app_type': ''}}
 ]
-is_delete_all = False
+delete_all = False
 is_replaced = False
 
 
 def __derive_network_policy_delete_op(key_set, command, exist_conf):
-    if is_delete_all or is_replaced:
+    if delete_all or is_replaced:
         new_conf = []
         return True, new_conf
     done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
@@ -98,7 +98,6 @@ class Network_policy(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_network_policy_facts = self.get_network_policy_facts()
@@ -127,7 +126,6 @@ class Network_policy(ConfigBase):
             self.sort_lists_in_config(old_config)
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_network_policy_facts):
@@ -152,8 +150,7 @@ class Network_policy(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
 
@@ -191,8 +188,7 @@ class Network_policy(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        mod_commands = []
+        commands, mod_commands = [], []
         global is_replaced
         is_replaced = False
         replaced_config, requests = self.get_replaced_config(want, have)
@@ -220,24 +216,21 @@ class Network_policy(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
-        mod_commands = None
-        mod_request = None
-        global is_delete_all
-        is_delete_all = False
+        commands, requests = [], []
+        mod_commands, mod_request = None, None
+        global delete_all
+        delete_all = False
         del_commands = get_diff(have, want, TEST_KEYS)
 
-        if not del_commands and diff:
-            mod_commands = diff
-            mod_request = self.get_modify_network_policy_request(mod_commands)
-
         if del_commands:
-            is_delete_all = True
-            del_requests = self.get_delete_network_policy_requests(del_commands, is_delete_all)
+            delete_all = True
+            del_requests = self.get_delete_network_policy_requests(del_commands, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             mod_commands = want
+            mod_request = self.get_modify_network_policy_request(mod_commands)
+        elif diff:
+            mod_commands = diff
             mod_request = self.get_modify_network_policy_request(mod_commands)
 
         if mod_request:
@@ -253,18 +246,18 @@ class Network_policy(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        global is_delete_all
-        is_delete_all = False
+        global delete_all
+        delete_all = False
         requests = []
 
         if not want:
             commands = deepcopy(have)
-            is_delete_all = True
+            delete_all = True
         else:
             commands = get_diff(want, diff, TEST_KEYS)
 
         if commands:
-            requests = self.get_delete_network_policy_requests(commands, is_delete_all)
+            requests = self.get_delete_network_policy_requests(commands, delete_all)
             if len(requests) > 0:
                 commands = update_states(commands, 'deleted')
         else:
@@ -295,7 +288,7 @@ class Network_policy(ConfigBase):
                         dscp = app.get('dscp')
 
                         if app_type:
-                            app_type = app_type.upper()
+                            app_type = app_type.upper().replace('-', '_')
                             app_dict.update({'type': app_type, 'config': {'type': app_type}})
                         if vlan_id:
                             app_dict['config']['vlan-id'] = vlan_id
@@ -317,12 +310,12 @@ class Network_policy(ConfigBase):
 
         return request
 
-    def get_delete_network_policy_requests(self, commands, is_delete_all):
+    def get_delete_network_policy_requests(self, commands, delete_all):
         requests = []
 
         if not commands:
             return requests
-        if is_delete_all:
+        if delete_all:
             requests.append({'path': NETWORK_POLICY_PATH, 'method': DELETE})
             return requests
 
@@ -332,8 +325,7 @@ class Network_policy(ConfigBase):
 
             if number and not applications:
                 requests.append(self.get_delete_network_policy_request(number))
-                continue
-            if applications:
+            elif applications:
                 for app in applications:
                     app_type = app.get('app_type')
                     vlan_id = app.get('vlan_id')
@@ -355,18 +347,19 @@ class Network_policy(ConfigBase):
 
         return requests
 
-    def get_delete_network_policy_request(self, number, app_type=None, attr=None):
+    @staticmethod
+    def get_delete_network_policy_request(number, app_type=None, attr=None):
         url = '%s/network-policy=%s' % (NETWORK_POLICY_PATH, number)
         if app_type:
-            url += '/applications/application=%s' % (app_type.upper())
+            url += '/applications/application=%s' % (app_type.upper().replace('-', '_'))
         if attr:
             url += '/config/%s' % (attr)
-        request = {'path': url, 'method': DELETE}
-        return request
+        return {'path': url, 'method': DELETE}
 
     def get_replaced_config(self, want, have):
-        config_list = []
-        requests = []
+        config_list, requests = [], []
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
 
         if not want or not have:
             return config_list, requests

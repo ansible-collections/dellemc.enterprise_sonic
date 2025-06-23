@@ -94,7 +94,7 @@ class Network_policyFacts(object):
                     for app in policy['applications']['application']:
                         app_dict = {}
                         if app.get('type'):
-                            app_dict['app_type'] = app['type'].lower()
+                            app_dict['app_type'] = app['type'].lower().replace('_', '-')
                         if app.get('config'):
                             if app['config'].get('vlan-id'):
                                 app_dict['vlan_id'] = app['config']['vlan-id']

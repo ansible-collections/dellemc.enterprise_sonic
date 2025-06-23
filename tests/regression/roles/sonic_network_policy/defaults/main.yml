@@ -24,7 +24,7 @@ sonic_network_policy_tests:
             vlan_id: 2
             priority: 1
             dscp: 1
-          - app_type: voice_signaling
+          - app_type: voice-signaling
             vlan_id: 3
             tagged: false
             dscp: 50
@@ -35,7 +35,7 @@ sonic_network_policy_tests:
             tagged: true
             priority: 7
             dscp: 12
-          - app_type: voice_signaling
+          - app_type: voice-signaling
             vlan_id: 400
             tagged: true
             priority: 7
@@ -62,7 +62,7 @@ sonic_network_policy_tests:
             vlan_id: 2
             priority: 1
             dscp: 1
-          - app_type: voice_signaling
+          - app_type: voice-signaling
             vlan_id: 3
             tagged: false
             dscp: 50
@@ -73,7 +73,7 @@ sonic_network_policy_tests:
             tagged: true
             priority: 7
             dscp: 12
-          - app_type: voice_signaling
+          - app_type: voice-signaling
             vlan_id: 400
             tagged: true
             priority: 7
@@ -97,7 +97,7 @@ sonic_network_policy_tests:
             tagged: true
             priority: 7
             dscp: 12
-          - app_type: voice_signaling
+          - app_type: voice-signaling
 
   - name: test_case_06
     description: Delete all network policy configuration

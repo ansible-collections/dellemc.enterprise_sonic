@@ -200,7 +200,7 @@ deleted_01:
             tagged: true
             priority: 7
             dscp: 12
-          - app_type: voice_signaling
+          - app_type: voice-signaling
     state: deleted
   existing_network_policy_config:
     - path: 'data/openconfig-network-policy-ext:network-policies'

@@ -44,7 +44,7 @@ options:
             description:
               - Media type of the application
             type: str
-            choices: ['voice', 'voice_signaling']
+            choices: ['voice', 'voice-signaling']
             required: true
           vlan_id:
             description:
@@ -214,7 +214,7 @@ EXAMPLES = """
       - number: 2
         applications:
           - app_type: voice
-      - number:3
+      - number: 3
     state: deleted
 
 # After state:
