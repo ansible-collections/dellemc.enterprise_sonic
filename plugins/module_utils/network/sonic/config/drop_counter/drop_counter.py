@@ -95,7 +95,6 @@ class Drop_counter(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_drop_counter_facts = self.get_drop_counter_facts()
@@ -124,7 +123,6 @@ class Drop_counter(ConfigBase):
             self.sort_lists_in_config(old_config)
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_drop_counter_facts):
@@ -149,8 +147,7 @@ class Drop_counter(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
 
@@ -188,8 +185,7 @@ class Drop_counter(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        mod_commands = []
+        commands, mod_commands = [], []
         replaced_config, requests = self.get_replaced_config(want, have)
 
         if replaced_config:
@@ -214,17 +210,11 @@ class Drop_counter(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
-        mod_commands = None
-        mod_request = None
         global is_delete_all
         is_delete_all = False
+        commands, requests = [], []
+        mod_commands, mod_request = None, None
         del_commands = get_diff(have, want, TEST_KEYS)
-
-        if not del_commands and diff:
-            mod_commands = diff
-            mod_request = self.get_modify_drop_counter_request(mod_commands)
 
         if del_commands:
             is_delete_all = True
@@ -232,6 +222,9 @@ class Drop_counter(ConfigBase):
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             mod_commands = want
+            mod_request = self.get_modify_drop_counter_request(mod_commands)
+        elif diff:
+            mod_commands = diff
             mod_request = self.get_modify_drop_counter_request(mod_commands)
 
         if mod_request:
@@ -351,20 +344,21 @@ class Drop_counter(ConfigBase):
 
         return requests
 
-    def get_delete_drop_counter_request(self, name=None, attr=None):
+    @staticmethod
+    def get_delete_drop_counter_request(name=None, attr=None):
         """This method formulates the URL and returns a delete request"""
         url = DROP_COUNTER_PATH
         if name:
             url += '/DEBUG_COUNTER/DEBUG_COUNTER_LIST=%s' % (name)
         if attr:
             url += '/%s' % (attr)
-        request = {'path': url, 'method': DELETE}
-        return request
+        return {'path': url, 'method': DELETE}
 
     def get_replaced_config(self, want, have):
         """This method returns the drop counter configuration to be deleted and the respective delete requests"""
-        config_list = []
-        requests = []
+        config_list, requests = [], []
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
 
         if not want or not have:
             return config_list, requests
@@ -382,7 +376,8 @@ class Drop_counter(ConfigBase):
 
         return config_list, requests
 
-    def sort_lists_in_config(self, config):
+    @staticmethod
+    def sort_lists_in_config(config):
         """This method sorts the lists in the drop counter configuration"""
         if config:
             config.sort(key=lambda x: x['name'])
