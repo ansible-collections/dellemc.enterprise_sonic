@@ -307,7 +307,7 @@ before:
     The configuration returned will always be in the same format
      of the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
   type: list
   sample: >
