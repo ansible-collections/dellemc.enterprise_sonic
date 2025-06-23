@@ -377,7 +377,8 @@ class Network_policy(ConfigBase):
 
         return config_list, requests
 
-    def sort_lists_in_config(self, config):
+    @staticmethod
+    def sort_lists_in_config(config):
         if config:
             config.sort(key=lambda x: x['number'])
             for policy in config:
