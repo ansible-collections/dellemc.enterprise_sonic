@@ -264,10 +264,9 @@ class Vrfs(ConfigBase):
 
         commands = []
         requests = []
+        want, have = self.preprocess_mgmt_vrf_for_overridden(want, have)
 
         if have and have != want:
-            want, have = self.preprocess_mgmt_vrf_for_overridden(want, have)
-
             self.delete_all_flag = True
             del_requests = self.get_delete_vrf_interface_requests(have, have)
             requests.extend(del_requests)

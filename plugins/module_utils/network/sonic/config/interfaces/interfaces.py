@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -43,7 +43,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
     build_interfaces_create_request,
     retrieve_default_intf_speed,
-    retrieve_port_group_interfaces
+    retrieve_port_group_interfaces,
+    retrieve_valid_intf_speed,
+    intf_speed_to_number_map
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
@@ -448,6 +450,13 @@ class Interfaces(ConfigBase):
         else:
             payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
             if attr == 'speed':
+                valid_intf_speeds = retrieve_valid_intf_speed(self._module, intf_name)
+                if self.is_port_in_port_group(intf_name) and (intf_speed_to_number_map.get(c_attr) not in valid_intf_speeds):
+                    self._module.fail_json(msg=("If a port-group is configured to the default speed, a member interface"
+                                                " can not be set to a non-default speed. Please use the port-group module to change"
+                                                " the speed of the port-group containing the member interface"
+                                                " before changing the interface's port speed."
+                                                " Valid speeds for {} are currently {}").format(intf_name, valid_intf_speeds))
                 payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
             if attr == 'advertised_speed':
                 c_ads = c_attr if c_attr else []
@@ -457,8 +466,6 @@ class Interfaces(ConfigBase):
                     payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
 
             return {"path": config_url, "method": method, "data": payload}
-
-        return []
 
     def handle_delete_interface_config(self, commands, have, delete_all=False):
         if not commands:

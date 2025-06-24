@@ -24,16 +24,22 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_bgp_neighbors
     bgp_neighbors_af:
       redirect: dellemc.enterprise_sonic.sonic_bgp_neighbors_af
+    br_l2pt:
+      redirect: dellemc.enterprise_sonic.sonic_br_l2pt
     command:
       redirect: dellemc.enterprise_sonic.sonic_command
     config:
       redirect: dellemc.enterprise_sonic.sonic_config
     copp:
       redirect: dellemc.enterprise_sonic.sonic_copp
+    dcbx:
+      redirect: dellemc.enterprise_sonic.sonic_dcbx
     dhcp_relay:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_relay
     dhcp_snooping:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
+    evpn_esi_multihome:
+      redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
     facts:
       redirect: dellemc.enterprise_sonic.sonic_facts
     fbs_classifiers:
@@ -48,6 +54,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_ip_neighbor
     ip_neighbor_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_ip_neighbor_interfaces
+    ipv6_router_advertisement:
+      redirect: dellemc.enterprise_sonic.sonic_ipv6_router_advertisement
     l2_acls:
       redirect: dellemc.enterprise_sonic.sonic_l2_acls
     l2_interfaces:
@@ -76,6 +84,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_mclag
     mgmt_servers:
       redirect: dellemc.enterprise_sonic.sonic_mgmt_servers
+    mirroring:
+      redirect: dellemc.enterprise_sonic.sonic_mirroring
     ntp:
       redirect: dellemc.enterprise_sonic.sonic_ntp
     ospf_area:
@@ -90,6 +100,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_pim_interfaces
     pki:
       redirect: dellemc.enterprise_sonic.sonic_pki
+    pms:
+      redirect: dellemc.enterprise_sonic.sonic_pms
     poe:
       redirect: dellemc.enterprise_sonic.sonic_poe
     port_breakout:
@@ -98,6 +110,10 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_port_group
     prefix_lists:
       redirect: dellemc.enterprise_sonic.sonic_prefix_lists
+    ptp_port_ds:
+      redirect: dellemc.enterprise_sonic.sonic_ptp_port_ds
+    ptp_default_ds:
+      redirect: dellemc.enterprise_sonic.sonic_ptp_default_ds
     qos_buffer:
       redirect: dellemc.enterprise_sonic.sonic_qos_buffer
     qos_interfaces:
@@ -140,3 +156,5 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_vrrp
     vxlans:
       redirect: dellemc.enterprise_sonic.sonic_vxlans
+    ssh_server:
+      redirect: dellemc.enterprise_sonic.sonic_ssh_server

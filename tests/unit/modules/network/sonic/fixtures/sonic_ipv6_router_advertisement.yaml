@@ -1,0 +1,843 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: 'Eth1/5'
+        suppress: false
+        ra_interval: 120
+        min_ra_interval: 60
+        ra_lifetime: 180
+        ra_hop_limit: 12
+        ra_fast_retrans: false
+        ra_retrans_interval: 10000
+        mtu: 1500
+        router_preference: 'medium'
+        managed_config: true
+        other_config: true
+        home_agent_config: true
+        home_agent_lifetime: 6000
+        home_agent_preference: 30
+        dnssl:
+          - dnssl_name: 'testhost.com'
+            valid_lifetime: 720
+          - dnssl_name: 'testhost2.com'
+        ra_prefixes:
+          - prefix: '100:100::/64'
+            router_address: true
+            no_autoconfig: true
+            off_link: true
+          - prefix: '100:200::/64'
+            valid_lifetime: 3600
+        rdnss:
+          - address: '1010::1010'
+          - address: '1010::2010'
+            valid_lifetime: 4800
+      - name: 'Eth1/6'
+        suppress: true
+        ra_fast_retrans: true
+      - name: 'Vlan100'
+        min_ra_interval_msec: 40250
+        ra_interval_msec: 90500
+        router_preference: 'high'
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - name: 'Eth1/6'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          suppress: false
+                          openconfig-interfaces-ext:ra-fast-retrans: false
+                          interval: 360
+            - name: 'Vlan100'
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  router-advertisement:
+                    config:
+                      openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:MEDIUM
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/suppress'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-fast-retrans'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:min-ra-interval: 60
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/interval'
+      method: 'patch'
+      data:
+        interval: 120
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/lifetime'
+      method: 'patch'
+      data:
+        lifetime: 180
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'patch'
+      data:
+        openconfig-if-ip:router-advertisement:
+          config:
+            suppress: false
+            openconfig-interfaces-ext:ra-hop-limit: 12
+            openconfig-interfaces-ext:ra-fast-retrans: false
+            openconfig-interfaces-ext:ra-retrans-interval: 10000
+            openconfig-interfaces-ext:mtu: 1500
+            openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:MEDIUM
+            openconfig-interfaces-ext:managed-config: true
+            openconfig-interfaces-ext:other-config: true
+            openconfig-interfaces-ext:home-agent-config: true
+            openconfig-interfaces-ext:home-agent-lifetime: 6000
+            openconfig-interfaces-ext:home-agent-preference: 30
+          openconfig-interfaces-ext:dns-search-names:
+            dns-search-name:
+              - dnssl-name: 'testhost.com'
+                config:
+                  dnssl-name: 'testhost.com'
+                  valid-lifetime: 720
+              - dnssl-name: 'testhost2.com'
+                config:
+                  dnssl-name: 'testhost2.com'
+          openconfig-interfaces-ext:ra-prefixes:
+            ra-prefix:
+              - prefix: '100:100::/64'
+                config:
+                  prefix: '100:100::/64'
+                  router-address: true
+                  no-autoconfig: true
+                  off-link: true
+              - prefix: '100:200::/64'
+                config:
+                  prefix: '100:200::/64'
+                  valid-lifetime: 3600
+          openconfig-interfaces-ext:rdnss-addresses:
+            rdnss-address:
+              - address: '1010::1010'
+                config:
+                  address: '1010::1010'
+              - address: '1010::2010'
+                config:
+                  address: '1010::2010'
+                  valid-lifetime: 4800
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval-msec'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:min-ra-interval-msec: 40250
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-interval-msec'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:ra-interval-msec: 90500
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'patch'
+      data:
+        openconfig-if-ip:router-advertisement:
+          config:
+            openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:HIGH
+
+merged_02:
+  module_args:
+    config:
+      - name: 'Vlan200'
+        suppress: true
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - name: 'Eth1/6'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          interval: 360
+  config_requests: []
+
+deleted_01:
+  module_args:
+    config:
+      - name: 'Eth1/1'
+        suppress: false
+        ra_interval: 450
+        min_ra_interval: 300
+        ra_retrans_interval: 100
+        ra_lifetime: 600
+        reachable_time: 600
+        ra_fast_retrans: true
+        router_preference: 'medium'
+        mtu: 1500
+        ra_prefixes:
+          - prefix: 1000:2000::/64
+          - prefix: 1000:3000::/64
+          - prefix: 1000:4000::/64
+        rdnss:
+          - address: 100::200
+      - name: 'Eth1/2'
+      - name: 'Portchannel 100'
+        dnssl:
+          - dnssl_name: 'test1.com'
+      - name: 'PortChannel 101'
+        adv_interval_option: true
+        dnssl:
+          - dnssl_name: 'test.com'
+      - name: 'Vlan100'
+        ra_interval_msec: 200500
+        min_ra_interval_msec: 100500
+      - name: 'Vlan101'
+        ra_prefixes:
+          - prefix: 1001:2000::/64
+        dnssl:
+          - dnssl_name: 'host.com'
+          - dnssl_name: 'server.com'
+        rdnss:
+          - address: 101::200
+          - address: 101::300
+    state: deleted
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - name: 'Eth1/1'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          suppress: false
+                          interval: 450
+                          lifetime: 600
+                          openconfig-interfaces-ext:min-ra-interval: 300
+                          openconfig-interfaces-ext:mtu: 1500
+                          openconfig-interfaces-ext:ra-retrans-interval: 100
+                          openconfig-interfaces-ext:reachable-time: 600
+                          openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:MEDIUM
+                        openconfig-interfaces-ext:ra-prefixes:
+                          ra-prefix:
+                            - prefix: '1000:2000::/64'
+                              config:
+                                prefix: '1000:2000::/64'
+                                valid-lifetime: 2400
+                            - prefix: '1000:3000::/64'
+                              config:
+                                prefix: '1000:3000::/64'
+                            - prefix: '1000:4000::/64'
+                              config:
+                                prefix: '1000:4000::/64'
+                                off-link: true
+                                no-autoconfig: true
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: '100::200'
+                              config:
+                                address: '100::200'
+                            - address: '100::300'
+                              config:
+                                address: '100::300'
+            - name: 'Eth1/2'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          openconfig-interfaces-ext:ra-hop-limit: 10
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - dnssl-name: 'test1.com'
+                              config:
+                                dnssl-name: 'test1.com'
+                            - dnssl-name: 'test2.com'
+                              config:
+                                dnssl-name: 'test2.com'
+                                valid-lifetime: 300
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: '101::200'
+                              config:
+                                address: '101::200'
+                            - address: '101::300'
+                              config:
+                                address: '101::300'
+            - name: 'Portchannel100'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - dnssl-name: 'test.com'
+                              config:
+                                dnssl-name: 'test.com'
+                            - dnssl-name: 'test2.com'
+                              config:
+                                dnssl-name: 'test2.com'
+                                valid-lifetime: 300
+            - name: 'PortChannel101'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          suppress: false
+                          openconfig-interfaces-ext:adv-interval-option: true
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - dnssl-name: 'test.com'
+                              config:
+                                dnssl-name: 'test.com'
+                            - dnssl-name: 'test2.com'
+                              config:
+                                dnssl-name: 'test2.com'
+                                valid-lifetime: 300
+            - name: 'Vlan100'
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  router-advertisement:
+                    config:
+                      openconfig-interfaces-ext:home-agent-config: true
+                      openconfig-interfaces-ext:home-agent-lifetime: 100
+                      openconfig-interfaces-ext:home-agent-preference: 150
+                      openconfig-interfaces-ext:ra-interval-msec: 200500
+                      openconfig-interfaces-ext:min-ra-interval-msec: 100500
+            - name: 'Vlan101'
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  router-advertisement:
+                    config:
+                      suppress: false
+                    openconfig-interfaces-ext:ra-prefixes:
+                      ra-prefix:
+                        - prefix: '1001:1000::/64'
+                          config:
+                            prefix: '1001:1000::/64'
+                            off-link: true
+                            valid-lifetime: 2400
+                        - prefix: '1001:2000::/64'
+                          config:
+                            prefix: '1001:2000::/64'
+                            router-address: true
+                    openconfig-interfaces-ext:dns-search-names:
+                      dns-search-name:
+                        - dnssl-name: 'host.com'
+                          config:
+                            dnssl-name: 'host.com'
+                        - dnssl-name: 'server.com'
+                          config:
+                            dnssl-name: 'server.com'
+                    openconfig-interfaces-ext:rdnss-addresses:
+                      rdnss-address:
+                        - address: '101::200'
+                          config:
+                            address: '101::200'
+                        - address: '101::300'
+                          config:
+                            address: '101::300'
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/suppress'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:mtu'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-retrans-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:reachable-time'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:router-preference'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses/rdnss-address=100::200'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel101/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:adv-interval-option'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel101/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=test.com'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-interval-msec'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval-msec'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=1001:2000::%2f64'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses'
+      method: 'delete'
+
+deleted_02:
+  module_args:
+    config: []
+    state: deleted
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - name: 'Eth1/1'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          suppress: false
+                          interval: 450
+                          lifetime: 600
+                          openconfig-interfaces-ext:mtu: 1500
+                          openconfig-interfaces-ext:ra-retrans-interval: 100
+                          openconfig-interfaces-ext:reachable-time: 600
+                          openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:MEDIUM
+                        openconfig-interfaces-ext:ra-prefixes:
+                          ra-prefix:
+                            - prefix: '1000:2000::/64'
+                              config:
+                                prefix: '1000:2000::/64'
+                                valid-lifetime: 2400
+                            - prefix: '1000:3000::/64'
+                              config:
+                                prefix: '1000:3000::/64'
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: '100::200'
+                              config:
+                                address: '100::200'
+            - name: 'Eth1/2'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          openconfig-interfaces-ext:ra-hop-limit: 10
+                          openconfig-interfaces-ext:min-ra-interval: 100
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - dnssl-name: 'test2.com'
+                              config:
+                                dnssl-name: 'test2.com'
+                                valid-lifetime: 300
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: '101::200'
+                              config:
+                                address: '101::200'
+                            - address: '101::300'
+                              config:
+                                address: '101::300'
+            - name: 'Vlan100'
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  router-advertisement:
+                    suppress: false
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+
+replaced_01:
+  module_args:
+    config:
+      - name: 'Eth1/31'
+        suppress: false
+        ra_hop_limit: 15
+        ra_prefixes:
+          - prefix: 1000:1000::/64
+            valid_lifetime: 1500
+            router_address: true
+          - prefix: 1000:2000::/64
+            valid_lifetime: 1500
+            router_address: true
+      - name: 'Eth1/32'
+        ra_interval: 100
+        ra_lifetime: 200
+        min_ra_interval: 50
+        dnssl:
+          - dnssl_name: 'host.com'
+          - dnssl_name: 'test.com'
+            valid_lifetime: 600
+        rdnss:
+          - address: 100::200
+          - address: 100::500
+      - name: 'PortChannel 100'
+        suppress: false
+        reachable_time: 300
+        ra_retrans_interval: 15000
+      - name: 'Vlan101'
+        suppress: true
+    state: replaced
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - name: 'Eth1/31'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          suppress: false
+                          interval: 300
+                          lifetime: 450
+                          openconfig-interfaces-ext:min-ra-interval: 150
+                          openconfig-interfaces-ext:managed-config: true
+                          openconfig-interfaces-ext:ra-hop-limit: 10
+                          openconfig-interfaces-ext:reachable-time: 600
+                        openconfig-interfaces-ext:ra-prefixes:
+                          ra-prefix:
+                            - prefix: '1000:2000::/64'
+                              config:
+                                prefix: '1000:2000::/64'
+                                router-address: true
+                                valid-lifetime: 3000
+                            - prefix: '1000:3000::/64'
+                              config:
+                                prefix: '1000:3000::/64'
+                                off-link: true
+                                no-autoconfig: true
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: '100::300'
+                              config:
+                                address: '100::300'
+            - name: 'Eth1/32'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          suppress: false
+                          openconfig-interfaces-ext:min-ra-interval-msec: 50750
+                          openconfig-interfaces-ext:ra-interval-msec: 100250
+                          openconfig-interfaces-ext:ra-retrans-interval: 30000
+                          openconfig-interfaces-ext:other-config: true
+                          openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:LOW
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: '100::200'
+                              config:
+                                address: '100:200'
+                                valid-lifetime: 500
+                            - address: '100:300'
+                              config:
+                                address: '100:300'
+                                valid-lifetime: 1000
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - dnssl-name: 'test.com'
+                              config:
+                                dnss-name: 'test.com'
+                                valid-lifetime: 600
+                            - dnssl-name: 'test2.com'
+                              config:
+                                dnssl-name: 'test2.com'
+                                valid-lifetime: 600
+            - name: 'Vlan100'
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  router-advertisement:
+                    config:
+                      suppress: false
+                      openconfig-interfaces-ext:home-agent-config: true
+                      openconfig-interfaces-ext:home-agent-lifetime: 100
+                      openconfig-interfaces-ext:home-agent-preference: 150
+            - name: 'Vlan101'
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  router-advertisement:
+                    config:
+                      suppress: false
+                      openconfig-interfaces-ext:home-agent-config: true
+                      openconfig-interfaces-ext:home-agent-lifetime: 100
+                      openconfig-interfaces-ext:home-agent-preference: 150
+                    openconfig-interfaces-ext:ra-prefixes:
+                      ra-prefix:
+                        - prefix: '1001:1000::/64'
+                          config:
+                            prefix: '1001:1000::/64'
+                            off-link: true
+                            valid-lifetime: 2400
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f31/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f31/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f31/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f31/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:managed-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f31/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:reachable-time'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f31/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f31/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f31/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'patch'
+      data:
+        openconfig-if-ip:router-advertisement:
+          config:
+            openconfig-interfaces-ext:ra-hop-limit: 15
+          openconfig-interfaces-ext:ra-prefixes:
+            ra-prefix:
+              - prefix: '1000:1000::/64'
+                config:
+                  prefix: '1000:1000::/64'
+                  router-address: true
+                  valid-lifetime: 1500
+              - prefix: '1000:2000::/64'
+                config:
+                  prefix: '1000:2000::/64'
+                  router-address: true
+                  valid-lifetime: 1500
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/suppress'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval-msec'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:other-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-interval-msec'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-retrans-interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:router-preference'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=test2.com'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:min-ra-interval'
+      method: 'patch'
+      data:
+        openconfig-interfaces-ext:min-ra-interval: 50
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/interval'
+      method: 'patch'
+      data:
+        interval: 100
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/lifetime'
+      method: 'patch'
+      data:
+        lifetime: 200
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f32/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'patch'
+      data:
+        openconfig-if-ip:router-advertisement:
+          openconfig-interfaces-ext:dns-search-names:
+            dns-search-name:
+              - dnssl-name: 'host.com'
+                config:
+                  dnssl-name: 'host.com'
+          openconfig-interfaces-ext:rdnss-addresses:
+            rdnss-address:
+              - address: '100::200'
+                config:
+                  address: '100::200'
+              - address: '100::500'
+                config:
+                  address: '100::500'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'patch'
+      data:
+        openconfig-if-ip:router-advertisement:
+          config:
+            suppress: false
+            openconfig-interfaces-ext:ra-retrans-interval: 15000
+            openconfig-interfaces-ext:reachable-time: 300
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/suppress'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-config'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:home-agent-preference'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan101/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes'
+      method: 'delete'
+
+overridden_01:
+  module_args:
+    config:
+      - name: 'Eth1/1'
+        suppress: false
+        ra_interval: 300
+        ra_prefixes:
+          - prefix: 1000:1000::/64
+            valid_lifetime: 1500
+            router_address: true
+      - name: 'Eth1/2'
+        min_ra_interval: 50
+        dnssl:
+          - dnssl_name: 'host.com'
+        rdnss:
+          - address: 100::100
+      - name: 'PortChannel 101'
+        suppress: false
+        ra_lifetime: 720
+        ra_hop_limit: 25
+        router_preference: 'medium'
+        ra_prefixes:
+          - prefix: 1001:1000::/64
+        dnssl:
+          - dnssl_name: 'test.com'
+        rdnss:
+          - address: 100::200
+          - address: 100::300
+    state: overridden
+  facts_get_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interface:
+            - name: 'Eth1/1'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          suppress: false
+                          openconfig-interfaces-ext:ra-hop-limit: 15
+                        openconfig-interfaces-ext:ra-prefixes:
+                          ra-prefix:
+                            - prefix: '1000:1000::/64'
+                              config:
+                                prefix: '1000:1000::/64'
+                                router-address: true
+                                valid-lifetime: 1500
+                            - prefix: '1000:2000::/64'
+                              config:
+                                prefix: '1000:2000::/64'
+                                router-address: true
+                                valid-lifetime: 1500
+            - name: 'Eth1/2'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          interval: 100
+                          lifetime: 200
+                          openconfig-interfaces-ext:min-ra-interval: 50
+                        openconfig-interfaces-ext:rdnss-addresses:
+                          rdnss-address:
+                            - address: '100::200'
+                              config:
+                                address: '100::200'
+                            - address: '100::300'
+                              config:
+                                address: '100::300'
+                        openconfig-interfaces-ext:dns-search-names:
+                          dns-search-name:
+                            - dnssl-name: 'test.com'
+                              config:
+                                dnss-name: 'test.com'
+                                valid-lifetime: 600
+                            - dnssl-name: 'host.com'
+                              config:
+                                dnssl-name: 'host.com'
+            - name: 'PortChannel100'
+              subinterfaces:
+                subinterface:
+                  - index: 0
+                    openconfig-if-ip:ipv6:
+                      router-advertisement:
+                        config:
+                          suppress: false
+                          openconfig-interfaces-ext:reachable-time: 300
+                          openconfig-interfaces-ext:ra-retrans-interval: 15000
+            - name: 'Vlan100'
+              openconfig-vlan:routed-vlan:
+                openconfig-if-ip:ipv6:
+                  router-advertisement:
+                    config:
+                      suppress: false
+                      openconfig-interfaces-ext:home-agent-config: true
+                      openconfig-interfaces-ext:home-agent-lifetime: 100
+                      openconfig-interfaces-ext:home-agent-preference: 150
+  config_requests:
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/openconfig-interfaces-ext:ra-hop-limit'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:ra-prefixes/ra-prefix=1000:2000::%2f64'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f1/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/interval'
+      method: 'patch'
+      data:
+        interval: 300
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/interval'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/lifetime'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:dns-search-names/dns-search-name=test.com'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/openconfig-interfaces-ext:rdnss-addresses'
+      method: 'delete'
+    - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f2/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'patch'
+      data:
+        openconfig-if-ip:router-advertisement:
+          openconfig-interfaces-ext:rdnss-addresses:
+            rdnss-address:
+              - address: '100::100'
+                config:
+                  address: '100::100'
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel101/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement/config/lifetime'
+      method: 'patch'
+      data:
+        lifetime: 720
+    - path: 'data/openconfig-interfaces:interfaces/interface=PortChannel101/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/router-advertisement'
+      method: 'patch'
+      data:
+        openconfig-if-ip:router-advertisement:
+          config:
+            suppress: false
+            openconfig-interfaces-ext:ra-hop-limit: 25
+            openconfig-interfaces-ext:router-preference: openconfig-interfaces-ext:MEDIUM
+          openconfig-interfaces-ext:dns-search-names:
+            dns-search-name:
+              - dnssl-name: 'test.com'
+                config:
+                  dnssl-name: 'test.com'
+          openconfig-interfaces-ext:ra-prefixes:
+            ra-prefix:
+              - prefix: '1001:1000::/64'
+                config:
+                  prefix: '1001:1000::/64'
+          openconfig-interfaces-ext:rdnss-addresses:
+            rdnss-address:
+              - address: '100::200'
+                config:
+                  address: '100::200'
+              - address: '100::300'
+                config:
+                  address: '100::300'
