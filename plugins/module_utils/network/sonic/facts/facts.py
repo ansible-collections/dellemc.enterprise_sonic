@@ -52,7 +52,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pki.pki import PkiFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor.ip_neighbor import Ip_neighborFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor_interfaces.ip_neighbor_interfaces import (
-    Ip_neighbor_interfacesFacts,
+    Ip_neighbor_interfacesFacts
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ipv6_router_advertisement.ipv6_router_advertisement import (
     Ipv6_router_advertisementFacts
 )
