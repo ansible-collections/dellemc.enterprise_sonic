@@ -88,6 +88,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_classifiers.fbs_classifiers import Fbs_classifiersFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.br_l2pt.br_l2pt import Br_l2ptFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mirroring.mirroring import MirroringFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mfa.mfa import MfaFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx.dcbx import DcbxFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.evpn_esi_multihome.evpn_esi_multihome import Evpn_esi_multihomeFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mirroring.mirroring import MirroringFacts
@@ -165,6 +166,8 @@ FACT_RESOURCE_SUBSETS = dict(
     fbs_classifiers=Fbs_classifiersFacts,
     br_l2pt=Br_l2ptFacts,
     mirroring=MirroringFacts,
+    mfa=MfaFacts,
+    dcbx=DcbxFacts,
     ptp_port_ds=Ptp_port_dsFacts,
     dcbx=DcbxFacts,
     evpn_esi_multihome=Evpn_esi_multihomeFacts,
