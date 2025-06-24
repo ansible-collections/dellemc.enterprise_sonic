@@ -96,8 +96,11 @@ class Network_policyFacts(object):
                         if app.get('type'):
                             app_dict['app_type'] = app['type'].lower().replace('_', '-')
                         if app.get('config'):
-                            if app['config'].get('vlan-id'):
-                                app_dict['vlan_id'] = app['config']['vlan-id']
+                            if app['config'].get('vlan-id') is not None:
+                                if app['config']['vlan-id'] == 0:
+                                    app_dict['dot1p'] = 'enabled'
+                                else:
+                                    app_dict['vlan_id'] = app['config']['vlan-id']
                             if app['config'].get('tagged') is not None:
                                 app_dict['tagged'] = app['config']['tagged']
                             if app['config'].get('priority') is not None:

@@ -282,6 +282,7 @@ class Network_policy(ConfigBase):
                     for app in applications:
                         app_dict = {}
                         app_type = app.get('app_type')
+                        dot1p = app.get('dot1p')
                         vlan_id = app.get('vlan_id')
                         tagged = app.get('tagged')
                         priority = app.get('priority')
@@ -290,6 +291,8 @@ class Network_policy(ConfigBase):
                         if app_type:
                             app_type = app_type.upper().replace('-', '_')
                             app_dict.update({'type': app_type, 'config': {'type': app_type}})
+                        if dot1p:
+                            app_dict['config']['vlan-id'] = 0
                         if vlan_id:
                             app_dict['config']['vlan-id'] = vlan_id
                         if tagged is not None:
@@ -328,6 +331,7 @@ class Network_policy(ConfigBase):
             elif applications:
                 for app in applications:
                     app_type = app.get('app_type')
+                    dot1p = app.get('dot1p')
                     vlan_id = app.get('vlan_id')
                     tagged = app.get('tagged')
                     priority = app.get('priority')
@@ -336,6 +340,8 @@ class Network_policy(ConfigBase):
                     if app_type and len(app) == 1:
                         requests.append(self.get_delete_network_policy_request(number, app_type))
                         continue
+                    if dot1p:
+                        requests.append(self.get_delete_network_policy_request(number, app_type, 'vlan-id'))
                     if vlan_id:
                         requests.append(self.get_delete_network_policy_request(number, app_type, 'vlan-id'))
                     if tagged is not None:

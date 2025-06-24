@@ -40,6 +40,13 @@ sonic_network_policy_tests:
             tagged: true
             priority: 7
             dscp: 45
+      - number: 3
+        applications:
+          - app_type: voice-signaling
+            dot1p: enabled
+            tagged: true
+            priority: 7
+            dscp: 45
 
   - name: test_case_03
     description: Replace network policy configuration
@@ -84,6 +91,13 @@ sonic_network_policy_tests:
             vlan_id: 1000
             tagged: false
             dscp: 63
+      - number: 103
+        applications:
+          - app_type: voice-signaling
+            dot1p: enabled
+            tagged: true
+            priority: 7
+            dscp: 45
 
   - name: test_case_05
     description: Delete network policy configuration
@@ -98,6 +112,10 @@ sonic_network_policy_tests:
             priority: 7
             dscp: 12
           - app_type: voice-signaling
+      - number: 103
+        applications:
+          - app_type: voice-signaling
+            dot1p: enabled
 
   - name: test_case_06
     description: Delete all network policy configuration

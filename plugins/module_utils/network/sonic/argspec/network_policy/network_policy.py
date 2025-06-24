@@ -24,6 +24,7 @@ class Network_policyArgs(object):  # pylint: disable=R0903
             'options': {
                 'applications': {
                     'elements': 'dict',
+                    'mutually_exclusive': [['dot1p', 'vlan_id']],
                     'options': {
                         'app_type': {
                             'choices': ['voice', 'voice-signaling'],
@@ -31,6 +32,7 @@ class Network_policyArgs(object):  # pylint: disable=R0903
                             'type': 'str'
                         },
                         'dscp': {'type': 'int'},
+                        'dot1p': {'choices': ['enabled'], 'type': 'str'},
                         'priority': {'type': 'int'},
                         'tagged': {'type': 'bool'},
                         'vlan_id': {'type': 'int'}

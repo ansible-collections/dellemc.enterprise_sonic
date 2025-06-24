@@ -9,6 +9,8 @@ merged_01:
             tagged: true
             priority: 0
             dscp: 0
+          - app_type: voice-signaling
+            dot1p: enabled
   existing_network_policy_config:
     - path: 'data/openconfig-network-policy-ext:network-policies'
       response:
@@ -31,6 +33,10 @@ merged_01:
                       tagged: true
                       priority: 0
                       dscp: 0
+                  - type: VOICE_SIGNALING
+                    config:
+                      type: VOICE_SIGNALING
+                      vlan-id: 0
 
 replaced_01:
   module_args:
@@ -201,6 +207,10 @@ deleted_01:
             priority: 7
             dscp: 12
           - app_type: voice-signaling
+      - number: 102
+        applications:
+          - app_type: voice-signaling
+            dot1p: enabled
     state: deleted
   existing_network_policy_config:
     - path: 'data/openconfig-network-policy-ext:network-policies'
@@ -231,6 +241,15 @@ deleted_01:
                         tagged: true
                         priority: 7
                         dscp: 45
+              - number: 102
+                config:
+                  number: 102
+                applications:
+                  application:
+                    - type: VOICE_SIGNALING
+                      config:
+                        type: VOICE_SIGNALING
+                        vlan-id: 0
   expected_config_requests:
     - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=100'
       method: 'delete'
@@ -248,6 +267,9 @@ deleted_01:
       method: 'delete'
       data:
     - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=101/applications/application=VOICE_SIGNALING'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=102/applications/application=VOICE_SIGNALING/config/vlan-id'
       method: 'delete'
       data:
 

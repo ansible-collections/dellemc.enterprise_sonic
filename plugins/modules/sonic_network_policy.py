@@ -37,6 +37,7 @@ options:
       applications:
         description:
           - List of network policy application configurations
+          - I(dot1p) and I(vlan_id) are mutually exclusive.
         type: list
         elements: dict
         suboptions:
@@ -46,6 +47,11 @@ options:
             type: str
             choices: ['voice', 'voice-signaling']
             required: true
+          dot1p:
+            description:
+              - Enable dot1p priority tagging
+            type: str
+            choices: ['enabled']
           vlan_id:
             description:
               - VLAN identifier, range 1-4094
@@ -89,8 +95,7 @@ EXAMPLES = """
             priority: 1
             dscp: 1
           - app_type: voice_signaling
-            vlan_id: 3
-            tagged: false
+            dot1p: 0
             dscp: 50
     state: merged
 
@@ -101,7 +106,7 @@ EXAMPLES = """
 # !
 # network-policy profile 1
 #  voice vlan 2 cos 1 dscp 1
-#  voice-signaling vlan 3 untagged dscp 50
+#  voice-signaling vlan dot1p dscp 50
 # !
 
 
