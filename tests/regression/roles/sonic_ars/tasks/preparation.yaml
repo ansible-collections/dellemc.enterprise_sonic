@@ -1,0 +1,6 @@
+---
+- name: Delete ARS configuration
+  sonic_ars:
+    config: {}
+    state: deleted
+  failed_when: false
