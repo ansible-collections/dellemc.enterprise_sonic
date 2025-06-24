@@ -25,12 +25,7 @@ class Drop_counterArgs(object):  # pylint: disable=R0903
                 'alias': {'type': 'str'},
                 'counter_description': {'type': 'str'},
                 'counter_type': {
-                    'choices': [
-                        'PORT_EGRESS_DROPS',
-                        'PORT_INGRESS_DROPS',
-                        'SWITCH_EGRESS_DROPS',
-                        'SWITCH_INGRESS_DROPS'
-                    ],
+                    'choices': ['PORT_INGRESS_DROPS'],
                     'type': 'str'
                 },
                 'enable': {'type': 'bool'},

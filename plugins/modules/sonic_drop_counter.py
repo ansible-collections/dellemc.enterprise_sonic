@@ -47,10 +47,7 @@ options:
           - Type of drop counter
         type: str
         choices:
-          - PORT_EGRESS_DROPS
           - PORT_INGRESS_DROPS
-          - SWITCH_EGRESS_DROPS
-          - SWITCH_INGRESS_DROPS
       enable:
         description:
           - Enable drop counter
@@ -106,7 +103,7 @@ EXAMPLES = """
       - name: counter1
         alias: c1
         counter_description: abc
-        counter_type: PORT_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group1
         mirror: session1
@@ -121,7 +118,7 @@ EXAMPLES = """
 # !
 # dropcounters counter1
 #  enable
-#  type PORT_EGRESS_DROPS
+#  type PORT_INGRESS_DROPS
 #  alias c1
 #  group group1
 #  description "abc"
@@ -138,7 +135,7 @@ EXAMPLES = """
 # !
 # dropcounters counter1
 #  enable
-#  type PORT_EGRESS_DROPS
+#  type PORT_INGRESS_DROPS
 #  alias c1
 #  group group1
 #  description "abc"
@@ -186,7 +183,7 @@ EXAMPLES = """
 # !
 # dropcounters counter1
 #  enable
-#  type PORT_EGRESS_DROPS
+#  type PORT_INGRESS_DROPS
 #  alias c1
 #  group group1
 #  description "abc"
@@ -207,7 +204,7 @@ EXAMPLES = """
       - name: counter3
         alias: c3
         counter_description: qwerty
-        counter_type: SWITCH_INGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group3
         mirror: session2
@@ -223,7 +220,7 @@ EXAMPLES = """
 # !
 # dropcounters counter3
 #  enable
-#  type SWITCH_INGRESS_DROPS
+#  type PORT_INGRESS_DROPS
 #  alias c3
 #  group group3
 #  description "qwerty"
@@ -240,7 +237,7 @@ EXAMPLES = """
 # !
 # dropcounters counter1
 #  enable
-#  type PORT_EGRESS_DROPS
+#  type PORT_INGRESS_DROPS
 #  alias c1
 #  group group1
 #  description "abc"
@@ -272,7 +269,7 @@ EXAMPLES = """
 # !
 # dropcounters counter1
 #  enable
-#  type PORT_EGRESS_DROPS
+#  type PORT_INGRESS_DROPS
 #  group group1
 #  mirror session1
 #  add-reason ANY
@@ -287,7 +284,7 @@ EXAMPLES = """
 # !
 # dropcounters counter1
 #  enable
-#  type PORT_EGRESS_DROPS
+#  type PORT_INGRESS_DROPS
 #  group group1
 #  mirror session1
 #  add-reason ANY

@@ -5,7 +5,7 @@ merged_01:
       - name: counter1
         alias: c1
         counter_description: abc
-        counter_type: PORT_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group1
         mirror: session1
@@ -26,7 +26,7 @@ merged_01:
                 desc: abc
                 group: group1
                 alias: c1
-                type: PORT_EGRESS_DROPS
+                type: PORT_INGRESS_DROPS
                 status: enable
                 mirror: session1
                 reasons:
@@ -52,7 +52,7 @@ replaced_01:
                   desc: abc
                   group: group1
                   alias: c1
-                  type: PORT_EGRESS_DROPS
+                  type: PORT_INGRESS_DROPS
                   status: enable
                   mirror: session1
                   reasons:
@@ -78,7 +78,7 @@ overridden_01:
       - name: counter2
         alias: c2
         counter_description: xyz
-        counter_type: SWITCH_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: false
         group: group2
         reasons:
@@ -98,7 +98,7 @@ overridden_01:
                   desc: abc
                   group: group1
                   alias: c1
-                  type: PORT_EGRESS_DROPS
+                  type: PORT_INGRESS_DROPS
                   status: enable
                   mirror: session1
                   reasons:
@@ -117,7 +117,7 @@ overridden_01:
                 desc: xyz
                 group: group2
                 alias: c2
-                type: SWITCH_EGRESS_DROPS
+                type: PORT_INGRESS_DROPS
                 status: disable
                 reasons:
                   - IP_HEADER_ERROR
@@ -130,7 +130,7 @@ overridden_02:
       - name: counter1
         alias: c1
         counter_description: abc
-        counter_type: PORT_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group1
         mirror: session1
@@ -149,7 +149,7 @@ overridden_02:
                   desc: abc
                   group: group1
                   alias: c1
-                  type: PORT_EGRESS_DROPS
+                  type: PORT_INGRESS_DROPS
                   status: enable
                   mirror: session1
   expected_config_requests:
@@ -169,13 +169,15 @@ deleted_01:
       - name: counter1
         alias: c1
         counter_description: abc
-        counter_type: PORT_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group1
         mirror: session1
         reasons:
           - ANY
       - name: counter2
+      - name: counter3
+        enable: False
     state: deleted
   existing_drop_counter_config:
     - path: 'data/sonic-debugcounter:sonic-debugcounter'
@@ -189,12 +191,14 @@ deleted_01:
                   desc: abc
                   group: group1
                   alias: c1
-                  type: PORT_EGRESS_DROPS
+                  type: PORT_INGRESS_DROPS
                   status: enable
                   mirror: session1
                   reasons:
                     - ANY
                 - name: counter2
+                - name: counter3
+                  status: disable
   expected_config_requests:
     - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1/alias'
       method: 'delete'
@@ -237,7 +241,7 @@ deleted_02:
                   desc: abc
                   group: group1
                   alias: c1
-                  type: PORT_EGRESS_DROPS
+                  type: PORT_INGRESS_DROPS
                   status: enable
                   mirror: session1
                 - name: counter2

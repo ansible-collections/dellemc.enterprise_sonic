@@ -9,7 +9,7 @@ sonic_drop_counter_tests:
       - name: counter1
         alias: c1
         counter_description: abc
-        counter_type: PORT_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group1
         mirror: session1
@@ -18,7 +18,7 @@ sonic_drop_counter_tests:
       - name: counter2
         alias: c2
         counter_description: xyz
-        counter_type: SWITCH_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: false
         group: group2
         reasons:
@@ -33,7 +33,6 @@ sonic_drop_counter_tests:
       - name: counter2
         alias: drop2
         counter_description: xyz789
-        counter_type: PORT_INGRESS_DROPS
         group: group3
 
   - name: test_case_03
@@ -46,7 +45,7 @@ sonic_drop_counter_tests:
       - name: counter3
         alias: c3
         counter_description: qwerty
-        counter_type: SWITCH_INGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group3
         mirror: session2
@@ -61,7 +60,7 @@ sonic_drop_counter_tests:
       - name: counter4
         alias: drop4
         counter_description: abc
-        counter_type: PORT_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group1
         mirror: session1
@@ -70,7 +69,7 @@ sonic_drop_counter_tests:
       - name: counter5
         alias: drop5
         counter_description: xyz
-        counter_type: SWITCH_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: false
         group: group2
         reasons:
@@ -83,7 +82,7 @@ sonic_drop_counter_tests:
       - name: counter7
         alias: c7
         counter_description: qwerty
-        counter_type: SWITCH_INGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group3
         mirror: session2
@@ -98,7 +97,7 @@ sonic_drop_counter_tests:
       - name: counter4
         alias: drop4
         counter_description: abc
-        counter_type: PORT_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: true
         group: group1
         mirror: session1
@@ -107,7 +106,7 @@ sonic_drop_counter_tests:
       - name: counter5
         alias: drop5
         counter_description: xyz
-        counter_type: SWITCH_EGRESS_DROPS
+        counter_type: PORT_INGRESS_DROPS
         enable: false
         group: group2
         reasons:

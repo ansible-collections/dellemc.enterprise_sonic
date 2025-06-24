@@ -105,10 +105,10 @@ class Drop_counterFacts(object):
                     counter_dict['mirror'] = counter['mirror']
                 if counter.get('reasons'):
                     counter_dict['reasons'] = counter['reasons']
-                if counter.get('status'):
-                    counter_dict['enable'] = enum_dict[counter['status']]
                 if counter.get('type'):
                     counter_dict['counter_type'] = counter['type']
+                status = counter.get('status', 'disable')
+                counter_dict['enable'] = enum_dict[status]
                 if counter_dict:
                     config_list.append(counter_dict)
 

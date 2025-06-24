@@ -50,6 +50,11 @@ def __derive_drop_counter_delete_op(key_set, command, exist_conf):
     if is_delete_all:
         new_conf = []
         return True, new_conf
+
+    # Handle deletion of default values
+    if command.get('enable'):
+        exist_conf['enable'] = False
+        command.pop('enable')
     done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
     return done, new_conf
 
@@ -249,6 +254,7 @@ class Drop_counter(ConfigBase):
             is_delete_all = True
         else:
             commands = get_diff(want, diff, TEST_KEYS)
+            self.remove_default_entries(commands)
 
         if commands:
             requests = self.get_delete_drop_counter_requests(commands, is_delete_all)
@@ -384,3 +390,16 @@ class Drop_counter(ConfigBase):
             for counter in config:
                 if counter.get('reasons'):
                     counter['reasons'].sort()
+
+    def remove_default_entries(self, config):
+        """This method removes default entries from the drop counter configuration"""
+        if config:
+            pop_list = []
+            for counter in config:
+                if counter.get('enable') is False:
+                    counter.pop('enable')
+                    if len(counter) == 1:
+                        idx = config.index(counter)
+                        pop_list.insert(0, idx)
+            for idx in pop_list:
+                config.pop(idx)
