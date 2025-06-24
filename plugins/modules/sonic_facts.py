@@ -125,6 +125,7 @@ options:
       - mirroring
       - evpn_esi_multihome
       - ssh_server
+      - loadshare_mode
 """
 
 EXAMPLES = """
