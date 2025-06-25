@@ -34,13 +34,13 @@ tests:
             priv_type: 'aes'
             key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
           encrypted: True
-      engine: '80:00:01:37:03:e8:b5:d0:cc:0f:cc'
+      engine: 23:45:67:89:ab
       location: 'Lab1, Rack-10'
       enable_trap:
         - 'bgp'
       contact: 'Dell Support'
   
-  - name: test_case_01_merge_user
+  - name: test_case_02_merge_user
     description: Merge SNMP user configuration
     state: merged
     input:
@@ -56,7 +56,21 @@ tests:
       enable_trap:
         - 'auth-fail'
 
-  - name: test_case_02_merged_group_community_view
+  - name: test_case_03_merge_existing_user
+    description: Merge SNMP user configuration
+    state: merged
+    input:
+      user:
+        - name: 'user3'
+          auth:
+            auth_type: 'sha'
+            key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
+          priv:
+            priv_type: 'des'
+            key: 'U2FsdGVkX19bhEBO25eab34IgIqO0UKPdtCTBoPtsK6sPaGfkkzChPyVX4+ARiC/O0ARhfvppz+G2Z54vSGIlCcDanT0W7XNlkMHRaTHWy8='
+          encrypted: True
+
+  - name: test_case_04_merged_group_community_view
     description: Merge some of the SNMP configuration
     state: merged
     input:
@@ -76,7 +90,7 @@ tests:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
 
-  - name: test_case_03_merge_host_and_agentaddress
+  - name: test_case_05_merge_host_and_agentaddress
     description: Merge SNMP host
     state: merged
     input:
@@ -90,7 +104,7 @@ tests:
           port: 1024
           interface: 'Eth1/30'
 
-  - name: test_case_04_replaced_group
+  - name: test_case_06_replaced_group
     description: Replace some of a SNMP group
     state: replaced
     input:
@@ -103,7 +117,7 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_05_replaced_host
+  - name: test_case_07_replaced_host
     description: Replace SNMP host
     state: replaced
     input:
@@ -114,7 +128,7 @@ tests:
           retries: 20
           port: 162
 
-  - name: test_case_06_overridden_host
+  - name: test_case_08_overridden_host
     description: Override host and group
     state: overridden
     input:
@@ -127,7 +141,7 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_07_delete_group
+  - name: test_case_09_delete_group
     description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted
     input:
@@ -136,7 +150,7 @@ tests:
           access:
             - security_model: 'v2c'
 
-  - name: test_case_08_merge_community_and_view
+  - name: test_case_10_merge_community_and_view
     description: Merge some of the SNMP configuration
     state: merged
     input:
@@ -150,7 +164,7 @@ tests:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
 
-  - name: test_case_09_deleted_all
+  - name: test_case_11_deleted_all
     description: Delete all SNMP server configuration
     state: deleted
     input: {}

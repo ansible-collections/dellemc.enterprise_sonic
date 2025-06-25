@@ -31,10 +31,15 @@ options:
       agentaddress:
         description:
           - List of SNMP agent address configuration
-          - I(interface) and I(vrf) are mutually exclusive.
+          - I(interface) and I(vrf) are mutually exclusive
         type: list
         elements: dict
         suboptions:
+          name:
+            description:
+              - Name of this agentaddress entry
+              - The name is auto-generated if not explicityly specified for agentaddress entry creation
+            type: str
           interface:
             description:
               - Name of interface
@@ -98,6 +103,7 @@ options:
           access:
             description:
               - List of access rights configuration for a group
+              - The old access list will be replaced with the new access list
             type: list
             elements: dict
             suboptions:
@@ -111,7 +117,7 @@ options:
                 type: str
               security_level:
                 description:
-                  -  When I(security_model=v3), specifies the minimum security level under which the access rights apply.
+                  -  When I(security_model=v3), specifies the minimum security level under which the access rights apply
                 choices:
                   - no-auth-no-priv
                   - auth-no-priv
@@ -142,6 +148,11 @@ options:
         type: list
         elements: dict
         suboptions:
+          name:
+            description:
+              - Name of the host
+              - The name is auto-generated if not explicityly specified for host entry creation
+            type: str
           community:
             description:
               - SNMP community for the host
@@ -157,7 +168,7 @@ options:
             type: int
           retries:
             description:
-              - Number of retries that is only used when "inform" choice is speccified.
+              - Number of retries that is only used when "inform" choice is speccified
               - Has a range between 1 and 255
             type: int
           source_interface:
@@ -256,7 +267,7 @@ options:
             description:
               - Enable/disable encryption for auth and priv keys. The type specified for
               - these keys (encrypted or unencrypted) must be consistent with the value
-              - of the "encrypted" option.
+              - of the "encrypted" option
             type: bool
       view:
         description:

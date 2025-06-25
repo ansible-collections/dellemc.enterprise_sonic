@@ -25,6 +25,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                 'agentaddress': {
                     'elements': 'dict',
                     'options': {
+                        'name': {'type': 'str'},
                         'interface': {'type': 'str'},
                         'ip': {
                             'required': True,
@@ -100,6 +101,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                 'host': {
                     'elements': 'dict',
                     'options': {
+                        'name': {'type': 'str'},
                         'community': {'type': 'str'},
                         'ip': {
                             'required': True,
