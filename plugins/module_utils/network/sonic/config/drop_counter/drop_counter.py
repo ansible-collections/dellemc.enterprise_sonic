@@ -220,6 +220,7 @@ class Drop_counter(ConfigBase):
         commands, requests = [], []
         mod_commands, mod_request = None, None
         del_commands = get_diff(have, want, TEST_KEYS)
+        self.remove_default_entries(del_commands)
 
         if del_commands:
             is_delete_all = True
@@ -377,8 +378,11 @@ class Drop_counter(ConfigBase):
             if not cfg_counter:
                 continue
             if counter != cfg_counter:
-                requests.append(self.get_delete_drop_counter_request(name))
                 config_list.append(cfg_counter)
+
+        self.remove_default_entries(config_list)
+        for counter in config_list:
+            requests.append(self.get_delete_drop_counter_request(counter['name']))
 
         return config_list, requests
 
@@ -395,11 +399,10 @@ class Drop_counter(ConfigBase):
         """This method removes default entries from the drop counter configuration"""
         if config:
             pop_list = []
-            for counter in config:
+            for idx, counter in enumerate(config):
                 if counter.get('enable') is False:
                     counter.pop('enable')
                     if len(counter) == 1:
-                        idx = config.index(counter)
                         pop_list.insert(0, idx)
             for idx in pop_list:
                 config.pop(idx)
