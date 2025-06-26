@@ -47,7 +47,7 @@ TEST_KEYS = [
     {'group': {'name': '', 'access': {'security_model': ''}}},
     {'engine': ''},
     {'access': {'security_model': ''}},
-    {'host': {'ip': ''}},
+    {'host': {'name': ''}},
     {'user': {'name': ''}},
     {'view': {'name': ''}}
 ]
@@ -161,6 +161,42 @@ class Snmp(ConfigBase):
 
         return commands, requests
 
+    def new_test_keys(self, want):
+        """ Returns the test keys based on if want contains name value for agentaddress
+        and/or host options
+        :rtype: A list
+        :returns: new test_keys
+        """
+        test_keys = [
+            {'community': {'name': ''}},
+            {'group': {'name': '', 'access': {'security_model': ''}}},
+            {'engine': ''},
+            {'access': {'security_model': ''}},
+            {'user': {'name': ''}},
+            {'view': {'name': ''}}
+            ]
+        if 'agentaddress' in want:
+            no_name = False
+            for command in want['agentaddress']:
+                if not 'name' in command:
+                    no_name = True
+            if no_name:
+                test_keys.extend([{'agentaddress': {'ip': ''}},
+                                {'agentaddress': {'vrf': ''}}])
+            else:
+                test_keys.extend([{'agentaddress': {'name': ''}}])
+        if 'host' in want:
+            no_name = False
+            for command in want['host']:
+                if not 'host' in command:
+                    no_name = True
+            if no_name:
+                test_keys.extend([{'host': {'ip': ''}},
+                                {'host': {'vrf': ''}}])
+            else:
+                test_keys.extend([{'host': {'name': ''}}])
+        return test_keys
+
     def _state_replaced_or_overridden(self, want, have, state):
         """
         The command generator when state is overridden
@@ -199,6 +235,8 @@ class Snmp(ConfigBase):
                 requests.extend(del_requests)
                 commands.extend(update_states(del_commands, "deleted"))
 
+            test_keys = self.new_test_keys(want)
+            diff_want = get_diff(want, have, test_keys)
             merged_commands = diff_want
             merged_request = self.get_create_snmp_request(merged_commands, have, True)
             requests.extend(merged_request)
@@ -212,7 +250,8 @@ class Snmp(ConfigBase):
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = get_diff(want, have, TEST_KEYS)
+        test_keys = self.new_test_keys(want)
+        commands = get_diff(want, have, test_keys)
         request_commands = commands
         commands_updated = []
         del_commands = {}
@@ -221,17 +260,12 @@ class Snmp(ConfigBase):
         if 'user' in want:
             delete_user_requests = self.delete_snmp_user_request(commands, have)
             requests = delete_user_requests
-            delete_commands = get_diff(have, want, TEST_KEYS)
+            delete_commands = get_diff(have, want, test_keys)
             del_commands = self.get_existing_user(commands, have)
-            user_commands = get_diff(want, delete_commands, TEST_KEYS)
+            user_commands = get_diff(want, delete_commands, test_keys)
 
             if user_commands:
                 request_commands = user_commands
-        if 'agentaddress' in request_commands and 'agentaddress' in want:
-            for command in request_commands.get('agentaddress'):
-                matched_agentaddress = next((agentaddress for agentaddress in want['agentaddress'] if agentaddress == command), None)
-                if matched_agentaddress:
-                    request_commands['agentaddress'].remove(command)
 
         requests.extend(self.get_create_snmp_request(request_commands, have, False))
 
