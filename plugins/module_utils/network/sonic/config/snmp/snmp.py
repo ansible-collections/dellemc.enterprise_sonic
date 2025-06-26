@@ -57,7 +57,7 @@ TEST_KEYS_formatted_diff = [
     {'community': {'name': '', '__delete_op': __DELETE_CONFIG}},
     {'group': {'name': '', '__delete_op': __DELETE_CONFIG}},
     {'access': {'security_model': '', '__delete_op': __DELETE_CONFIG}},
-    {'host': {'ip': '', '__delete_op': __DELETE_CONFIG}},
+    {'host': {'name': '', '__delete_op': __DELETE_CONFIG}},
     {'user': {'name': '', '__delete_op': __DELETE_CONFIG}},
     {'view': {'name': '', '__delete_op': __DELETE_CONFIG}},
 ]
@@ -182,12 +182,27 @@ class Snmp(ConfigBase):
         merged_request = None
 
         if del_commands:
-            del_requests = self.get_delete_snmp_request(del_commands, have, True)
-            requests.extend(del_requests)
-            commands.extend(update_states(del_commands, "deleted"))
+            if 'agentaddress' in del_commands and 'agentaddress' in want:
+                want_with_name = next((want_agentaddress.get('name') for want_agentaddress in want.get('agentaddress') if want_agentaddress.get('name')), None)
+                for command in del_commands.get('agentaddress'):
+                    if command.get('name'):
+                        del_commands['agentaddress'].remove(command)
+                if len(del_commands['agentaddress']) == 0:
+                    del_commands.pop('agentaddress')
+            if 'host' in del_commands and 'host' in want:
+                want_with_name = next((want_host.get('name') for want_host in want.get('host') if want_host.get('name')), None)
+                for command in del_commands.get('host'):
+                    if command.get('name'):
+                        del_commands['host'].remove(command)
+                if len(del_commands['host']) == 0:
+                    del_commands.pop('host')
+            if len(del_commands) > 0:
+                del_requests = self.get_delete_snmp_request(del_commands, have, True)
+                requests.extend(del_requests)
+                commands.extend(update_states(del_commands, "deleted"))
 
             merged_commands = diff_want
-            merged_request = self.get_create_snmp_request(merged_commands, have)
+            merged_request = self.get_create_snmp_request(merged_commands, have, True)
             requests.extend(merged_request)
             commands.extend(update_states(merged_commands, state))
 
@@ -214,7 +229,7 @@ class Snmp(ConfigBase):
 
             if user_commands:
                 request_commands = user_commands
-        requests.extend(self.get_create_snmp_request(request_commands, have))
+        requests.extend(self.get_create_snmp_request(request_commands, have, False))
 
         if commands and len(requests) > 0:
             if delete_user_requests:
@@ -226,21 +241,6 @@ class Snmp(ConfigBase):
             commands_updated = []
 
         return commands_updated, requests
-
-    def delete_existing_matched_user_config(self, commands, have):
-        """ Checks if the user in commands exists already
-        :rtype: A list
-        :returns: the list of requests if the user already exists
-        if the does not exist return an empty list
-        """
-        want_users = commands.get('user')
-        requests = []
-        if have.get('user') is None:
-            return requests
-        if want_users:
-            requests = self.delete_user(commands, have)
-
-        return requests
 
     def _state_deleted(self, want, have):
         """ The command generator when state is deleted
@@ -289,15 +289,22 @@ class Snmp(ConfigBase):
                 new_config[key] = value
         return new_config
 
-    def delete_snmp_user_request(self, config, have=None):
+    def delete_snmp_user_request(self, commands, have=None):
         """ Create the requests to update the snmp user configuration]
 
         :rtype: A list
         :returns: the requests to update the snmp user configuration
         """
-        return self.delete_existing_matched_user_config(config, have)
+        want_users = commands.get('user')
+        requests = []
+        if have.get('user') is None:
+            return requests
+        if want_users:
+            requests = self.delete_user(commands, have)
 
-    def get_create_snmp_request(self, config, have):
+        return requests
+
+    def get_create_snmp_request(self, config, have, overridden_or_replaced):
         """ Create the requests necessary to create the desired configuration
         :rtype: A list
         :returns: the requests necessary to create the desired configuration
@@ -307,7 +314,7 @@ class Snmp(ConfigBase):
 
         if config.get('agentaddress'):
             agentaddress_path = "data/ietf-snmp:snmp/engine"
-            payload = self.build_create_agentaddress_payload(config, have)
+            payload = self.build_create_agentaddress_payload(config, have, overridden_or_replaced)
             agentaddress_request = {'path': agentaddress_path, 'method': method, 'data': payload}
             requests.append(agentaddress_request)
 
@@ -348,11 +355,11 @@ class Snmp(ConfigBase):
 
         if config.get('host'):
             server_params_path = "data/ietf-snmp:snmp/target-params"
-            payload = self.build_create_enable_target_params_payload(config, have)
+            payload = self.build_create_enable_target_params_payload(config, have, overridden_or_replaced)
             target_params_request = {'path': server_params_path, 'method': method, 'data': payload}
             requests.append(target_params_request)
             target_path = "data/ietf-snmp:snmp/target"
-            payload = self.build_create_enable_target_payload(config, have)
+            payload = self.build_create_enable_target_payload(config, have, overridden_or_replaced)
             target_request = {'path': target_path, 'method': method, 'data': payload}
             requests.append(target_request)
 
@@ -381,16 +388,16 @@ class Snmp(ConfigBase):
 
         return requests
 
-    def  build_create_agentaddress_payload(self, config, have):
+    def build_create_agentaddress_payload(self, config, have, overridden_or_replaced):
         """ Build the payload for SNMP agentaddress
         :rtype: A dictionary
         :returns: The payload for SNMP agentaddress
         """
         agentaddress = config.get('agentaddress')
         have_agentaddress = have.get('agentaddress')
-        have_agentaddress_names = [] 
-        if have_agentaddress:
-          have_agentaddress_names = [agent_entry['name'] for agent_entry in have_agentaddress]
+        have_agentaddress_names = []
+        if have_agentaddress and not overridden_or_replaced:
+            have_agentaddress_names = [agent_entry.get('name') for agent_entry in have_agentaddress]
         agentaddress_list = []
         agentaddressdict = {}
         payload_url = {}
@@ -400,7 +407,7 @@ class Snmp(ConfigBase):
             if 'name' in conf:
                 name = conf.get('name')
             else:
-                name =  self.get_agententry(have_agentaddress_names)
+                name = self.get_agententry(have_agentaddress_names)
 
             agentaddress_dict['name'] = name
             agentaddress_dict['udp'] = {'ietf-snmp-ext:interface': conf.get('interface'), 'ip': conf.get('ip'), 'port': conf.get('port')}
@@ -664,7 +671,7 @@ class Snmp(ConfigBase):
             access_list.append(access_dict)
         return access_list
 
-    def build_create_enable_target_payload(self, config, have):
+    def build_create_enable_target_payload(self, config, have, overridden_or_replaced):
         """ Build the payload for SNMP target information based on the given host configuration
         :rtype: A dictionary
         :returns: The payload for SNMP target
@@ -673,9 +680,9 @@ class Snmp(ConfigBase):
         target_list = []
         target = config.get('host')
         have_targetentry = have.get('host')
-        have_targetentry_names = [] 
-        if have_targetentry:
-          have_targetentry_names = [agent_entry['name'] for agent_entry in have_targetentry]
+        have_targetentry_names = []
+        if have_targetentry and not overridden_or_replaced:
+            have_targetentry_names = [agent_entry.get('name') for agent_entry in have_targetentry]
 
         for conf in target:
             target_dict = {}
@@ -704,10 +711,9 @@ class Snmp(ConfigBase):
             target_list.append(target_dict)
 
         payload_url['target'] = target_list
-
         return payload_url
 
-    def build_create_enable_target_params_payload(self, config, have):
+    def build_create_enable_target_params_payload(self, config, have, overridden_or_replaced):
         """ Build the payload for SNMP param information based on the given host configuration
         :rtype: A dictionary
         :returns: The payload for SNMP target
@@ -717,10 +723,9 @@ class Snmp(ConfigBase):
 
         server = config.get('host')
         have_targetentry = have.get('host')
-        have_targetentry_names = [] 
-        if have_targetentry:
-          have_targetentry_names = [agent_entry['name'] for agent_entry in have_targetentry]
-
+        have_targetentry_names = []
+        if have_targetentry and not overridden_or_replaced:
+            have_targetentry_names = [agent_entry.get('name') for agent_entry in have_targetentry]
         for conf in server:
             target_params_dict = {}
             target_entry_name = ""
@@ -786,7 +791,6 @@ class Snmp(ConfigBase):
                     user_requests.append(user_request)
 
         return user_requests
-
 
     def get_delete_snmp_request(self, configs, have, delete_all):
         """ Create the requests necessary to delete the given configuration
@@ -1293,11 +1297,12 @@ class Snmp(ConfigBase):
         agent = 1
         current_agententry = "AgentEntry1"
         while current_agententry in have_agentaddress:
-            agent = agent +1
+            agent = agent + 1
             current_agententry = "AgentEntry" + str(agent)
+        have_agentaddress.append(current_agententry)
 
         return current_agententry
-    
+
     def get_targetentry(self, have_targetentry):
         """ Get and return the firlst available targetEntry that is not already taken
         :rtype: str
@@ -1306,8 +1311,7 @@ class Snmp(ConfigBase):
         target = 1
         current_targetentry = "TargetEntry1"
         while current_targetentry in have_targetentry:
-            target = target +1
+            target = target + 1
             current_targetentry = "TargetEntry" + str(target)
 
         return current_targetentry
-

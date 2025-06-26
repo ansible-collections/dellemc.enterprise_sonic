@@ -233,9 +233,6 @@ replaced_02:
                     port: 1024
   expected_config_requests:
     - path: 'data/ietf-snmp:snmp/engine'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/engine'
       method: 'patch'
       data:
         ietf-snmp:engine:
@@ -244,12 +241,6 @@ replaced_02:
               udp:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
-    - path: 'data/ietf-snmp:snmp/engine/listen'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
-      method: 'delete'
-      data:
 
 replaced_03:
   module_args:
@@ -284,33 +275,21 @@ replaced_03:
                   user-name: 'user1'
                   security-level: 'no-auth-no-priv'
   expected_config_requests:
-    - path: 'data/ietf-snmp:snmp/engine'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/target'
-      method: 'delete'
-      data:
     - path: 'data/ietf-snmp:snmp/target'
       method: 'patch'
       data:
         target:
-          - name: 'targetEntry1'
+          - name: 'TargetEntry1'
             retries: 50
-            target-params: 'targetEntry1'
+            target-params: 'TargetEntry1'
             udp:
               ip: '1.2.3.5'
               port: 162
     - path: 'data/ietf-snmp:snmp/target-params'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/target-params'
       method: 'patch'
       data:
         target-params:
-          - name: 'targetEntry1'
+          - name: 'TargetEntry1'
 
 overridden_01:
   module_args:

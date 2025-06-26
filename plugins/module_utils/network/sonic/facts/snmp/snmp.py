@@ -24,6 +24,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
+
 class SnmpFacts(object):
     """ The sonic snmp fact class
     """
@@ -374,6 +375,7 @@ class SnmpFacts(object):
                 host_dict['ip'] = host['udp'].get('ip')
                 host_dict['port'] = host['udp'].get('port')
 
+            host_dict['name'] = matched_target_param.get('name')
             host_dict['retries'] = host.get("retries")
             host_dict['tag'] = host['tag'][0][:-6] if host.get('tag') else None
             host_dict['timeout'] = host.get("timeout")

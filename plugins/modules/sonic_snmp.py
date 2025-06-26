@@ -38,7 +38,7 @@ options:
           name:
             description:
               - Name of this agentaddress entry
-              - The name is auto-generated if not explicityly specified for agentaddress entry creation
+              - The name is auto-generated if not explicitly specified for agentaddress entry creation
             type: str
           interface:
             description:
@@ -151,7 +151,7 @@ options:
           name:
             description:
               - Name of the host
-              - The name is auto-generated if not explicityly specified for host entry creation
+              - The name is auto-generated if not explicitly specified for host entry creation
             type: str
           community:
             description:
