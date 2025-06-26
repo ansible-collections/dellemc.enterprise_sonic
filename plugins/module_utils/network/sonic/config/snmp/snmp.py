@@ -42,7 +42,7 @@ PATCH = 'patch'
 DELETE = 'delete'
 
 TEST_KEYS = [
-    {'agentaddress': {'ip': ''}},
+    {'agentaddress': {'name': ''}},
     {'community': {'name': ''}},
     {'group': {'name': '', 'access': {'security_model': ''}}},
     {'engine': ''},
@@ -183,14 +183,12 @@ class Snmp(ConfigBase):
 
         if del_commands:
             if 'agentaddress' in del_commands and 'agentaddress' in want:
-                want_with_name = next((want_agentaddress.get('name') for want_agentaddress in want.get('agentaddress') if want_agentaddress.get('name')), None)
                 for command in del_commands.get('agentaddress'):
                     if command.get('name'):
                         del_commands['agentaddress'].remove(command)
                 if len(del_commands['agentaddress']) == 0:
                     del_commands.pop('agentaddress')
             if 'host' in del_commands and 'host' in want:
-                want_with_name = next((want_host.get('name') for want_host in want.get('host') if want_host.get('name')), None)
                 for command in del_commands.get('host'):
                     if command.get('name'):
                         del_commands['host'].remove(command)
@@ -229,6 +227,12 @@ class Snmp(ConfigBase):
 
             if user_commands:
                 request_commands = user_commands
+        if 'agentaddress' in request_commands and 'agentaddress' in want:
+            for command in request_commands.get('agentaddress'):
+                matched_agentaddress = next((agentaddress for agentaddress in want['agentaddress'] if agentaddress == command), None)
+                if matched_agentaddress:
+                    request_commands['agentaddress'].remove(command)
+
         requests.extend(self.get_create_snmp_request(request_commands, have, False))
 
         if commands and len(requests) > 0:
