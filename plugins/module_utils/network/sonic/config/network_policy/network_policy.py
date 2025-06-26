@@ -341,9 +341,7 @@ class Network_policy(ConfigBase):
                     if app_type and len(app) == 1:
                         requests.append(self.get_delete_network_policy_request(number, app_type))
                         continue
-                    if dot1p:
-                        requests.append(self.get_delete_network_policy_request(number, app_type, 'vlan-id'))
-                    if vlan_id:
+                    if dot1p or vlan_id:
                         requests.append(self.get_delete_network_policy_request(number, app_type, 'vlan-id'))
                     if untagged is not None:
                         requests.append(self.get_delete_network_policy_request(number, app_type, 'tagged'))
