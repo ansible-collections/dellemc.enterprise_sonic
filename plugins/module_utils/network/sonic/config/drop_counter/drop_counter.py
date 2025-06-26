@@ -364,25 +364,26 @@ class Drop_counter(ConfigBase):
     def get_replaced_config(self, want, have):
         """This method returns the drop counter configuration to be deleted and the respective delete requests"""
         config_list, requests = [], []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
+        cp_want = deepcopy(want)
+        cp_have = deepcopy(have)
+        self.remove_default_entries(cp_want)
+        self.remove_default_entries(cp_have)
+        self.sort_lists_in_config(cp_want)
+        self.sort_lists_in_config(cp_have)
 
-        if not want or not have:
+        if not cp_want or not cp_have:
             return config_list, requests
 
-        counter_dict = {counter.get('name'): counter for counter in have}
-        for counter in want:
+        counter_dict = {counter.get('name'): counter for counter in cp_have}
+        for counter in cp_want:
             name = counter.get('name')
             cfg_counter = counter_dict.get(name)
 
             if not cfg_counter:
                 continue
             if counter != cfg_counter:
+                requests.append(self.get_delete_drop_counter_request(counter['name']))
                 config_list.append(cfg_counter)
-
-        self.remove_default_entries(config_list)
-        for counter in config_list:
-            requests.append(self.get_delete_drop_counter_request(counter['name']))
 
         return config_list, requests
 
