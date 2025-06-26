@@ -56,9 +56,9 @@ options:
             description:
               - VLAN identifier, range 1-4094
             type: int
-          tagged:
+          untagged:
             description:
-              - Indicates that the application is using a tagged VLAN
+              - Indicates that the application is using an untagged VLAN
             type: bool
           priority:
             description:
@@ -95,7 +95,7 @@ EXAMPLES = """
             priority: 1
             dscp: 1
           - app_type: voice_signaling
-            dot1p: 0
+            dot1p: enabled
             dscp: 50
     state: merged
 
@@ -133,7 +133,7 @@ EXAMPLES = """
         applications:
           - app_type: voice
             vlan_id: 1
-            tagged: true
+            untagged: false
             priority: 0
             dscp: 0
     state: replaced
@@ -175,7 +175,7 @@ EXAMPLES = """
         applications:
           - app_type: voice
             vlan_id: 1
-            tagged: true
+            untagged: false
             priority: 0
             dscp: 0
     state: overridden

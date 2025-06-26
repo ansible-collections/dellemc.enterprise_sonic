@@ -83,6 +83,7 @@ class Network_policyFacts(object):
     def get_parsed_network_policy(self, cfg):
         """This method parses the OC network policy data and returns the parsed data in argspec format"""
         config_list = []
+        bool_dict = {True: False, False: True}
 
         if cfg and cfg.get('network-policy'):
             for policy in cfg['network-policy']:
@@ -102,7 +103,7 @@ class Network_policyFacts(object):
                                 else:
                                     app_dict['vlan_id'] = app['config']['vlan-id']
                             if app['config'].get('tagged') is not None:
-                                app_dict['tagged'] = app['config']['tagged']
+                                app_dict['untagged'] = bool_dict[app['config']['tagged']]
                             if app['config'].get('priority') is not None:
                                 app_dict['priority'] = app['config']['priority']
                             if app['config'].get('dscp') is not None:

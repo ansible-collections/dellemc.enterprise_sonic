@@ -34,7 +34,7 @@ class Network_policyArgs(object):  # pylint: disable=R0903
                         'dscp': {'type': 'int'},
                         'dot1p': {'choices': ['enabled'], 'type': 'str'},
                         'priority': {'type': 'int'},
-                        'tagged': {'type': 'bool'},
+                        'untagged': {'type': 'bool'},
                         'vlan_id': {'type': 'int'}
                     },
                     'type': 'list'

@@ -267,6 +267,7 @@ class Network_policy(ConfigBase):
 
     def get_modify_network_policy_request(self, commands):
         request = None
+        bool_dict = {True: False, False: True}
 
         if commands:
             policy_list = []
@@ -284,7 +285,7 @@ class Network_policy(ConfigBase):
                         app_type = app.get('app_type')
                         dot1p = app.get('dot1p')
                         vlan_id = app.get('vlan_id')
-                        tagged = app.get('tagged')
+                        untagged = app.get('untagged')
                         priority = app.get('priority')
                         dscp = app.get('dscp')
 
@@ -295,8 +296,8 @@ class Network_policy(ConfigBase):
                             app_dict['config']['vlan-id'] = 0
                         if vlan_id:
                             app_dict['config']['vlan-id'] = vlan_id
-                        if tagged is not None:
-                            app_dict['config']['tagged'] = tagged
+                        if untagged is not None:
+                            app_dict['config']['tagged'] = bool_dict[untagged]
                         if priority is not None:
                             app_dict['config']['priority'] = priority
                         if dscp is not None:
@@ -333,7 +334,7 @@ class Network_policy(ConfigBase):
                     app_type = app.get('app_type')
                     dot1p = app.get('dot1p')
                     vlan_id = app.get('vlan_id')
-                    tagged = app.get('tagged')
+                    untagged = app.get('untagged')
                     priority = app.get('priority')
                     dscp = app.get('dscp')
 
@@ -344,7 +345,7 @@ class Network_policy(ConfigBase):
                         requests.append(self.get_delete_network_policy_request(number, app_type, 'vlan-id'))
                     if vlan_id:
                         requests.append(self.get_delete_network_policy_request(number, app_type, 'vlan-id'))
-                    if tagged is not None:
+                    if untagged is not None:
                         requests.append(self.get_delete_network_policy_request(number, app_type, 'tagged'))
                     if priority is not None:
                         requests.append(self.get_delete_network_policy_request(number, app_type, 'priority'))

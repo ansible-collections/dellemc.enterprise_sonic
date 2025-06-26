@@ -6,7 +6,7 @@ merged_01:
         applications:
           - app_type: voice
             vlan_id: 1
-            tagged: true
+            untagged: false
             priority: 0
             dscp: 0
           - app_type: voice-signaling
@@ -45,7 +45,7 @@ replaced_01:
         applications:
           - app_type: voice
             vlan_id: 1000
-            tagged: false
+            untagged: true
             dscp: 63
     state: replaced
   existing_network_policy_config:
@@ -107,7 +107,7 @@ overridden_01:
         applications:
           - app_type: voice
             vlan_id: 1000
-            tagged: false
+            untagged: true
             dscp: 63
     state: overridden
   existing_network_policy_config:
@@ -157,7 +157,7 @@ overridden_02:
         applications:
           - app_type: voice
             vlan_id: 1
-            tagged: true
+            untagged: false
             priority: 0
             dscp: 4
     state: overridden
@@ -203,7 +203,7 @@ deleted_01:
         applications:
           - app_type: voice
             vlan_id: 100
-            tagged: true
+            untagged: false
             priority: 7
             dscp: 12
           - app_type: voice-signaling

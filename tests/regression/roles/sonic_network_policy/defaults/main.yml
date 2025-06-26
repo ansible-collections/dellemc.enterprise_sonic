@@ -10,7 +10,7 @@ sonic_network_policy_tests:
         applications:
           - app_type: voice
             vlan_id: 1
-            tagged: true
+            untagged: false
             priority: 0
             dscp: 0
 
@@ -26,25 +26,25 @@ sonic_network_policy_tests:
             dscp: 1
           - app_type: voice-signaling
             vlan_id: 3
-            tagged: false
+            untagged: true
             dscp: 50
       - number: 2
         applications:
           - app_type: voice
             vlan_id: 100
-            tagged: true
+            untagged: false
             priority: 7
             dscp: 12
           - app_type: voice-signaling
             vlan_id: 400
-            tagged: true
+            untagged: false
             priority: 7
             dscp: 45
       - number: 3
         applications:
           - app_type: voice-signaling
             dot1p: enabled
-            tagged: true
+            untagged: false
             priority: 7
             dscp: 45
 
@@ -56,7 +56,7 @@ sonic_network_policy_tests:
         applications:
           - app_type: voice
             vlan_id: 1000
-            tagged: false
+            untagged: true
             dscp: 63
 
   - name: test_case_04
@@ -71,31 +71,31 @@ sonic_network_policy_tests:
             dscp: 1
           - app_type: voice-signaling
             vlan_id: 3
-            tagged: false
+            untagged: true
             dscp: 50
       - number: 101
         applications:
           - app_type: voice
             vlan_id: 100
-            tagged: true
+            untagged: false
             priority: 7
             dscp: 12
           - app_type: voice-signaling
             vlan_id: 400
-            tagged: true
+            untagged: false
             priority: 7
             dscp: 45
       - number: 102
         applications:
           - app_type: voice
             vlan_id: 1000
-            tagged: false
+            untagged: true
             dscp: 63
       - number: 103
         applications:
           - app_type: voice-signaling
             dot1p: enabled
-            tagged: true
+            untagged: false
             priority: 7
             dscp: 45
 
@@ -108,7 +108,7 @@ sonic_network_policy_tests:
         applications:
           - app_type: voice
             vlan_id: 100
-            tagged: true
+            untagged: false
             priority: 7
             dscp: 12
           - app_type: voice-signaling
