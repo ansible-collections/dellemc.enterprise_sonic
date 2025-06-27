@@ -37,7 +37,8 @@ options:
       applications:
         description:
           - List of network policy application configurations
-          - I(dot1p) and I(vlan_id) are mutually exclusive.
+          - I(dot1p) and I(vlan_id) are mutually exclusive
+          - dot1p cannot be configured when untagged is enabled
         type: list
         elements: dict
         suboptions:
