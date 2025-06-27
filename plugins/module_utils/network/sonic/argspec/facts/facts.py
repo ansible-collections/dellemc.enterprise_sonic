@@ -92,7 +92,8 @@ class FactsArgs(object):  # pylint: disable=R0903
         'mirroring',
         'br_l2pt',
         'evpn_esi_multihome',
-        'ssh_server'
+        'ssh_server',
+        'snmp'
     ]
 
     argument_spec = {
