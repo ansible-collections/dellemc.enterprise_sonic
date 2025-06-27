@@ -374,17 +374,14 @@ class SnmpFacts(object):
             if host.get('udp'):
                 host_dict['ip'] = host['udp'].get('ip')
                 host_dict['port'] = host['udp'].get('port')
+                host_dict['vrf'] = host['udp'].get('ietf-snmp-ext:vrf-name')
 
             host_dict['name'] = matched_target_param.get('name')
             host_dict['retries'] = host.get("retries")
-            host_dict['tag'] = host['tag'][0][:-6] if host.get('tag') else None
+            host_dict['tag'] = host['tag'][0][:-6] if 'tag' in host else None
             host_dict['timeout'] = host.get("timeout")
             host_dict['source_interface'] = host.get("ietf-snmp-ext:source-interface")
-            host_dict['vrf'] = host.get('udp').get('ietf-snmp-ext:vrf-name')
 
             host_list.append(host_dict)
 
-        current_host = {}
-        current_host['host-info'] = host_list
-        current_host['target-entry'] = host.get('name')
         return host_list

@@ -173,28 +173,29 @@ class Snmp(ConfigBase):
             {'engine': ''},
             {'access': {'security_model': ''}},
             {'user': {'name': ''}},
-            {'view': {'name': ''}}
-            ]
+            {'view': {'name': ''}}]
+
         if 'agentaddress' in want:
             no_name = False
             for command in want['agentaddress']:
-                if not 'name' in command:
+                if 'name' not in command:
                     no_name = True
             if no_name:
                 test_keys.extend([{'agentaddress': {'ip': ''}},
-                                {'agentaddress': {'vrf': ''}}])
+                                  {'agentaddress': {'vrf': ''}}])
             else:
                 test_keys.extend([{'agentaddress': {'name': ''}}])
         if 'host' in want:
             no_name = False
             for command in want['host']:
-                if not 'host' in command:
+                if 'name' not in command:
                     no_name = True
             if no_name:
                 test_keys.extend([{'host': {'ip': ''}},
-                                {'host': {'vrf': ''}}])
+                                  {'host': {'vrf': ''}}])
             else:
                 test_keys.extend([{'host': {'name': ''}}])
+
         return test_keys
 
     def _state_replaced_or_overridden(self, want, have, state):
@@ -735,7 +736,7 @@ class Snmp(ConfigBase):
             target_dict['name'] = target_entry_name
             target_dict['retries'] = retries
             tag_list = []
-            if conf.get('tag'):
+            if 'tag' in conf:
                 tag_list.append(str(conf.get('tag')) + "Notify")
             target_dict["tag"] = tag_list
 
