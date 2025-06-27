@@ -21,7 +21,7 @@ tests_single_run:
 
 tests:
   - name: test_case_01_merge
-    description: Merge SNMP enable_trap contact, encrypted user, engine ID, and location configuration
+    description: Merge SNMP enable_trap contact, encrypted user, and location configuration
     state: merged
     input:
       user:
@@ -39,7 +39,7 @@ tests:
       contact: 'Dell Support'
   
   - name: test_case_02_merge_engine
-    description: Merge SNMP engine configuration
+    description: Merge SNMP engine ID configuration
     state: merged
     input:
       engine: 23:45:67:89:ab
@@ -60,13 +60,15 @@ tests:
       enable_trap:
         - 'auth-fail'
 
-  - name: test_case_04_delete_engine_and_enable_tarp
-    description: Delete SNMP engine and enable_trap configuration
+  - name: test_case_04_delete_some_options
+    description: Delete SNMP engine, location, contact and enable_trap configuration
     state: deleted
     input:
       engine: 23:45:67:89:ab
+      location: 'Lab1, Rack-10'
       enable_trap:
         - 'bgp'
+      contact: 'Dell Support'
 
   - name: test_case_05_merge_existing_user
     description: Merge SNMP user configuration
@@ -116,7 +118,7 @@ tests:
           timeout: 800
           retries: 30
           tag: 'inform'
-          vrf: 'Vrf2'
+          vrf: 'Vrf1'
       agentaddress:
         - ip: '1.2.3.5'
           port: 1024
@@ -148,6 +150,7 @@ tests:
           tag: 'inform'
           retries: 20
           port: 162
+          vrf: 'Vrf1'
 
   - name: test_case_10_overridden_host
     description: Override host and group

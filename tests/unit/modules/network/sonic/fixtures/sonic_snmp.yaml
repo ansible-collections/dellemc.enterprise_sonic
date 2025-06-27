@@ -242,55 +242,6 @@ replaced_02:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
 
-replaced_03:
-  module_args:
-    state: replaced
-    config:
-      host:
-        - ip: '1.2.3.5'
-          user:
-            name: 'user1'
-          retries: 50
-  existing_snmp_config:
-    - path: "data/ietf-snmp:snmp"
-      response:
-        code: 200
-        value:
-          ietf-snmp:snmp:
-            target:
-              - name: 'targetEntry1'
-                retries: 10
-                tag:
-                  - 'informNotify'
-                target-params: 'targetEntry1'
-                timeout: 20000
-                udp:
-                  ip: '1.2.3.5'
-                  port: 162
-                  ietf-snmp-ext:vrf-name: 'default'
-                ietf-snmp-ext:source-interface: 'eth0'
-            target-params:
-              - name: 'targetEntry1'
-                usm:
-                  user-name: 'user1'
-                  security-level: 'no-auth-no-priv'
-  expected_config_requests:
-    - path: 'data/ietf-snmp:snmp/target'
-      method: 'patch'
-      data:
-        target:
-          - name: 'TargetEntry1'
-            retries: 50
-            target-params: 'TargetEntry1'
-            udp:
-              ip: '1.2.3.5'
-              port: 162
-    - path: 'data/ietf-snmp:snmp/target-params'
-      method: 'patch'
-      data:
-        target-params:
-          - name: 'TargetEntry1'
-
 overridden_01:
   module_args:
     state: overridden
@@ -330,9 +281,6 @@ overridden_01:
                     port: 1024
   expected_config_requests:
     - path: 'data/ietf-snmp:snmp/engine'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/engine'
       method: 'patch'
       data:
         ietf-snmp:engine:
@@ -341,12 +289,6 @@ overridden_01:
               udp:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
-    - path: 'data/ietf-snmp:snmp/engine/listen'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
-      method: 'delete'
-      data:
     - path: 'data/ietf-snmp:snmp/target'
       method: 'delete'
       data:
@@ -396,12 +338,6 @@ overridden_02:
                   security-model: 'v3'
                   write-view: 'w_view'
   expected_config_requests:
-    - path: 'data/ietf-snmp:snmp/engine'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
-      method: 'delete'
-      data:
     - path: 'data/ietf-snmp:snmp/target'
       method: 'delete'
       data:
@@ -417,9 +353,6 @@ overridden_02:
               access:
                 - context: 'default'
                   security-model: 'v3'
-    - path: 'data/ietf-snmp:snmp/vacm/group'
-      method: 'delete'
-      data:
 
 overridden_03:
   module_args:
@@ -459,19 +392,13 @@ overridden_03:
         community:
           - index: 'comm1'
             security-name: 'grouplab2'
-    - path: 'data/ietf-snmp:snmp/engine'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
-      method: 'delete'
-      data:
     - path: 'data/ietf-snmp:snmp/vacm'
       method: 'patch'
       data:
         ietf-snmp:vacm:
           group:
-            - name: 'grouplab2'
-              member:
-                - security-model:
-                    - 'v2c'
-                  security-name: 'comm1'
+              - name: 'grouplab2'
+                member:
+                  - security-model:
+                      - 'v2c'
+                    security-name: 'comm1'

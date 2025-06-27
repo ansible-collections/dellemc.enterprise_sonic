@@ -44,8 +44,7 @@ DELETE = 'delete'
 TEST_KEYS = [
     {'agentaddress': {'name': ''}},
     {'community': {'name': ''}},
-    {'group': {'name': '', 'access': {'security_model': ''}}},
-    {'engine': ''},
+    {'group': {'name': ''}},
     {'access': {'security_model': ''}},
     {'host': {'name': ''}},
     {'user': {'name': ''}},
@@ -219,6 +218,15 @@ class Snmp(ConfigBase):
         merged_request = None
 
         if del_commands:
+            if state == 'replaced':
+                pop_list = []
+                for option in del_commands:
+                    if not want.get(option):
+                        pop_list.append(option)
+                print('\n pop_list =\n{0}\n\n'.format(pop_list), file=open('snmp.log', 'a'))
+                for option in pop_list:
+                    del_commands.pop(option)
+            print('\n del_commands =\n{0}\n\n'.format(del_commands), file=open('snmp.log', 'a'))
             if 'agentaddress' in del_commands and 'agentaddress' in want:
                 for command in del_commands.get('agentaddress'):
                     if command.get('name'):
@@ -232,7 +240,7 @@ class Snmp(ConfigBase):
                 if len(del_commands['host']) == 0:
                     del_commands.pop('host')
             if len(del_commands) > 0:
-                del_requests = self.get_delete_snmp_request(del_commands, have, True)
+                del_requests = self.get_delete_snmp_request(del_commands, have, False)
                 requests.extend(del_requests)
                 commands.extend(update_states(del_commands, "deleted"))
 
@@ -258,24 +266,19 @@ class Snmp(ConfigBase):
         del_commands = {}
         delete_user_requests = []
         requests = []
+        new_have = {}
         if 'user' in want:
-            delete_user_requests = self.delete_snmp_user_request(commands, have)
+            delete_user_requests = self.delete_snmp_matched_user_config(commands, have)
             requests = delete_user_requests
-            delete_commands = get_diff(have, want, test_keys)
-            del_commands = self.get_existing_user(commands, have)
-            user_commands = get_diff(want, delete_commands, test_keys)
-
-            if user_commands:
-                request_commands = user_commands
-
-        requests.extend(self.get_create_snmp_request(request_commands, have, False))
-
+            del_commands = {'user': self.get_existing_user(commands, have)}
+            new_have = get_diff(have, del_commands)
+            request_commands = get_diff(want, new_have, TEST_KEYS)
+       
+        requests.extend(self.get_create_snmp_request(request_commands, new_have, False))
         if commands and len(requests) > 0:
-            if delete_user_requests:
+            if 'user' in del_commands and len(del_commands['user']) > 0:
                 commands_updated.extend(update_states(del_commands, "deleted"))
-                commands_updated.extend(update_states(user_commands, "merged"))
-            else:
-                commands_updated.extend(update_states(request_commands, "merged"))
+            commands_updated.extend(update_states(request_commands, "merged"))
         else:
             commands_updated = []
 
@@ -321,27 +324,22 @@ class Snmp(ConfigBase):
         :returns: the already configured option
         """
         new_config = {}
+        want = dict(want)
         for key, value in want.items():
             if value == [] and key in config:
                 new_config[key] = config[key]
+            elif 'group' in config and 'group' == key:
+                new_value = []
+                for grp in value:
+                    matched_group = next((each_group for each_group in config.get('group') if each_group['name'] == grp['name']), None)
+                    if matched_group:
+                        new_value.append(matched_group)
+                    else:
+                        new_value.append(grp)
+                new_config[key] = new_value
             else:
                 new_config[key] = value
         return new_config
-
-    def delete_snmp_user_request(self, commands, have=None):
-        """ Create the requests to update the snmp user configuration]
-
-        :rtype: A list
-        :returns: the requests to update the snmp user configuration
-        """
-        want_users = commands.get('user')
-        requests = []
-        if have.get('user') is None:
-            return requests
-        if want_users:
-            requests = self.delete_user(commands, have)
-
-        return requests
 
     def get_create_snmp_request(self, config, have, overridden_or_replaced):
         """ Create the requests necessary to create the desired configuration
@@ -736,8 +734,15 @@ class Snmp(ConfigBase):
             target_dict['name'] = target_entry_name
             target_dict['retries'] = retries
             tag_list = []
+            tag = None
             if 'tag' in conf:
-                tag_list.append(str(conf.get('tag')) + "Notify")
+                tag = str(conf.get('tag')) + "Notify"
+            tag_list.append(tag)
+            if conf.get('vrf') and 'tag' in conf:
+                tag_list.append(str(conf.get('vrf')))
+            if len(tag_list) == 0:
+                tag_list = None
+
             target_dict["tag"] = tag_list
 
             target_dict['target-params'] = target_entry_name
@@ -745,7 +750,7 @@ class Snmp(ConfigBase):
             port = conf.get('port')
             if not port:
                 port = 162
-            target_dict['udp'] = {'ip': conf.get('ip'), 'port': port, 'ietf-snmp-ext:vrf-name': conf.get('vrf')}
+            target_dict['udp'] = {'ip': conf.get('ip'), 'port': port}
             target_dict['source-interface'] = conf.get('source_interface')
             target_list.append(target_dict)
 
@@ -775,8 +780,9 @@ class Snmp(ConfigBase):
             target_params_dict['name'] = target_entry_name
             type_info = {}
             if conf.get('user') is None:
-                type_info['security-name'] = conf.get('community')
-                target_params_dict['v2c'] = type_info
+                if 'community' in conf:
+                    type_info['security-name'] = conf.get('community')
+                    target_params_dict['v2c'] = type_info
             else:
                 server_level = conf.get('user').get('security_level')
                 if server_level == "auth":
@@ -794,40 +800,44 @@ class Snmp(ConfigBase):
 
         return payload_url
 
-    def get_existing_user(self, configs, have):
+    def get_existing_user(self, configs, have=None):
         """ Return the users that are in configs and have
 
         :rtype: A list
         :returns: The list of users that exist in both configs and have
         """
-        have_user = have.get('user')
+        have_users = have.get('user')
         want_users = configs.get('user')
         matched_users = []
-        if want_users and have_user:
+        if want_users and have_users:
             for want in want_users:
-                matched_user = next((each_snmp for each_snmp in have_user if each_snmp['name'] == want['name']), None)
+                matched_user = next((each_snmp for each_snmp in have_users if each_snmp['name'] == want['name']), None)
                 if matched_user:
                     matched_users.append(matched_user)
         return matched_users
 
-    def delete_user(self, configs, have):
-        """ Delete the users in the given configs prameter
-
+    def delete_snmp_matched_user_config(self, configs, have):
+        """ Create requests to delete the users in "have" that match users in the playbook input configs parameter
         :rtype: A list
         :returns: The list of requests to delete the given configuration
         """
-        have_user = have.get('user')
-        want_users = configs['user']
-        matched_users = []
+        want_users = configs.get('user')
+        requests = []
         user_requests = []
+        if have.get('user') is None:
+            return requests
         if want_users:
-            for want in want_users:
-                matched_user = next((each_snmp for each_snmp in have_user if each_snmp['name'] == want['name']), None)
-                if matched_user:
-                    matched_users.extend(matched_user)
-                    user_url = "data/ietf-snmp:snmp/usm/local/user={}".format(matched_user['name'])
-                    user_request = {"path": user_url, "method": DELETE}
-                    user_requests.append(user_request)
+            have_user = have.get('user')
+            want_users = configs['user']
+            matched_users = []
+            if want_users:
+                for want in want_users:
+                    matched_user = next((each_snmp for each_snmp in have_user if each_snmp['name'] == want['name']), None)
+                    if matched_user:
+                        matched_users.extend(matched_user)
+                        user_url = "data/ietf-snmp:snmp/usm/local/user={}".format(matched_user['name'])
+                        user_request = {"path": user_url, "method": DELETE}
+                        user_requests.append(user_request)
 
         return user_requests
 
@@ -949,7 +959,7 @@ class Snmp(ConfigBase):
         if delete_all or enable_trap:
             if have_enable_trap is not None:
                 enable_trap_requests = []
-                if configs['enable_trap'] is None:
+                if configs.get('enable_trap'):
                     enable_trap_url = ""
                     trap = have_enable_trap
                     if trap == 'all':
@@ -1074,9 +1084,9 @@ class Snmp(ConfigBase):
                     host_requests.append(host_request)
                 else:
                     for want in configs['host']:
-                        matched_host, name = self.get_host(want=want, have=have)
+                        matched_host = self.get_host(want=want, have=have)
                         if matched_host is not None:
-                            host_target_url = "data/ietf-snmp:snmp/target={0}".format(name)
+                            host_target_url = "data/ietf-snmp:snmp/target={0}".format(matched_host['name'])
                             ip = want.get('ip')
                             port = want.get('port')
                             ietf_snmp_ext_vrf_name = want.get('vrf')
@@ -1325,7 +1335,7 @@ class Snmp(ConfigBase):
         """
         for each_host in have.get('host'):
             if each_host['ip'] == want['ip']:
-                return each_host, self.get_delete_target(each_host)
+                return each_host
         return {}, ""
 
     def get_agententry(self, have_agentaddress):
@@ -1352,5 +1362,5 @@ class Snmp(ConfigBase):
         while current_targetentry in have_targetentry:
             target = target + 1
             current_targetentry = "TargetEntry" + str(target)
-
+        have_targetentry.append(current_targetentry)
         return current_targetentry
