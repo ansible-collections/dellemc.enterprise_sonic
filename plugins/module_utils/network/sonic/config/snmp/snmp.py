@@ -223,10 +223,8 @@ class Snmp(ConfigBase):
                 for option in del_commands:
                     if not want.get(option):
                         pop_list.append(option)
-                print('\n pop_list =\n{0}\n\n'.format(pop_list), file=open('snmp.log', 'a'))
                 for option in pop_list:
                     del_commands.pop(option)
-            print('\n del_commands =\n{0}\n\n'.format(del_commands), file=open('snmp.log', 'a'))
             if 'agentaddress' in del_commands and 'agentaddress' in want:
                 for command in del_commands.get('agentaddress'):
                     if command.get('name'):
@@ -273,7 +271,7 @@ class Snmp(ConfigBase):
             del_commands = {'user': self.get_existing_user(commands, have)}
             new_have = get_diff(have, del_commands)
             request_commands = get_diff(want, new_have, TEST_KEYS)
-       
+
         requests.extend(self.get_create_snmp_request(request_commands, new_have, False))
         if commands and len(requests) > 0:
             if 'user' in del_commands and len(del_commands['user']) > 0:
