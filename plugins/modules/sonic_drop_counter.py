@@ -305,7 +305,7 @@ before:
   returned: always
   type: list
 after:
-  description: The resulting configuration module invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
   type: list
 after(generated):
