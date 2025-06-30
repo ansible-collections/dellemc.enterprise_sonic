@@ -1,0 +1,123 @@
+---
+ansible_connection: httpapi
+
+sonic_network_policy_tests:
+  - name: test_case_01
+    description: Initial network policy configuration
+    state: merged
+    input:
+      - number: 1
+        applications:
+          - app_type: voice
+            vlan_id: 1
+            untagged: false
+            priority: 0
+            dscp: 0
+
+  - name: test_case_02
+    description: Update network policy configuration
+    state: merged
+    input:
+      - number: 1
+        applications:
+          - app_type: voice
+            vlan_id: 2
+            priority: 1
+            dscp: 1
+          - app_type: voice-signaling
+            vlan_id: 3
+            untagged: true
+            dscp: 50
+      - number: 2
+        applications:
+          - app_type: voice
+            vlan_id: 100
+            untagged: false
+            priority: 7
+            dscp: 12
+          - app_type: voice-signaling
+            vlan_id: 400
+            untagged: false
+            priority: 7
+            dscp: 45
+      - number: 3
+        applications:
+          - app_type: voice-signaling
+            dot1p: enabled
+            untagged: false
+            priority: 7
+            dscp: 45
+
+  - name: test_case_03
+    description: Replace network policy configuration
+    state: replaced
+    input:
+      - number: 1
+        applications:
+          - app_type: voice
+            vlan_id: 1000
+            untagged: true
+            dscp: 63
+
+  - name: test_case_04
+    description: Override network policy configuration
+    state: overridden
+    input:
+      - number: 100
+        applications:
+          - app_type: voice
+            vlan_id: 2
+            priority: 1
+            dscp: 1
+          - app_type: voice-signaling
+            vlan_id: 3
+            untagged: true
+            dscp: 50
+      - number: 101
+        applications:
+          - app_type: voice
+            vlan_id: 100
+            untagged: false
+            priority: 7
+            dscp: 12
+          - app_type: voice-signaling
+            vlan_id: 400
+            untagged: false
+            priority: 7
+            dscp: 45
+      - number: 102
+        applications:
+          - app_type: voice
+            vlan_id: 1000
+            untagged: true
+            dscp: 63
+      - number: 103
+        applications:
+          - app_type: voice-signaling
+            dot1p: enabled
+            untagged: false
+            priority: 7
+            dscp: 45
+
+  - name: test_case_05
+    description: Delete network policy configuration
+    state: deleted
+    input:
+      - number: 100
+      - number: 101
+        applications:
+          - app_type: voice
+            vlan_id: 100
+            untagged: false
+            priority: 7
+            dscp: 12
+          - app_type: voice-signaling
+      - number: 103
+        applications:
+          - app_type: voice-signaling
+            dot1p: enabled
+
+  - name: test_case_06
+    description: Delete all network policy configuration
+    state: deleted
+    input: []
