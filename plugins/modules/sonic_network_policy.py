@@ -95,7 +95,7 @@ EXAMPLES = """
             vlan_id: 2
             priority: 1
             dscp: 1
-          - app_type: voice_signaling
+          - app_type: voice-signaling
             dot1p: enabled
             dscp: 50
     state: merged
