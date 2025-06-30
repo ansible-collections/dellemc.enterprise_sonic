@@ -1,6 +1,9 @@
 ---
 ansible_connection: httpapi
 module_name: sonic_snmp
+vrf1: "Vrf1"
+vrf2: "Vrf2"
+
 
 tests_single_run:
   - name: test_case_01_merged_unencrypted_user
@@ -113,12 +116,12 @@ tests:
           timeout: 300
           tag: 'inform'
           retries: 20
-          vrf: 'Vrf1'
+          vrf: '{{ vrf1 }}'
         - ip: '1.2.3.4'
           timeout: 800
           retries: 30
           tag: 'inform'
-          vrf: 'Vrf1'
+          vrf: '{{ vrf1 }}'
       agentaddress:
         - ip: '1.2.3.5'
           port: 1024
@@ -150,7 +153,7 @@ tests:
           tag: 'inform'
           retries: 20
           port: 162
-          vrf: 'Vrf1'
+          vrf: '{{ vrf1 }}'
 
   - name: test_case_10_overridden_host
     description: Override host and group
@@ -182,8 +185,6 @@ tests:
     input:
       group:
         - name: 'group-lab'
-          access:
-            - security_model: 'v2c'
 
   - name: test_case_13_merge_community_and_view
     description: Merge some of the SNMP configuration

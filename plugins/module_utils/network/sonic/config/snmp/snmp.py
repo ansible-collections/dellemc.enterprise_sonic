@@ -326,17 +326,25 @@ class Snmp(ConfigBase):
         :returns: the already configured option
         """
         new_config = {}
-        want = dict(want)
         for key, value in want.items():
+            name = ''
             if value == [] and key in config:
                 new_config[key] = config[key]
-            elif 'group' in config and 'group' == key:
-                new_value = []
-                for grp in value:
-                    new_value.append(grp)
-                new_config[key] = new_value
             else:
-                new_config[key] = value
+                if isinstance(value, list):
+                    new_config_value = []
+                    for v in value:
+                        if 'name' in v and key in config:
+                            name = v['name']
+                            matched_v = next((x for x in config[key] if x['name'] == name), None)
+                            if matched_v:
+                                new_config_value.append(matched_v)
+                        else:
+                            new_config_value.append(v)
+                    new_config[key] = new_config_value
+                else:
+                    new_config[key] = value
+
         return new_config
 
     def get_create_snmp_request(self, config, have, overridden_or_replaced):
@@ -368,13 +376,9 @@ class Snmp(ConfigBase):
             requests.append(contact_request)
 
         if config.get('enable_trap'):
-            enable_trap_path = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
-            traps_path = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications"
-            payload_trap_enable, payload = self.build_create_enable_trap_payload(config)
-            trap_enable_request = {'path': enable_trap_path, 'method': method, 'data': payload_trap_enable}
-            enable_trap_request = {'path': traps_path, 'method': method, 'data': payload}
-            requests.append(enable_trap_request)
-            requests.append(trap_enable_request)
+            enable_trap_requests = self.build_create_enable_trap_requests(config)
+            requests.extend(enable_trap_requests)
+
 
         if config.get('engine'):
             engine_path = "data/ietf-snmp:snmp/engine"
@@ -466,17 +470,20 @@ class Snmp(ConfigBase):
         for conf in community:
             community_dict = {}
             community_dict['index'] = conf.get('name')
-
+            community_group_name = conf.get('group')
             if have and len(have) > 0 and have.get('group'):
                 for group in have.get(['group']):
-                    matched_group = next((each_group for each_group in group.get('member') if each_group['security-name'] == conf.get('name')), None)
+                    matched_group = next((each_group for each_group in group.get('member') if each_group['security-name'] == conf.get('name') and group.get('name') != community_group_name), None)
                     if matched_group:
+
+                        # If this community is already a member of some group other than the new requested group,
+                        # remove the "member" entry for this community in the "old" group member list.
                         group_name = group.get('name')
                         group_url = "data/ietf-snmp:snmp/vacm/group={0}/member={1}".format(group_name, matched_group.get('security-name'))
                         group_request = {"path": group_url, "method": DELETE}
                         community_requests.append(group_request)
 
-            community_dict['security-name'] = conf.get('name')
+            community_dict['security-name'] = community_group_name
             community_list.append(community_dict)
         payload_url['community'] = community_list
 
@@ -627,43 +634,57 @@ class Snmp(ConfigBase):
         payload_url['ietf-snmp-ext:location'] = location
         return payload_url
 
-    def build_create_enable_trap_payload(self, config):
+    def build_create_enable_trap_requests(self, config):
         """ Build the payload for SNMP enable_trap
-        :rtype: dictionaries regarding the enable traps
-        :returns: The payload for SNMP enable_trap
+        :rtype: A list of requests to patch the desired traps
+        :returns: The requests to patch the desired traps
         """
-        notification_payload_url = {}
-        all_traps_payload_url = {}
+        enable_trap_url = 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications'
         enable_trap = config.get('enable_trap')
-        enable_trap_list = []
-
+        method = PATCH
+        requests = []
         for conf in enable_trap:
             enable_trap_dict = {}
-            trap_enable = False
             trap_type = conf
             if trap_type:
                 if trap_type == 'all':
-                    trap_enable = True
+                    all_traps_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
+                    enable_trap_dict['trap-enable'] = True
+                    trap_enable_request = {'path': all_traps_url, 'method': method, 'data': enable_trap_dict}
+                    requests.append(trap_enable_request)
                 else:
-                    notifications = {}
                     if trap_type == 'auth-fail':
+                        auth_fail_url = enable_trap_url + "/authentication-failure-trap"
                         enable_trap_dict['authentication-failure-trap'] = True
+                        trap_enable_request = {'path': auth_fail_url, 'method': method, 'data': enable_trap_dict}
+                        requests.append(trap_enable_request)
                     if trap_type == 'bgp':
+                        bgp_url = enable_trap_url + "/bgp-traps"
                         enable_trap_dict['bgp-traps'] = True
+                        trap_enable_request = {'path': bgp_url, 'method': method, 'data': enable_trap_dict}
+                        requests.append(trap_enable_request)
                     if trap_type == 'config-change':
+                        config_change_url = enable_trap_url + "/config-change-trap"
                         enable_trap_dict['config-change-trap'] = True
+                        trap_enable_request = {'path': config_change_url, 'method': method, 'data': enable_trap_dict}
+                        requests.append(trap_enable_request)
                     if trap_type == 'link-down':
+                        link_down_url = enable_trap_url + "/link-down-trap"
                         enable_trap_dict['link-down-trap'] = True
+                        trap_enable_request = {'path': link_down_url, 'method': method, 'data': enable_trap_dict}
+                        requests.append(trap_enable_request)
                     if trap_type == 'link-up':
+                        link_up_url = enable_trap_url + "/link-up-trap"
                         enable_trap_dict['link-up-trap'] = True
+                        trap_enable_request = {'path': link_up_url, 'method': method, 'data': enable_trap_dict}
+                        requests.append(trap_enable_request)
                     if trap_type == 'ospf':
+                        ospf_traps_url = enable_trap_url + "/ospf-traps"
                         enable_trap_dict['ospf-traps'] = True
-                    notifications['notifications'] = enable_trap_dict
-
-                    enable_trap_list.append(notifications)
-        all_traps_payload_url['trap-enable'] = trap_enable
-        notification_payload_url['ietf-snmp-ext:notifications'] = enable_trap_dict
-        return all_traps_payload_url, notification_payload_url
+                        trap_enable_request = {'path': ospf_traps_url, 'method': method, 'data': enable_trap_dict}
+                        requests.append(trap_enable_request)
+                    
+        return requests
 
     def build_create_group_payload(self, config):
         """ Build the payload for SNMP group
@@ -846,7 +867,6 @@ class Snmp(ConfigBase):
         :returns: The list of requests to delete the users in "configs" from the current configuration
         """
         requests = []
-
         if not configs:
             return requests
 
@@ -864,7 +884,7 @@ class Snmp(ConfigBase):
         agentaddress = 'agentaddress' in configs
         community = 'community' in configs
         contact = 'contact' in configs
-        enable_trap = 'enable_traps' in configs
+        enable_trap = 'enable_trap' in configs
         engine = 'engine' in configs
         group = 'group' in configs
         host = 'host' in configs
