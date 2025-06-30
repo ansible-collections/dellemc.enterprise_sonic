@@ -258,7 +258,6 @@ EXAMPLES = """
       - name: counter1
         alias: c1
         counter_description: abc
-        group: group1
       - name: counter2
     state: deleted
 
