@@ -379,7 +379,6 @@ class Snmp(ConfigBase):
             enable_trap_requests = self.build_create_enable_trap_requests(config)
             requests.extend(enable_trap_requests)
 
-
         if config.get('engine'):
             engine_path = "data/ietf-snmp:snmp/engine"
             payload = self.build_create_engine_payload(config)
@@ -473,7 +472,9 @@ class Snmp(ConfigBase):
             community_group_name = conf.get('group')
             if have and len(have) > 0 and have.get('group'):
                 for group in have.get(['group']):
-                    matched_group = next((each_group for each_group in group.get('member') if each_group['security-name'] == conf.get('name') and group.get('name') != community_group_name), None)
+                    matched_group = next(
+                        (each_group for each_group in group.get('member') if each_group['security-name'] == conf.get('name') and group.get('name') != community_group_name),
+                        None)
                     if matched_group:
 
                         # If this community is already a member of some group other than the new requested group,
@@ -683,7 +684,7 @@ class Snmp(ConfigBase):
                         enable_trap_dict['ospf-traps'] = True
                         trap_enable_request = {'path': ospf_traps_url, 'method': method, 'data': enable_trap_dict}
                         requests.append(trap_enable_request)
-                    
+
         return requests
 
     def build_create_group_payload(self, config):
