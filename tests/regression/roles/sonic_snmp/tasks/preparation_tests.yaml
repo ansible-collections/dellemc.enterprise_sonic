@@ -5,3 +5,10 @@
   dellemc.enterprise_sonic.sonic_snmp:
     config: {}
     state: deleted
+
+- name: "Configure VRFs"
+  sonic_vrfs:
+    config:
+      - name: "{{vrf1}}"
+      - name: "{{vrf2}}"
+    state: merged

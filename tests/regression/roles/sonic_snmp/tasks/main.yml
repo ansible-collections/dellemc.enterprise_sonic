@@ -13,3 +13,6 @@
 - name: "Test {{ module_name }} started ..."
   include_tasks: tasks_template.yaml
   loop: "{{ tests }}"
+
+- name: Cleanup tests
+  include_tasks: cleanup.yaml
