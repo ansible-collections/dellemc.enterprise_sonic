@@ -5,7 +5,7 @@ merged_01:
       group:
         - name: 'group-floor2'
           access:
-            - security_model: 'v3'
+            - security_model: 'v2c'
               security_level: 'auth-priv'
               read_view: 'r_view'
               write_view: 'w_view'
@@ -41,12 +41,12 @@ merged_01:
           group:
             - name: 'group-floor2'
               access:
-                - context: 'default'
+                - context: 'Default'
                   notify-view: 'n_view'
                   read-view: 'r_view'
                   write-view: 'w_view'
                   security-level: 'auth-priv'
-                  security-model: 'v3'
+                  security-model: 'v2c'
 
 merged_02:
   module_args:
@@ -193,7 +193,7 @@ replaced_01:
                   notify-view: 'n_view'
                   read-view: 'r_view'
                   security-level: 'auth-priv'
-                  security-model: 'v3'
+                  security-model: 'v2c'
                   write-view: 'w_view'
   expected_config_requests:
     - path: "data/ietf-snmp:snmp/vacm"
@@ -241,6 +241,7 @@ replaced_02:
               udp:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
+                port: 1024
 
 overridden_01:
   module_args:
@@ -303,7 +304,7 @@ overridden_02:
       group:
         - name: 'group-floor2'
           access:
-            - security_model: 'v3'
+            - security_model: 'v2c'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
@@ -335,7 +336,7 @@ overridden_02:
                   notify-view: 'n_view'
                   read-view: 'r_view'
                   security-level: 'auth-priv'
-                  security-model: 'v3'
+                  security-model: 'v2c'
                   write-view: 'w_view'
   expected_config_requests:
     - path: 'data/ietf-snmp:snmp/target'
@@ -351,8 +352,8 @@ overridden_02:
           group:
             - name: 'group-floor2'
               access:
-                - context: 'default'
-                  security-model: 'v3'
+                - context: 'Default'
+                  security-model: 'v2c'
 
 overridden_03:
   module_args:

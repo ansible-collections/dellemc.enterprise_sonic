@@ -333,7 +333,7 @@ class Snmp(ConfigBase):
                 if isinstance(value, list):
                     new_config_value = []
                     for v in value:
-                        if 'name' in v and key in config:
+                        if 'name' in v and key in config and len(v) == 1:
                             name = v['name']
                             matched_v = next((x for x in config[key] if x['name'] == name), None)
                             if matched_v:
@@ -355,6 +355,8 @@ class Snmp(ConfigBase):
         method = PATCH
 
         if config.get('agentaddress'):
+            # if user does not specify a name and there is already a matching 'ip' and 'vrf' then use that one if not then create a new one
+            # # if there is one with the same name but different vrf and ip address then throw a fail.json ("another agentaddress already has a name ....") then reject the agentaddress
             agentaddress_path = "data/ietf-snmp:snmp/engine"
             payload = self.build_create_agentaddress_payload(config, have, overridden_or_replaced)
             agentaddress_request = {'path': agentaddress_path, 'method': method, 'data': payload}
@@ -641,6 +643,8 @@ class Snmp(ConfigBase):
         enable_trap = config.get('enable_trap')
         method = PATCH
         requests = []
+        payload = {}
+        enable_trap_list = []
         for conf in enable_trap:
             enable_trap_dict = {}
             trap_type = conf
@@ -650,38 +654,24 @@ class Snmp(ConfigBase):
                     enable_trap_dict['trap-enable'] = True
                     trap_enable_request = {'path': all_traps_url, 'method': method, 'data': enable_trap_dict}
                     requests.append(trap_enable_request)
+                    return requests
                 else:
                     if trap_type == 'auth-fail':
-                        auth_fail_url = enable_trap_url + "/authentication-failure-trap"
                         enable_trap_dict['authentication-failure-trap'] = True
-                        trap_enable_request = {'path': auth_fail_url, 'method': method, 'data': enable_trap_dict}
-                        requests.append(trap_enable_request)
                     if trap_type == 'bgp':
-                        bgp_url = enable_trap_url + "/bgp-traps"
                         enable_trap_dict['bgp-traps'] = True
-                        trap_enable_request = {'path': bgp_url, 'method': method, 'data': enable_trap_dict}
-                        requests.append(trap_enable_request)
                     if trap_type == 'config-change':
-                        config_change_url = enable_trap_url + "/config-change-trap"
                         enable_trap_dict['config-change-trap'] = True
-                        trap_enable_request = {'path': config_change_url, 'method': method, 'data': enable_trap_dict}
-                        requests.append(trap_enable_request)
                     if trap_type == 'link-down':
-                        link_down_url = enable_trap_url + "/link-down-trap"
                         enable_trap_dict['link-down-trap'] = True
-                        trap_enable_request = {'path': link_down_url, 'method': method, 'data': enable_trap_dict}
-                        requests.append(trap_enable_request)
                     if trap_type == 'link-up':
-                        link_up_url = enable_trap_url + "/link-up-trap"
                         enable_trap_dict['link-up-trap'] = True
-                        trap_enable_request = {'path': link_up_url, 'method': method, 'data': enable_trap_dict}
-                        requests.append(trap_enable_request)
                     if trap_type == 'ospf':
-                        ospf_traps_url = enable_trap_url + "/ospf-traps"
                         enable_trap_dict['ospf-traps'] = True
-                        trap_enable_request = {'path': ospf_traps_url, 'method': method, 'data': enable_trap_dict}
-                        requests.append(trap_enable_request)
 
+        payload['notifications'] = enable_trap_dict
+        trap_enable_request = {'path': enable_trap_url, 'method': method, 'data': payload}
+        requests.append(trap_enable_request)
         return requests
 
     def build_create_group_payload(self, config):
@@ -800,7 +790,7 @@ class Snmp(ConfigBase):
                 matched_host = next((x for x in have_targetentry if x.get('name') == target_entry_name), None)
                 if 'community' in conf and 'usm' in matched_host or 'user' in conf and 'v2c' in matched_host:
                     # delete user from matched_host before replacing it with the new community
-                    # delete community from matched_host 
+                    # delete community from matched_host
                     delete_target_path = 'data/ietf-snmp:snmp/target={0}'.format(target_entry_name)
                     target_request = {'path': delete_target_path, 'method': DELETE}
                     requests.append(target_request)
@@ -827,7 +817,6 @@ class Snmp(ConfigBase):
             target_params_list.append(target_params_dict)
 
         payload_url['target-params'] = target_params_list
-        
         target_params_request = {'path': 'data/ietf-snmp:snmp/target-params', 'method': PATCH, 'data': payload_url}
         requests.append(target_params_request)
         return requests
