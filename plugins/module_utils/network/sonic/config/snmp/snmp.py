@@ -473,8 +473,8 @@ class Snmp(ConfigBase):
             if have and len(have) > 0 and have.get('group'):
                 for group in have.get(['group']):
                     matched_group = next(
-                        (each_group for each_group in group.get('member') if each_group['security-name'] == conf.get('name') and group.get('name') != community_group_name),
-                        None)
+                        (each_group for each_group in group.get('member') if each_group['security-name'] == conf.get('name')
+                         and group.get('name') != community_group_name), None)
                     if matched_group:
 
                         # If this community is already a member of some group other than the new requested group,
