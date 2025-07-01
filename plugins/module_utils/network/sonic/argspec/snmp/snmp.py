@@ -75,13 +75,13 @@ class SnmpArgs(object):  # pylint: disable=R0903
                                         'no-auth-no-priv',
                                         'auth-no-priv',
                                         'auth-priv'
-                                    ]
+                                    ],
+                                    'type': 'str'
                                 },
                                 'security_model': {
                                     'choices': [
                                         'any',
                                         'v2c',
-                                        'v3',
                                         'usm'
                                     ],
                                     'required': True,

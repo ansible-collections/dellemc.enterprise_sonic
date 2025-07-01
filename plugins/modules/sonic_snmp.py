@@ -78,7 +78,8 @@ options:
         type: str
       enable_trap:
         description:
-          - Specify trap(s) to enable. The "all" choice indicates all traps should be enabled
+          - Specify trap(s) to enable. The "all" choice indicates all traps should be enabled.
+          - The "all" choice can not be specified unless none of the other choices is specified.
         type: list
         elements: str
         choices:
@@ -117,7 +118,7 @@ options:
                 type: str
               security_level:
                 description:
-                  -  When I(security_model=v3), specifies the minimum security level under which the access rights apply
+                  -  When I(security_model=v2c), specifies the minimum security level under which the access rights apply
                 choices:
                   - no-auth-no-priv
                   - auth-no-priv
@@ -131,7 +132,6 @@ options:
                 choices:
                   - any
                   - v2c
-                  - v3
                   - usm
               write_view:
                 description:
@@ -145,6 +145,7 @@ options:
       host:
         description:
           - List of SNMP host configuration
+          - I(community) and I(user) are mutually exclusive
         type: list
         elements: dict
         suboptions:
@@ -347,7 +348,7 @@ EXAMPLES = """
 # md5 auth-password
 # U2FsdGVkX18J+L+L9OyQYWpAkGUrTgcg/6xzZoDjCbQw1ISHJ5mxmxrYZgQypEUXDeNe6rBupsc9sVDJBKxrwA==
 # priv aes-128 priv-password U2FsdGVkX1/Xs+ffZvdV9YzfyGHgIJ+zkLRPfF3/WgYIE1S4Ribvbzhu5chpHHI7ooCBpcVxYZotAXDzgetxvQ==
-# snmp-server group group-floor2 v3 priv read r_view write w_view notify n_view
+# snmp-server group group-floor2 v2c priv read r_view write w_view notify n_view
 # snmp-server community comm1 group group-lab
 # snmp-server user user2 group group-lab
 # auth sha auth-password U2FsdGVkX18J+L+L9OyQYWpAkGUrTgcg/6xzZoDjCbQw1ISHJ5mxmxrYZgQypEUXDeNe6rBupsc9sVDJBKxrwA==
@@ -364,7 +365,7 @@ EXAMPLES = """
 #
 # show running-configuration | grep snmp
 #
-# snmp-server group group-floor2 v3 priv read r_view write w_view notify n_view
+# snmp-server group group-floor2 v2c priv read r_view write w_view notify n_view
 # snmp-server community comm1 group group-lab
 
 
@@ -416,7 +417,7 @@ EXAMPLES = """
       group:
         - name: group-floor2
           access:
-            security_model: v3
+            security_model: v2c
             security_level: auth-priv
             read_view: r_view
             write_view: w_view
@@ -432,7 +433,7 @@ EXAMPLES = """
 # show running-configuration | grep snmp
 #
 # snmp-server community comm1 group group-lab
-# snmp-server group group-floor2 v3 priv read r_view write w_view notify n_view
+# snmp-server group group-floor2 v2c priv read r_view write w_view notify n_view
 
 
 # Using "merged" state

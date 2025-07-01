@@ -209,7 +209,6 @@ class Snmp(ConfigBase):
 
         if not want:
             return commands, requests
-
         diff_want = get_diff(want, have, TEST_KEYS)
         del_commands = get_diff(have, want, TEST_KEYS)
         if not diff_want and not del_commands:
@@ -233,7 +232,7 @@ class Snmp(ConfigBase):
                     del_commands.pop('agentaddress')
             if 'host' in del_commands and 'host' in want:
                 for command in del_commands.get('host'):
-                    if command.get('name'):
+                    if 'name' in command:
                         del_commands['host'].remove(command)
                 if len(del_commands['host']) == 0:
                     del_commands.pop('host')
@@ -243,7 +242,7 @@ class Snmp(ConfigBase):
                 commands.extend(update_states(del_commands, "deleted"))
 
             test_keys = self.new_test_keys(want)
-            diff_want = get_diff(want, have, test_keys)
+            diff_want = get_diff(want, have, TEST_KEYS)
             merged_commands = diff_want
             merged_request = self.get_create_snmp_request(merged_commands, have, True)
             requests.extend(merged_request)
@@ -392,10 +391,8 @@ class Snmp(ConfigBase):
             requests.append(group_request)
 
         if config.get('host'):
-            server_params_path = "data/ietf-snmp:snmp/target-params"
-            payload = self.build_create_enable_target_params_payload(config, have, overridden_or_replaced)
-            target_params_request = {'path': server_params_path, 'method': method, 'data': payload}
-            requests.append(target_params_request)
+            target_params_request = self.build_create_enable_target_params_payload(config, have, overridden_or_replaced)
+            requests.extend(target_params_request)
             target_path = "data/ietf-snmp:snmp/target"
             payload = self.build_create_enable_target_payload(config, have, overridden_or_replaced)
             target_request = {'path': target_path, 'method': method, 'data': payload}
@@ -718,7 +715,7 @@ class Snmp(ConfigBase):
             return access_list
         for access in access_dicts:
             access_dict = {}
-            access_dict['context'] = 'default'
+            access_dict['context'] = 'Default'
             access_dict['notify-view'] = access.get('notify_view')
             access_dict['read-view'] = access.get('read_view')
             access_dict['write-view'] = access.get('write_view')
@@ -740,7 +737,7 @@ class Snmp(ConfigBase):
         have_targetentry = have.get('host')
         have_targetentry_names = []
         if have_targetentry and not overridden_or_replaced:
-            have_targetentry_names = [agent_entry.get('name') for agent_entry in have_targetentry]
+            have_targetentry_names = [have_entry.get('name') for have_entry in have_targetentry]
 
         for conf in target:
             target_dict = {}
@@ -772,7 +769,7 @@ class Snmp(ConfigBase):
             if not port:
                 port = 162
             target_dict['udp'] = {'ip': conf.get('ip'), 'port': port}
-            target_dict['source-interface'] = conf.get('source_interface')
+            target_dict['ietf-snmp-ext:source-interface'] = conf.get('source_interface')
             target_list.append(target_dict)
 
         payload_url['target'] = target_list
@@ -784,6 +781,7 @@ class Snmp(ConfigBase):
         :returns: The payload for SNMP target
         """
         payload_url = {}
+        requests = []
         target_params_list = []
 
         server = config.get('host')
@@ -798,6 +796,17 @@ class Snmp(ConfigBase):
                 target_entry_name = conf.get('name')
             else:
                 target_entry_name = self.get_targetentry(have_targetentry_names)
+            if overridden_or_replaced:
+                matched_host = next((x for x in have_targetentry if x.get('name') == target_entry_name), None)
+                if 'community' in conf and 'usm' in matched_host or 'user' in conf and 'v2c' in matched_host:
+                    # delete user from matched_host before replacing it with the new community
+                    # delete community from matched_host 
+                    delete_target_path = 'data/ietf-snmp:snmp/target={0}'.format(target_entry_name)
+                    target_request = {'path': delete_target_path, 'method': DELETE}
+                    requests.append(target_request)
+                    delete_target_params_path = 'data/ietf-snmp:snmp/target-params={0}'.format(target_entry_name)
+                    target_params_request = {'path': delete_target_params_path, 'method': DELETE}
+                    requests.append(target_params_request)
             target_params_dict['name'] = target_entry_name
             type_info = {}
             if conf.get('user') is None:
@@ -818,8 +827,10 @@ class Snmp(ConfigBase):
             target_params_list.append(target_params_dict)
 
         payload_url['target-params'] = target_params_list
-
-        return payload_url
+        
+        target_params_request = {'path': 'data/ietf-snmp:snmp/target-params', 'method': PATCH, 'data': payload_url}
+        requests.append(target_params_request)
+        return requests
 
     def get_existing_user(self, configs, have=None):
         """ Return the users that are in configs and have
@@ -1365,7 +1376,7 @@ class Snmp(ConfigBase):
         return current_agententry
 
     def get_targetentry(self, have_targetentry):
-        """ Get and return the firlst available targetEntry that is not already taken
+        """ Get and return the first available targetEntry that is not already taken
         :rtype: str
         :returns: the first available targetEntry that is not already taken
         """
