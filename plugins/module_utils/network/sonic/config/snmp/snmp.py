@@ -355,8 +355,6 @@ class Snmp(ConfigBase):
         method = PATCH
 
         if config.get('agentaddress'):
-            # if user does not specify a name and there is already a matching 'ip' and 'vrf' then use that one if not then create a new one
-            # # if there is one with the same name but different vrf and ip address then throw a fail.json ("another agentaddress already has a name ....") then reject the agentaddress
             agentaddress_path = "data/ietf-snmp:snmp/engine"
             payload = self.build_create_agentaddress_payload(config, have, overridden_or_replaced)
             agentaddress_request = {'path': agentaddress_path, 'method': method, 'data': payload}
