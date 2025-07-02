@@ -450,7 +450,7 @@ class Snmp(ConfigBase):
                 if 'ip' in conf and 'vrf' in conf:
                     matching_agentaddress = next((agent_entry for agent_entry in have_agentaddress
                                                   if agent_entry.get('ip') == conf.get('ip') and agent_entry.get('vrf') == conf.get('vrf')),
-                                                  None)
+                                                 None)
                     if matching_agentaddress:
                         name = matching_agentaddress.get('name')
                 else:
