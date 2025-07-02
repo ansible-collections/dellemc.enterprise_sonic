@@ -448,13 +448,13 @@ class Snmp(ConfigBase):
             else:
                 # if there is already a matching 'ip' and 'vrf' then use that one
                 if 'ip' in conf and 'vrf' in conf:
-                    matching_agentaddress = next((agent_entry for agent_entry in have_agentaddress 
-                                                  if agent_entry.get('ip') == conf.get('ip') and agent_entry.get('vrf') == conf.get('vrf')),
-                                                  None)
+                    matching_agentaddress = next((agent_entry for agent_entry in have_agentaddress
+                                                if agent_entry.get('ip') == conf.get('ip') and agent_entry.get('vrf') == conf.get('vrf')),
+                                                None)
                     if matching_agentaddress:
                         name = matching_agentaddress.get('name')
                 else:
-                    name = self.get_agententry(have_agentaddress_names)  
+                    name = self.get_agententry(have_agentaddress_names)
 
             agentaddress_dict['name'] = name
             agentaddress_dict['udp'] = {'ietf-snmp-ext:interface': conf.get('interface'), 'ip': conf.get('ip'), 'port': conf.get('port')}
