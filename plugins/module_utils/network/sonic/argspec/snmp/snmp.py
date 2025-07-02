@@ -100,6 +100,7 @@ class SnmpArgs(object):  # pylint: disable=R0903
                 },
                 'host': {
                     'elements': 'dict',
+                    'mutually_exclusive': [['user', 'community']],
                     'options': {
                         'name': {'type': 'str'},
                         'community': {'type': 'str'},

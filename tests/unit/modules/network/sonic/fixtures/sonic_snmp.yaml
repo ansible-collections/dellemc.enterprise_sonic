@@ -214,34 +214,26 @@ replaced_02:
   module_args:
     state: replaced
     config:
-      agentaddress:
-        - ip: '1.2.3.5'
-          port: 1024 
-          interface: 'Eth1/10'
+      enable_trap:
+        - 'bgp'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
         code: 200
         value:
           ietf-snmp:snmp:
-            engine:
-              listen:
-                - name: 'agentEntry1'
-                  udp:
-                    ietf-snmp-ext:interface: 'Eth1/30'
-                    ip: '1.2.3.5'
-                    port: 1024
+            ietf-snmp-ext:system:
+              notifications:
+                authentication-failure-trap: True
   expected_config_requests:
-    - path: 'data/ietf-snmp:snmp/engine'
+    - path: "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/authentication-failure-trap"
+      method: 'delete'
+      data:
+    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications'
       method: 'patch'
       data:
-        ietf-snmp:engine:
-          listen:
-            - name: 'AgentEntry1'
-              udp:
-                ietf-snmp-ext:interface: 'Eth1/10'
-                ip: '1.2.3.5'
-                port: 1024
+        ietf-snmp-ext:notifications:
+          bgp-traps: True
 
 overridden_01:
   module_args:

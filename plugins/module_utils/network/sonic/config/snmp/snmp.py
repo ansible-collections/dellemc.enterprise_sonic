@@ -182,8 +182,7 @@ class Snmp(ConfigBase):
             if no_name:
                 test_keys.extend([{'agentaddress': {'ip': ''}},
                                   {'agentaddress': {'vrf': ''}}])
-            else:
-                test_keys.extend([{'agentaddress': {'name': ''}}])
+            test_keys.extend([{'agentaddress': {'name': ''}}])
         if 'host' in want:
             no_name = False
             for command in want['host']:
@@ -192,8 +191,7 @@ class Snmp(ConfigBase):
             if no_name:
                 test_keys.extend([{'host': {'ip': ''}},
                                   {'host': {'vrf': ''}}])
-            else:
-                test_keys.extend([{'host': {'name': ''}}])
+            test_keys.extend([{'host': {'name': ''}}])
 
         return test_keys
 
@@ -238,15 +236,15 @@ class Snmp(ConfigBase):
                     del_commands.pop('host')
             if len(del_commands) > 0:
                 del_requests = self.get_delete_snmp_request(del_commands, have, False)
-                requests.extend(del_requests)
-                commands.extend(update_states(del_commands, "deleted"))
+                if del_requests:
+                    requests.extend(del_requests)
+                    commands.extend(update_states(del_commands, "deleted"))
 
-            test_keys = self.new_test_keys(want)
-            diff_want = get_diff(want, have, TEST_KEYS)
-            merged_commands = diff_want
-            merged_request = self.get_create_snmp_request(merged_commands, have, True)
-            requests.extend(merged_request)
-            commands.extend(update_states(merged_commands, state))
+                merged_commands = diff_want
+                merged_request = self.get_create_snmp_request(merged_commands, have, True)
+                if merged_request:
+                    requests.extend(merged_request)
+                    commands.extend(update_states(merged_commands, state))
 
         else:
             merged_request = self.get_create_snmp_request(diff_want, have, True)
@@ -330,10 +328,10 @@ class Snmp(ConfigBase):
             if value == [] and key in config:
                 new_config[key] = config[key]
             else:
-                if isinstance(value, list):
+                if isinstance(value, list) and key in config:
                     new_config_value = []
                     for v in value:
-                        if 'name' in v and key in config and len(v) == 1:
+                        if 'name' in v and len(v) == 1:
                             name = v['name']
                             matched_v = next((x for x in config[key] if x['name'] == name), None)
                             if matched_v:
@@ -356,8 +354,8 @@ class Snmp(ConfigBase):
 
         if config.get('agentaddress'):
             agentaddress_path = "data/ietf-snmp:snmp/engine"
-            payload = self.build_create_agentaddress_payload(config, have, overridden_or_replaced)
-            agentaddress_request = {'path': agentaddress_path, 'method': method, 'data': payload}
+            payload_url = self.get_agentaddress_requests(config, have, overridden_or_replaced)
+            agentaddress_request = {'path': agentaddress_path, 'method': method, 'data': payload_url}
             requests.append(agentaddress_request)
 
         if config.get('community'):
@@ -423,7 +421,7 @@ class Snmp(ConfigBase):
 
         return requests
 
-    def build_create_agentaddress_payload(self, config, have, overridden_or_replaced):
+    def get_agentaddress_requests(self, config, have, overridden_or_replaced):
         """ Build the payload for SNMP agentaddress
         :rtype: A dictionary
         :returns: The payload for SNMP agentaddress
@@ -440,9 +438,21 @@ class Snmp(ConfigBase):
             name = ""
             agentaddress_dict = {}
             if 'name' in conf:
-                name = conf.get('name')
+                matching_name = next((agent_entry for agent_entry in have_agentaddress if agent_entry.get('name') == conf.get('name')), None)
+                matching_vrf = matching_name.get('vrf') != conf.get('vrf')
+                matching_ip = matching_name.get('ip') != conf.get('ip')
+                if matching_name and (matching_vrf or matching_ip):
+                    self._module.fail_json(msg="There already exists an agentaddress with that name")
+                else:
+                    name = conf.get('name')
             else:
-                name = self.get_agententry(have_agentaddress_names)
+                # if there is already a matching 'ip' and 'vrf' then use that one
+                if 'ip' in conf and 'vrf' in conf:
+                    matching_agentaddress = next((agent_entry for agent_entry in have_agentaddress if agent_entry.get('ip') == conf.get('ip') and agent_entry.get('vrf') == conf.get('vrf')), None)
+                    if matching_agentaddress:
+                        name = matching_agentaddress.get('name')
+                else:
+                    name = self.get_agententry(have_agentaddress_names)    
 
             agentaddress_dict['name'] = name
             agentaddress_dict['udp'] = {'ietf-snmp-ext:interface': conf.get('interface'), 'ip': conf.get('ip'), 'port': conf.get('port')}
@@ -450,6 +460,7 @@ class Snmp(ConfigBase):
 
         agentaddressdict['listen'] = agentaddress_list
         payload_url['ietf-snmp:engine'] = agentaddressdict
+
         return payload_url
 
     def build_create_community_payload(self, config, have):
@@ -470,7 +481,7 @@ class Snmp(ConfigBase):
             if have and len(have) > 0 and have.get('group'):
                 for group in have.get(['group']):
                     matched_group = next(
-                        (each_group for each_group in group.get('member') if each_group['security-name'] == conf.get('name')
+                        (each_member for each_member in group.get('member') if each_member['security-name'] == conf.get('name')
                          and group.get('name') != community_group_name), None)
                     if matched_group:
 
@@ -544,23 +555,28 @@ class Snmp(ConfigBase):
             auth_key = {}
             priv_key = {}
             user_dict['name'] = conf.get('name')
-            user_dict['encrypted'] = conf.get('encrypted')
+            if conf.get('encrypted') is not None:
+                user_dict['encrypted'] = conf['encrypted']
+            else:
+                user_dict['encrypted'] = False
 
             auth_type = conf['auth']['auth_type']
             priv_type = None
+            add_user = False
             if 'priv' in conf:
                 priv_type = conf['priv']['priv_type']
                 priv_key['key'] = conf['priv']['key']
-
+                add_user = True
+            if priv_type:
+                priv_dict[priv_type] = priv_key
             if 'auth' in conf and 'key' in conf['auth']:
                 auth_key['key'] = conf['auth']['key']
                 auth_dict[auth_type] = auth_key
-            if priv_type:
-                priv_dict[priv_type] = priv_key
-            user_dict['auth'] = auth_dict
-            user_dict['priv'] = priv_dict
-
-            user_list.append(user_dict)
+                add_user = True
+            if add_user:
+                user_dict['auth'] = auth_dict
+                user_dict['priv'] = priv_dict
+                user_list.append(user_dict)
 
         payload_url['user'] = user_list
         return payload_url
@@ -642,7 +658,9 @@ class Snmp(ConfigBase):
         method = PATCH
         requests = []
         payload = {}
-        enable_trap_list = []
+        if 'all' in enable_trap and len(enable_trap) != 1:
+            self._module.fail_json(msg="enable_trap value 'all' cannot be set together with other enable_trap values.")
+
         for conf in enable_trap:
             enable_trap_dict = {}
             trap_type = conf
@@ -667,7 +685,7 @@ class Snmp(ConfigBase):
                     if trap_type == 'ospf':
                         enable_trap_dict['ospf-traps'] = True
 
-        payload['notifications'] = enable_trap_dict
+        payload['ietf-snmp-ext:notifications'] = enable_trap_dict
         trap_enable_request = {'path': enable_trap_url, 'method': method, 'data': payload}
         requests.append(trap_enable_request)
         return requests
@@ -709,9 +727,11 @@ class Snmp(ConfigBase):
             access_dict['write-view'] = access.get('write_view')
             security_level = access.get('security_level')
             security_model = access.get('security_model')
-            access_dict['security-level'] = security_level
+            if security_level:
+                access_dict['security-level'] = security_level
             access_dict['security-model'] = security_model
             access_list.append(access_dict)
+
         return access_list
 
     def build_create_enable_target_payload(self, config, have, overridden_or_replaced):
@@ -780,13 +800,15 @@ class Snmp(ConfigBase):
         for conf in server:
             target_params_dict = {}
             target_entry_name = ""
+            matched_host = None
+            if have_targetentry:
+                matched_host = next((x for x in have_targetentry if x.get('name') == target_entry_name), None)
             if 'name' in conf:
                 target_entry_name = conf.get('name')
             else:
                 target_entry_name = self.get_targetentry(have_targetentry_names)
             if overridden_or_replaced:
-                matched_host = next((x for x in have_targetentry if x.get('name') == target_entry_name), None)
-                if 'community' in conf and 'usm' in matched_host or 'user' in conf and 'v2c' in matched_host:
+                if matched_host and 'community' in conf and 'usm' in matched_host or 'user' in conf and 'v2c' in matched_host:
                     # delete user from matched_host before replacing it with the new community
                     # delete community from matched_host
                     delete_target_path = 'data/ietf-snmp:snmp/target={0}'.format(target_entry_name)
@@ -799,9 +821,14 @@ class Snmp(ConfigBase):
             type_info = {}
             if conf.get('user') is None:
                 if 'community' in conf:
+                    if matched_host and 'user' in matched_host:
+                        self._module.fail_json(msg="A user already exists for that host name")
                     type_info['security-name'] = conf.get('community')
                     target_params_dict['v2c'] = type_info
             else:
+                if matched_host and 'community' in matched_host:
+                    self._module.fail_json(msg="A community already exists for that host name")
+
                 server_level = conf.get('user').get('security_level')
                 if server_level == "auth":
                     type_info['security-level'] = 'auth-no-priv'
