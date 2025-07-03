@@ -71,6 +71,33 @@ merged_02:
                 ip: '1.2.3.5'
                 port: 1024
 
+merged_03:
+  module_args:
+    config:
+      location: 'Lab1, Rack-10'
+      enable_trap:
+        - "bgp"
+        - "ospf"
+      contact: 'Dell Support'
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/contact'
+      method: 'patch'
+      data:
+        ietf-snmp-ext:contact: 'Dell Support'
+    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
+      method: 'patch'
+      data:
+        ietf-snmp-ext:location: 'Lab1, Rack-10'
+    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications'
+      method: 'patch'
+      data:
+        ietf-snmp-ext:notifications:
+          ospf-traps: True
+
 deleted_01:
   module_args:
     config:
@@ -165,6 +192,27 @@ deleted_03:
       data:
     - path: 'data/ietf-snmp:snmp/vacm/view'
       method: 'delete'
+      data:
+
+deleted_04:
+  module_args:
+    state: deleted
+    config:
+      community:
+        - name: 'comm1'
+          group: 'group-lab'
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+        value:
+          ietf-snmp:snmp:
+            community:
+              - index: 'comm1'
+                security-name: 'group-lab'
+  expected_config_requests:
+    - path: "data/ietf-snmp:snmp/community"
+      method: "delete"
       data:
 
 replaced_01:

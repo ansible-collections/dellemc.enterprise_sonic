@@ -810,7 +810,7 @@ class Snmp(ConfigBase):
                 if matched_host:
                     target_entry_name = matched_host['name']
             if not target_entry_name:
-                 target_entry_name = self.get_targetentry(have_targetentry_names)
+                target_entry_name = self.get_targetentry(have_targetentry_names)
             if overridden_or_replaced:
                 if matched_host and 'community' in conf and 'usm' in matched_host or 'user' in conf and 'v2c' in matched_host:
                     # delete user from matched_host before replacing it with the new community
