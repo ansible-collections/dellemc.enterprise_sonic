@@ -362,9 +362,8 @@ class Snmp(ConfigBase):
             community_requests = self.build_create_community_payload(config, have)
             requests.extend(community_requests)
             group_path = "data/ietf-snmp:snmp/vacm"
-            payload = self.build_create_group_community_payload(config)
-            group_request = {'path': group_path, 'method': method, 'data': payload}
-            requests.append(group_request)
+            for conf in config['community']:
+                requests.append(self.build_create_group_community_request(conf))
 
         if config.get('contact'):
             contact_path = "data/ietf-snmp:snmp/ietf-snmp-ext:system/contact"
@@ -408,10 +407,9 @@ class Snmp(ConfigBase):
             users_request = {'path': user_path, "method": method, 'data': payload}
             requests.append(users_request)
 
-            vacm_path = "data/ietf-snmp:snmp/vacm"
-            vacm_payload = self.build_create_vacm_payload(config)
-            users_request = {'path': vacm_path, "method": method, 'data': vacm_payload}
-            requests.append(users_request)
+            group = config.get('user')
+            for conf in group:
+                requests.append(self.create_user_group_request(conf))
 
         if config.get('view'):
             views_path = "data/ietf-snmp:snmp/vacm"
@@ -481,16 +479,13 @@ class Snmp(ConfigBase):
             community_dict['index'] = conf.get('name')
             community_group_name = conf.get('group')
             if have and len(have) > 0 and have.get('group'):
-                for group in have.get(['group']):
-                    matched_group = next(
-                        (each_member for each_member in group.get('member') if each_member['security-name'] == conf.get('name')
-                         and group.get('name') != community_group_name), None)
-                    if matched_group:
+                for group in have.get('group'):
+                    if 'security-name' in group and group['security-name'] == conf.get('name') and group.get('name') != community_group_name:
 
                         # If this community is already a member of some group other than the new requested group,
                         # remove the "member" entry for this community in the "old" group member list.
                         group_name = group.get('name')
-                        group_url = "data/ietf-snmp:snmp/vacm/group={0}/member={1}".format(group_name, matched_group.get('security-name'))
+                        group_url = "data/ietf-snmp:snmp/vacm/group={0}/member={1}".format(group_name, group.get('security-name'))
                         group_request = {"path": group_url, "method": DELETE}
                         community_requests.append(group_request)
 
@@ -501,31 +496,30 @@ class Snmp(ConfigBase):
         community_requests.append({'path': community_path, 'method': PATCH, 'data': payload_url})
         return community_requests
 
-    def build_create_group_community_payload(self, config):
+    def build_create_group_community_request(self, conf):
         """ Build the payload for the group associated with SNMP community
         :rtype: A dictionary
         :returns: The payload for the group associated with SNMP community
         """
-        community = config.get('community')
         community_list = []
         payload_url = {}
 
-        for conf in community:
-            group_dict = {}
-            group_dict['name'] = conf.get('group')
-            member_dict = {}
-            member_dict['security-model'] = ['v2c']
-            member_dict['security-name'] = conf.get('name')
-            member_dict_list = []
-            member_dict_list.append(member_dict)
-            group_dict['member'] = member_dict_list
+        member_dict = {}
+        member_dict['security-model'] = ['v2c']
+        member_dict['security-name'] = conf.get('name')
+        member_dict_list = []
+        member_dict_list.append(member_dict)
+        group_dict = {}
+        group_dict['name'] = conf.get('group')
+        group_dict['member'] = member_dict_list
 
-            community_list.append(group_dict)
+        community_list.append(group_dict)
 
         group_payload = {'group': community_list}
         payload_url['ietf-snmp:vacm'] = group_payload
 
-        return payload_url
+        request = {'path': "data/ietf-snmp:snmp/vacm", 'method': PATCH, 'data': payload_url}
+        return request
 
     def build_create_engine_payload(self, config):
         """ Build the payload for SNMP engine
@@ -562,7 +556,6 @@ class Snmp(ConfigBase):
             else:
                 user_dict['encrypted'] = False
 
-            auth_type = conf['auth']['auth_type']
             priv_conf = conf.get('priv')
             auth_conf = conf.get('auth')
             if priv_conf and 'priv_type' in priv_conf and 'key' in priv_conf:
@@ -581,22 +574,17 @@ class Snmp(ConfigBase):
         payload_url['user'] = user_list
         return payload_url
 
-    def build_create_vacm_payload(self, config):
+    def create_user_group_request(self, conf):
         """ Build the payload for SNMP group members based on the given user information
         :rtpe: A dictionary
-        :returns: The payload for SNMP group members
+        :returns: The request for SNMP group members
         """
+        group_dict = {}
         group_list = []
-        group = config.get('user')
-
+        member = {}
         payload_url = {}
-        if group is None:
-            return payload_url
-        for conf in group:
-            group_dict = {}
-            member = {}
-            if conf.get('group') is None:
-                break
+        path = "data/ietf-snmp:snmp/vacm"
+        if conf.get('group') is not None:
             member['security-model'] = ["usm"]
             member['security-name'] = conf.get('name')
             group_dict['member'] = [member]
@@ -604,7 +592,9 @@ class Snmp(ConfigBase):
             group_list.append(group_dict)
 
         payload_url['ietf-snmp:vacm'] = {'group': group_list}
-        return payload_url
+        request = {'path': path, 'method': PATCH, 'data': payload_url}
+        return request
+
 
     def build_create_view_payload(self, config):
         """ Build the payload for SNMP view
