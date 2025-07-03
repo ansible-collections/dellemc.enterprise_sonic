@@ -563,21 +563,19 @@ class Snmp(ConfigBase):
                 user_dict['encrypted'] = False
 
             auth_type = conf['auth']['auth_type']
-            priv_type = None
-            add_user = False
-            if 'priv' in conf:
-                priv_type = conf['priv']['priv_type']
-                priv_key['key'] = conf['priv']['key']
-                add_user = True
-            if priv_type:
+            priv_conf = conf.get('priv')
+            auth_conf = conf.get('auth')
+            if priv_conf and 'priv_type' in priv_conf and 'key' in priv_conf:
+                priv_type = priv_conf['priv_type']
+                priv_key['key'] = priv_conf['key']
                 priv_dict[priv_type] = priv_key
-            if 'auth' in conf and 'key' in conf['auth']:
-                auth_key['key'] = conf['auth']['key']
-                auth_dict[auth_type] = auth_key
-                add_user = True
-            if add_user:
-                user_dict['auth'] = auth_dict
                 user_dict['priv'] = priv_dict
+            if auth_conf and 'auth_type' in auth_conf and 'key' in auth_conf:
+                auth_type = auth_conf['auth_type']
+                auth_key['key'] = auth_conf['key']
+                auth_dict[auth_type] = auth_key
+                user_dict['auth'] = auth_dict
+            if user_dict:
                 user_list.append(user_dict)
 
         payload_url['user'] = user_list
@@ -803,12 +801,16 @@ class Snmp(ConfigBase):
             target_params_dict = {}
             target_entry_name = ""
             matched_host = None
-            if have_targetentry:
-                matched_host = next((x for x in have_targetentry if x.get('name') == target_entry_name), None)
             if 'name' in conf:
                 target_entry_name = conf.get('name')
-            else:
-                target_entry_name = self.get_targetentry(have_targetentry_names)
+                matched_host = next((x for x in have_targetentry if x.get('name') == target_entry_name), None)
+            elif have_targetentry:
+                matched_host = next((host for host in have_targetentry if host.get('ip') == conf.get('ip')
+                                     and host.get('vrf') == conf.get('vrf')), None)
+                if matched_host:
+                    target_entry_name = matched_host['name']
+            if not target_entry_name:
+                 target_entry_name = self.get_targetentry(have_targetentry_names)
             if overridden_or_replaced:
                 if matched_host and 'community' in conf and 'usm' in matched_host or 'user' in conf and 'v2c' in matched_host:
                     # delete user from matched_host before replacing it with the new community
@@ -824,12 +826,16 @@ class Snmp(ConfigBase):
             if conf.get('user') is None:
                 if 'community' in conf:
                     if matched_host and 'user' in matched_host:
-                        self._module.fail_json(msg="A user already exists for that host name")
+                        self._module.fail_json(msg="Incompatible configuration: Before adding " +
+                                               "'community' configuration for this host, the " +
+                                               "existing 'user' configuration must be removed.")
                     type_info['security-name'] = conf.get('community')
                     target_params_dict['v2c'] = type_info
             else:
                 if matched_host and 'community' in matched_host:
-                    self._module.fail_json(msg="A community already exists for that host name")
+                    self._module.fail_json(msg="Incompatible configuration: Before adding 'user' " +
+                                           "configuration for this host, the existing" +
+                                           "'community' configuration must be removed.")
 
                 server_level = conf.get('user').get('security_level')
                 if server_level == "auth":
