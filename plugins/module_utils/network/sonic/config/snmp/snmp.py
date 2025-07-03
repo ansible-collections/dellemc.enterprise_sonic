@@ -595,7 +595,6 @@ class Snmp(ConfigBase):
         request = {'path': path, 'method': PATCH, 'data': payload_url}
         return request
 
-
     def build_create_view_payload(self, config):
         """ Build the payload for SNMP view
         :rtype: A dictonary
