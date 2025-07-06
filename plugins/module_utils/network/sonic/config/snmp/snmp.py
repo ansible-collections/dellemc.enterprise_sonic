@@ -13,6 +13,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible.module_utils.connection import ConnectionError
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import ConfigBase
@@ -388,10 +389,11 @@ class Snmp(ConfigBase):
             requests.append(group_request)
 
         if config.get('host'):
-            target_params_request = self.build_create_enable_target_params_payload(config, have, overridden_or_replaced)
+            config_copy = deepcopy(config)
+            target_params_request, target_entry_name = self.build_create_enable_target_params_payload(config_copy, have, overridden_or_replaced)
             requests.extend(target_params_request)
             target_path = "data/ietf-snmp:snmp/target"
-            payload = self.build_create_enable_target_payload(config, have, overridden_or_replaced)
+            payload = self.build_create_enable_target_payload(config_copy, have, target_entry_name)
             target_request = {'path': target_path, 'method': method, 'data': payload}
             requests.append(target_request)
 
@@ -407,9 +409,9 @@ class Snmp(ConfigBase):
             users_request = {'path': user_path, "method": method, 'data': payload}
             requests.append(users_request)
 
-            group = config.get('user')
-            for conf in group:
-                requests.append(self.create_user_group_request(conf))
+            users = config.get('user')
+            for user in users:
+                requests.append(self.create_user_group_request(user))
 
         if config.get('view'):
             views_path = "data/ietf-snmp:snmp/vacm"
@@ -723,7 +725,7 @@ class Snmp(ConfigBase):
 
         return access_list
 
-    def build_create_enable_target_payload(self, config, have, overridden_or_replaced):
+    def build_create_enable_target_payload(self, config, have, target_entry_name):
         """ Build the payload for SNMP target information based on the given host configuration
         :rtype: A dictionary
         :returns: The payload for SNMP target
@@ -732,20 +734,12 @@ class Snmp(ConfigBase):
         target_list = []
         target = config.get('host')
         have_targetentry = have.get('host')
-        have_targetentry_names = []
-        if have_targetentry and not overridden_or_replaced:
-            have_targetentry_names = [have_entry.get('name') for have_entry in have_targetentry]
 
         for conf in target:
             target_dict = {}
             retries = conf.get('retries')
             if retries is None:
                 retries = 3
-            target_entry_name = ""
-            if 'name' in conf:
-                target_entry_name = conf.get('name')
-            else:
-                target_entry_name = self.get_targetentry(have_targetentry_names)
             target_dict['name'] = target_entry_name
             target_dict['retries'] = retries
             tag_list = []
@@ -791,7 +785,8 @@ class Snmp(ConfigBase):
             target_entry_name = ""
             matched_host = None
             if 'name' in conf:
-                target_entry_name = conf.get('name')
+                target_entry_name = matched_host['name']
+                conf['name'] = target_entry_name
                 matched_host = next((x for x in have_targetentry if x.get('name') == target_entry_name), None)
             elif have_targetentry:
                 matched_host = next((host for host in have_targetentry if host.get('ip') == conf.get('ip')
@@ -841,7 +836,7 @@ class Snmp(ConfigBase):
         payload_url['target-params'] = target_params_list
         target_params_request = {'path': 'data/ietf-snmp:snmp/target-params', 'method': PATCH, 'data': payload_url}
         requests.append(target_params_request)
-        return requests
+        return requests, target_entry_name
 
     def get_existing_user(self, configs, have=None):
         """ Return the users that are in configs and have
