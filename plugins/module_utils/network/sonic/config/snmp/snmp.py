@@ -447,9 +447,11 @@ class Snmp(ConfigBase):
                     name = conf.get('name')
             else:
                 # if there is already a matching 'ip' and 'vrf' then use that one
-                if 'ip' in conf and 'vrf' in conf:
+                if have_agentaddress and 'ip' in conf and ('vrf' in conf or 'interface' in conf):
                     matching_agentaddress = next((agent_entry for agent_entry in have_agentaddress
-                                                  if agent_entry.get('ip') == conf.get('ip') and agent_entry.get('vrf') == conf.get('vrf')),
+                                                  if agent_entry.get('ip') == conf.get('ip')
+                                                  and (agent_entry.get('vrf') == conf.get('vrf')
+                                                  or agent_entry.get('interface') == conf.get('interface'))),
                                                  None)
                     if matching_agentaddress:
                         name = matching_agentaddress.get('name')
@@ -733,7 +735,6 @@ class Snmp(ConfigBase):
         payload_url = {}
         target_list = []
         target = config.get('host')
-        have_targetentry = have.get('host')
 
         for conf in target:
             target_dict = {}
@@ -785,8 +786,7 @@ class Snmp(ConfigBase):
             target_entry_name = ""
             matched_host = None
             if 'name' in conf:
-                target_entry_name = matched_host['name']
-                conf['name'] = target_entry_name
+                target_entry_name = conf['name']
                 matched_host = next((x for x in have_targetentry if x.get('name') == target_entry_name), None)
             elif have_targetentry:
                 matched_host = next((host for host in have_targetentry if host.get('ip') == conf.get('ip')
@@ -939,29 +939,36 @@ class Snmp(ConfigBase):
                         if matched_agentaddress:
                             name = matched_agentaddress['name']
                             agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
+                            # Delete the whole agentaddress entry if only 'name' is specified.
+                            if want.get('name') and len(want) == 1:
+                                agentaddress_request = {"path": agentaddress_url, "method": DELETE}
+                                agentaddress_requests.append(agentaddress_request)
+                                continue
                             interface = want.get('interface')
                             ip = want.get('ip')
                             port = want.get('port')
                             vrf = want.get('vrf')
                             # Handle deletion of UDP options.
-                            for option in ('interface', 'ip', 'port'):
+                            all_udp_deleted = True
+                            for option in ('interface', 'ip', 'port', 'vrf'):
                                 if option not in matched_agentaddress or option in want:
-                                    all_udp_deleted = True
+                                    continue
                                 else:
                                     all_udp_deleted = False
-                                if not all_udp_deleted:
-                                    if interface or vrf:
-                                        agentaddress_interface_url = agentaddress_url + "/udp/ietf-snmp-ext:interface"
-                                        agentaddress_request = {"path": agentaddress_interface_url, "method": DELETE}
-                                        agentaddress_requests.append(agentaddress_request)
-                                    if ip:
-                                        agentaddress_ip_url = agentaddress_url + "/udp/ip"
-                                        agentaddress_request = {"path": agentaddress_ip_url, "method": DELETE}
-                                        agentaddress_requests.append(agentaddress_request)
-                                    if port:
-                                        agentaddress_port_url = agentaddress_url + "/udp/port"
-                                        agentaddress_request = {"path": agentaddress_port_url, "method": DELETE}
-                                        agentaddress_requests.append(agentaddress_request)
+                                    break
+                            if not all_udp_deleted:
+                                if interface or vrf:
+                                    agentaddress_interface_url = agentaddress_url + "/udp/ietf-snmp-ext:interface"
+                                    agentaddress_request = {"path": agentaddress_interface_url, "method": DELETE}
+                                    agentaddress_requests.append(agentaddress_request)
+                                if ip:
+                                    agentaddress_ip_url = agentaddress_url + "/udp/ip"
+                                    agentaddress_request = {"path": agentaddress_ip_url, "method": DELETE}
+                                    agentaddress_requests.append(agentaddress_request)
+                                if port:
+                                    agentaddress_port_url = agentaddress_url + "/udp/port"
+                                    agentaddress_request = {"path": agentaddress_port_url, "method": DELETE}
+                                    agentaddress_requests.append(agentaddress_request)
                                 else:
                                     agentaddress_udp_url = agentaddress_url + "/udp"
                                     agentaddress_request = {"path": agentaddress_udp_url, "method": DELETE}
