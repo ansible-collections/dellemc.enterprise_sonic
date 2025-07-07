@@ -237,8 +237,8 @@ class Ars(ConfigBase):
         delete_all = False
         commands, requests = [], []
         mod_commands, mod_request = None, None
-        self.add_default_entries(want)
         del_commands = get_diff(have, want, TEST_KEYS)
+        self.remove_default_entries(del_commands)
 
         if del_commands:
             delete_all = True
@@ -432,7 +432,8 @@ class Ars(ConfigBase):
 
         return requests
 
-    def get_delete_ars_object(self, name=None, attr=None):
+    @staticmethod
+    def get_delete_ars_object(name=None, attr=None):
         url = '%s/ars-object' % (ARS_PATH)
         if name:
             url += '/arsobject=%s' % (name)
@@ -441,7 +442,8 @@ class Ars(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def get_delete_port_bind(self, name=None, attr=None):
+    @staticmethod
+    def get_delete_port_bind(name=None, attr=None):
         url = '%s/ars-port-bind' % (ARS_PATH)
         if name:
             url += '/portbind=%s' % (name)
@@ -450,7 +452,8 @@ class Ars(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def get_delete_port_profile(self, name=None, attr=None):
+    @staticmethod
+    def get_delete_port_profile(name=None, attr=None):
         url = '%s/ars-port-profile' % (ARS_PATH)
         if name:
             url += '/portprofile=%s' % (name)
@@ -459,7 +462,8 @@ class Ars(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def get_delete_profile(self, name=None, attr=None):
+    @staticmethod
+    def get_delete_profile(name=None, attr=None):
         url = '%s/ars-profile' % (ARS_PATH)
         if name:
             url += '/profile=%s' % (name)
@@ -468,7 +472,8 @@ class Ars(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def get_delete_switch_bind(self, name=None, attr=None):
+    @staticmethod
+    def get_delete_switch_bind(name=None, attr=None):
         url = '%s/ars-switch-bind' % (ARS_PATH)
         if name:
             url += '/switchbind=%s' % (name)
@@ -477,7 +482,8 @@ class Ars(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def sort_lists_dicts_in_config(self, config):
+    @staticmethod
+    def sort_lists_dicts_in_config(config):
         """This method sorts the lists and dicts in the ARS configuration"""
         if config:
             ars_lists = ['ars_objects', 'port_bindings', 'port_profiles', 'profiles', 'switch_bindings']
@@ -496,7 +502,7 @@ class Ars(ConfigBase):
             for ars_list in ars_lists:
                 if data.get(ars_list):
                     pop_list = []
-                    for ars_dict in data[ars_list]:
+                    for idx, ars_dict in enumerate(data[ars_list]):
                         if len(ars_dict) == 1:
                             continue
                         key_pop_list = []
@@ -508,7 +514,6 @@ class Ars(ConfigBase):
                         for key in key_pop_list:
                             ars_dict.pop(key)
                         if len(ars_dict) == 1:
-                            idx = data[ars_list].index(ars_dict)
                             pop_list.insert(0, idx)
                     for idx in pop_list:
                         data[ars_list].pop(idx)
@@ -532,21 +537,25 @@ class Ars(ConfigBase):
         requests = []
         new_want = deepcopy(want)
         self.add_default_entries(new_want)
-        diff = get_diff(have, new_want, TEST_KEYS)
+        self.sort_lists_dicts_in_config(new_want)
+        self.sort_lists_dicts_in_config(have)
 
-        if diff.get('ars_objects'):
+        if not new_want or not have:
+            return config_dict, requests
+
+        if new_want.get('ars_objects') and have.get('ars_objects') and new_want['ars_objects'] != have['ars_objects']:
             requests.append(self.get_delete_ars_object())
             config_dict['ars_objects'] = have['ars_objects']
-        if diff.get('port_bindings'):
+        if new_want.get('port_bindings') and have.get('port_bindings') and new_want['port_bindings'] != have['port_bindings']:
             requests.append(self.get_delete_port_bind())
             config_dict['port_bindings'] = have['port_bindings']
-        if diff.get('switch_bindings'):
+        if new_want.get('switch_bindings') and have.get('switch_bindings') and new_want['switch_bindings'] != have['switch_bindings']:
             requests.append(self.get_delete_switch_bind())
             config_dict['switch_bindings'] = have['switch_bindings']
-        if diff.get('port_profiles'):
+        if new_want.get('port_profiles') and have.get('port_profiles') and new_want['port_profiles'] != have['port_profiles']:
             requests.append(self.get_delete_port_profile())
             config_dict['port_profiles'] = have['port_profiles']
-        if diff.get('profiles'):
+        if new_want.get('profiles') and have.get('profiles') and new_want['profiles'] != have['profiles']:
             requests.append(self.get_delete_profile())
             config_dict['profiles'] = have['profiles']
 
@@ -565,8 +574,7 @@ class Ars(ConfigBase):
                 new_conf.pop(ars_list, None)
                 continue
             pop_list = []
-            for ars_dict in command.get(ars_list, []):
-                idx = command[ars_list].index(ars_dict)
+            for idx, ars_dict in enumerate(command.get(ars_list, [])):
                 if len(ars_dict) == 1:
                     pop_list.insert(0, idx)
                     continue
