@@ -45,6 +45,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'users',
         'system',
         'port_breakout',
+        'pms',
         'aaa',
         'ldap',
         'tacacs_server',
@@ -90,6 +91,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'fbs_classifiers',
         'ars',
         'mirroring',
+        'drop_counter',
         'br_l2pt',
         'evpn_esi_multihome',
         'ssh_server'
