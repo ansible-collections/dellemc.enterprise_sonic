@@ -931,10 +931,11 @@ class Snmp(ConfigBase):
                     agentaddress_requests.append(agentaddress_request)
                 else:
                     for want in configs['agentaddress']:
-                        if want.get('name'): 
+                        if want.get('name'):
                             matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['name'] == want['name']), None)
                         else:
-                            matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['ip'] == want['ip'] and each_snmp.get('vrf') == want.get('vrf')), None)
+                            matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['ip'] == want['ip']
+                                                         and each_snmp.get('vrf') == want.get('vrf')), None)
                         if matched_agentaddress:
                             name = matched_agentaddress['name']
                             agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
@@ -965,9 +966,6 @@ class Snmp(ConfigBase):
                                     agentaddress_udp_url = agentaddress_url + "/udp"
                                     agentaddress_request = {"path": agentaddress_udp_url, "method": DELETE}
                                     agentaddress_requests.append(agentaddress_request)
-                            else:
-                                agentaddress_request = {"path": agentaddress_url, "method": DELETE}
-                                agentaddress_requests.append(agentaddress_request)
                 if agentaddress_requests:
                     agentaddress_requests_list.extend(agentaddress_requests)
 
