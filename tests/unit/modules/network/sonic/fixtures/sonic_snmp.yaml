@@ -326,7 +326,7 @@ overridden_01:
       data:
         ietf-snmp:engine:
           listen:
-            - name: 'AgentEntry1'
+            - name: 'agentEntry1'
               udp:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
