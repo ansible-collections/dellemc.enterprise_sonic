@@ -120,6 +120,7 @@ options:
       - lst
       - ptp_port_ds
       - fbs_classifiers
+      - ars
       - br_l2pt
       - dcbx
       - mirroring
