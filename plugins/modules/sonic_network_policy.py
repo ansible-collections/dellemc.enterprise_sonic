@@ -38,7 +38,7 @@ options:
         description:
           - List of network policy application configurations
           - I(dot1p) and I(vlan_id) are mutually exclusive
-          - dot1p cannot be configured when untagged is enabled
+          - I(dot1p) cannot be configured when I(untagged=True)
         type: list
         elements: dict
         suboptions:
@@ -95,7 +95,7 @@ EXAMPLES = """
             vlan_id: 2
             priority: 1
             dscp: 1
-          - app_type: voice_signaling
+          - app_type: voice-signaling
             dot1p: enabled
             dscp: 50
     state: merged

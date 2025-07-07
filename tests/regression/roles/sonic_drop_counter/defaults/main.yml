@@ -1,0 +1,124 @@
+---
+ansible_connection: httpapi
+
+sonic_drop_counter_tests:
+  - name: test_case_01
+    description: Initial drop counter configuration
+    state: merged
+    input:
+      - name: counter1
+        alias: c1
+        counter_description: abc
+        counter_type: PORT_INGRESS_DROPS
+        enable: true
+        group: group1
+        mirror: session1
+        reasons: 
+          - ANY
+      - name: counter2
+        alias: c2
+        counter_description: xyz
+        counter_type: PORT_INGRESS_DROPS
+        enable: false
+        group: group2
+        reasons:
+          - IP_HEADER_ERROR
+          - L3_EGRESS_LINK_DOWN
+          - SMAC_EQUALS_DMAC
+
+  - name: test_case_02
+    description: Update drop counter configuration
+    state: merged
+    input:
+      - name: counter2
+        alias: drop2
+        counter_description: xyz789
+        group: group3
+
+  - name: test_case_03
+    description: Replace drop counter configuration
+    state: replaced
+    input:
+      - name: counter1
+        enable: false
+        mirror: session2
+      - name: counter3
+        alias: c3
+        counter_description: qwerty
+        counter_type: PORT_INGRESS_DROPS
+        enable: true
+        group: group3
+        mirror: session2
+        reasons:
+          - ACL_ANY
+          - FDB_AND_BLACKHOLE_DISCARDS
+
+  - name: test_case_04
+    description: Override drop counter configuration
+    state: overridden
+    input:
+      - name: counter4
+        alias: drop4
+        counter_description: abc
+        counter_type: PORT_INGRESS_DROPS
+        enable: true
+        group: group1
+        mirror: session1
+        reasons:
+          - ANY
+      - name: counter5
+        alias: drop5
+        counter_description: xyz
+        counter_type: PORT_INGRESS_DROPS
+        enable: false
+        group: group2
+        reasons:
+          - IP_HEADER_ERROR
+          - L3_EGRESS_LINK_DOWN
+          - SMAC_EQUALS_DMAC
+      - name: counter6
+        enable: true
+        mirror: session2
+      - name: counter7
+        alias: c7
+        counter_description: qwerty
+        counter_type: PORT_INGRESS_DROPS
+        enable: true
+        group: group3
+        mirror: session2
+        reasons:
+          - ACL_ANY
+          - FDB_AND_BLACKHOLE_DISCARDS
+
+  - name: test_case_05
+    description: Delete drop counter configuration
+    state: deleted
+    input:
+      - name: counter4
+        alias: drop4
+        counter_description: abc
+        counter_type: PORT_INGRESS_DROPS
+        enable: true
+        group: group1
+        mirror: session1
+        reasons:
+          - ANY
+      - name: counter5
+        alias: drop5
+        counter_description: xyz
+        counter_type: PORT_INGRESS_DROPS
+        enable: false
+        group: group2
+        reasons:
+          - IP_HEADER_ERROR
+          - L3_EGRESS_LINK_DOWN
+          - SMAC_EQUALS_DMAC
+      - name: counter6
+        enable: true
+        mirror: session2
+      - name: counter7
+
+  - name: test_case_06
+    description: Delete all drop counter configuration
+    state: deleted
+    input: []
