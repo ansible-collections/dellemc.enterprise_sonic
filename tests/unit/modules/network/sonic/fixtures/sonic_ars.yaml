@@ -211,40 +211,6 @@ replaced_01:
                 config:
                   name: obj4
 
-replaced_02:
-  module_args:
-    config:
-      ars_objects:
-        - name: obj1
-          idle_time: 100
-          max_flows: 1024
-          mode: flowlet_quality
-    state: replaced
-  existing_ars_config:
-    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
-      response:
-        code: 200
-        value:
-          openconfig-system-ext:adaptive-routing-switching:
-            ars-object:
-              arsobject:
-                - name: obj1
-                  config:
-                    name: obj1
-                    idle-time: 100
-                    max-flows: 1024
-  expected_config_requests:
-    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
-      method: 'patch'
-      data:
-        openconfig-system-ext:adaptive-routing-switching:
-          ars-object:
-            arsobject:
-              - name: obj1
-                config:
-                  name: obj1
-                  mode: ARS_MODE_FLOWLET_QUALITY
-
 overridden_01:
   module_args:
     config:

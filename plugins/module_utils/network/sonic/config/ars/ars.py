@@ -191,14 +191,14 @@ class Ars(ConfigBase):
         if state == 'merged':
             commands, requests = self._state_merged(diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have, diff)
+            commands, requests = self._state_replaced(want, have)
         elif state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         return commands, requests
 
-    def _state_replaced(self, want, have, diff):
+    def _state_replaced(self, want, have):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -210,13 +210,12 @@ class Ars(ConfigBase):
         commands = []
         mod_commands = None
         replaced_config, requests = self.get_replaced_config(want, have)
+        self.remove_default_entries(replaced_config)
 
         if replaced_config:
             is_replaced = True
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
-        else:
-            mod_commands = diff
 
         if mod_commands:
             mod_request = self.get_modify_ars_request(mod_commands)
