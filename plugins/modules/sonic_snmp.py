@@ -119,6 +119,7 @@ options:
               security_level:
                 description:
                   -  When I(security_model=v2c), specifies the minimum security level under which the access rights apply
+                required: true
                 choices:
                   - no-auth-no-priv
                   - auth-no-priv

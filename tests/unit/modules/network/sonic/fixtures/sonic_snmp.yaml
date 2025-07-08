@@ -181,9 +181,6 @@ deleted_03:
                     ip: '1.2.3.5'
                     port: 1024
   expected_config_requests:
-    - path: 'data/ietf-snmp:snmp/engine'
-      method: 'delete'
-      data:
     - path: 'data/ietf-snmp:snmp/engine/listen'
       method: 'delete'
       data:
@@ -345,6 +342,7 @@ overridden_02:
         - name: 'group-floor2'
           access:
             - security_model: 'v2c'
+              security_level: 'no-auth-no-priv'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
@@ -393,6 +391,7 @@ overridden_02:
             - name: 'group-floor2'
               access:
                 - context: 'Default'
+                  security-level: 'no-auth-no-priv'
                   security-model: 'v2c'
 
 overridden_03:
