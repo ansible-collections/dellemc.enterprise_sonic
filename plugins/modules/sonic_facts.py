@@ -126,6 +126,7 @@ options:
       - drop_counter
       - evpn_esi_multihome
       - ssh_server
+      - loadshare_mode
 """
 
 EXAMPLES = """
