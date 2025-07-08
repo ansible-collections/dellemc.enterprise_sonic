@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -73,6 +73,10 @@ DEFAULT_ENTRIES = [
     ],
     [
         {'name': 'group'},
+        {'name': 'preempt_delay', 'default': 0}
+    ],
+    [
+        {'name': 'group'},
         {'name': 'advertisement_interval', 'default': 1}
     ],
     [
@@ -88,6 +92,7 @@ DEFAULT_ENTRIES = [
 DEFAULT_ATTRIBUTES = {
     'priority': 100,
     'preempt': True,
+    'preempt_delay': 0,
     'advertisement_interval': 1,
     'version': 2,
     'use_v2_checksum': False
@@ -115,6 +120,7 @@ class Vrrp(ConfigBase):
     vrrp_config_path = {
         'virtual_router_id': 'vrrp',
         'preempt': 'vrrp/vrrp-group={vrid}/config/preempt',
+        'preempt_delay': 'vrrp/vrrp-group={vrid}/config/preempt-delay',
         'use_v2_checksum': 'vrrp/vrrp-group={vrid}/config/openconfig-interfaces-ext:use-v2-checksum',
         'priority': 'vrrp/vrrp-group={vrid}/config/priority',
         'advertisement_interval': 'vrrp/vrrp-group={vrid}/config/advertisement-interval',
@@ -123,7 +129,7 @@ class Vrrp(ConfigBase):
         'track_interface': 'vrrp/vrrp-group={vrid}/openconfig-interfaces-ext:vrrp-track'
     }
 
-    vrrp_attributes = ('preempt', 'version', 'use_v2_checksum', 'priority', 'advertisement_interval', 'virtual_address', 'track_interface')
+    vrrp_attributes = ('preempt', 'preempt_delay', 'version', 'use_v2_checksum', 'priority', 'advertisement_interval', 'virtual_address', 'track_interface')
 
     def __init__(self, module):
         super(Vrrp, self).__init__(module)
@@ -436,6 +442,7 @@ class Vrrp(ConfigBase):
         ip_path = IPV4_PATH if afi == 'ipv4' else IPV6_PATH
         vip_addresses = self.get_vip_addresses(group.get('virtual_address'))
         preempt = group.get('preempt')
+        preempt_delay = group.get('preempt_delay')
         advertisement_interval = group.get('advertisement_interval')
         priority = group.get('priority')
         version = group.get('version')
@@ -469,6 +476,9 @@ class Vrrp(ConfigBase):
 
         if preempt is not None:
             requests.append(update_requests('preempt', {'openconfig-if-ip:preempt': preempt}))
+
+        if preempt_delay:
+            requests.append(update_requests('preempt_delay', {'openconfig-if-ip:preempt-delay': preempt_delay}))
 
         if advertisement_interval:
             requests.append(update_requests('advertisement_interval', {'openconfig-if-ip:advertisement-interval': advertisement_interval}))
