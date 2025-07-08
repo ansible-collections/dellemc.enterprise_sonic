@@ -1024,7 +1024,7 @@ class Snmp(ConfigBase):
                         'bgp': 'bgp-traps',
                         'auth-fail': 'authentication-failure-trap'
                     }
-                    trap_notify_url_base = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/"             
+                    trap_notify_url_base = "data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications/"
                     delete_traps = configs.get('enable_trap')
                     if 'all' in delete_traps:
                         enable_trap_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/trap-enable"
@@ -1088,7 +1088,8 @@ class Snmp(ConfigBase):
                                                 group_request = {"path": group_access_url_notify_view, "method": DELETE}
                                                 group_requests.append(group_request)
                                         else:
-                                            group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=Default,{1},{2}".format(group_name, security_model, security_level)
+                                            group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=Default,{1},{2}".format(
+                                                group_name, security_model, security_level)
                                             group_request = {"path": group_access_url, "method": DELETE}
                                             group_requests.append(group_request)
                             else:
