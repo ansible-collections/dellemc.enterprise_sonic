@@ -23,9 +23,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config,
 )
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
-    to_list,
-)
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import to_list
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
     get_diff,
