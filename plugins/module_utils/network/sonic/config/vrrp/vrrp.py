@@ -642,7 +642,7 @@ class Vrrp(ConfigBase):
             if del_vip_list:
                 commands['virtual_address'] = del_vip_list
 
-        for attr in ('preempt', 'preempt_delay','advertisement_interval', 'priority', 'version', 'use_v2_checksum'):
+        for attr in ('preempt', 'preempt_delay', 'advertisement_interval', 'priority', 'version', 'use_v2_checksum'):
             if group.get(attr) is not None and cfg_group.get(attr) is not None and group[attr] == cfg_group[attr]:
                 requests.append({'path': keypath + ip_path + self.vrrp_config_path[attr].format(vrid=virtual_router_id), 'method': DELETE})
                 commands[attr] = group[attr]
