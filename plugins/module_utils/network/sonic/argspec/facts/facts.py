@@ -90,6 +90,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'lst',
         'fbs_classifiers',
         'mirroring',
+        'network_policy',
         'drop_counter',
         'br_l2pt',
         'evpn_esi_multihome',
