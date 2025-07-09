@@ -56,7 +56,7 @@ TEST_KEYS_formatted_diff = [
     {'agentaddress': {'name': '', '__delete_op': __DELETE_CONFIG}},
     {'community': {'name': '', '__delete_op': __DELETE_CONFIG}},
     {'group': {'name': '', '__delete_op': __DELETE_CONFIG}},
-    {'access': {'security_model': '', '__delete_op': __DELETE_CONFIG}},
+    {'access': {'security_model': '', 'security_level': '', '__delete_op': __DELETE_CONFIG}},
     {'host': {'name': '', '__delete_op': __DELETE_CONFIG}},
     {'user': {'name': '', '__delete_op': __DELETE_CONFIG}},
     {'view': {'name': '', '__delete_op': __DELETE_CONFIG}},
@@ -1072,7 +1072,7 @@ class Snmp(ConfigBase):
                                         read_view = access.get('read_view')
                                         write_view = access.get('write_view')
                                         notify_view = access.get('notify_view')
-                                        group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=Default,{1},{2}/".format(
+                                        group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=Default,{1},{2}".format(
                                             group_name, security_model, security_level)
                                         if not (read_view and write_view and notify_view):
                                             if read_view:
@@ -1088,8 +1088,6 @@ class Snmp(ConfigBase):
                                                 group_request = {"path": group_access_url_notify_view, "method": DELETE}
                                                 group_requests.append(group_request)
                                         else:
-                                            group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=Default,{1},{2}".format(
-                                                group_name, security_model, security_level)
                                             group_request = {"path": group_access_url, "method": DELETE}
                                             group_requests.append(group_request)
                             else:
