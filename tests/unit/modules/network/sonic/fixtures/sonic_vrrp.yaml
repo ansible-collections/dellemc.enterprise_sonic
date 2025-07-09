@@ -223,7 +223,7 @@ deleted_01:
                                       advertisement-interval: 4
                                       priority: 10
                                       preempt: true
-                                      preempt_delay: 100
+                                      preempt-delay: 100
                                       virtual-address:
                                         - 80::3
                                         - 80::4
@@ -241,7 +241,7 @@ deleted_01:
                                       virtual-router-id: 5
                                       preempt: true
                                       priority: 20
-                                      preempt_delay: 200
+                                      preempt-delay: 200
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -257,7 +257,7 @@ deleted_01:
                                       advertisement-interval: 1
                                       priority: 20
                                       preempt: true
-                                      preempt_delay: 200
+                                      preempt-delay: 200
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -311,7 +311,7 @@ deleted_02:
                                       advertisement-interval: 1
                                       preempt: true
                                       priority: 100
-                                      preempt_delay: 1000
+                                      preempt-delay: 1000
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -344,7 +344,7 @@ deleted_02:
                                       virtual-router-id: 5
                                       preempt: true
                                       priority: 20
-                                      preempt_delay: 200
+                                      preempt-delay: 200
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -360,7 +360,7 @@ deleted_02:
                                       advertisement-interval: 1
                                       priority: 20
                                       preempt: true
-                                      preempt_delay: 200
+                                      preempt-delay: 200
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -387,6 +387,7 @@ replaced_01:
             virtual_address:
               - address: 90::2
             preempt: false
+            preempt_delay: 10
             track_interface:
               - priority_increment: 10
                 interface: 'Eth1/11'
@@ -412,7 +413,7 @@ replaced_01:
                                       advertisement-interval: 1
                                       preempt: true
                                       priority: 100
-                                      preempt_delay: 1000
+                                      preempt-delay: 1000
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -428,6 +429,7 @@ replaced_01:
                                       advertisement-interval: 4
                                       priority: 10
                                       preempt: true
+                                      preempt-delay: 100
                                       virtual-address:
                                         - 80::3
                                         - 80::4
@@ -451,6 +453,7 @@ replaced_01:
                                       virtual-router-id: 5
                                       preempt: true
                                       priority: 20
+                                      preempt-delay: 300
                                       openconfig-interfaces-ext:use-v2-checksum: false
                                       openconfig-interfaces-ext:version: 2
                                       virtual-address:
@@ -476,7 +479,9 @@ replaced_01:
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/priority'
       method: 'delete'
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/preempt-delay'
-      method: 'delete'
+      method: 'patch'
+      data:
+        openconfig-if-ip:preempt-delay: 10
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::3'
       method: 'delete'
     - path: 'data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/addresses/address=1::1/vrrp/vrrp-group=10/config/virtual-address=80::4'
@@ -558,7 +563,7 @@ overridden_01:
                                       advertisement-interval: 4
                                       priority: 10
                                       preempt: true
-                                      preempt_delay: 100
+                                      preempt-delay: 100
                                       virtual-address:
                                         - 80::3
                                         - 80::4
