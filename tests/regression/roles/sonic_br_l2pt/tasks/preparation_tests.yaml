@@ -1,0 +1,6 @@
+---
+- name: Delete old L2PT configurations
+  dellemc.enterprise_sonic.sonic_br_l2pt:
+    config: []
+    state: deleted
+  # ignore_errors: yes

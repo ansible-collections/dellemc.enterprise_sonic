@@ -15,6 +15,8 @@ DOCUMENTATION = """
 ---
 module: sonic_lldp_interfaces
 version_added: '2.1.0'
+notes:
+- Supports C(check_mode).
 short_description: Manage Inteface LLDP configurations on SONiC
 description:
   - This module provides configuration management of interface LLDP parameters
@@ -404,7 +406,7 @@ EXAMPLES = """
         tlv_set:
           ipv6_management_address: '30::1'
         med_tlv_select:
-          network_policy: False
+          network_policy: false
         vlan_name_tlv:
           allowed_vlans:
             - vlan: 20-30
@@ -509,6 +511,13 @@ after:
     The configuration returned will always be in the same format
     as the parameters above.
   type: list
+after(generated):
+  description: The generated configuration from module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     of the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

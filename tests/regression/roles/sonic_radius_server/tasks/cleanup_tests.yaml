@@ -4,3 +4,10 @@
     config: {}
     state: deleted
   failed_when: false
+  
+- name: Delete test VRF
+  sonic_vrfs:
+    config:
+      - name: VrfAnsibleTest
+    state: deleted
+  failed_when: false

@@ -43,17 +43,14 @@ options:
             type: int
             description:
               - Destination port number for logging messages sent to the server.
-              - remote_port can not be deleted.
           source_interface:
             type: str
             description:
               - Source interface used as source ip for sending logging packets.
-              - source_interface can not be deleted.
           message_type:
             type: str
             description:
-              - Type of messages that remote server receives.
-              - message_type can not be deleted.
+              - Type of messages that remote server receives. Defaults to "log" value.
             choices:
               - log
               - event
@@ -63,7 +60,7 @@ options:
             version_added: 3.1.0
             type: str
             description:
-              - The log severity filter for remote syslog server.
+              - The log severity filter for remote syslog server. Defaults to "notice" value.
             choices:
               - debug
               - info
@@ -76,7 +73,7 @@ options:
           protocol:
             type: str
             description:
-              - Type of the protocol for sending the  messages.
+              - Type of the protocol for sending the  messages. Defaults to "UDP" value.
             choices:
               - TCP
               - TLS
@@ -85,6 +82,11 @@ options:
             type: str
             description:
               - VRF name used by remote logging server.
+      security_profile:
+        type: str
+        version_added: 3.1.0
+        description:
+          - Specifies the security profile name for the global syslog settings.
   state:
     description:
       - The state of the configuration after module completion.
@@ -104,32 +106,45 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show logging servers
-# ---------------------------------------------------------------------------------------
-# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
-# ---------------------------------------------------------------------------------------
-# 10.11.0.2       5         Ethernet24          -              event              udp
-# 10.11.1.1       616       Ethernet8           -              log                tcp
-# log1.dell.com   6         Ethernet28          -              audit              udp
-# 10.11.1.2       116       Ethernet6           -              log                tls
+# ----------------------------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
+# ----------------------------------------------------------------------------------------------------------
+# 10.11.0.2       5         Ethernet24          -              event          notice              udp
+# 10.11.1.1       616       Ethernet8           -              log            alert               tcp
+# log1.dell.com   6         Ethernet28          -              audit          notice              udp
+# 10.11.1.2       116       Ethernet6           -              log            notice              tls
 #
+# sonic# show running-configuration | grep logging
+# !
+# logging security-profile default
+# !
+
 - name: Delete logging server configuration
   sonic_logging:
     config:
       remote_servers:
         - host: 10.11.0.2
         - host: log1.dell.com
+        - host: 10.11.1.1
+          message_type: log
+          protocol: tcp
+          source_interface: Ethernet8
+          severity: alert
+      security_profile: "default"
     state: deleted
 
 # After state:
 # ------------
 #
 # sonic# show logging servers
-# ---------------------------------------------------------------------------------------
-# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE     PROTOCOL
-# ---------------------------------------------------------------------------------------
-# 10.11.1.1       616       Ethernet8           -              log               tcp
-# 10.11.1.2       116       Ethernet6           -              log                tls
+# ----------------------------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
+# ----------------------------------------------------------------------------------------------------------
+# 10.11.1.1       616       -                   -              log            notice              udp
+# 10.11.1.2       116       Ethernet6           -              log            notice              tls
 #
+# sonic# show running-configuration | grep logging
+# sonic#
 #
 # Using "merged" state
 #
@@ -137,11 +152,13 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show logging servers
-# --------------------------------------------------------------------------------------
-# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-# --------------------------------------------------------------------------------------
-# 10.11.1.1       616       Ethernet8           -              log              tcp
+# ----------------------------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
+# ----------------------------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log            notice              tcp
 #
+# sonic# show running-configuration | grep logging
+# sonic#
 - name: Merge logging server configuration
   sonic_logging:
     config:
@@ -155,24 +172,30 @@ EXAMPLES = """
           remote_port: 4
           protocol: TLS
           source_interface: Ethernet2
+        - host: 10.11.1.1
+          severity: error
         - host: log1.dell.com
           remote_port: 6
           protocol: udp
           source_interface: Ethernet28
           message_type: audit
+      security_profile: "default"
     state: merged
 
 # After state:
 # ------------
-#
 # sonic# show logging servers
-# -------------------------------------------------------------------------------------
-# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   PROTOCOL
-# -------------------------------------------------------------------------------------
-# 10.11.0.2       5         Ethernet24          -              event           udp
-# 10.11.0.1       4         Ethernet2           -              log             tls
-# 10.11.1.1       616       Ethernet8           -              log             tcp
-# log1.dell.com   6         Ethernet28          -              audit           udp
+# ----------------------------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
+# ----------------------------------------------------------------------------------------------------------
+# 10.11.0.2       5         Ethernet24          -              event          notice              udp
+# 10.11.0.1       4         Ethernet2           -              log            notice              tls
+# 10.11.1.1       616       Ethernet8           -              log            error               tcp
+# log1.dell.com   6         Ethernet28          -              audit          notice              udp
+# sonic# show running-configuration | grep logging
+# !
+# logging security-profile default
+# !
 #
 #
 # Using "overridden" state
@@ -181,13 +204,17 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show logging servers
-# --------------------------------------------------------------------------------------
-# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-# --------------------------------------------------------------------------------------
-# 10.11.1.1       616       Ethernet8           -              log              tcp
-# 10.11.1.2       626       Ethernet16          -              event            udp
-# 10.11.1.3       626       Ethernet14          -              log              tls
+# ----------------------------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
+# ----------------------------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log            notice              tcp
+# 10.11.1.2       626       Ethernet16          -              event          emergency           udp
+# 10.11.1.3       626       Ethernet14          -              log            notice              tls
 #
+# sonic# show running-configuration | grep logging
+# !
+# logging security-profile default
+# !
 - name: Override logging server configuration
   sonic_logging:
     config:
@@ -196,17 +223,19 @@ EXAMPLES = """
           remote_port: 622
           protocol: TCP
           source_interface: Ethernet24
-          message_type: auditd-system
+          message_type: audit
+          severity: alert
     state: overridden
 #
 # After state:
 # ------------
-#
 # sonic# show logging servers
-# --------------------------------------------------------------------------------------
-# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-# --------------------------------------------------------------------------------------
-# 10.11.1.2       622       Ethernet24          -              auditd-system      tcp
+# ----------------------------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
+# ----------------------------------------------------------------------------------------------------------
+# 10.11.1.2       622       Ethernet24          -              audit          alert               tcp
+# sonic# show running-configuration | grep logging
+# sonic#
 #
 # Using "replaced" state
 #
@@ -214,12 +243,14 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show logging servers
-# --------------------------------------------------------------------------------------
-# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-# --------------------------------------------------------------------------------------
-# 10.11.1.1       616       Ethernet8           -              log              tcp
-# 10.11.1.2       626       Ethernet16          -              event            udp
+# ----------------------------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
+# ----------------------------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log            notice              tcp
+# 10.11.1.2       626       Ethernet16          -              event          notice              udp
 #
+# sonic# show running-configuration | grep logging
+# sonic#
 - name: Replace logging server configuration
   sonic_logging:
     config:
@@ -228,6 +259,8 @@ EXAMPLES = """
           remote_port: 622
           protocol: UDP
           message_type: audit
+          severity: debug
+      security_profile: "default"
     state: replaced
 #
 # After state:
@@ -235,12 +268,15 @@ EXAMPLES = """
 #
 # "MESSAGE-TYPE" has default value of "log"
 #
-# sonic# show logging servers
-# --------------------------------------------------------------------------------------
-# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE    PROTOCOL
-# --------------------------------------------------------------------------------------
-# 10.11.1.1       616       Ethernet8           -              log              tcp
-# 10.11.1.2       622       -                   -              audit            udp
+# ----------------------------------------------------------------------------------------------------------
+# HOST            PORT      SOURCE-INTERFACE    VRF            MESSAGE-TYPE   SEVERITY            PROTOCOL
+# ----------------------------------------------------------------------------------------------------------
+# 10.11.1.1       616       Ethernet8           -              log            notice              tcp
+# 10.11.1.2       622       -                   -              audit          debug               udp
+# sonic# show running-configuration | grep logging
+# !
+# logging security-profile default
+# !
 #
 """
 
