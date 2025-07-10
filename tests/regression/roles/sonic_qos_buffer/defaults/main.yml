@@ -1,6 +1,6 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_qos_buffer_
+module_name: sonic_qos_buffer
 
 tests:
   - name: test_case_01
