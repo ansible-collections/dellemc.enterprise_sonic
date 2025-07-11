@@ -34,7 +34,7 @@ preparations_tests:
     - "ip vrf {{ vrf_1} }"
     - "ip vrf {{ vrf_2 }}"
     - "ip vrf {{ vrf_5 }}"
-    - "ip vrf {{v rf_6 }}"
+    - "ip vrf {{vrf_6 }}"
   init_bgp:
     - bgp_as: "{{ bgp_as_1 }}"
       router_id: 111.2.2.41
