@@ -57,6 +57,7 @@ native_eth9: Ethernet52
 native_eth10: Ethernet56
 native_eth11: Ethernet60
 native_eth12: Ethernet64
+native_eth13: Ethernet96
 
 std_eth1: Eth1/5
 std_eth2: Eth1/6
@@ -70,6 +71,7 @@ std_eth9: Eth1/68
 std_eth10: Eth1/72
 std_eth11: Eth1/76
 std_eth12: Eth1/80
+std_eth13: Eth1/97
 
 interface1: "{{ std_eth1 if std_name in interface_mode else native_eth1 }}"
 interface2: "{{ std_eth2 if std_name in interface_mode else native_eth2 }}"
@@ -83,3 +85,4 @@ interface9: "{{ std_eth9 if std_name in interface_mode else native_eth9 }}"
 interface10: "{{ std_eth10 if std_name in interface_mode else native_eth10 }}"
 interface11: "{{ std_eth11 if std_name in interface_mode else native_eth11 }}"
 interface12: "{{ std_eth12 if std_name in interface_mode else native_eth12 }}"
+interface13: "{{ std_eth13 if std_name in interface_mode else native_eth13 }}"
