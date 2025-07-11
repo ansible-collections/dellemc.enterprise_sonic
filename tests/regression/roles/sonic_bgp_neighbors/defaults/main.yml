@@ -31,26 +31,26 @@ preparations_tests:
     - ip prefix-list p1 seq 1 permit 1.1.1.1/1
     - ip prefix-list p2 seq 2 permit 2.2.2.2/2
   init_vrf:
-    - "ip vrf {{vrf_1}}"
-    - "ip vrf {{vrf_2}}"
-    - "ip vrf {{vrf_5}}"
-    - "ip vrf {{vrf_6}}"
+    - "ip vrf {{ vrf_1} }"
+    - "ip vrf {{ vrf_2 }}"
+    - "ip vrf {{ vrf_5 }}"
+    - "ip vrf {{vrf_6 }}"
   init_bgp:
-    - bgp_as: "{{bgp_as_1}}"
+    - bgp_as: "{{ bgp_as_1 }}"
       router_id: 111.2.2.41
-      log_neighbor_changes: False
-    - bgp_as: "{{bgp_as_1}}"
+      log_neighbor_changes: false
+    - bgp_as: "{{ bgp_as_1 }}"
       router_id: 111.2.2.41
-      log_neighbor_changes: False
+      log_neighbor_changes: false
       vrf_name: VrfReg1
-    - bgp_as: "{{bgp_as_1}}"
+    - bgp_as: "{{ bgp_as_1 }}"
       router_id: 111.2.2.52
-      log_neighbor_changes: True
+      log_neighbor_changes: true
       vrf_name: VrfReg2
-    - bgp_as: "{{bgp_as_5}}"
+    - bgp_as: "{{ bgp_as_5 }}"
       router_id: 111.2.2.55
       vrf_name: VrfReg5
-    - bgp_as: "{{bgp_as_6}}"
+    - bgp_as: "{{ bgp_as_6 }}"
       router_id: 111.2.2.56
       vrf_name: VrfReg6
       as_notation: "asdot"
@@ -69,16 +69,16 @@ deleted_tests:
     description: Delete BGP NEIGHBORS additional attributes
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
-               encrypted: true
+              pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+              encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
-               enabled: false
-               multihop_ttl: 2
+              enabled: false
+              multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
             local_address: '1::1'
@@ -92,13 +92,13 @@ deleted_tests:
             disable_connected_check: false
             shutdown_msg: "msg2"
             ttl_security: 8
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
-               encrypted: true
+              pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+              encrypted: true
             nbr_description: 'description 3'
             strict_capability_match: false
             v6only: false
@@ -107,7 +107,7 @@ deleted_tests:
     description: Delete BGP peer-group prefix-list attributes
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE3
             address_family:
@@ -145,7 +145,7 @@ deleted_tests:
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             remote_as:
@@ -166,8 +166,8 @@ deleted_tests:
           - neighbor: 67.1.1.1
             remote_as:
               peer_as: 7
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
             remote_as:
@@ -190,13 +190,13 @@ deleted_tests:
     description: BGP NEIGHBORS remote-as properties
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         neighbors:
           - neighbor: "{{ interface1 }}"
           - neighbor: 11::11
           - neighbor: 67.1.1.1
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "{{ interface1 }}"
           - neighbor: 11::11
@@ -206,7 +206,7 @@ deleted_tests:
     description: BGP NEIGHBORS delete neighbor peergroup, bfd, and timers
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             bfd:
@@ -232,8 +232,8 @@ deleted_tests:
             peer_group: SPINE
           - neighbor: 192.168.1.5
             peer_group: SPINE
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
             bfd:
@@ -264,23 +264,23 @@ deleted_tests:
     description: Delete peer group additional attributes
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
-               encrypted: true
+              pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+              encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
-               enabled: false
-               multihop_ttl: 2
+              enabled: false
+              multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
             local_address: '1.1.1.1'
             local_as:
-               as: 3
-               no_prepend: false
-               replace_as: false
+              as: 3
+              no_prepend: false
+              replace_as: false
             pg_description: "description 2"
             override_capability: false
             passive: false
@@ -295,11 +295,11 @@ deleted_tests:
     description: Delete peer group BGP NEIGHBORS properties
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE1
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE1
           - name: SPINE3
@@ -307,8 +307,8 @@ deleted_tests:
     description: Delete neighbors/peer-group with no properties
     state: deleted
     input:
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "192.168.2.2"
         peer_group:
@@ -325,7 +325,7 @@ merged_tests:
     description: BGP NEIGHBORS properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             remote_as:
@@ -390,8 +390,8 @@ merged_tests:
               connect_retry: 10
             capability:
               dynamic: true
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE4
           - name: SPINE
@@ -444,53 +444,53 @@ merged_tests:
               connect_retry: 10
             capability:
               dynamic: true
-      - bgp_as: "{{bgp_as_5}}"
-        vrf_name: "{{vrf_5}}"
+      - bgp_as: "{{ bgp_as_5 }}"
+        vrf_name: "{{ vrf_5 }}"
         peer_group:
           - name: SPINE
             remote_as:
-              peer_as: "{{peer_as_5_dot}}"
+              peer_as: "{{ peer_as_5_dot }}"
             local_as:
-               as: "{{local_as_5_dot}}"
+              as: "{{ local_as_5_dot }}"
         neighbors:
           - neighbor: 192.168.5.5
             remote_as:
-              peer_as: "{{peer_as_5_dot}}"
+              peer_as: "{{ peer_as_5_dot }}"
             local_as:
-               as: "{{local_as_5_dot}}"
+              as: "{{ local_as_5_dot }}"
             peer_group: SPINE
           - neighbor: 192.168.5.6
             peer_group: SPINE
             remote_as:
-              peer_as: "{{peer_as_5_dot}}"
+              peer_as: "{{ peer_as_5_dot }}"
             local_as:
-               as: "{{local_as_5_dot}}"
-      - bgp_as: "{{bgp_as_6}}"
-        vrf_name: "{{vrf_6}}"
+              as: "{{ local_as_5_dot }}"
+      - bgp_as: "{{ bgp_as_6 }}"
+        vrf_name: "{{ vrf_6 }}"
         peer_group:
           - name: SPINE
             remote_as:
-              peer_as: "{{peer_as_6}}"
+              peer_as: "{{ peer_as_6 }}"
             local_as:
-               as: "{{local_as_6}}"
+              as: "{{ local_as_6 }}"
         neighbors:
           - neighbor: 192.168.6.6
             remote_as:
-              peer_as: "{{peer_as_6}}"
+              peer_as: "{{ peer_as_6 }}"
             local_as:
-               as: "{{local_as_6}}"
+              as: "{{ local_as_6 }}"
             peer_group: SPINE
           - neighbor: 192.168.6.7
             peer_group: SPINE
             remote_as:
-              peer_as: "{{peer_as_6}}"
+              peer_as: "{{ peer_as_6 }}"
             local_as:
-               as: "{{local_as_6}}"
+              as: "{{ local_as_6 }}"
   - name: test_case_02
     description: Update BGP NEIGHBORS properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             bfd:
@@ -546,8 +546,8 @@ merged_tests:
               connect_retry: 24
             capability:
               dynamic: true
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
             bfd:
@@ -612,53 +612,53 @@ merged_tests:
               connect_retry: 10
             capability:
               dynamic: true
-      - bgp_as: "{{bgp_as_5}}"
-        vrf_name: "{{vrf_5}}"
+      - bgp_as: "{{ bgp_as_5 }}"
+        vrf_name: "{{ vrf_5 }}"
         peer_group:
           - name: SPINE
             remote_as:
-              peer_as: "{{peer_as_5}}"
+              peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{local_as_5}}"
+              as: "{{ local_as_5 }}"
         neighbors:
           - neighbor: 192.168.5.5
             remote_as:
-              peer_as: "{{peer_as_5}}"
+              peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{local_as_5}}"
+              as: "{{ local_as_5 }}"
             peer_group: SPINE
           - neighbor: 192.168.5.6
             peer_group: SPINE
             remote_as:
-              peer_as: "{{peer_as_5}}"
+              peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{local_as_5}}"
-      - bgp_as: "{{bgp_as_6}}"
-        vrf_name: "{{vrf_6}}"
+              as: "{{ local_as_5 }}"
+      - bgp_as: "{{ bgp_as_6 }}"
+        vrf_name: "{{ vrf_6 }}"
         peer_group:
           - name: SPINE
             remote_as:
-              peer_as: "{{peer_as_6_dot}}"
+              peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{local_as_6_dot}}"
+              as: "{{ local_as_6_dot }}"
         neighbors:
           - neighbor: 192.168.6.6
             remote_as:
-              peer_as: "{{peer_as_6_dot}}"
+              peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{local_as_6_dot}}"
+              as: "{{ local_as_6_dot }}"
             peer_group: SPINE
           - neighbor: 192.168.6.7
             peer_group: SPINE
             remote_as:
-              peer_as: "{{peer_as_6_dot}}"
+              peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{local_as_6_dot}}"
+              as: "{{ local_as_6_dot }}"
   - name: test_case_03
     description: BGP NEIGHBORS ipv6 properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             remote_as:
@@ -667,7 +667,7 @@ merged_tests:
           - neighbor: 2::2
           - neighbor: 11::11
             remote_as:
-               peer_type: external
+              peer_type: external
             peer_group: SPINE
             advertisement_interval: 20
             timers:
@@ -678,7 +678,7 @@ merged_tests:
               dynamic: true
           - neighbor: 3::3
             remote_as:
-               peer_as: 556
+              peer_as: 556
             peer_group: SPINE
             advertisement_interval: 20
             timers:
@@ -687,8 +687,8 @@ merged_tests:
               connect_retry: 10
             capability:
               dynamic: true
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
             remote_as:
@@ -703,7 +703,7 @@ merged_tests:
           - neighbor: 192.168.2.2
           - neighbor: "{{ interface4 }}"
             remote_as:
-               peer_as: 557
+              peer_as: 557
             peer_group: SPINE
             advertisement_interval: 20
             timers:
@@ -716,7 +716,7 @@ merged_tests:
     description: BGP NEIGHBORS remote-as properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             remote_as:
@@ -724,15 +724,15 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_type: internal
+              peer_type: internal
           - neighbor: 11::11
             remote_as:
-               peer_type: external
+              peer_type: external
           - neighbor: 67.1.1.1
             remote_as:
-               peer_as: 7
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+              peer_as: 7
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
             remote_as:
@@ -746,74 +746,74 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_as: 1234
+              peer_as: 1234
           - neighbor: 11::11
             remote_as:
-               peer_as: 4332
+              peer_as: 4332
           - neighbor: 67.1.1.1
             remote_as:
-               peer_type: external
-      - bgp_as: "{{bgp_as_5}}"
-        vrf_name: "{{vrf_5}}"
+              peer_type: external
+      - bgp_as: "{{ bgp_as_5 }}"
+        vrf_name: "{{ vrf_5 }}"
         peer_group:
           - name: SPINE
             remote_as:
-              peer_as: "{{peer_as_6_dot}}"
+              peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{local_as_5_dot}}"
+              as: "{{ local_as_5_dot }}"
         neighbors:
           - neighbor: 192.168.5.5
             remote_as:
-              peer_as: "{{peer_as_6_dot}}"
+              peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{local_as_5_dot}}"
+              as: "{{ local_as_5_dot }}"
             peer_group: SPINE
           - neighbor: 192.168.5.6
             peer_group: SPINE
             remote_as:
-              peer_as: "{{peer_as_6_dot}}"
+              peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{local_as_5_dot}}"
-      - bgp_as: "{{bgp_as_6}}"
-        vrf_name: "{{vrf_6}}"
+              as: "{{ local_as_5_dot }}"
+      - bgp_as: "{{ bgp_as_6 }}"
+        vrf_name: "{{ vrf_6 }}"
         peer_group:
           - name: SPINE
             remote_as:
-              peer_as: "{{peer_as_5}}"
+              peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{local_as_6}}"
+              as: "{{ local_as_6 }}"
         neighbors:
           - neighbor: 192.168.6.6
             remote_as:
-              peer_as: "{{peer_as_5}}"
+              peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{local_as_6}}"
+              as: "{{ local_as_6 }}"
             peer_group: SPINE
           - neighbor: 192.168.6.7
             peer_group: SPINE
             remote_as:
-              peer_as: "{{peer_as_5}}"
+              peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{local_as_6}}"
+              as: "{{ local_as_6 }}"
   - name: test_case_05
     description: BGP NEIGHBORS remote-as properties
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_type: external
+              peer_type: external
           - neighbor: 11::11
             remote_as:
-               peer_type: internal
+              peer_type: internal
           - neighbor: 67.1.1.1
             remote_as:
-               peer_type: internal
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+              peer_type: internal
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
             capability:
@@ -822,34 +822,34 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
-               peer_type: internal
+              peer_type: internal
           - neighbor: 11::11
             remote_as:
-               peer_type: external
+              peer_type: external
           - neighbor: 67.1.1.1
             remote_as:
-               peer_as: 1123
+              peer_as: 1123
   - name: test_case_06
     description: BGP NEIGHBORS configure additional attributes
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
-               encrypted: true
+              pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+              encrypted: true
             dont_negotiate_capability: true
             ebgp_multihop:
-               enabled: true
-               multihop_ttl: 1
+              enabled: true
+              multihop_ttl: 1
             enforce_first_as: true
             enforce_multihop: true
             local_address: "{{ interface5 }}"
             local_as:
-               as: 2
-               no_prepend: true
-               replace_as: true
+              as: 2
+              no_prepend: true
+              replace_as: true
             pg_description: "description 1"
             override_capability: true
             passive: true
@@ -862,19 +862,19 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
-               encrypted: true
+              pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+              encrypted: true
             dont_negotiate_capability: true
             ebgp_multihop:
-               enabled: true
-               multihop_ttl: 1
+              enabled: true
+              multihop_ttl: 1
             enforce_first_as: true
             enforce_multihop: true
             local_address: "{{ interface5 }}"
             local_as:
-               as: 2
-               no_prepend: true
-               replace_as: true
+              as: 2
+              no_prepend: true
+              replace_as: true
             nbr_description: "description 1"
             override_capability: true
             passive: true
@@ -884,13 +884,13 @@ merged_tests:
             disable_connected_check: true
             shutdown_msg: "msg1"
             ttl_security: 5
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
-               encrypted: true
+              pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+              encrypted: true
             nbr_description: 'description 2'
             strict_capability_match: true
             v6only: true
@@ -898,20 +898,20 @@ merged_tests:
     description: BGP NEIGHBORS modify additional attributes
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
             dont_negotiate_capability: false
             ebgp_multihop:
-               enabled: false
-               multihop_ttl: 2
+              enabled: false
+              multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
             local_address: '1.1.1.1'
             local_as:
-               as: 3
-               no_prepend: false
-               replace_as: false
+              as: 3
+              no_prepend: false
+              replace_as: false
             pg_description: "description 2"
             override_capability: false
             passive: false
@@ -925,15 +925,15 @@ merged_tests:
           - neighbor: "{{ interface1 }}"
             dont_negotiate_capability: false
             ebgp_multihop:
-               enabled: false
-               multihop_ttl: 2
+              enabled: false
+              multihop_ttl: 2
             enforce_first_as: false
             enforce_multihop: false
             local_address: '1::1'
             local_as:
-               as: 3
-               no_prepend: false
-               replace_as: false
+              as: 3
+              no_prepend: false
+              replace_as: false
             nbr_description: "description 2"
             override_capability: false
             passive: false
@@ -943,8 +943,8 @@ merged_tests:
             disable_connected_check: false
             shutdown_msg: "msg2"
             ttl_security: 8
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         neighbors:
           - neighbor: "{{ interface1 }}"
             nbr_description: 'description 3'
@@ -954,7 +954,7 @@ merged_tests:
     description: Configure BGP peer-group prefix-list attributes
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE3
             address_family:
@@ -1025,7 +1025,7 @@ merged_tests:
     description: Modify BGP peer-group prefix-list attributes
     state: merged
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE3
             address_family:
@@ -1059,14 +1059,12 @@ merged_tests:
                   prefix_list_in: p2
                   prefix_list_out: p1
 
-
-
 replaced_tasks:
   - name: test_case_replace_01
     description: Replace BGP NEIGHBORS properties
     state: replaced
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE3
             remote_as:
@@ -1092,8 +1090,8 @@ replaced_tasks:
               keepalive: 20
               holdtime: 15
               connect_retry: 60
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
             capability:
@@ -1109,8 +1107,8 @@ replaced_tasks:
     description: Replace BGP neighbor
     state: replaced
     input:
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
             capability:
@@ -1122,7 +1120,7 @@ replaced_tasks:
                   safi: unicast
                   allowas_in:
                     origin: true
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE3
             remote_as:
@@ -1192,8 +1190,8 @@ overridden_tasks:
     description: Override BGP Neighbors properties
     state: overridden
     input:
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_2}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_2 }}"
         peer_group:
           - name: SPINE3
             address_family:
@@ -1218,16 +1216,16 @@ overridden_tasks:
               keepalive: 41
               holdtime: 51
               connect_retry: 61
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
   - name: test_case_over_02
     description: Override BGP Neighbors properties
     state: overridden
     input:
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_2}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_2 }}"
         peer_group:
           - name: SPINE3
             address_family:
