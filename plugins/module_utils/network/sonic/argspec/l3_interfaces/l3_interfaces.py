@@ -48,7 +48,7 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
                             'elements': 'dict',
                             'options': {
                                 'address': {'type': 'str'},
-                                'secondary': {'default': 'False', 'type': 'bool'}
+                                'secondary': {'type': 'bool'}
                             },
                             'type': 'list'
                         },
@@ -62,10 +62,11 @@ class L3_interfacesArgs(object):  # pylint: disable=R0903
                             'elements': 'dict',
                             'options': {
                                 'address': {'type': 'str'},
-                                'eui64': {'default': 'False', 'type': 'bool'}
+                                'eui64': {'type': 'bool'}
                             },
                             'type': 'list'
                         },
+                        'anycast_addresses': {'elements': 'str', 'type': 'list'},
                         'autoconf': {'type': 'bool'},
                         'dad': {'choices': ['ENABLE', 'DISABLE', 'DISABLE_IPV6_ON_FAILURE'], 'type': 'str'},
                         'enabled': {'type': 'bool'}

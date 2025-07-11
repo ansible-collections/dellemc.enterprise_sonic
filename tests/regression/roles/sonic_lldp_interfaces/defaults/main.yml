@@ -1,9 +1,8 @@
 ---
 ansible_connection: httpapi
-module_name: lldp_interfaces
 
 
-tests:
+sonic_lldp_interfaces_tests:
   - name: test_case_01
     description: Add LLDP Interface configurations
     state: merged
@@ -53,6 +52,17 @@ tests:
             - vlan: '22-25'
 
   - name: test_case_04
+    description: Add LLDP Interface configurations
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        mode: receive
+        vlan_name_tlv:
+          allowed_vlans:
+            - vlan: '12'
+            - vlan: '26-28'
+
+  - name: test_case_05
     description: Delete default LLDP Interface configurations
     state: deleted
     input:
@@ -61,8 +71,7 @@ tests:
         tlv_set:
           ipv4_management_address: '10.1.1.2'
 
-
-  - name: test_case_05
+  - name: test_case_06
     description: Delete default LLDP Interface configurations
     state: deleted
     input:
@@ -90,7 +99,7 @@ tests:
             - vlan: '15'
           max_tlv_count: 15
 
-  - name: test_case_06
+  - name: test_case_07
     description: Delete all allowed VLAN configurations
     state: deleted
     input:
@@ -98,7 +107,8 @@ tests:
         vlan_name_tlv:
           allowed_vlans: []
 
-  - name: test_case_07
+
+  - name: test_case_08
     description: Replace specific LLDP Interface configuration
     state: replaced
     input:
@@ -109,7 +119,7 @@ tests:
         med_tlv_select:
           network_policy: false
 
-  - name: test_case_08
+  - name: test_case_09
     description: Replace specific LLDP Interface configuration
     state: replaced
     input:
@@ -126,15 +136,15 @@ tests:
             - vlan: '30-40'
           max_tlv_count: 25
 
-  - name: test_case_09
+  - name: test_case_10
     description: Replace specific LLDP Interface configuration
     state: replaced
     input:
       - name: '{{ interface1 }}'
         mode: receive
 
-  - name: test_case_10
-    description: Override  specific LLDP Interface configuration
+  - name: test_case_11
+    description: Override specific LLDP Interface configuration
     state: overridden
     input:
       - name: '{{ interface1 }}'
@@ -142,8 +152,8 @@ tests:
         tlv_set:
           ipv4_management_address: '10.1.1.2'
 
-  - name: test_case_11
-    description: Override  specific LLDP Interface configuration
+  - name: test_case_12
+    description: Override specific LLDP Interface configuration
     state: overridden
     input:
       - name: '{{ interface1 }}'
@@ -158,8 +168,8 @@ tests:
             - vlan: '50-60'
           max_tlv_count: 5
 
-  - name: test_case_12
-    description: Override  specific LLDP Interface configuration
+  - name: test_case_13
+    description: Override specific LLDP Interface configuration
     state: overridden
     input:
       - name: '{{ interface2 }}'
@@ -172,7 +182,7 @@ tests:
             - vlan: '50-60'
           max_tlv_count: 5
 
-  - name: test_case_13
+  - name: test_case_14
     description: Delete default LLDP Interface configurations
     state: deleted
     input: []

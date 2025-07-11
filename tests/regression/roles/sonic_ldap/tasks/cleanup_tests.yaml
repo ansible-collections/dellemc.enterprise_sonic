@@ -9,4 +9,11 @@
   dellemc.enterprise_sonic.sonic_vrfs:
     config: "{{ preparations_tests.vrfs }}"
     state: deleted
+  ignore_errors: yes
+
+- name: Delete crypto security profile
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "no crypto security-profile {{ preparations_tests.crypto_profile }}"
   failed_when: false

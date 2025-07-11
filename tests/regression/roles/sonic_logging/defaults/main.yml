@@ -19,17 +19,18 @@ logging_host_server: logging.dell.com
 
 tests:
   - name: test_case_01
-    description: Create a logging remote server
+    description: Create a single logging remote server, Syslog security profile
     state: merged
     input:
       remote_servers:
         - host: "{{ logging_ip_server_1 }}"
           source_interface: "{{ interface1 }}"
           remote_port: 616
-          protocol: UDP
+          protocol: TCP
           severity: debug
           message_type: event
           vrf: Vrf_logging_1
+      security_profile: "default"
 
   - name: test_case_02
     description: Create several logging remote servers
@@ -65,7 +66,7 @@ tests:
           vrf: Vrf_logging_1
 
   - name: test_case_03
-    description: Replace logging remote server
+    description: Replace a single logging remote server, Syslog security profile
     state: replaced
     input:
       remote_servers:
@@ -74,18 +75,14 @@ tests:
           source_interface: "{{ interface2 }}"
           remote_port: 838
           protocol: UDP
+          message_type: event
+      security_profile: "spl"
 
   - name: test_case_04
-    description: Replace logging remote servers
+    description: Replace several logging remote servers
     state: replaced
     input:
       remote_servers:
-        - host: "{{ logging_ip_server_3 }}"
-          severity: alert
-          source_interface: "{{ interface3 }}"
-          remote_port: 838
-          protocol: UDP
-          message_type: event
         - host: "{{ logging_ip_server_4 }}"
           severity: critical
           source_interface: "{{ interface4 }}"
@@ -103,7 +100,20 @@ tests:
           message_type: auditd-system
 
   - name: test_case_05
-    description: Overridden logging remote servers
+    description: Override a single logging remote server, security profile
+    state: overridden
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_1 }}"
+          severity: info
+          source_interface: "{{ interface1 }}"
+          remote_port: 777
+          protocol: UDP
+          message_type: log
+      security_profile: "default"
+
+  - name: test_case_06
+    description: Override several logging remote servers
     state: overridden
     input:
       remote_servers:
@@ -117,8 +127,8 @@ tests:
           protocol: TCP
           message_type: event
 
-  - name: test_case_06
-    description: Modify several created logging remote servers to change or add suboptions
+  - name: test_case_07
+    description: Modify several created logging remote servers to change or add attributes, security profile
     state: merged
     input:
       remote_servers:
@@ -127,29 +137,43 @@ tests:
           source_interface: "{{ interface1 }}"
           remote_port: 111
           protocol: TCP
-          message_type: log
+          message_type: event
           vrf: Vrf_logging_1
         - host: "{{ logging_ip_server_3 }}"
           severity: emergency
           source_interface: "{{ vlan1 }}"
           remote_port: 313
           protocol: UDP
-          message_type: auditd-system
+          message_type: audit
           vrf: Vrf_logging_2
         - host: "{{ logging_host_server }}"
           severity: warning
           source_interface: "{{ lo1 }}"
+          message_type: log
+          vrf: Vrf_logging_1
+      security_profile: "spl"
+
+  - name: test_case_08
+    description: Delete a single logging remote server's attributes
+    state: deleted
+    input:
+      remote_servers:
+        - host: "{{ logging_ip_server_1 }}"
+          source_interface: "{{ interface1 }}"
+          remote_port: 616
+          protocol: TCP
           message_type: event
           vrf: Vrf_logging_1
+          severity: debug
 
-  - name: test_case_07
+  - name: test_case_09
     description: Delete a logging remote server
     state: deleted
     input:
       remote_servers:
         - host: "{{ logging_ip_server_1 }}"
 
-  - name: test_case_08
+  - name: test_case_10
     description: Delete several logging remote servers
     state: deleted
     input:
@@ -159,7 +183,7 @@ tests:
         - host: "{{ logging_ip_server_7 }}"
         - host: "{{ logging_host_server }}"
 
-  - name: test_case_09
+  - name: test_case_11
     description: Delete all logging configurations
     state: deleted
     input: {}

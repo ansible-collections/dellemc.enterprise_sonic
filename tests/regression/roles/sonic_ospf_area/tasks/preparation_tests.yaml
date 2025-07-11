@@ -11,4 +11,3 @@
   sonic_ospf_area:
     config: []
     state: deleted
-  failed_when: false

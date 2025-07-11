@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -150,6 +150,7 @@ class Bgp_neighbors_af(ConfigBase):
     prv_teardown_path = "/%s/prefix-limit/config/prevent-teardown"
     restart_timer_path = "/%s/prefix-limit/config/restart-timer"
     wrn_threshold_path = "/%s/prefix-limit/config/warning-threshold-pct"
+    discard_extra_path = "/%s/prefix-limit/config/openconfig-bgp-ext:discard-extra"
 
     def __init__(self, module):
         super(Bgp_neighbors_af, self).__init__(module)
@@ -666,6 +667,7 @@ class Bgp_neighbors_af(ConfigBase):
         prevent_teardown = conf_prefix_limit.get('prevent_teardown', None)
         restart_timer = conf_prefix_limit.get('restart_timer', None)
         warning_threshold = conf_prefix_limit.get('warning_threshold', None)
+        discard_extra = conf_prefix_limit.get('discard_extra', None)
         if max_prefixes:
             self.append_delete_request(requests, max_prefixes, mat_prefix_limit, 'max_prefixes', url, self.max_prefixes_path % (conf_afi_safi_val))
         if prevent_teardown:
@@ -674,6 +676,8 @@ class Bgp_neighbors_af(ConfigBase):
             self.append_delete_request(requests, restart_timer, mat_prefix_limit, 'restart_timer', url, self.restart_timer_path % (conf_afi_safi_val))
         if warning_threshold:
             self.append_delete_request(requests, warning_threshold, mat_prefix_limit, 'warning_threshold', url, self.wrn_threshold_path % (conf_afi_safi_val))
+        if discard_extra:
+            self.append_delete_request(requests, discard_extra, mat_prefix_limit, 'discard_extra', url, self.discard_extra_path % (conf_afi_safi_val))
 
         return requests
 

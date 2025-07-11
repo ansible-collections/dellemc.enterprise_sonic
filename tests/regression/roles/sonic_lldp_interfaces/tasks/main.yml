@@ -8,7 +8,7 @@
 
 - name: "{{ Test ~ ' , ' ~ module_name ~ ' started' }}"
   ansible.builtin.include_tasks: tasks_template.yaml
-  loop: "{{ tests }}"
+  loop: "{{ sonic_lldp_interfaces_tests }}"
 
 - name: "{{ cleanup_tests ~ ' , ' ~ module_name }}"
   ansible.builtin.include_tasks: cleanup_tests.yaml

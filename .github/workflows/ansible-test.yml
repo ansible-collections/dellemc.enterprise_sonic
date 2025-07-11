@@ -1,3 +1,4 @@
+---
 name: CI
 on:
   # Run CI against all pushes (direct commits, also merged PRs), Pull Requests
@@ -10,7 +11,9 @@ on:
 
 jobs:
   changelog:
-    uses: ansible-network/github_actions/.github/workflows/changelog.yml@main
+    uses: ansible/ansible-content-actions/.github/workflows/changelog.yaml@main
     if: (github.event_name != 'schedule' && github.event_name != 'push' && !contains(github.event.pull_request.labels.*.name, 'new_resource_module') && !contains(github.event.pull_request.labels.*.name, 'documentation'))
   sanity:
-    uses: ansible-network/github_actions/.github/workflows/sanity.yml@main
+    uses: ansible/ansible-content-actions/.github/workflows/sanity.yaml@main
+  ansible-lint:
+    uses: ansible/ansible-content-actions/.github/workflows/ansible_lint.yaml@main

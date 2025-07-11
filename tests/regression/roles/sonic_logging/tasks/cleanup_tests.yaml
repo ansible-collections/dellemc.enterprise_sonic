@@ -27,3 +27,9 @@
       - name: Vrf_logging_2
     state: deleted
   failed_when: false
+
+- name: Delete security profiles
+  sonic_pki:
+    config: {}
+    state: deleted
+  ignore_errors: yes
