@@ -1262,7 +1262,7 @@ class Snmp(ConfigBase):
 
                             group_name = want.get('group')
                             if group_name and have_group:
-                                group_url = "data/ietf-snmp:snmp/vacm/group={0}/memeber={1}".format(group_name, group_name)
+                                group_url = "data/ietf-snmp:snmp/vacm/group={0}/memeber={0}".format(group_name)
                                 group_request = {"path": group_url, "method": DELETE}
                                 user_requests.append(group_request)
 

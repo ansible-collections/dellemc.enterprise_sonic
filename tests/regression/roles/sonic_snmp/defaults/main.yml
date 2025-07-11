@@ -9,7 +9,6 @@ tests_single_run:
   - name: test_case_01_merged_unencrypted_user
     description: Merge SNMP unencrypted user configuration
     state: merged
-    task_condition_type: action
     input:
       user:
         - name: 'user1'
@@ -24,7 +23,7 @@ tests_single_run:
 
 tests:
   - name: test_case_01_merge
-    description: Merge SNMP enable_trap contact, encrypted user, and location configuration
+    description: Merge SNMP enable_trap, contact, encrypted user, and location configuration
     state: merged
     input:
       user:
@@ -38,7 +37,12 @@ tests:
           encrypted: True
       location: 'Lab1, Rack-10'
       enable_trap:
+        - 'auth-fail'
         - 'bgp'
+        - 'config-change'
+        - 'link-down'
+        - 'link-up'
+        - 'ospf'
       contact: 'Dell Support'
   
   - name: test_case_02_merge_engine
@@ -47,8 +51,8 @@ tests:
     input:
       engine: 23:45:67:89:ab
 
-  - name: test_case_03_merge_user
-    description: Merge SNMP user configuration
+  - name: test_case_03_merge_user_and_enable_trap
+    description: Merge SNMP user configuration with other key types and enable_trap with the 'all' trap type.
     state: merged
     input:
       user:
@@ -60,8 +64,24 @@ tests:
             priv_type: 'des'
             key: 'U2FsdGVkX19LUhXu+GHOeKOR3jDvIYhob/EgD6q7If+eCumbDCurRQUFsQHjDBQPYoq5llVBXCat+vwwx7y6PQ=='
           encrypted: True
+        - name: 'user7'
+          auth:
+            auth_type: 'sha2-512'
+            key: 'U2FsdGVkX1/vqhOHul6YKTTxMfJb1785U8Hh5yDEETDfKsPEqai2uH8v6KX0nt1WRzLgSFLb1WhGzmy7NzsvTQ=='
+          priv:
+            priv_type: 'des'
+            key: 'U2FsdGVkX19LUhXu+GHOeKOR3jDvIYhob/EgD6q7If+eCumbDCurRQUFsQHjDBQPYoq5llVBXCat+vwwx7y6PQ=='
+          encrypted: True
+        - name: 'user8'
+          auth:
+            auth_type: 'sha2-384'
+            key: 'U2FsdGVkX1/vqhOHul6YKTTxMfJb1785U8Hh5yDEETDfKsPEqai2uH8v6KX0nt1WRzLgSFLb1WhGzmy7NzsvTQ=='
+          priv:
+            priv_type: 'des'
+            key: 'U2FsdGVkX19LUhXu+GHOeKOR3jDvIYhob/EgD6q7If+eCumbDCurRQUFsQHjDBQPYoq5llVBXCat+vwwx7y6PQ=='
+          encrypted: True
       enable_trap:
-        - 'auth-fail'
+        - 'all'
 
   - name: test_case_04_delete_some_options
     description: Delete SNMP engine, location, contact and enable_trap configuration
@@ -70,7 +90,7 @@ tests:
       engine: 23:45:67:89:ab
       location: 'Lab1, Rack-10'
       enable_trap:
-        - 'bgp'
+        - 'all'
       contact: 'Dell Support'
 
   - name: test_case_05_merge_existing_user
@@ -88,7 +108,7 @@ tests:
           encrypted: True
 
   - name: test_case_06_merged_group_community_view
-    description: Merge some of the SNMP configuration
+    description: Merge group access, community, and view SNMP configuration
     state: merged
     input:
       group:
@@ -96,6 +116,20 @@ tests:
           access:
             - security_model: 'v2c'
               security_level: 'auth-priv'
+              read_view: 'r_view'
+              write_view: 'w_view'
+              notify_view: 'n_view'
+        - name: 'group1'
+          access:
+            - security_model: 'usm'
+              security_level: 'no-auth-no-priv'
+              read_view: 'r_view'
+              write_view: 'w_view'
+              notify_view: 'n_view'
+        - name: 'group2'
+          access:
+            - security_model: 'usm'
+              security_level: 'auth-no-priv'
               read_view: 'r_view'
               write_view: 'w_view'
               notify_view: 'n_view'

@@ -5,14 +5,8 @@
   register: single_run_task_output
   ignore_errors: yes
 
-- name: "Set fact"
-  set_fact:
-    single_run_task_status: "{{ single_run_idem_condition }}"
-  when: item.task_condition_type == "idempotent"
-
 - set_fact:
     single_run_task_status: "{{ single_run_condition }}"
-  when: item.task_condition_type != "idempotent"
 
 - import_role:
     name: common
