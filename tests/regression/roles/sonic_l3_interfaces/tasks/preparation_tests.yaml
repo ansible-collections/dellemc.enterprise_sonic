@@ -1,27 +1,21 @@
 ---
-- name: Delete existing mclag
-  sonic_mclag:
-    config:
-    state: deleted
-  failed_when: false
-
-- name: Deletes old vxlans
-  sonic_vxlans:
-    config: []
-    state: deleted
-  failed_when: false
-
-- name: "Initialize default interfaces"
+- name: "Initialize physical interfaces"
   vars:
     ansible_connection: network_cli
-  sonic_config:
-    commands: "{{ default_interface_cli }}"
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ sonic_l3_interfaces_task_input.default_interface_commands }}"
   register: output
   failed_when: false
 
-- name: "Initialize init_loopback"
+- name: "Create test VLANs and logical interfaces"
   vars:
     ansible_connection: network_cli
-  sonic_config:
-    commands: "{{ preparations_tests.init_loopback }}"
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ sonic_l3_interfaces_task_input.create_interface_commands }}"
+  failed_when: false
+
+- name: "Delete existing L3 configurations"
+  dellemc.enterprise_sonic.sonic_l3_interfaces:
+    config: []
+    state: deleted
   failed_when: false

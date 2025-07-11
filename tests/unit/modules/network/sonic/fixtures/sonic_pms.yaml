@@ -1,0 +1,334 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: 'Eth1/1'
+        port_security_enable: true
+        sticky_mac: true
+        violation: 'SHUTDOWN'
+      - name: 'Eth1/2'
+        port_security_enable: true
+        max_allowed_macs: 10
+    state: merged
+  existing_pms_config:
+    - path: 'data/openconfig-pms-ext:port-security'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/openconfig-pms-ext:port-security/interfaces'
+      method: 'patch'
+      data:
+        openconfig-pms-ext:interfaces:
+          interface:
+            - name: 'Eth1/1'
+              config:
+                admin-enable: true
+                name: 'Eth1/1'
+                sticky-mac: true
+                maximum: 1
+                violation: 'SHUTDOWN'
+            - name: 'Eth1/2'
+              config:
+                admin-enable: true
+                maximum: 10
+                sticky-mac: false
+                violation: 'PROTECT'
+                name: 'Eth1/2'
+
+merged_02:
+  module_args:
+    config:
+      - name: 'Eth1/1'
+        port_security_enable: false
+      - name: 'PortChannel100'
+        port_security_enable: true
+        max_allowed_macs: 10
+        violation: 'PROTECT'
+      - name: 'Eth1/2'
+        port_security_enable: true
+        violation: 'PROTECT'
+    state: merged
+  existing_pms_config:
+    - path: 'data/openconfig-pms-ext:port-security'
+      response:
+        code: 200
+        value:
+          openconfig-pms-ext:port-security:
+            interfaces:
+              interface:
+                - name: 'Eth1/1'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/1'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    sticky-mac: true
+                    maximum: 10
+                - name: 'PortChannel100'
+                  config:
+                    admin-enable: true
+                    name: 'PortChannel100'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    maximum: 10
+  expected_config_requests:
+    - path: 'data/openconfig-pms-ext:port-security/interfaces/interface=Eth1%2f1'
+      method: 'delete'
+    - path: 'data/openconfig-pms-ext:port-security/interfaces'
+      method: 'patch'
+      data:
+        openconfig-pms-ext:interfaces:
+          interface:
+            - name: 'PortChannel100'
+              config:
+                name: 'PortChannel100'
+                violation: 'PROTECT'
+            - name: 'Eth1/2'
+              config:
+                admin-enable: true
+                violation: 'PROTECT'
+                name: 'Eth1/2'
+                maximum: 1
+                sticky-mac: false
+
+deleted_01:
+  module_args:
+    config:
+      - name: 'Eth1/2'
+        port_security_enable: true
+      - name: 'PortChannel100'
+        port_security_enable: true
+        violation: 'SHUTDOWN'
+        max_allowed_macs: 10
+    state: deleted
+  existing_pms_config:
+    - path: 'data/openconfig-pms-ext:port-security'
+      response:
+        code: 200
+        value:
+          openconfig-pms-ext:port-security:
+            interfaces:
+              interface:
+                - name: 'Eth1/2'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/2'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    sticky-mac: true
+                    maximum: 10
+                - name: 'PortChannel100'
+                  config:
+                    admin-enable: true
+                    name: 'PortChannel100'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    maximum: 10
+                - name: 'Eth1/9'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/9'
+                    violation: 'openconfig-pms-types:PROTECT'
+                    maximum: 25
+                    sticky-mac: true
+  expected_config_requests:
+    - path: 'data/openconfig-pms-ext:port-security/interfaces/interface=Eth1%2f2'
+      method: 'delete'
+    - path: 'data/openconfig-pms-ext:port-security/interfaces'
+      method: 'patch'
+      data:
+        openconfig-pms-ext:interfaces:
+          interface:
+            - name: 'PortChannel100'
+              config:
+                name: 'PortChannel100'
+                violation: 'PROTECT'
+                maximum: 1
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_pms_config:
+    - path: 'data/openconfig-pms-ext:port-security'
+      response:
+        code: 200
+        value:
+          openconfig-pms-ext:port-security:
+            interfaces:
+              interface:
+                - name: 'Eth1/2'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/2'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    sticky-mac: true
+                    maximum: 10
+                - name: 'PortChannel100'
+                  config:
+                    admin-enable: true
+                    name: 'PortChannel100'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    maximum: 10
+                - name: 'Eth1/9'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/9'
+                    violation: 'openconfig-pms-types:PROTECT'
+                    maximum: 25
+                    sticky-mac: true
+  expected_config_requests:
+    - path: 'data/openconfig-pms-ext:port-security/interfaces/interface=Eth1%2f2'
+      method: 'delete'
+    - path: 'data/openconfig-pms-ext:port-security/interfaces/interface=Eth1%2f9'
+      method: 'delete'
+    - path: 'data/openconfig-pms-ext:port-security/interfaces/interface=PortChannel100'
+      method: 'delete'
+
+replaced_01:
+  module_args:
+    config:
+      - name: 'Eth1/2'
+        port_security_enable: false
+      - name: 'PortChannel100'
+        port_security_enable: true
+        max_allowed_macs: 10
+        violation: 'PROTECT'
+      - name: 'Eth1/3'
+        port_security_enable: true
+        sticky_mac: true
+        violation: 'SHUTDOWN'
+        max_allowed_macs: 15
+    state: replaced
+  existing_pms_config:
+    - path: 'data/openconfig-pms-ext:port-security'
+      response:
+        code: 200
+        value:
+          openconfig-pms-ext:port-security:
+            interfaces:
+              interface:
+                - name: 'Eth1/2'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/2'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    sticky-mac: true
+                    maximum: 10
+                - name: 'PortChannel100'
+                  config:
+                    admin-enable: true
+                    name: 'PortChannel100'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    sticky-mac: true
+                    maximum: 10
+                - name: 'Eth1/9'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/9'
+                    violation: 'openconfig-pms-types:PROTECT'
+                    maximum: 25
+                    sticky-mac: true
+  expected_config_requests:
+    - path: 'data/openconfig-pms-ext:port-security/interfaces/interface=Eth1%2f2'
+      method: 'delete'
+    - path: 'data/openconfig-pms-ext:port-security/interfaces'
+      method: 'patch'
+      data:
+        openconfig-pms-ext:interfaces:
+          interface:
+            - name: 'PortChannel100'
+              config:
+                name: 'PortChannel100'
+                violation: 'PROTECT'
+                sticky-mac: false
+    - path: 'data/openconfig-pms-ext:port-security/interfaces'
+      method: 'patch'
+      data:
+        openconfig-pms-ext:interfaces:
+          interface:
+            - name: 'PortChannel100'
+              config:
+                admin-enable: true
+                name: 'PortChannel100'
+                violation: 'PROTECT'
+            - name: 'Eth1/3'
+              config:
+                admin-enable: true
+                name: 'Eth1/3'
+                violation: 'SHUTDOWN'
+                sticky-mac: true
+                maximum: 15
+
+overridden_01:
+  module_args:
+    config:
+      - name: 'Eth1/2'
+        port_security_enable: false
+      - name: 'PortChannel100'
+        port_security_enable: true
+        max_allowed_macs: 10
+        violation: 'PROTECT'
+      - name: 'Eth1/3'
+        port_security_enable: true
+        sticky_mac: true
+        violation: 'SHUTDOWN'
+        max_allowed_macs: 15
+    state: overridden
+  existing_pms_config:
+    - path: 'data/openconfig-pms-ext:port-security'
+      response:
+        code: 200
+        value:
+          openconfig-pms-ext:port-security:
+            interfaces:
+              interface:
+                - name: 'Eth1/2'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/2'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    sticky-mac: true
+                    maximum: 10
+                - name: 'PortChannel100'
+                  config:
+                    admin-enable: true
+                    name: 'PortChannel100'
+                    violation: 'openconfig-pms-types:SHUTDOWN'
+                    sticky-mac: true
+                    maximum: 10
+                - name: 'Eth1/9'
+                  config:
+                    admin-enable: true
+                    name: 'Eth1/9'
+                    violation: 'openconfig-pms-types:PROTECT'
+                    maximum: 25
+                    sticky-mac: true
+  expected_config_requests:
+    - path: 'data/openconfig-pms-ext:port-security/interfaces/interface=Eth1%2f2'
+      method: 'delete'
+    - path: 'data/openconfig-pms-ext:port-security/interfaces/interface=Eth1%2f9'
+      method: 'delete'
+    - path: 'data/openconfig-pms-ext:port-security/interfaces'
+      method: 'patch'
+      data:
+        openconfig-pms-ext:interfaces:
+          interface:
+            - name: 'PortChannel100'
+              config:
+                name: 'PortChannel100'
+                violation: 'PROTECT'
+                sticky-mac: false
+    - path: 'data/openconfig-pms-ext:port-security/interfaces'
+      method: 'patch'
+      data:
+        openconfig-pms-ext:interfaces:
+          interface:
+            - name: 'PortChannel100'
+              config:
+                admin-enable: true
+                name: 'PortChannel100'
+                violation: 'PROTECT'
+            - name: 'Eth1/3'
+              config:
+                admin-enable: true
+                name: 'Eth1/3'
+                violation: 'SHUTDOWN'
+                sticky-mac: true
+                maximum: 15

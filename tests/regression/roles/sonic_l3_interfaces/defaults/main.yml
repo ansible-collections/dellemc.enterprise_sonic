@@ -1,411 +1,463 @@
 ---
 ansible_connection: httpapi
-module_name: l3_interfaces
 
-preparations_tests:
-    delete_port_configurations:
-        - name: "{{ interface1 }}"
-        - name: "{{ interface2 }}"
-    init_loopback:
-        - "interface Loopback 100"
-        - "interface Loopback 101"
-        - "interface Portchannel 100"
-        - "interface Portchannel 101"
-        - "interface Vlan 100"
-        - "interface Vlan 101"
-        - "interface Vlan 102"
-        - "interface Vlan 501"
+sonic_l3_interfaces_task_input:
+  default_interface_commands:
+    - "default interface {{ interface1 }}"
+    - "default interface {{ interface2 }}"
+    - "default interface {{ interface3 }}"
+  create_interface_commands:
+    - "interface Loopback 100"
+    - "interface Loopback 101"
+    - "interface Portchannel 100"
+    - "interface Portchannel 100.10"
+    - "interface Portchannel 101"
+    - "interface Vlan 100"
+    - "interface Vlan 101"
+    - "interface Vlan 102"
+    - "interface Vlan 501"
+  delete_interface_commands:
+    - "no interface Loopback 100"
+    - "no interface Loopback 101"
+    - "no interface Portchannel 100.10"
+    - "no interface Portchannel 100"
+    - "no interface Portchannel 101"
+    - "no interface Vlan 100"
+    - "no interface Vlan 101"
+    - "no interface Vlan 102"
+    - "no interface Vlan 501"
 
-tests:
-    # Vlan testcases started...
-    - name: test_case_01
-      description: Update interface parameters
-      state: merged
-      input:
-          - name: Loopback100
-            ipv4:
-                addresses:
-                    - address: 101.1.1.1/32
-                    - address: 102.1.1.1/32
-                      secondary: true
-          - name: vlan 100
-            ipv6:
-                enabled: true
-                dad: ENABLE
-                autoconf: true
-                addresses:
-                    - address: 150::1/32
-                    - address: 160::/64
-                      eui64: true
-          - name: po 100
-            ipv4:
-                addresses:
-                    - address: 180.1.1.1/16
-          - name: vlan 102
-            ipv4:
-                anycast_addresses:
-                    - 1.1.1.1/16
-          - name: test_case_02
-            description: Update interface parameters
-            state: merged
-            input:
-                - name: Loopback100
-                  ipv4:
-                      addresses:
-                          - address: 99.1.1.1/32
-                          - address: 103.1.1.1/32
-                            secondary: true
-                  ipv6:
-                      enabled: false
-                      autoconf: true
-                      addresses:
-                          - address: 101::1/128
-          - name: vlan 100
-            ipv4:
-                addresses:
-                    - address: 150.1.1.1/16
-          - name: po 100
-            ipv6:
-                enabled: true
-                dad: DISABLE_IPV6_ON_FAILURE
-                autoconf: true
-                addresses:
-                    - address: 180::1/16
-          - name: vlan 102
-            ipv4:
-                anycast_addresses:
-                    - 11.12.13.14/12
-    - name: test_case_03
-      description: Update interface parameters
-      state: merged
-      input:
-          - name: loopback 100
-            ipv4:
-                addresses:
-                    - address: 102.1.1.1/32
-                      secondary: true
-            ipv6:
-                addresses:
-                    - address: 102::1/128
-          - name: vlan 100
-            ipv4:
-                addresses:
-                    - address: 152.1.1.1/16
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 152::1/16
-          - name: po 100
-            ipv4:
-                addresses:
-                    - address: 182.1.1.1/16
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 182::1/16
-    - name: test_case_04
-      description: Update interface parameters
-      state: merged
-      input:
-          - name: "{{ interface1 }}"
-            ipv4:
-                addresses:
-                    - address: 80.1.1.1/16
-          - name: "{{ interface2 }}"
-            ipv6:
-                enabled: true
-                dad: DISABLE_IPV6_ON_FAILURE
-                addresses:
-                    - address: 90::1/16
-                    - address: 100::/64
-                      eui64: true
-    - name: test_case_05
-      description: Update interface parameters
-      state: merged
-      input:
-          - name: "{{ interface1 }}"
-            ipv4:
-                addresses:
-                    - address: 81.1.1.1/16
-          - name: "{{ interface2 }}"
-            ipv6:
-                enabled: false
-                addresses:
-                    - address: 90::1/16
-                    - address: 91::1/16
-    - name: test_case_06
-      description: Update interface parameters
-      state: merged
-      input:
-          - name: "{{ interface1 }}"
-            ipv4:
-                addresses:
-                    - address: 83.1.1.1/16
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 83::1/16
-                    - address: 84::1/16
-          - name: "{{ interface2 }}"
-            ipv4:
-                addresses:
-                    - address: 91.1.1.1/16
-            ipv6:
-                addresses:
-                    - address: 90::1/16
-                    - address: 91::1/16
-                    - address: 92::1/16
-                    - address: 93::1/16
-    - name: test_case_07
-      description: Delete interface addresses
-      state: deleted
-      input:
-          - name: "{{ interface1 }}"
-            ipv4:
-                addresses:
-                    - address: 83.1.1.1/16
-          - name: "{{ interface2 }}"
-            ipv6:
-                enabled: false
-                dad: DISABLE_IPV6_ON_FAILURE
-                addresses:
-                    - address: 91::1/16
-                    - address: 100::/64
-                      eui64: true
-          - name: Loopback100
-            ipv4:
-                addresses:
-                    - address: 103.1.1.1/32
-            ipv6:
-                autoconf: true
-          - name: vlan 102
-            ipv4:
-                anycast_addresses:
-                    - 1.1.1.1/16
-    - name: test_case_08
-      description: Delete interface parameters
-      state: deleted
-      input:
-          - name: "{{ interface1 }}"
-          - name: "{{ interface2 }}"
-          - name: Vlan100
-    - name: test_case_09
-      description: Logical interfaces config
-      state: merged
-      input:
-          - name: Vlan101
-            ipv4:
-                addresses:
-                    - address: 104.1.1.1/16
-            ipv6:
-                addresses:
-                    - address: 1041::1/16
-                    - address: 1042::1/16
-          - name: Loopback101
-            ipv4:
-                addresses:
-                    - address: 204.1.1.1/32
-            ipv6:
-                addresses:
-                    - address: 2041::1/128
-                    - address: 2042::1/128
-                      autoconf: true
-          - name: PortChannel101
-            ipv4:
-                addresses:
-                    - address: 214.1.1.1/16
-            ipv6:
-                addresses:
-                    - address: 3041::1/16
-                    - address: 3042::1/16
-    - name: test_case_10
-      description: Update interface parameters
-      state: merged
-      input:
-          - name: vlan 501
-            ipv4:
-                addresses:
-                    - address: 105.1.1.1/16
-            ipv6:
-                enabled: true
-                dad: ENABLE
-                addresses:
-                    - address: 1051::1/16
-                    - address: 1052::1/16
-                    - address: 1060::/64
-                      eui64: true
-          - name: lo101
-            ipv4:
-                addresses:
-                    - address: 204.1.1.7/32
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 2041::1/128
-                    - address: 2042::1/128
-          - name: portchannel 100  # po100 or portchannel100
-            ipv4:
-                addresses:
-                    - address: 64.1.1.1/16
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 3051::1/16
-                    - address: 3052::1/16
-    - name: test_case_11
-      description: Update l3 interface parameters
-      state: merged
-      input:
-          - name: '{{ interface1 }}'
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 213::1/64
-            ipv4:
-                addresses:
-                    - address: 213.1.1.1/24
-          - name: '{{ interface3 }}'
-            ipv4:
-                addresses:
-                    - address: 215.1.1.1/24
-                    - address: 216.1.1.1/24
-                      secondary: true
-    - name: test_case_12
-      description: Replace interface parameters
-      state: replaced
-      input:
-          - name: '{{ interface2 }}'
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 251::1/64
-                    - address: 252::1/64
-          - name: '{{ interface3 }}'
-            ipv4:
-                addresses:
-                    - address: 222.1.1.1/24
-          - name: vlan 101
-            ipv4:
-                anycast_addresses:
-                    - 15.16.17.18/16
-    - name: test_case_13
-      description: Replace interface parameters
-      state: replaced
-      input:
-          - name: vlan 501
-            ipv4:
-                addresses:
-                    - address: 105.2.2.2/16
-            ipv6:
-                enabled: false
-                autoconf: false
-                dad: DISABLE_IPV6_ON_FAILURE
-                addresses:
-                    - address: 1050::/64
-                      eui64: true
-    - name: test_case_14
-      description: Replace interface parameters
-      state: replaced
-      input:
-          - name: '{{ interface2 }}'
-            ipv6:
-                enabled: true
-                dad: ENABLE
-                addresses:
-                    - address: 251::1/64
-                    - address: 252::1/64
-          - name: '{{ interface3 }}'
-            ipv4:
-                addresses:
-                    - address: 222.1.1.1/24
-                    - address: 223.1.1.1/24
-                      secondary: true
-    - name: test_case_15
-      description: Override interface parameters
-      state: overridden
-      input:
-          - name: vlan 501
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 1053::1/64
-                    - address: 1054::1/64
-                    - address: 1055::1/64
-                    - address: 1056::2/64
-          - name: Loopback101
-            ipv4:
-                addresses:
-                    - address: 152.1.1.1/32
-                    - address: 153.1.1.1/32
-                      secondary: true
-            ipv6:
-                autoconf: false
-                enabled: false
-          - name: vlan 100
-            ipv4:
-                anycast_addresses:
-                    - 20.21.22.23/16
-                    - 85.1.1.12/16
-    - name: test_case_16
-      description: Override2 interface parameters
-      state: overridden
-      input:
-          - name: vlan 501
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 1053::1/64
-                    - address: 1054::1/64
-                    - address: 1055::1/64
-                    - address: 1056::2/64
-                    - address: 1057::2/64
-          - name: Loopback101
-            ipv4:
-                addresses:
-                    - address: 152.1.1.1/32
-                    - address: 153.1.1.1/32
-                      secondary: true
-          - name: vlan 100
-            ipv4:
-                anycast_addresses:
-                    - 20.21.22.23/16
-                    - 85.1.1.12/16
-    - name: test_case_17
-      description: Override interface parameters
-      state: overridden
-      input:
-          - name: vlan 501
-            ipv6:
-                enabled: true
-                addresses:
-                    - address: 1053::1/64
-                    - address: 1054::1/64
-                    - address: 1055::1/64
-                    - address: 1056::2/64
-                    - address: 1057::2/64
-                    - address: 1058::2/64
-          - name: Loopback101
-            ipv4:
-                addresses:
-                    - address: 152.1.1.1/32
-                    - address: 153.1.1.1/32
-                      secondary: true
-                    - address: 154.1.1.1/32
-                      secondary: true
-          - name: vlan 100
-            ipv4:
-                anycast_addresses:
-                    - 20.21.22.23/16
-                    - 85.1.1.12/16
-    - name: test_case_18
-      description: Delete all interfaces config
-      state: deleted
-      input:
-          - name: vlan 100
-          - name: vlan 101
-          - name: vlan 102
-          - name: vlan 501
-          - name: lo101
-          - name: lo102
-          - name: portchannel 100  # po100 or portchannel100
-          - name: portchannel 101
+sonic_l3_interfaces_tests:
+  - name: test_case_01
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: Loopback100
+        ipv4:
+          addresses:
+            - address: 101.1.1.1/32
+            - address: 102.1.1.1/32
+              secondary: true
+      - name: vlan 100
+        ipv6:
+          enabled: true
+          dad: ENABLE
+          autoconf: true
+          addresses:
+            - address: 150::1/32
+            - address: 160::/64
+              eui64: true
+      - name: po 100
+        ipv4:
+          addresses:
+            - address: 180.1.1.1/16
+      - name: PortChannel100.10
+        ipv6:
+          addresses:
+            - address: 100:10::100/64
+      - name: vlan 101
+        ipv6:
+          anycast_addresses:
+            - 1001::1001/32
+      - name: vlan 102
+        ipv4:
+          anycast_addresses:
+            - 1.1.1.1/16
+  - name: test_case_02
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: Loopback100
+        ipv4:
+          addresses:
+            - address: 99.1.1.1/32
+            - address: 103.1.1.1/32
+              secondary: true
+        ipv6:
+          enabled: false
+          autoconf: true
+          addresses:
+            - address: 101::1/128
+      - name: vlan 100
+        ipv4:
+          addresses:
+            - address: 150.1.1.1/16
+      - name: po 100
+        ipv6:
+          enabled: true
+          dad: DISABLE_IPV6_ON_FAILURE
+          autoconf: true
+          addresses:
+            - address: 180::1/16
+      - name: PortChannel100.10
+        ipv4:
+          addresses:
+            - address: 100.10.1.1/16
+      - name: vlan 101
+        ipv6:
+          anycast_addresses:
+            - 1010::1010/32
+      - name: vlan 102
+        ipv4:
+          anycast_addresses:
+            - 11.12.13.14/12
+  - name: test_case_03
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: loopback 100
+        ipv4:
+          addresses:
+            - address: 102.1.1.1/32
+              secondary: true
+        ipv6:
+          addresses:
+            - address: 102::1/128
+      - name: vlan 100
+        ipv4:
+          addresses:
+            - address: 152.1.1.1/16
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 152::1/16
+      - name: po 100
+        ipv4:
+          addresses:
+            - address: 182.1.1.1/16
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 182::1/16
+  - name: test_case_04
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ interface1 }}"
+        ipv4:
+          addresses:
+            - address: 80.1.1.1/16
+      - name: "{{ interface2 }}"
+        ipv6:
+          enabled: true
+          dad: DISABLE_IPV6_ON_FAILURE
+          addresses:
+            - address: 90::1/16
+            - address: 100::/64
+              eui64: true
+  - name: test_case_05
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ interface1 }}"
+        ipv4:
+          addresses:
+            - address: 81.1.1.1/16
+      - name: "{{ interface2 }}"
+        ipv6:
+          enabled: false
+          addresses:
+            - address: 90::1/16
+            - address: 91::1/16
+  - name: test_case_06
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: "{{ interface1 }}"
+        ipv4:
+          addresses:
+            - address: 83.1.1.1/16
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 83::1/16
+            - address: 84::1/16
+      - name: "{{ interface2 }}"
+        ipv4:
+          addresses:
+            - address: 91.1.1.1/16
+        ipv6:
+          addresses:
+            - address: 90::1/16
+            - address: 91::1/16
+            - address: 92::1/16
+            - address: 93::1/16
+  - name: test_case_07
+    description: Delete interface addresses
+    state: deleted
+    input:
+      - name: "{{ interface1 }}"
+        ipv4:
+          addresses:
+            - address: 83.1.1.1/16
+      - name: "{{ interface2 }}"
+        ipv6:
+          enabled: false
+          dad: DISABLE_IPV6_ON_FAILURE
+          addresses:
+            - address: 91::1/16
+            - address: 100::/64
+              eui64: true
+      - name: Loopback100
+        ipv4:
+          addresses:
+            - address: 103.1.1.1/32
+        ipv6:
+          autoconf: true
+      - name: vlan 101
+        ipv6:
+          anycast_addresses:
+            - 1010::1010/32
+            - 1001::1001/32
+      - name: vlan 102
+        ipv4:
+          anycast_addresses:
+            - 1.1.1.1/16
+  - name: test_case_08
+    description: Delete interface parameters
+    state: deleted
+    input:
+      - name: "{{ interface1 }}"
+      - name: "{{ interface2 }}"
+      - name: Vlan100
+      - name: PortChannel100.10
+  - name: test_case_09
+    description: Logical interfaces config
+    state: merged
+    input:
+      - name: Vlan101
+        ipv4:
+          addresses:
+            - address: 104.1.1.1/16
+        ipv6:
+          addresses:
+            - address: 1041::1/16
+            - address: 1042::1/16
+      - name: Loopback101
+        ipv4:
+          addresses:
+            - address: 204.1.1.1/32
+        ipv6:
+          addresses:
+            - address: 2041::1/128
+            - address: 2042::1/128
+          autoconf: true
+      - name: PortChannel101
+        ipv4:
+          addresses:
+            - address: 214.1.1.1/16
+        ipv6:
+          addresses:
+            - address: 3041::1/16
+            - address: 3042::1/16
+  - name: test_case_10
+    description: Update interface parameters
+    state: merged
+    input:
+      - name: vlan 501
+        ipv4:
+          addresses:
+            - address: 105.1.1.1/16
+        ipv6:
+          enabled: true
+          dad: ENABLE
+          addresses:
+            - address: 1051::1/16
+            - address: 1052::1/16
+            - address: 1060::/64
+              eui64: true
+      - name: lo101
+        ipv4:
+          addresses:
+            - address: 204.1.1.7/32
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 2041::1/128
+            - address: 2042::1/128
+      - name: portchannel 100  # po100 or portchannel100
+        ipv4:
+          addresses:
+            - address: 64.1.1.1/16
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 3051::1/16
+            - address: 3052::1/16
+  - name: test_case_11
+    description: Update l3 interface parameters
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 213::1/64
+        ipv4:
+          addresses:
+            - address: 213.1.1.1/24
+      - name: '{{ interface3 }}'
+        ipv4:
+          addresses:
+            - address: 215.1.1.1/24
+            - address: 216.1.1.1/24
+              secondary: true
+  - name: test_case_12
+    description: Replace interface parameters
+    state: replaced
+    input:
+      - name: '{{ interface2 }}'
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 251::1/64
+            - address: 252::1/64
+      - name: '{{ interface3 }}'
+        ipv4:
+          addresses:
+            - address: 222.1.1.1/24
+      - name: vlan 101
+        ipv4:
+          anycast_addresses:
+            - 15.16.17.18/16
+      - name: vlan 102
+        ipv6:
+          anycast_addresses:
+            - 1002::1002/32
+      - name: PortChannel100.10
+        ipv4:
+          addresses:
+            - address: 100.10.1.1/16
+        ipv6:
+          addresses:
+            - address: 100:10::100/64
+  - name: test_case_13
+    description: Replace interface parameters
+    state: replaced
+    input:
+      - name: vlan 501
+        ipv4:
+          addresses:
+            - address: 105.2.2.2/16
+        ipv6:
+          enabled: false
+          autoconf: false
+          dad: DISABLE_IPV6_ON_FAILURE
+          addresses:
+            - address: 1050::/64
+              eui64: true
+  - name: test_case_14
+    description: Replace interface parameters
+    state: replaced
+    input:
+      - name: '{{ interface2 }}'
+        ipv6:
+          enabled: true
+          dad: ENABLE
+          addresses:
+            - address: 251::1/64
+            - address: 252::1/64
+      - name: '{{ interface3 }}'
+        ipv4:
+          addresses:
+            - address: 222.1.1.1/24
+            - address: 223.1.1.1/24
+              secondary: true
+  - name: test_case_15
+    description: Override interface parameters
+    state: overridden
+    input:
+      - name: vlan 501
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 1053::1/64
+            - address: 1054::1/64
+            - address: 1055::1/64
+            - address: 1056::2/64
+      - name: Loopback101
+        ipv4:
+          addresses:
+            - address: 152.1.1.1/32
+            - address: 153.1.1.1/32
+              secondary: true
+        ipv6:
+          autoconf: false
+          enabled: false
+      - name: vlan 100
+        ipv4:
+          anycast_addresses:
+            - 20.21.22.23/16
+            - 85.1.1.12/16
+  - name: test_case_16
+    description: Override2 interface parameters
+    state: overridden
+    input:
+      - name: vlan 501
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 1053::1/64
+            - address: 1054::1/64
+            - address: 1055::1/64
+            - address: 1056::2/64
+            - address: 1057::2/64
+      - name: Loopback101
+        ipv4:
+          addresses:
+            - address: 152.1.1.1/32
+            - address: 153.1.1.1/32
+              secondary: true
+      - name: vlan 100
+        ipv4:
+          anycast_addresses:
+            - 20.21.22.23/16
+            - 85.1.1.12/16
+        ipv6:
+          anycast_addresses:
+            - 100::100/32
+            - 1000::1000/32
+  - name: test_case_17
+    description: Override interface parameters
+    state: overridden
+    input:
+      - name: vlan 501
+        ipv6:
+          enabled: true
+          addresses:
+            - address: 1053::1/64
+            - address: 1054::1/64
+            - address: 1055::1/64
+            - address: 1056::2/64
+            - address: 1057::2/64
+            - address: 1058::2/64
+      - name: Loopback101
+        ipv4:
+          addresses:
+            - address: 152.1.1.1/32
+            - address: 153.1.1.1/32
+              secondary: true
+            - address: 154.1.1.1/32
+              secondary: true
+      - name: vlan 100
+        ipv4:
+          anycast_addresses:
+            - 20.21.22.23/16
+            - 85.1.1.12/16
+        ipv6:
+          anycast_addresses:
+            - 100::100/32
+            - 1000::1000/32
+            - 2000::2000/32
+  - name: test_case_18
+    description: Delete all interfaces config
+    state: deleted
+    input:
+      - name: vlan 100
+      - name: vlan 101
+      - name: vlan 102
+      - name: vlan 501
+      - name: lo101
+      - name: lo102
+      - name: portchannel 100  # po100 or portchannel100
+      - name: portchannel 101

@@ -32,3 +32,10 @@
       - name: Vrf_logging_2
     state: merged
   ignore_errors: yes
+
+- name: Create security profiles
+  sonic_pki:
+    config:
+      security_profiles:
+        - profile_name: default
+        - profile_name: spl

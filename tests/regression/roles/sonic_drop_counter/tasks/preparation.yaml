@@ -1,0 +1,14 @@
+---
+- name: Delete drop counter configuration
+  sonic_drop_counter:
+    config:
+    state: deleted
+
+- name: Create mirror sessions
+  sonic_mirroring:
+    config:
+      span:
+        - name: session1
+          dst_port: "{{ interface1 }}"
+        - name: session2
+          dst_port: "{{ interface2 }}"

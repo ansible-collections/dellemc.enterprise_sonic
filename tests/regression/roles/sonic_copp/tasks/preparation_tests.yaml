@@ -1,5 +1,5 @@
 ---
-- name: Delete old CoPP groups configuration
+- name: Delete CoPP groups configuration
   sonic_copp:
     config: {}
     state: deleted
