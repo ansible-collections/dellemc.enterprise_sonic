@@ -658,6 +658,7 @@ sonic_bgp_af_tests:
                 - '1::1/64'
                 - '2::1/64'
               aggregate_address_config:
+                - prefix: "7::7/7"
       - bgp_as: "{{ sonic_bgp_af_test_vars.bgp_as3 }}"
         vrf_name: "{{ sonic_bgp_af_test_vars.vrf_2 }}"
         address_family:
