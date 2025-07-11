@@ -1,3 +1,4 @@
+---
 - name: "Delete old poe config"
   vars:
     ansible_connection: httpapi

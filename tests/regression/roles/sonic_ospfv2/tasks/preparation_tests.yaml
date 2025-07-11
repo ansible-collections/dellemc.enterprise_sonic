@@ -3,7 +3,7 @@
   dellemc.enterprise_sonic.sonic_ospfv2:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Initialize default interfaces
   vars:
@@ -11,15 +11,15 @@
   dellemc.enterprise_sonic.sonic_config:
     commands: "{{ default_interface_cli }}"
   register: output
-  ignore_errors: yes
+  failed_when: false
 
 - name: Create VRFs
   dellemc.enterprise_sonic.sonic_vrfs:
     config: "{{ preparations_tests.vrfs }}"
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
-- name: "initialize route maps"
+- name: "Initialize route maps"
   vars:
     ansible_connection: network_cli
   sonic_config:

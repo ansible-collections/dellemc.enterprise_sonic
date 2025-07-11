@@ -5,4 +5,4 @@
   sonic_config:
     commands: "{{ preparations_tests.cleanup }}"
   register: output
-  failed_when: false
+  ignore_errors: true

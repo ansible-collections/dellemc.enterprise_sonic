@@ -1,8 +1,9 @@
 ---
 - name: Delete existing NTP configurations
   sonic_ntp:
-    config: {} 
+    config: {}
     state: deleted
+  failed_when: false
 
 - name: Initialize interfaces
   vars:
@@ -10,6 +11,7 @@
   sonic_config:
     commands: "{{ preparations_tests.init_interfaces }}"
   register: output
+  ignore_errors: true
 
 - name: Create VRF
   vars:
@@ -17,3 +19,4 @@
   sonic_config:
     commands: "{{ preparations_tests.create_vrfs }}"
   register: output
+  ignore_errors: true

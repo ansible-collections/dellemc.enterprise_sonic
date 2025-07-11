@@ -144,6 +144,7 @@ sonic_ospf_area_tests:
         ranges:
           - prefix: 1.1.1.1/24
             advertise: false
+            substitute: 1.1.1.2/24
           - prefix: 1.1.1.2/24
             substitute: 2.2.2.2/24
             cost: 34
