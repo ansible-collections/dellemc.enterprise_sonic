@@ -16,7 +16,7 @@
 - name: "{{ test_sublevel_command ~ ' , ' ~ module_name ~ ' started' }}"
   include_tasks: replace_tasks_template.yaml
 
-- name: "{{ test_sublevel_command ~ ' , ' ~ module_name ~ ' started' }}"
+- name: "{{ test_sublevel_command_match ~ ' , ' ~ module_name ~ ' started' }}"
   include_tasks: match_template.yaml
 
 - name: "{{ test_backup ~ ' , ' ~ module_name ~ ' started' }}"
