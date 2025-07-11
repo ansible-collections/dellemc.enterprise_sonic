@@ -8,3 +8,4 @@
 - name: Delete old DHCP, DHCPv6 snooping configurations
   dellemc.enterprise_sonic.sonic_dhcp_snooping:
     config: {}
+    state: deleted
