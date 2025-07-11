@@ -649,11 +649,11 @@ class Snmp(ConfigBase):
         method = PATCH
         requests = []
         payload = {}
+        enable_trap_dict = {}
         if 'all' in enable_trap and len(enable_trap) != 1:
             self._module.fail_json(msg="enable_trap value 'all' cannot be set together with other enable_trap values.")
 
         for conf in enable_trap:
-            enable_trap_dict = {}
             trap_type = conf
             if trap_type:
                 if trap_type == 'all':
@@ -676,9 +676,9 @@ class Snmp(ConfigBase):
                     if trap_type == 'ospf':
                         enable_trap_dict['ospf-traps'] = True
 
-        payload['ietf-snmp-ext:notifications'] = enable_trap_dict
-        trap_enable_request = {'path': enable_trap_url, 'method': method, 'data': payload}
-        requests.append(trap_enable_request)
+            payload['ietf-snmp-ext:notifications'] = enable_trap_dict
+            trap_enable_request = {'path': enable_trap_url, 'method': method, 'data': payload}
+            requests.append(trap_enable_request)
         return requests
 
     def build_create_group_payload(self, config):
@@ -1262,7 +1262,7 @@ class Snmp(ConfigBase):
 
                             group_name = want.get('group')
                             if group_name and have_group:
-                                group_url = "data/ietf-snmp:snmp/vacm/group={0}/memeber={0}".format(group_name)
+                                group_url = "data/ietf-snmp:snmp/vacm/group={0}/member={1}".format(group_name, user_name)
                                 group_request = {"path": group_url, "method": DELETE}
                                 user_requests.append(group_request)
 
@@ -1282,6 +1282,11 @@ class Snmp(ConfigBase):
                         if matched_view:
                             view_name = matched_view['name']
                             view_url = "data/ietf-snmp:snmp/vacm/view={0}".format(view_name)
+                            # If only the view name is specified, delete this view.
+                            if len(want) == 1:
+                                view_request = {"path": view_url, "method": DELETE}
+                                view_requests.append(view_request)
+                                continue
                             include = want.get('included')
                             exclude = want.get('excluded')
                             if include:
@@ -1304,11 +1309,7 @@ class Snmp(ConfigBase):
                                         exclude_view_url = view_url + "/exclude={0}".format(exclude_view)
                                         view_request = {"path": exclude_view_url, "method": DELETE}
                                         view_requests.append(view_request)
-                            # If only the view name is specified, delete this view.
-                            if len(want) == 1:
-                                view_request = {"path": view_url, "method": DELETE}
-                                view_requests.append(view_request)
-                                continue
+
                 if view_requests:
                     view_requests_list.extend(view_requests)
 
@@ -1366,8 +1367,8 @@ class Snmp(ConfigBase):
         :rtype: A list
         :returns: the host that matches the wanted host
         """
-        for each_host in have.get('host'):
-            if each_host['ip'] == want['ip']:
+        for each_host in want.get('host'):
+            if each_host['ip'] == have['ip']:
                 return each_host
         return {}
 
