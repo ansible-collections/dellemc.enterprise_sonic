@@ -52,64 +52,62 @@ merged_tests:
       backup_keepalive_interval: 1
       backup_keepalive_session_vrf: VrfBlue
 
+  - name: test_case_02
+    description: Update created MCLAG properties
+    state: merged
+    input:
+        domain_id: 1
+        source_address: 3.3.3.4
+        peer_address: 1.1.1.2
+        session_vrf: VrfRed
+        peer_link: "{{ interface2 }}"
+        keepalive: 2
+        session_timeout: 350
+        delay_restore: 600
+        system_mac: 00:00:00:11:11:11
+        backup_keepalive_source_address: 10.10.10.10
+        backup_keepalive_peer_address: 11.11.11.11
+        backup_keepalive_interval: 59
+        backup_keepalive_session_vrf: VrfRed
 
-    - name: test_case_02
-      description: Update created MCLAG properties
-      state: merged
-      input:
-          domain_id: 1
-          source_address: 3.3.3.4
-          peer_address: 1.1.1.2
-          session_vrf: VrfRed
-          peer_link: "{{ interface2 }}"
-          keepalive: 2
-          session_timeout: 350
-          delay_restore: 600
-          system_mac: 00:00:00:11:11:11
-          backup_keepalive_source_address: 10.10.10.10
-          backup_keepalive_peer_address: 11.11.11.11
-          backup_keepalive_interval: 59
-          backup_keepalive_session_vrf: VrfRed
-
-    - name: test_case_03
-      description: Update MCLAG properties - associate vlans and portchannels
-      state: merged
-      input:
-          domain_id: 1
-          unique_ip:
-              vlans:
-                  - vlan: vlan4
-                  - vlan: vlan5
-                  - vlan: vlan12-13
-                  - vlan: vlan21-22
-                  - vlan: vlan35
-          peer_gateway:
-              vlans:
-                  - vlan: vlan4
-                  - vlan: vlan5
-                  - vlan: vlan12-13
-                  - vlan: vlan21-22
-                  - vlan: vlan35
-          members:
-              portchannels:
-                  - lag: Po10
-                  - lag: Po11
-
-    - name: test_case_04
-      description: Update MCLAG properties - associate further vlans
-      state: merged
-      input:
-          domain_id: 1
-          unique_ip:
-              vlans:
-                  - vlan: vlan11-15
-                  - vlan: vlan21-25
-                  - vlan: vlan31-35
-          peer_gateway:
-              vlans:
-                  - vlan: vlan11-15
-                  - vlan: vlan21-25
-                  - vlan: vlan31-35
+  - name: test_case_03
+    description: Update MCLAG properties - associate vlans and portchannels
+    state: merged
+    input:
+        domain_id: 1
+        unique_ip:
+            vlans:
+                - vlan: vlan4
+                - vlan: vlan5
+                - vlan: vlan12-13
+                - vlan: vlan21-22
+                - vlan: vlan35
+        peer_gateway:
+            vlans:
+                - vlan: vlan4
+                - vlan: vlan5
+                - vlan: vlan12-13
+                - vlan: vlan21-22
+                - vlan: vlan35
+        members:
+            portchannels:
+                - lag: Po10
+                - lag: Po11
+  - name: test_case_04
+    description: Update MCLAG properties - associate further vlans
+    state: merged
+    input:
+        domain_id: 1
+        unique_ip:
+            vlans:
+                - vlan: vlan11-15
+                - vlan: vlan21-25
+                - vlan: vlan31-35
+        peer_gateway:
+            vlans:
+                - vlan: vlan11-15
+                - vlan: vlan21-25
+                - vlan: vlan31-35
 
 delete_all:
     - name: del_all_test_case_01
