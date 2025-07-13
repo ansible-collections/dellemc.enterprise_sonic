@@ -262,7 +262,7 @@ class Snmp(ConfigBase):
         else:
             new_have = have
         requests.extend(self.get_create_snmp_request(request_commands, new_have, False))
-        
+
         if commands and len(requests) > 0:
             if 'user' in del_commands and len(del_commands['user']) > 0:
                 commands_updated.extend(update_states(del_commands, "deleted"))
