@@ -96,6 +96,13 @@ merged_03:
       method: 'patch'
       data:
         ietf-snmp-ext:notifications:
+          bgp-traps: True
+          ospf-traps: True
+    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications'
+      method: 'patch'
+      data:
+        ietf-snmp-ext:notifications:
+          bgp-traps: True
           ospf-traps: True
 
 deleted_01:
@@ -327,6 +334,9 @@ overridden_01:
               udp:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
+    - path: 'data/ietf-snmp:snmp/engine/listen'
+      method: 'delete'
+      data:
     - path: 'data/ietf-snmp:snmp/target'
       method: 'delete'
       data:

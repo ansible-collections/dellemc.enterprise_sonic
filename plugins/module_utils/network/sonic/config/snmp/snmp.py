@@ -221,18 +221,6 @@ class Snmp(ConfigBase):
                         pop_list.append(option)
                 for option in pop_list:
                     del_commands.pop(option)
-            if 'agentaddress' in del_commands and 'agentaddress' in want:
-                for command in del_commands.get('agentaddress'):
-                    if command.get('name'):
-                        del_commands['agentaddress'].remove(command)
-                if len(del_commands['agentaddress']) == 0:
-                    del_commands.pop('agentaddress')
-            if 'host' in del_commands and 'host' in want:
-                for command in del_commands.get('host'):
-                    if command.get('name'):
-                        del_commands['host'].remove(command)
-                if len(del_commands['host']) == 0:
-                    del_commands.pop('host')
             if len(del_commands) > 0:
                 del_requests = self.get_delete_snmp_request(del_commands, have, False)
                 if del_requests:
@@ -271,8 +259,10 @@ class Snmp(ConfigBase):
             del_commands = {'user': self.get_existing_user(commands, have)}
             new_have = get_diff(have, del_commands)
             request_commands = get_diff(want, new_have, TEST_KEYS)
-
+        else:
+            new_have = have
         requests.extend(self.get_create_snmp_request(request_commands, new_have, False))
+        
         if commands and len(requests) > 0:
             if 'user' in del_commands and len(del_commands['user']) > 0:
                 commands_updated.extend(update_states(del_commands, "deleted"))
@@ -778,7 +768,7 @@ class Snmp(ConfigBase):
         have_targetentry = have.get('host')
         have_targetentry_names = []
         if have_targetentry and not overridden_or_replaced:
-            have_targetentry_names = [agent_entry.get('name') for agent_entry in have_targetentry]
+            have_targetentry_names = [host_entry.get('name') for host_entry in have_targetentry]
         for conf in server:
             target_params_dict = {}
             target_entry_name = ""
