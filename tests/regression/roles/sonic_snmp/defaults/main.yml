@@ -80,6 +80,14 @@ tests:
             priv_type: 'des'
             key: 'U2FsdGVkX19LUhXu+GHOeKOR3jDvIYhob/EgD6q7If+eCumbDCurRQUFsQHjDBQPYoq5llVBXCat+vwwx7y6PQ=='
           encrypted: True
+        - name: 'user10'
+          auth:
+            auth_type: 'md5'
+            key: 'U2FsdGVkX1/vqhOHul6YKTTxMfJb1785U8Hh5yDEETDfKsPEqai2uH8v6KX0nt1WRzLgSFLb1WhGzmy7NzsvTQ=='
+          priv:
+            priv_type: 'aes'
+            key: 'U2FsdGVkX19LUhXu+GHOeKOR3jDvIYhob/EgD6q7If+eCumbDCurRQUFsQHjDBQPYoq5llVBXCat+vwwx7y6PQ=='
+          encrypted: True
 
   - name: test_case_04_delete_some_options
     description: Delete SNMP engine, location, contact and enable_trap configuration
@@ -157,6 +165,10 @@ tests:
           tag: 'inform'
           retries: 20
           vrf: '{{ vrf1 }}'
+          port: 2000
+          user:
+            name: 'user3'
+            security_level: 'auth'
         - ip: '1.2.3.4'
           timeout: 800
           retries: 30
@@ -164,10 +176,10 @@ tests:
           vrf: '{{ vrf1 }}'
       agentaddress:
         - ip: '1.2.3.5'
-          port: 1024
+          port: 1050
           interface: 'Eth1/30'
         - ip: '1.2.3.6'
-          port: 1030
+          port: 1080
           interface: 'Eth1/30'
 
   - name: test_case_08_delete_agentaddress
@@ -176,7 +188,7 @@ tests:
     input:
       agentaddress:
         - ip: '1.2.3.5'
-          port: 1024
+          port: 1050
           interface: 'Eth1/30'
 
   - name: test_case_09_merge_multiple_user_one_group
@@ -236,6 +248,7 @@ tests:
           tag: 'inform'
           retries: 40
           port: 162
+          vrf: '{{ vrf1 }}'
 
   - name: test_case_14_merge_group
     description: Merge some of a SNMP group
