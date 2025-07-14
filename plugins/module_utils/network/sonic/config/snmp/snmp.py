@@ -224,7 +224,7 @@ class Snmp(ConfigBase):
             if 'agentaddress' in del_commands and 'agentaddress' in want:
                 for command in del_commands.get('agentaddress'):
                     # If no differences were found other than 'name' (which is auto-generated for the config),
-                    # don't delete this entry. 
+                    # don't delete this entry.
                     if len(command) == 1 and command.get('name'):
                         del_commands['agentaddress'].remove(command)
                 if len(del_commands['agentaddress']) == 0:
@@ -232,7 +232,7 @@ class Snmp(ConfigBase):
             if 'host' in del_commands and 'host' in want:
                 for command in del_commands.get('host'):
                     # If no differences were found other than 'name' (which is auto-generated for the config),
-                    # don't delete this entry. 
+                    # don't delete this entry.
                     if len(command) == 1 and command.get('name'):
                         del_commands['host'].remove(command)
                 if len(del_commands['host']) == 0:
@@ -444,10 +444,10 @@ class Snmp(ConfigBase):
             if 'name' in conf:
                 for agent_entry in have_agentaddress:
                     if (agent_entry.get('ip') == conf.get('ip')
-                        and (agent_entry.get('vrf') == conf.get('vrf')
-                             or agent_entry.get('interface') == conf.get('interface'))
                         and agent_entry.get('port') == conf.get('port')
-                        and agent_entry.get('name') != conf['name']):
+                        and agent_entry.get('name') != conf['name']
+                        and (agent_entry.get('vrf') == conf.get('vrf')
+                             or agent_entry.get('interface') == conf.get('interface'))):
                         self._module.fail_json(msg="The specified options are in use for an existing agent.")
 
                 name = conf.get('name')
