@@ -182,14 +182,16 @@ tests:
           port: 1080
           interface: 'Eth1/30'
 
-  - name: test_case_08_delete_agentaddress
-    description: Delete SNMP agentaddress
+  - name: test_case_08_delete_agentaddress_enable_trap
+    description: Delete SNMP agentaddress and enable_trap
     state: deleted
     input:
       agentaddress:
         - ip: '1.2.3.5'
           port: 1050
           interface: 'Eth1/30'
+      enable_trap:
+        - 'all'
 
   - name: test_case_09_merge_multiple_user_one_group
     description: Merge multiple SNMP users and groups

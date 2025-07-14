@@ -41,7 +41,7 @@ PATCH = 'patch'
 DELETE = 'delete'
 
 TEST_KEYS = [
-    {'agentaddress': {'ip': '', 'vrf': ''}},
+    {'agentaddress': {'ip': '', 'interface': ''}},
     {'community': {'name': ''}},
     {'group': {'name': ''}},
     {'access': {'security_model': '', 'security_level': ''}},
@@ -222,21 +222,21 @@ class Snmp(ConfigBase):
                 for option in pop_list:
                     del_commands.pop(option)
             if 'agentaddress' in del_commands and 'agentaddress' in want:
-                agentaddress_del = del_commands['agentaddress']
                 for command in del_commands.get('agentaddress'):
-                    if len(command) == 3 and 'name' in command and 'ip' in command and 'vrf' in command:
-                        agentaddress_del.remove(command)
-                del_commands.pop('agentaddress')
-                if len(agentaddress_del) != 0:
-                    del_commands['agentaddress'] = have['agentaddress']
+                    # If no differences were found other than 'name' (which is auto-generated for the config),
+                    # don't delete this entry. 
+                    if len(command) == 1 and command.get('name'):
+                        del_commands['agentaddress'].remove(command)
+                if len(del_commands['agentaddress']) == 0:
+                    del_commands.pop('agentaddress')
             if 'host' in del_commands and 'host' in want:
-                host_del = del_commands['host']
-                for host in host_del:
-                    if len(host) == 3 and 'name' in host and 'ip' in host and 'vrf' in host:
-                        host_del.remove(host)
-                del_commands.pop('host')
-                if len(host_del) != 0:
-                    del_commands['host'] = have['host']
+                for command in del_commands.get('host'):
+                    # If no differences were found other than 'name' (which is auto-generated for the config),
+                    # don't delete this entry. 
+                    if len(command) == 1 and command.get('name'):
+                        del_commands['host'].remove(command)
+                if len(del_commands['host']) == 0:
+                    del_commands.pop('host')
             if len(del_commands) > 0:
                 del_requests = self.get_delete_snmp_request(del_commands, have, False)
                 if del_requests:
@@ -310,7 +310,6 @@ class Snmp(ConfigBase):
             new_want = self.get_configured_option(want, have)
             reverse_diff = get_diff(have, new_want, TEST_KEYS)
             commands = get_diff(have, reverse_diff, TEST_KEYS)
-
 
         requests = self.get_delete_snmp_request(commands, have, delete_all)
 
@@ -397,7 +396,7 @@ class Snmp(ConfigBase):
             target_params_request = self.build_create_enable_target_params_payload(config_copy, have, overridden_or_replaced)
             requests.extend(target_params_request)
             target_path = "data/ietf-snmp:snmp/target"
-            payload = self.build_create_enable_target_payload(config_copy, have)
+            payload = self.build_create_enable_target_payload(config_copy)
             target_request = {'path': target_path, 'method': method, 'data': payload}
             requests.append(target_request)
 
@@ -441,35 +440,43 @@ class Snmp(ConfigBase):
         for conf in agentaddress:
             name = ""
             agentaddress_dict = {}
+            interface = ""
             if 'name' in conf:
-                matching_name = next((agent_entry for agent_entry in have_agentaddress if agent_entry.get('name') == conf.get('name')), None)
-                matching_vrf = matching_name.get('vrf') == conf.get('vrf')
-                matching_interface = matching_name.get('interface') == conf.get('interface')
-                matching_ip = matching_name.get('ip') == conf.get('ip')
-                if matching_name and (matching_vrf or matching_ip or matching_interface):
-                    self._module.fail_json(msg="There already exists an agentaddress with that name")
-                else:
-                    name = conf.get('name')
-    
-            vrf = ""
-            interface = conf.get('interface')
-            # if there is already a matching 'ip' and 'vrf' then use that one
-            if have_agentaddress and 'ip' in conf and ('vrf' in conf or 'interface' in conf):
-                vrf = conf.get('vrf')
-                if vrf:
-                    interface = vrf
-                    matching_agentaddress = next((agent_entry for agent_entry in have_agentaddress
-                                                  if agent_entry.get('ip') == conf.get('ip')
-                                                  and (agent_entry.get('interface') == conf.get('vrf')
-                                                       or agent_entry.get('interface') == conf.get('interface'))),
-                                                 None)
-                    if 'name' not in conf and matching_agentaddress:
-                        name = matching_agentaddress.get('name')
+                for agent_entry in have_agentaddress:
+                    if (agent_entry.get('ip') == conf.get('ip')
+                        and (agent_entry.get('vrf') == conf.get('vrf')
+                             or agent_entry.get('interface') == conf.get('interface'))
+                        and agent_entry.get('port') == conf.get('port')
+                        and agent_entry.get('name') != conf['name']):
+                        self._module.fail_json(msg="The specified options are in use for an existing agent.")
+
+                name = conf.get('name')
+
+            else:
+                vrf = ""
+                # if there is already a matching agent, use that one
+                if have_agentaddress:
+                    for agent_entry in have_agentaddress:
+                        if (agent_entry.get('ip') == conf.get('ip')
+                            and (agent_entry.get('vrf') == conf.get('vrf')
+                                 or agent_entry.get('interface') == conf.get('interface'))
+                            and agent_entry.get('port') == conf.get('port')):
+                            name = agent_entry.get('name')
             if len(name) == 0:
                 name = self.get_agententry(have_agentaddress_names)
+            vrf = conf.get('vrf')
+            if vrf:
+                interface = vrf
+            else:
+                interface = conf.get('interface')
 
+            udp_dict = {}
+            udp_dict['ietf-snmp-ext:interface'] = interface
             agentaddress_dict['name'] = name
-            agentaddress_dict['udp'] = {'ietf-snmp-ext:interface': interface, 'ip': conf.get('ip'), 'port': conf.get('port')}
+            udp_dict['ip'] = conf.get('ip')
+            if conf.get('port'):
+                udp_dict['port'] = conf['port']
+            agentaddress_dict['udp'] = udp_dict
             agentaddress_list.append(agentaddress_dict)
 
         agentaddressdict['listen'] = agentaddress_list
@@ -737,7 +744,7 @@ class Snmp(ConfigBase):
 
         return access_list
 
-    def build_create_enable_target_payload(self, config, have):
+    def build_create_enable_target_payload(self, config):
         """ Build the payload for SNMP target information based on the given host configuration
         :rtype: A dictionary
         :returns: The payload for SNMP target
@@ -751,7 +758,7 @@ class Snmp(ConfigBase):
             retries = conf.get('retries')
 
             target_dict['name'] = conf.get('name')
-            target_dict['retries'] = retries
+            conf.get('name')
             tag_list = []
             tag = None
             if 'tag' in conf:
@@ -762,15 +769,17 @@ class Snmp(ConfigBase):
             if len(tag_list) == 0:
                 tag_list = None
 
-            target_dict["tag"] = tag_list
-
-            target_dict['target-params'] = conf.get('name')
-            target_dict['timeout'] = conf.get('timeout')
             port = conf.get('port')
             if not port:
                 port = 162
-            target_dict['udp'] = {'ip': conf.get('ip'), 'port': port}
-            target_dict['ietf-snmp-ext:source-interface'] = conf.get('source_interface')
+            target_dict['udp'] = {'ip': conf.get('ip'), 'port': port, 'ietf-snmp-ext:vrf-name': conf.get('vrf')}
+            if tag_list:
+                target_dict["tag"] = tag_list
+            target_dict['timeout'] = conf.get('timeout')
+            target_dict['retries'] = retries
+            target_dict['target-params'] = conf.get('name')
+            if 'source_interface' in conf:
+                target_dict['ietf-snmp-ext:source-interface'] = conf.get('source_interface')
             target_list.append(target_dict)
 
         payload_url['target'] = target_list
@@ -960,7 +969,7 @@ class Snmp(ConfigBase):
                             vrf = want.get('vrf')
                             # Handle deletion of UDP options.
                             all_udp_deleted = True
-                            for option in ('interface', 'ip', 'port', 'vrf'):
+                            for option in ('interface', 'ip', 'port'):
                                 if option not in matched_agentaddress or option in want:
                                     continue
                                 else:
@@ -1130,7 +1139,7 @@ class Snmp(ConfigBase):
                 else:
                     for want in configs['host']:
                         matched_host = self.get_host(want=want, have=have)
-                        if matched_host is not None:
+                        if matched_host != '{}':
                             host_target_url = "data/ietf-snmp:snmp/target={0}".format(matched_host['name'])
                             ip = want.get('ip')
                             port = want.get('port')
@@ -1374,9 +1383,10 @@ class Snmp(ConfigBase):
         :rtype: A list
         :returns: the host that matches the wanted host
         """
-        for each_host in want.get('host'):
-            if each_host['ip'] == have['ip']:
-                return each_host
+        if 'host' in have:
+            for each_host in have.get('host'):
+                if each_host['ip'] == want['ip']:
+                    return each_host
         return {}
 
     def get_agententry(self, have_agentaddress):
