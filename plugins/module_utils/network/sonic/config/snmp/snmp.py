@@ -458,9 +458,9 @@ class Snmp(ConfigBase):
                 if have_agentaddress:
                     for agent_entry in have_agentaddress:
                         if (agent_entry.get('ip') == conf.get('ip')
+                            and agent_entry.get('port') == conf.get('port')
                             and (agent_entry.get('vrf') == conf.get('vrf')
-                                 or agent_entry.get('interface') == conf.get('interface'))
-                            and agent_entry.get('port') == conf.get('port')):
+                                 or agent_entry.get('interface') == conf.get('interface'))):
                             name = agent_entry.get('name')
             if len(name) == 0:
                 name = self.get_agententry(have_agentaddress_names)
