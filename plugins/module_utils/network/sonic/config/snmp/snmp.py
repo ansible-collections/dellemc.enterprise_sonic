@@ -471,7 +471,8 @@ class Snmp(ConfigBase):
                 interface = conf.get('interface')
 
             udp_dict = {}
-            udp_dict['ietf-snmp-ext:interface'] = interface
+            if interface:
+                udp_dict['ietf-snmp-ext:interface'] = interface
             agentaddress_dict['name'] = name
             udp_dict['ip'] = conf.get('ip')
             if conf.get('port'):
@@ -1013,6 +1014,8 @@ class Snmp(ConfigBase):
                                 community_sn_url = community_url + "/security-name"
                                 security_name_request = {"path": community_sn_url, "method": DELETE}
                                 community_requests.append(security_name_request)
+                                community_request = {"path": community_url, "method": DELETE}
+                                community_requests.append(community_request)
                                 group_community_url = "data/ietf-snmp:snmp/vacm/group={0}/member={1}".format(group_name, community_name)
                                 group_request = {"path": group_community_url, "method": DELETE}
                                 community_requests.append(group_request)
