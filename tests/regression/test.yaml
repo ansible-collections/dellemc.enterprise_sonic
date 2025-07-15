@@ -79,6 +79,7 @@
     - sonic_lst
     - sonic_fbs_classifiers
     - sonic_ars
+    - sonic_network_policy
     - sonic_ptp_default_ds
     - sonic_mirroring
     - sonic_drop_counter
