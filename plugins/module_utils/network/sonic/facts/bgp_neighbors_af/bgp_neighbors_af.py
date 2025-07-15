@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2019 Red Hat
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -48,6 +48,7 @@ class Bgp_neighbors_afFacts(object):
         'prefix_list_out': ['prefix-list', 'export-policy'],
         'ipv4_unicast': 'ipv4-unicast',
         'ipv6_unicast': 'ipv6-unicast',
+        'discard-extra': 'openconfig-bgp-ext:discard-extra',
         'l2vpn_evpn': ['l2vpn-evpn', 'prefix-limit']
     }
 

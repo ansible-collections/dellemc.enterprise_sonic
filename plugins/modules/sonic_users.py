@@ -57,6 +57,18 @@ options:
           - always
           - on_create
         default: always
+      ssh_key:
+        version_added: 3.1.0
+        description:
+          - Specifies the user ssh key for an existing user.
+          - The ssh key pair (public and private key) can be created using ssh-keygen command on the server from
+          - where the user will connect to the SONiC device.
+          - Only the public key is configured in the ssh_key field.
+          - The ssh_key option can only be "merged" after initial creation of the affected "user" instance
+          - and must be merged without any additional options specified other than "name".
+          - It can only be deleted as an individual option if it is the only option specified.
+          - If other options are specified for deletion, the entire user instance is deleted.
+        type: str
   state:
     description:
       - Specifies the operation to be performed on the users configured on the device.
@@ -229,6 +241,68 @@ EXAMPLES = """
 # admin                             admin
 # user1                             operator
 # user2                             netadmin
+
+# Using Merged
+#
+# Before state:
+# -------------
+#
+# sonic# show users sshkey
+#
+# sonic# show users configured
+# --------------------------------------------------------------------
+# User                           Role(s)
+# --------------------------------------------------------------------
+# admin                          admin
+# user1                          operator
+# user2                          netadmin
+
+- name: Configure user sshkey
+  dellemc.enterprise_sonic.sonic_users:
+    config:
+      - name: user1
+        ssh_key: >
+          ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc
+          /iz/IwHt/7s++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5y
+          bjNdvLH11cxqc+mmNYa7d40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic
+    state: merged
+
+# After state:
+# ------------
+#
+# sonic# show users configured
+# ----------------------------------------------------------------------
+# sonic# show users sshKey
+# User: user1
+# SSH Key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQCoCc6lPgrSAXZByJAPH6cwn0Mhj9J1zYUfiLc/iz/IwHt/7s
+#          ++bN1tnL6bAan6Ssg4XvOF0mcP5K53AAP+bX5WHy/d1wm7icllBI0JT150qp9nY5ybjNdvLH11cxqc+mmNYa7d
+#          40fpeoUgMdSBGtSL0jY2PHHRCvVscFYjSm6tQQ== root@sonic
+# ----------------------------------------------------------------------
+
+# Using Deleted
+#
+# Before state:
+# -------------
+#
+# sonic# show users sshKey
+# User: user1
+# SSH Key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRr
+#          A2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqM
+#          mbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
+# ----------------------------------------------------------------------
+
+- name: Delete sshkey for existing users
+  dellemc.enterprise_sonic.sonic_users:
+    config:
+      - name: user1
+        ssh_key:
+    state: deleted
+
+# After state:
+# ------------
+#
+# sonic# show users sshkey
+# ----------------------------------------------------------------------
 """
 
 RETURN = """

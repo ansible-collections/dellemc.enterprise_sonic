@@ -7,10 +7,10 @@ merged_01:
         tlv_set:
           ipv4_management_address: '10.1.1.1'
         med_tlv_select:
-          network_policy: True
-          power_management: True
+          network_policy: true
+          power_management: true
         tlv_select:
-          power_management: True
+          power_management: true
           port_vlan_id: true
           vlan_name: true
           link_aggregation: true
@@ -32,7 +32,7 @@ merged_01:
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.2"
-                openconfig-lldp-ext:suppress-tlv-advertisement: 
+                openconfig-lldp-ext:suppress-tlv-advertisement:
                   - openconfig-lldp-ext:MED_NETWORK_POLICY
                   - openconfig-lldp-ext:MED_EXT_MDI_POWER
                   - openconfig-lldp-ext:MDI_POWER
@@ -85,7 +85,7 @@ merged_02:
         tlv_set:
           ipv4_management_address: '10.1.1.1'
         med_tlv_select:
-          network_policy: False
+          network_policy: false
         vlan_name_tlv:
           allowed_vlans:
             - vlan: '22-30'
@@ -96,11 +96,11 @@ merged_02:
         tlv_set:
           ipv6_management_address: '20::1'
         tlv_select:
-          power_management: False
-          port_vlan_id: False
-          vlan_name: False
-          link_aggregation: False
-          max_frame_size: False
+          power_management: false
+          port_vlan_id: false
+          vlan_name: false
+          link_aggregation: false
+          max_frame_size: false
     state: merged
 
   existing_lldp_interfaces_config:
@@ -113,7 +113,7 @@ merged_02:
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.3"
-                openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
+                openconfig-lldp-ext:MED_NETWORK_POLICY: true
                 openconfig-lldp-ext:allowed-vlans:
                   - 10
                   - '15..20'
@@ -127,7 +127,7 @@ merged_02:
               config:
                 openconfig-lldp-ext:mode: RECEIVE
                 openconfig-lldp-ext:management-address-ipv6: "30::1"
-                openconfig-lldp-ext:MED_EXT_MDI_POWER: TRUE
+                openconfig-lldp-ext:MED_EXT_MDI_POWER: true
 
   expected_config_requests:
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:mode
@@ -195,14 +195,14 @@ deleted_01:
         tlv_set:
           ipv4_management_address: '10.1.1.1'
         med_tlv_select:
-          network_policy: False
-          power_management: False
+          network_policy: false
+          power_management: false
         tlv_select:
-          power_management: False
-          port_vlan_id: False
-          vlan_name: False
-          link_aggregation: False
-          max_frame_size: False
+          power_management: false
+          port_vlan_id: false
+          vlan_name: false
+          link_aggregation: false
+          max_frame_size: false
     state: deleted
 
   existing_lldp_interfaces_config:
@@ -251,14 +251,14 @@ deleted_02:
         tlv_set:
           ipv4_management_address: "11.1.1.1"
         med_tlv_select:
-          network_policy: True
-          power_management: True
+          network_policy: true
+          power_management: true
         tlv_select:
-          power_management: True
-          port_vlan_id: True
-          vlan_name: True
-          link_aggregation: True
-          max_frame_size: True
+          power_management: true
+          port_vlan_id: true
+          vlan_name: true
+          link_aggregation: true
+          max_frame_size: true
 
       - name: 'Ethernet1'
         mode: transmit
@@ -340,7 +340,9 @@ deleted_02:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10%2C15..20
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=15..20
       method: delete
 
 replaced_01:
@@ -351,7 +353,7 @@ replaced_01:
         tlv_set:
           ipv4_management_address: '10.1.1.2'
         med_tlv_select:
-          network_policy: False
+          network_policy: false
         vlan_name_tlv:
           allowed_vlans:
             - vlan: '40-50'
@@ -368,7 +370,7 @@ replaced_01:
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
-                openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
+                openconfig-lldp-ext:MED_NETWORK_POLICY: true
                 openconfig-lldp-ext:allowed-vlans:
                   - 10
                   - '15..20'
@@ -379,7 +381,9 @@ replaced_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=10%2C15..20
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=10
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=15..20
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete
@@ -415,16 +419,16 @@ overridden_01:
         tlv_set:
           ipv4_management_address: '10.1.1.2'
         med_tlv_select:
-          network_policy: False
+          network_policy: false
       - name: 'Ethernet1'
         mode: transmit
         tlv_set:
           ipv6_management_address: "20::2"
         tlv_select:
-          port_vlan_id: False
-          vlan_name: False
-          link_aggregation: False
-          max_frame_size: False
+          port_vlan_id: false
+          vlan_name: false
+          link_aggregation: false
+          max_frame_size: false
         vlan_name_tlv:
           allowed_vlans:
             - vlan: '22-30'
@@ -441,15 +445,15 @@ overridden_01:
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
-                openconfig-lldp-ext:MED_NETWORK_POLICY: TRUE
+                openconfig-lldp-ext:MED_NETWORK_POLICY: true
             - name: 'Ethernet1'
               config:
                 openconfig-lldp-ext:mode: RECEIVE
                 openconfig-lldp-ext:management-address-ipv6: "20::1"
-                openconfig-lldp-ext:PORT_VLAN_ID: TRUE
-                openconfig-lldp-ext:VLAN_NAME: TRUE
-                openconfig-lldp-ext:LINK_AGGREGATION: TRUE
-                openconfig-lldp-ext:MAX_FRAME_SIZE: TRUE
+                openconfig-lldp-ext:PORT_VLAN_ID: true
+                openconfig-lldp-ext:VLAN_NAME: true
+                openconfig-lldp-ext:LINK_AGGREGATION: true
+                openconfig-lldp-ext:MAX_FRAME_SIZE: true
                 openconfig-lldp-ext:allowed-vlans:
                   - 10
                   - '15..20'
@@ -462,7 +466,9 @@ overridden_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
-    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10%2C15..20
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=15..20
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:vlan-name-tlv-count
       method: delete

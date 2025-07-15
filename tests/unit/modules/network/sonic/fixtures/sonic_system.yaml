@@ -13,7 +13,10 @@ merged_01:
       audit_rules: DETAIL
       switching_mode: CUT_THROUGH
       concurrent_session_limit: 4
-
+      adjust_txrx_clock_freq: true
+      password_complexity:
+        min_length: 10
+        min_lower_case: 2
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -22,6 +25,7 @@ merged_01:
           openconfig-system:config:
             hostname: abcd-host
             switching-mode: STORE_AND_FORWARD
+            adjust-txrx-clock-freq: false
             anycast_address:
               IPv4: true
               mac_address: 11:22:33:44:55:66
@@ -54,6 +58,18 @@ merged_01:
         value:
           openconfig-system-ext:config:
             limit: 2
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      response:
+        code: 200
+        value:
+          openconfig-system:adjust-txrx-clock-freq: false
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            min-len: 8
+            min-lower-case: 1
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -65,6 +81,10 @@ merged_01:
       method: "patch"
       data:
         openconfig-system:switching-mode: CUT_THROUGH
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: "patch"
+      data:
+        openconfig-system:adjust-txrx-clock-freq: true
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
       data:
@@ -94,6 +114,12 @@ merged_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 4
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          min-len: 10
+          min-lower-case: 2
 
 
 merged_02:
@@ -150,6 +176,7 @@ deleted_01:
           openconfig-system:config:
             hostname: SONIC-Test1
             switching-mode: CUT_THROUGH
+            adjust-txrx-clock-freq: true
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
         code: 200
@@ -185,6 +212,21 @@ deleted_01:
         value:
           openconfig-system-ext:config:
             limit: 5
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      response:
+        code: 200
+        value:
+          openconfig-system:adjust-txrx-clock-freq: true
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            min-len: 10
+            min-lower-case: 2
+            min-upper-case: 3
+            min-special-char: 3
+            min-numerals: 3
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -193,6 +235,7 @@ deleted_01:
         openconfig-system:config:
           hostname: sonic
     - path: "data/openconfig-system:system/config/switching-mode"
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
       method: "delete"
       data:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
@@ -211,6 +254,16 @@ deleted_01:
       data:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: 'delete'
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-lower-case"
+      method: 'delete'
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-len"
+      method: 'delete'
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-upper-case"
+      method: 'delete'
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-special-char"
+      method: 'delete'
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-numerals"
+      method: 'delete'
 
 
 deleted_02:
@@ -226,7 +279,7 @@ deleted_02:
         mac_address: aa:bb:cc:dd:ee:ff
       load_share_hash_algo: JENKINS_HASH_HI
       concurrent_session_limit: 4
-
+      adjust_txrx_clock_freq: true
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -235,6 +288,7 @@ deleted_02:
           openconfig-system:config:
             hostname: SONIC-Test1
             switching-mode: CUT_THROUGH
+            adjust-txrx-clock-freq: true
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
         code: 200
@@ -282,6 +336,8 @@ deleted_02:
       method: 'delete'
     - path: "data/openconfig-system:system/config/switching-mode"
       method: "delete"
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: 'delete'
       data:
 
 replaced_01:
@@ -297,6 +353,12 @@ replaced_01:
       load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
       concurrent_session_limit: 5
+      password_complexity:
+        min_spl_char: 2
+        min_upper_case: 2
+        min_lower_case: 2
+        min_numerals: 2
+        min_length: 10
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -340,8 +402,26 @@ replaced_01:
         value:
           openconfig-system-ext:config:
             limit: 10
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      response:
+        code: 200
+        value:
+          openconfig-system:adjust-txrx-clock-freq: true
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            min-special-char: 1
+            min-upper-case: 1
+            min-lower-case: 1
+            min-numerals: 1
+            min-len: 12
 
   expected_config_requests:
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: "delete"
+      data:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "delete"
       data:
@@ -376,6 +456,15 @@ replaced_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 5
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          min-special-char: 2
+          min-upper-case: 2
+          min-lower-case: 2
+          min-numerals: 2
+          min-len: 10
 
 
 overridden_01:
@@ -389,6 +478,12 @@ overridden_01:
         ipv4: true
       load_share_hash_algo: CRC_XOR
       concurrent_session_limit: 4
+      password_complexity:
+        min_spl_char: 3
+        min_upper_case: 3
+        min_lower_case: 3
+        min_numerals: 3
+        min_length: 15
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -432,14 +527,32 @@ overridden_01:
         value:
           openconfig-system-ext:config:
             limit: 5
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      response:
+        code: 200
+        value:
+          openconfig-system:adjust-txrx-clock-freq: true
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            min-special-char: 2
+            min-upper-case: 2
+            min-lower-case: 2
+            min-numerals: 2
+            min-len: 10
 
   expected_config_requests:
+    - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
+      method: "delete"
+      data:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/auto-breakout"
       method: "delete"
       data:
     - path: "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST=IP/gwmac"
       method: "delete"
-      data:  
+      data:
     - path: "data/openconfig-system:system/config"
       method: "patch"
       data:
@@ -467,3 +580,12 @@ overridden_01:
       method: "patch"
       data:
         openconfig-system-ext:limit: 4
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          min-special-char: 3
+          min-upper-case: 3
+          min-lower-case: 3
+          min-numerals: 3
+          min-len: 15

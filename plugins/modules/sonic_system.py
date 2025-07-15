@@ -101,12 +101,49 @@ options:
         choices:
           - CUT_THROUGH
           - STORE_AND_FORWARD
+      adjust_txrx_clock_freq:
+        description:
+          - Adjust TX/RX clock frequency to platform specific value.
+          - Operational default value is C(false).
+        version_added: 3.1.0
+        type: bool
       concurrent_session_limit:
         version_added: 3.1.0
         description:
           - Specifies limit on number of concurrent sessions
           - Range 1-12
         type: int
+      password_complexity:
+        description:
+          - The set of login password attribute configurations
+        type: dict
+        suboptions:
+          min_length:
+            description:
+              - Minimum number of required alphanumeric characters
+              - The range is from 6 to 32
+              - Default is 8
+            type: int
+          min_upper_case:
+            description:
+              - Minimum number of uppercase characters required
+              - The range is from 0 to 31
+            type: int
+          min_lower_case:
+            description:
+              - Minimum number of lowercase characters required
+              - The range is from 0 to 31
+            type: int
+          min_numerals:
+            description:
+              - Minimum number of numeric characters required
+              - The range is from 0 to 31
+            type: int
+          min_spl_char:
+            description:
+              - Minimum number of special characters required
+              - The range is from 0 to 31
+            type: int
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -131,6 +168,8 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
 # login concurrent-session limit 4
+# system adjust-txrx-clock-freq
+# login password-attribute character-restriction lower 2
 
 - name: Delete System configuration
   dellemc.enterprise_sonic.sonic_system:
@@ -141,6 +180,9 @@ EXAMPLES = """
         ipv6: true
       load_share_hash_algo: JENKINS_HASH_HI
       concurrent_session_limit: 4
+      adjust_txrx_clock_freq: true
+      password_complexity:
+        min_lower_case: 2
     state: deleted
 
 # After state:
@@ -197,6 +239,10 @@ EXAMPLES = """
         mac_address: aa:bb:cc:dd:ee:ff
       load_share_hash_algo: JENKINS_HASH_HI
       concurrent_session_limit: 4
+      adjust_txrx_clock_freq: true
+      password_complexity:
+        min_upper_case: 2
+        min_spl_char: 2
     state: merged
 
 # After state:
@@ -211,6 +257,9 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
 # login concurrent-session limit 4
+# system adjust-txrx-clock-freq
+# login password-attribute character-restriction upper 2
+# login password-attribute character-restriction special-char 2
 
 # Using "replaced" state
 #
@@ -224,6 +273,8 @@ EXAMPLES = """
 # ipv6 anycast-address enable
 # interface-naming standard
 # login concurrent-session limit 4
+# login password-attribute character-restriction upper 2
+# login password-attribute character-restriction special-char 2
 
 - name: Replace system configuration.
   sonic_system:
@@ -232,6 +283,8 @@ EXAMPLES = """
       anycast_address:
         ipv6: true
       concurrent_session_limit: 5
+      password_complexity:
+        min_lower_case: 2
     state: replaced
 
 # After state:
@@ -242,6 +295,7 @@ EXAMPLES = """
 # hostname SONIC
 # ipv6 anycast-address enable
 # login concurrent-session limit 5
+# login password-attribute character-restriction lower 2
 
 # Using "replaced" state
 #
@@ -253,6 +307,7 @@ EXAMPLES = """
 # ip anycast-mac-address aa:bb:cc:dd:ee:ff
 # interface-naming standard
 # login concurrent-session limit 5
+# login password-attribute character-restriction lower 2
 
 - name: Replace system device configuration.
   sonic_system:
@@ -263,6 +318,8 @@ EXAMPLES = """
         ipv6: true
         ipv4: true
       load_share_hash_algo: JENKINS_HASH_HI
+      password_complexity:
+        min_numerals: 2
     state: replaced
 
 # After state:
@@ -274,6 +331,7 @@ EXAMPLES = """
 # ipv6 anycast-address enable
 # interface-naming standard
 # ip load-share hash algorithm JENKINS_HASH_HI
+# login password-attribute character-restriction numeric 2
 
 # Using "overridden" state
 #
@@ -285,6 +343,7 @@ EXAMPLES = """
 # ipv6 anycast-address enable
 # ip load-share hash algorithm JENKINS_HASH_HI
 # login concurrent-session limit 5
+# login password-attribute character-restriction numeric 2
 
 - name: Override system configuration.
   sonic_system:
@@ -296,6 +355,8 @@ EXAMPLES = """
         mac_address: bb:aa:cc:dd:ee:ff
       load_share_hash_algo: CRC_XOR
       concurrent_session_limit: 4
+      password_complexity:
+        min_upper_case: 1
     state: overridden
 
 # After state:
@@ -309,6 +370,7 @@ EXAMPLES = """
 # interface-naming standard
 # ip load-share hash algorithm CRC_XOR
 # login concurrent-session limit 4
+# login password-attribute character-restriction upper 1
 
 # Using "merged" state
 #

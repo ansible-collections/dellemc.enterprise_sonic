@@ -17,6 +17,12 @@ sonic_system_tests:
       audit_rules: BASIC
       concurrent_session_limit: 4
       switching_mode: STORE_AND_FORWARD
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: false
+      password_complexity:
+        min_lower_case: 2
+        min_length: 10
+        min_spl_char: 1
 
   - name: test_case_02
     description: Update created System properties
@@ -30,7 +36,12 @@ sonic_system_tests:
       concurrent_session_limit: 5
       # Use only on switch models that support CUT_THROUGH
       switching_mode: CUT_THROUGH
-
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: true
+      password_complexity:
+        min_upper_case: 1
+        min_numerals: 2
+        
   - name: test_case_03
     description: Update System properties - associate mac address
     state: merged
@@ -53,6 +64,14 @@ sonic_system_tests:
       concurrent_session_limit: 5
       # Use only on switch models that support CUT_THROUGH
       switching_mode: CUT_THROUGH
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: true
+      password_complexity:
+        min_upper_case: 1
+        min_lower_case: 2
+        min_numerals: 2
+        min_length: 10
+        min_spl_char: 1
 
   - name: test_case_05
     description: Delete System associated anycast mac address
@@ -82,6 +101,14 @@ sonic_system_tests:
       # load_share_hash_algo: CRC_XOR
       audit_rules: BASIC
       concurrent_session_limit: 4
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: true
+      password_complexity:
+        min_upper_case: 1
+        min_lower_case: 2
+        min_numerals: 2
+        min_length: 10
+        min_spl_char: 1
 
   - name: test_case_08
     description: Replace some System configuration
@@ -94,6 +121,8 @@ sonic_system_tests:
       auto_breakout: DISABLE
       audit_rules: DETAIL
       switching_mode: CUT_THROUGH
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: false
 
   - name: test_case_09
     description: Replace different System configuration options
@@ -108,6 +137,11 @@ sonic_system_tests:
       # load_share_hash_algo: CRC_32HI
       audit_rules: BASIC
       concurrent_session_limit: 5
+      # Use only on switch that support this.
+      #adjust_txrx_clock_freq: true
+      password_complexity:
+        min_lower_case: 1
+        min_upper_case: 2
 
   - name: test_case_10
     description: Update System properties
