@@ -187,6 +187,7 @@ class Ospfv3(ConfigBase):
             else:
                 new_config = get_new_config(commands, existing_ospfv3_facts, TEST_KEYS_diff)
             new_config = remove_empties_from_list(new_config)
+            result['after(generated)'] = self._post_process_generated_output(new_config)
             self.sort_lists_in_config(new_config)
 
         if self._module._diff:
@@ -543,3 +544,23 @@ class Ospfv3(ConfigBase):
                     if cfg['graceful_restart'].get('helper', None):
                         if cfg['graceful_restart']['helper'].get('advertise_router_id', []):
                             cfg['graceful_restart']['helper']['advertise_router_id'].sort()
+
+    def _post_process_generated_output(self, config):
+        for cmd in config:
+            if "non_passive_interfaces" in cmd:
+                cmd['default_passive'] = True
+                non_passive_intf = []
+                for intf in cmd.get('non_passive_interfaces', []):
+                    if "addresses" in intf:
+                        non_passive_intf.append(intf)
+                if non_passive_intf:
+                    cmd['non_passive_interfaces'] = non_passive_intf
+            else:
+                cmd['default_passive'] = False
+                passive_intf = []
+                for intf in cmd.get('passive_interfaces', []):
+                    if "addresses" in intf:
+                        passive_intf.append(intf)
+                if passive_intf:
+                    cmd['passive_interfaces'] = passive_intf
+        return config
