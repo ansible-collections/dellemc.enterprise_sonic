@@ -60,9 +60,7 @@ class Ospfv3Facts(object):
 
         for ospf_config in all_ospfv3_configs:
             if ospf_config:
-                obj = self.render_config(self.generated_spec, ospf_config)
-                if obj:
-                    objs.append(obj)
+                objs.append(ospf_config)
 
         ansible_facts['ansible_network_resources'].pop('ospfv3', None)
         facts = {}
@@ -71,17 +69,6 @@ class Ospfv3Facts(object):
             facts['ospfv3'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def get_ospfv3(self, module):
         """Get all OSPFv3 configurations available in chassis"""

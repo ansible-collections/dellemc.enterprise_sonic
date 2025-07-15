@@ -1,12 +1,22 @@
 ---
+- name: "Check mode: {{ item.name ~ ' , ' ~ item.description }}"
+  dellemc.enterprise_sonic.sonic_ospfv3:
+    config: "{{ item.input }}"
+    state: "{{ item.state }}"
+  register: check_task_output
+  check_mode: true
+  failed_when: false
+
 - name: "{{ item.name ~ ' , ' ~ item.description }}"
   dellemc.enterprise_sonic.sonic_ospfv3:
     config: "{{ item.input }}"
     state: "{{ item.state }}"
   register: action_task_output
-  ignore_errors: yes
+  failed_when: false
+  diff: true
 
-- ansible.builtin.import_role:
+- name: Get facts reports
+  ansible.builtin.import_role:
     name: common
     tasks_from: action.facts.report.yaml
 
@@ -15,8 +25,9 @@
     config: "{{ item.input }}"
     state: "{{ item.state }}"
   register: idempotent_task_output
-  ignore_errors: yes
+  failed_when: false
 
-- ansible.builtin.import_role:
+- name: Get facts reports - Idempotent
+  ansible.builtin.import_role:
     name: common
     tasks_from: idempotent.facts.report.yaml

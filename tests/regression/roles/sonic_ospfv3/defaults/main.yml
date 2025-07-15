@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: ospfv3
 
 sonic_ospfv3_test_vars:
   vrf1: "VrfReg1"
@@ -52,6 +51,14 @@ sonic_ospfv3_tests:
             metric: 15
             metric_type: 2
             route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 155783
+        graceful_restart:
+          helper:
+            enable: true
+            planned_only: true
+            strict_lsa_checking: true
+            supported_grace_time: 30
+        log_adjacency_changes: "detail"
 
   - name: test_case_02
     description: Add OSPFv3 configuration for Vrfs
@@ -65,11 +72,11 @@ sonic_ospfv3_tests:
         redistribute:
           - protocol: 'default_route'
             always: true
-            metric: 10
-            metric_type: 2
+            metric: 20
+            metric_type: 1
           - protocol: "kernel"
-            metric: 15
-            metric_type: 2
+            metric: 87
+            metric_type: 1
             route_map: "rmap_reg2"
 
   - name: test_case_del_01
@@ -81,6 +88,10 @@ sonic_ospfv3_tests:
       - vrf_name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
         redistribute:
           - protocol: "bgp"
+        graceful_restart:
+          helper:
+            enable: true
+            supported_grace_time: 30
       - vrf_name: 'default'
         graceful_restart:
           enable: true
@@ -122,12 +133,20 @@ sonic_ospfv3_tests:
             metric: 15
             metric_type: 2
             route_map: "rmap_reg1"
+        graceful_restart:
+          helper:
+            enable: false
+            planned_only: false
       - vrf_name: 'default'
         redistribute:
           - protocol: "kernel"
             metric: 15
             metric_type: 2
             route_map: "rmap_reg2"
+        graceful_restart:
+          helper:
+            enable: false
+        maximum_paths: 200
 
   - name: test_case_replace_01
     description: Replace OSPFv3 configuration
@@ -145,6 +164,14 @@ sonic_ospfv3_tests:
             metric: 15
             metric_type: 2
             route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 234823
+        graceful_restart:
+          helper:
+            enable: true
+            planned_only: true
+            strict_lsa_checking: true
+            supported_grace_time: 70
+        log_adjacency_changes: "brief"
       - vrf_name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
         timers:
           throttle_spf:
@@ -156,6 +183,7 @@ sonic_ospfv3_tests:
             metric: 15
             metric_type: 2
             route_map: "rmap_reg1"
+        log_adjacency_changes: "brief"
 
   - name: test_case_replace_02
     description: Replace OSPFv3 configuration with existing same configuration
@@ -172,8 +200,18 @@ sonic_ospfv3_tests:
             metric: 15
             metric_type: 2
             route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 334251
+        graceful_restart:
+          helper:
+            enable: false
+            planned_only: false
+            strict_lsa_checking: true
+        log_adjacency_changes: "detail"
       - vrf_name: 'default'
         router_id: "10.10.10.10"
+        graceful_restart:
+          helper:
+            enable: true
 
   - name: test_case_over_01
     description: Override OSPFv3 configuration
@@ -190,6 +228,12 @@ sonic_ospfv3_tests:
             metric: 15
             metric_type: 2
             route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 222344
+        graceful_restart:
+          helper:
+            enable: true
+            planned_only: true
+        log_adjacency_changes: "brief"
       - vrf_name: 'default'
         write_multiplier: 20
         timers:
@@ -219,6 +263,30 @@ sonic_ospfv3_tests:
             metric: 15
             metric_type: 2
             route_map: "rmap_reg1"
+        graceful_restart:
+          helper:
+            enable: true
+        maximum_paths: 100
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf2 }}'
+        write_multiplier: 30
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 11111
+        graceful_restart:
+          helper:
+            enable: false
+            planned_only: true
+            strict_lsa_checking: true
+            supported_grace_time: 55
+        log_adjacency_changes: "detail"
 
   - name: test_case_del_all
     description: Delete all OSPFv3 configuration
