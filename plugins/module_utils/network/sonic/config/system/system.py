@@ -443,10 +443,13 @@ class System(ConfigBase):
         if "auto_breakout" in commands and commands["auto_breakout"]:
             payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
         return payload
+        
     def build_create_switching_mode_payload(self, commands):
         payload = {}
         if "switching_mode" in commands and commands["switching_mode"]:
             payload.update({'openconfig-system:switching-mode': commands["switching_mode"]})
+        return payload
+    
     def build_create_password_complexity_payload(self, commands):
         payload = {}
         config_dict = {}
