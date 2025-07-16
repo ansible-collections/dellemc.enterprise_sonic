@@ -1,10 +1,19 @@
 ---
+- name: "Check mode for {{ item.name ~ ' , ' ~ item.description }}"
+  dellemc.enterprise_sonic.sonic_ospfv3:
+    config: "{{ item.input }}"
+    state: "{{ item.state }}"
+  register: check_task_output
+  check_mode: true
+  ignore_errors: true
+
 - name: "{{ item.name ~ ' , ' ~ item.description }}"
   dellemc.enterprise_sonic.sonic_ospfv3:
     config: "{{ item.input }}"
     state: "{{ item.state }}"
   register: action_task_output
   ignore_errors: true
+  diff: true
 
 - name: Update test report
   ansible.builtin.import_role:
