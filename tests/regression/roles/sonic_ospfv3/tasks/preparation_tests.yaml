@@ -3,7 +3,7 @@
   dellemc.enterprise_sonic.sonic_ospfv3:
     config: []
     state: deleted
-  failed_when: false
+  failed_when: true
 
 - name: Initialize default interfaces
   vars:
@@ -11,13 +11,13 @@
   dellemc.enterprise_sonic.sonic_config:
     commands: "{{ default_interface_cli }}"
   register: output
-  failed_when: false
+  failed_when: true
 
 - name: Create VRFs
   dellemc.enterprise_sonic.sonic_vrfs:
     config: "{{ sonic_ospfv3_preparations_tests.vrfs }}"
     state: merged
-  failed_when: false
+  failed_when: true
 
 - name: Initialize route maps
   vars:

@@ -1,11 +1,12 @@
 ---
-- ansible.builtin.debug:
+- name: Start sonic_ospfv3 tests
+  ansible.builtin.debug:
     msg: "sonic_ospfv3 Test started ..."
 
 - name: "Preparations for {{ module_name }}"
   ansible.builtin.include_tasks: preparation_tests.yaml
 
-- name: "Test {{ module_name }} started"
+- name: "Test started: {{ module_name }}"
   ansible.builtin.include_tasks: tasks_template.yaml
   loop: "{{ sonic_ospfv3_tests }}"
 
