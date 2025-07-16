@@ -235,6 +235,8 @@ deleted_01:
         openconfig-system:config:
           hostname: sonic
     - path: "data/openconfig-system:system/config/switching-mode"
+      method: "delete"
+      data:
     - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
       method: "delete"
       data:
