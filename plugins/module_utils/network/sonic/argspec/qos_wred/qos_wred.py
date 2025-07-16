@@ -40,7 +40,7 @@ class Qos_wredArgs(object):  # pylint: disable=R0903
         'config': {
             'elements': 'dict',
             'options': {
-                'ecn': {'choices': ['green'], 'type': 'str'},
+                'ecn': {'choices': ['ALL', 'NONE'], 'type': 'str'},
                 'green': {
                     'options': {
                         'drop_probability': {'type': 'int'},
@@ -49,6 +49,27 @@ class Qos_wredArgs(object):  # pylint: disable=R0903
                         'min_threshold': {'type': 'int'}
                     },
                     'type': 'dict'
+                },
+                'red':
+                {
+                    'options': {
+                        'drop_probability': {'type': 'int'},
+                        'enable': {'type': 'bool'},
+                        'max_threshold': {'type': 'int'},
+                        'min_threshold': {'type': 'int'}
+                    },
+                    'type': 'dict'
+                },
+                'yellow':
+                {
+                    'options': {
+                        'drop_probability': {'type': 'int'},
+                        'enable': {'type': 'bool'},
+                        'max_threshold': {'type': 'int'},
+                        'min_threshold': {'type': 'int'}
+                    },
+                    'type': 'dict'
+
                 },
                 'name': {'required': True, 'type': 'str'}
             },

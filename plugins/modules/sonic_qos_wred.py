@@ -39,7 +39,8 @@ options:
           - ECN setting for colored packets
         type: str
         choices:
-          - green
+          - 'ALL'
+          - 'NONE'
       green:
         description:
           - WRED configuration for green packets
@@ -62,6 +63,54 @@ options:
           drop_probability:
             description:
               - Drop probablity percentage rate for green packets
+              - Range 0-100
+            type: int
+      yellow:
+        description:
+          - WRED configuration for yellow packets
+        type: dict
+        suboptions:
+          enable:
+            description:
+              - Enable or disable WRED for yellow packets
+            type: bool
+          min_threshold:
+            description:
+              - Minimum threshold set for yellow packets in bytes
+              - Range 1000-12480000
+            type: int
+          max_threshold:
+            description:
+              - Maximum threshold set for yellow packets in bytes
+              - Range 1000-12480000
+            type: int
+          drop_probability:
+            description:
+              - Drop probablity percentage rate for yellow packets
+              - Range 0-100
+            type: int
+      red:
+        description:
+          - WRED configuration for red packets
+        type: dict
+        suboptions:
+          enable:
+            description:
+              - Enable or disable WRED for red packets
+            type: bool
+          min_threshold:
+            description:
+              - Minimum threshold set for red packets in bytes
+              - Range 1000-12480000
+            type: int
+          max_threshold:
+            description:
+              - Maximum threshold set for red packets in bytes
+              - Range 1000-12480000
+            type: int
+          drop_probability:
+            description:
+              - Drop probablity percentage rate for red packets
               - Range 0-100
             type: int
   state:
@@ -95,6 +144,16 @@ EXAMPLES = """
           min_threshold: 1000
           max_threshold: 5000
           drop_probability: 25
+        red:
+          enable: true
+          min_threshold: 1000
+          max_threshold: 5000
+          drop_probability: 25
+        yellow:
+          enable: true
+          min_threshold: 1000
+          max_threshold: 5000
+          drop_probability: 25
     state: merged
 
 # After state:
@@ -104,10 +163,16 @@ EXAMPLES = """
 # ---------------------------------------------------
 # Policy                 : profile1
 # ---------------------------------------------------
-# ecn                    : ecn_green
+# ecn                    : ecn_all
 # green-min-threshold    : 1           KBytes
 # green-max-threshold    : 5           KBytes
 # green-drop-probability : 25
+# red-min-threshold    : 1           KBytes
+# red-max-threshold    : 5           KBytes
+# red-drop-probability : 25
+# yellow-min-threshold    : 1           KBytes
+# yellow-max-threshold    : 5           KBytes
+# yellow-drop-probability : 25
 #
 #
 # Using "replaced" state
@@ -119,10 +184,17 @@ EXAMPLES = """
 # ---------------------------------------------------
 # Policy                 : profile1
 # ---------------------------------------------------
-# ecn                    : ecn_green
+# ecn                    : ecn_all
 # green-min-threshold    : 1           KBytes
 # green-max-threshold    : 5           KBytes
 # green-drop-probability : 25
+# red-min-threshold    : 1           KBytes
+# red-max-threshold    : 5           KBytes
+# red-drop-probability : 25
+# yellow-min-threshold    : 1           KBytes
+# yellow-max-threshold    : 5           KBytes
+# yellow-drop-probability : 25
+
 
 - name: Replace QoS WRED policy configuration
   dellemc.enterprise_sonic.sonic_qos_wred:
@@ -150,10 +222,16 @@ EXAMPLES = """
 # ---------------------------------------------------
 # Policy                 : profile1
 # ---------------------------------------------------
-# ecn                    : ecn_green
+# ecn                    : ecn_all
 # green-min-threshold    : 1           KBytes
 # green-max-threshold    : 5           KBytes
 # green-drop-probability : 25
+# red-min-threshold    : 1           KBytes
+# red-max-threshold    : 5           KBytes
+# red-drop-probability : 25
+# yellow-min-threshold    : 1           KBytes
+# yellow-max-threshold    : 5           KBytes
+# yellow-drop-probability : 25
 
 - name: Override QoS WRED policy configuration
   dellemc.enterprise_sonic.sonic_qos_wred:
@@ -174,10 +252,16 @@ EXAMPLES = """
 # ---------------------------------------------------
 # Policy                 : profile2
 # ---------------------------------------------------
-# ecn                    : ecn_green
+# ecn                    : ecn_all
 # green-min-threshold    : 3           KBytes
 # green-max-threshold    : 9           KBytes
 # green-drop-probability : 75
+# red-min-threshold    : 1           KBytes
+# red-max-threshold    : 5           KBytes
+# red-drop-probability : 25
+# yellow-min-threshold    : 1           KBytes
+# yellow-max-threshold    : 5           KBytes
+# yellow-drop-probability : 25
 #
 #
 # Using "deleted" state
@@ -189,17 +273,29 @@ EXAMPLES = """
 # ---------------------------------------------------
 # Policy                 : profile1
 # ---------------------------------------------------
-# ecn                    : ecn_green
+# ecn                    : ecn_all
 # green-min-threshold    : 1           KBytes
 # green-max-threshold    : 5           KBytes
 # green-drop-probability : 25
+# red-min-threshold    : 1           KBytes
+# red-max-threshold    : 5           KBytes
+# red-drop-probability : 25
+# yellow-min-threshold    : 1           KBytes
+# yellow-max-threshold    : 5           KBytes
+# yellow-drop-probability : 25
 # ---------------------------------------------------
 # Policy                 : profile2
 # ---------------------------------------------------
-# ecn                    : ecn_green
+# ecn                    : ecn_all
 # green-min-threshold    : 3           KBytes
 # green-max-threshold    : 9           KBytes
 # green-drop-probability : 75
+# red-min-threshold    : 1           KBytes
+# red-max-threshold    : 5           KBytes
+# red-drop-probability : 25
+# yellow-min-threshold    : 1           KBytes
+# yellow-max-threshold    : 5           KBytes
+# yellow-drop-probability : 25
 
 - name: Delete QoS WRED policy configuration
   dellemc.enterprise_sonic.sonic_qos_wred:
@@ -219,8 +315,14 @@ EXAMPLES = """
 # ---------------------------------------------------
 # Policy                 : profile2
 # ---------------------------------------------------
-# ecn                    : ecn_green
+# ecn                    : ecn_all
 # green-drop-probability : 75
+# red-min-threshold    : 1           KBytes
+# red-max-threshold    : 5           KBytes
+# red-drop-probability : 25
+# yellow-min-threshold    : 1           KBytes
+# yellow-max-threshold    : 5           KBytes
+# yellow-drop-probability : 25
 """
 
 RETURN = """
