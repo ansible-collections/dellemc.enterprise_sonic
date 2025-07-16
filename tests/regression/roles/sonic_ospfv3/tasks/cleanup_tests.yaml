@@ -3,10 +3,10 @@
   dellemc.enterprise_sonic.sonic_ospfv3:
     config: []
     state: deleted
-  failed_when: true
+  failed_when: false
 
 - name: Delete test VRFs
   dellemc.enterprise_sonic.sonic_vrfs:
     config: "{{ sonic_ospfv3_preparations_tests.vrfs }}"
     state: deleted
-  failed_when: true
+  failed_when: false
