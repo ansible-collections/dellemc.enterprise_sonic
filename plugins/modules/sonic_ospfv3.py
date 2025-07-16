@@ -23,7 +23,8 @@ short_description: Configure global OSPFv3 protocol settings on SONiC.
 description:
   - This module provides configuration management of global OSPFv3 parameters on devices running SONiC.
   - Configure VRF instance before configuring OSPFv3 in a VRF.
-author: "Thenmozhi Gopal (@thenmozhi-gopal)"
+author: "Thenmozhi Gopal (@thenmozhi-gopal), Naresh Sasivarnan (@NareshSasivarnan)"
+
 options:
   config:
     description:

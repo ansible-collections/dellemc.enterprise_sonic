@@ -3,6 +3,7 @@
 # Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+
 """
 The sonic_ospfv3 class
 It is in this file where the current configuration (as dict)
@@ -132,8 +133,6 @@ class Ospfv3(ConfigBase):
     ]
 
     def __init__(self, module):
-        # import epdb
-        # epdb.serve(port=11012)
         super(Ospfv3, self).__init__(module)
 
     def get_ospfv3_facts(self):
@@ -187,7 +186,7 @@ class Ospfv3(ConfigBase):
             else:
                 new_config = get_new_config(commands, existing_ospfv3_facts, TEST_KEYS_diff)
             new_config = remove_empties_from_list(new_config)
-            result['after(generated)'] = self._post_process_generated_output(new_config)
+            result['after(generated)'] = new_config
             self.sort_lists_in_config(new_config)
 
         if self._module._diff:
@@ -469,6 +468,7 @@ class Ospfv3(ConfigBase):
                 if have_cmd:
                     del_cmd, request = self._get_delete_commands_requests_path_from_dict(sub_commands, have_cmd, OSPF_ATTRIBUTES, url)
                     if del_cmd:
+                        del_cmd['vrf_name'] = vrf_name
                         commands.append(del_cmd)
                         requests.extend(request)
         return commands, requests
