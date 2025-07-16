@@ -261,7 +261,7 @@ class Qos_wred(ConfigBase):
 
     def get_modify_qos_wred_request(self, commands):
         request = None
-        lookup_dict = {'green': 'ECN_GREEN'}
+        lookup_dict = {'ALL': 'ECN_ALL'}
 
         if commands:
             wred_list = []
@@ -270,6 +270,8 @@ class Qos_wred(ConfigBase):
                 name = wred.get('name')
                 ecn = wred.get('ecn')
                 green = wred.get('green')
+                red = wred.get('red')
+                yellow = wred.get('yellow')
                 if green:
                     enable = green.get('enable')
                     min_threshold = green.get('min_threshold')
@@ -284,6 +286,34 @@ class Qos_wred(ConfigBase):
                         config_dict['green-max-threshold'] = str(max_threshold)
                     if drop_probability is not None:
                         config_dict['green-drop-probability'] = str(drop_probability)
+                if red:
+                    enable = red.get('enable')
+                    min_threshold = red.get('min_threshold')
+                    max_threshold = red.get('max_threshold')
+                    drop_probability = red.get('drop_probability')
+
+                    if enable is not None:
+                        config_dict['wred-red-enable'] = enable
+                    if min_threshold:
+                        config_dict['red-min-threshold'] = str(min_threshold)
+                    if max_threshold:
+                        config_dict['red-max-threshold'] = str(max_threshold)
+                    if drop_probability is not None:
+                        config_dict['red-drop-probability'] = str(drop_probability)
+                if yellow:
+                    enable = yellow.get('enable')
+                    min_threshold = yellow.get('min_threshold')
+                    max_threshold = yellow.get('max_threshold')
+                    drop_probability = yellow.get('drop_probability')
+
+                    if enable is not None:
+                        config_dict['wred-yellow-enable'] = enable
+                    if min_threshold:
+                        config_dict['yellow-min-threshold'] = str(min_threshold)
+                    if max_threshold:
+                        config_dict['yellow-max-threshold'] = str(max_threshold)
+                    if drop_probability is not None:
+                        config_dict['yellow-drop-probability'] = str(drop_probability)
                 if ecn:
                     config_dict['ecn'] = lookup_dict[ecn]
                 if name:
@@ -310,10 +340,14 @@ class Qos_wred(ConfigBase):
             name = wred.get('name')
             ecn = wred.get('ecn')
             green = wred.get('green')
+            red = wred.get('red')
+            yellow = wred.get('yellow')
             for cfg_wred in have:
                 cfg_name = cfg_wred.get('name')
                 cfg_ecn = cfg_wred.get('ecn')
                 cfg_green = cfg_wred.get('green')
+                cfg_red = cfg_wred.get('red')
+                cfg_yellow = cfg_wred.get('yellow')
 
                 if name == cfg_name:
                     wred_dict = {}
@@ -347,6 +381,62 @@ class Qos_wred(ConfigBase):
                                 green_dict['drop_probability'] = drop_probability
                             if green_dict:
                                 wred_dict.update({'name': name, 'green': green_dict})
+                    if red:
+                        enable = red.get('enable')
+                        min_threshold = red.get('min_threshold')
+                        max_threshold = red.get('max_threshold')
+                        drop_probability = red.get('drop_probability')
+
+                        if cfg_red:
+                            red_dict = {}
+                            cfg_enable = cfg_red.get('enable')
+                            cfg_min_threshold = cfg_red.get('min_threshold')
+                            cfg_max_threshold = cfg_red.get('max_threshold')
+                            cfg_drop_probability = cfg_red.get('drop_probability')
+
+                            if enable is not None and enable == cfg_enable:
+                                requests.append(self.get_delete_wred_cfg_attr(name, 'wred-red-enable'))
+                                red_dict['enable'] = enable
+                            if min_threshold and min_threshold == cfg_min_threshold:
+                                requests.append(self.get_delete_wred_cfg_attr(name, 'red-min-threshold'))
+                                red_dict['min_threshold'] = min_threshold
+                            if max_threshold and max_threshold == cfg_max_threshold:
+                                requests.append(self.get_delete_wred_cfg_attr(name, 'red-max-threshold'))
+                                red_dict['max_threshold'] = max_threshold
+                            if drop_probability is not None and drop_probability == cfg_drop_probability:
+                                requests.append(self.get_delete_wred_cfg_attr(name, 'red-drop-probability'))
+                                red_dict['drop_probability'] = drop_probability
+                            if red_dict:
+                                wred_dict.update({'name': name, 'red': red_dict})
+
+                    if yellow:
+                        enable = yellow.get('enable')
+                        min_threshold = yellow.get('min_threshold')
+                        max_threshold = yellow.get('max_threshold')
+                        drop_probability = yellow.get('drop_probability')
+
+                        if cfg_yellow:
+                            yellow_dict = {}
+                            cfg_enable = cfg_yellow.get('enable')
+                            cfg_min_threshold = cfg_yellow.get('min_threshold')
+                            cfg_max_threshold = cfg_yellow.get('max_threshold')
+                            cfg_drop_probability = cfg_yellow.get('drop_probability')
+
+                            if enable is not None and enable == cfg_enable:
+                                requests.append(self.get_delete_wred_cfg_attr(name, 'wred-yellow-enable'))
+                                yellow_dict['enable'] = enable
+                            if min_threshold and min_threshold == cfg_min_threshold:
+                                requests.append(self.get_delete_wred_cfg_attr(name, 'yellow-min-threshold'))
+                                yellow_dict['min_threshold'] = min_threshold
+                            if max_threshold and max_threshold == cfg_max_threshold:
+                                requests.append(self.get_delete_wred_cfg_attr(name, 'yellow-max-threshold'))
+                                yellow_dict['max_threshold'] = max_threshold
+                            if drop_probability is not None and drop_probability == cfg_drop_probability:
+                                requests.append(self.get_delete_wred_cfg_attr(name, 'yellow-drop-probability'))
+                                yellow_dict['drop_probability'] = drop_probability
+                            if yellow_dict:
+                                wred_dict.update({'name': name, 'yellow': yellow_dict})
+
                     # Deletion my WRED profile name
                     if not ecn and not green:
                         url = '%s=%s' % (QOS_WRED_PATH, name)

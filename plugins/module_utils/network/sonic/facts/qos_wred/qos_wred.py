@@ -69,7 +69,7 @@ class Qos_wredFacts(object):
 
     def update_qos_wred(self, cfg):
         config_list = []
-        lookup_dict = {'ECN_GREEN': 'green'}
+        lookup_dict = {'ECN_ALL': 'ALL', 'ECN_NONE' : 'NONE'}
 
         if cfg:
             wred_profiles = cfg.get('wred-profile')
@@ -80,12 +80,21 @@ class Qos_wredFacts(object):
                     config = profile.get('config')
                     if config:
                         green_dict = {}
+                        red_dict = {}
+                        yellow_dict = {}
                         ecn = config.get('ecn')
                         wred_green_enable = config.get('wred-green-enable')
                         green_min_threshold = config.get('green-min-threshold')
                         green_max_threshold = config.get('green-max-threshold')
                         green_drop_probability = config.get('green-drop-probability')
-
+                        wred_red_enable = config.get('wred-red-enable')
+                        red_min_threshold = config.get('red-min-threshold')
+                        red_max_threshold = config.get('red-max-threshold')
+                        red_drop_probability = config.get('red-drop-probability')
+                        wred_yellow_enable = config.get('wred-yellow-enable')
+                        yellow_min_threshold = config.get('yellow-min-threshold')
+                        yellow_max_threshold = config.get('yellow-max-threshold')
+                        yellow_drop_probability = config.get('yellow-drop-probability')
                         if ecn:
                             wred_dict['ecn'] = lookup_dict[ecn]
                         if wred_green_enable is not None:
@@ -98,6 +107,28 @@ class Qos_wredFacts(object):
                             green_dict['drop_probability'] = green_drop_probability
                         if green_dict:
                             wred_dict['green'] = green_dict
+                        if wred_red_enable is not None:
+                            red_dict['enable'] = wred_red_enable
+                        if red_min_threshold:
+                            red_dict['min_threshold'] = red_min_threshold
+                        if red_max_threshold:
+                            red_dict['max_threshold'] = red_max_threshold
+                        if red_drop_probability:
+                            red_dict['drop_probability'] = red_drop_probability
+                        if red_dict:
+                            wred_dict['red'] = red_dict
+
+                        if wred_yellow_enable is not None:
+                            yellow_dict['enable'] = wred_yellow_enable
+                        if yellow_min_threshold:
+                            yellow_dict['min_threshold'] = yellow_min_threshold
+                        if yellow_max_threshold:
+                            yellow_dict['max_threshold'] = yellow_max_threshold
+                        if yellow_drop_probability:
+                            yellow_dict['drop_probability'] = yellow_drop_probability
+                        if yellow_dict:
+                            wred_dict['yellow'] = yellow_dict
+
                     if name:
                         wred_dict['name'] = name
                     if wred_dict:
