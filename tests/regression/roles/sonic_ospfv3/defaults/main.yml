@@ -1,0 +1,294 @@
+---
+ansible_connection: httpapi
+
+sonic_ospfv3_test_vars:
+  vrf1: "VrfReg1"
+  vrf2: "VrfReg2"
+
+sonic_ospfv3_preparations_tests:
+  init_route_map:
+    - route-map rmap_reg1 permit 11
+    - route-map rmap_reg2 permit 11
+  vrfs:
+    - name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
+    - name: '{{ sonic_ospfv3_test_vars.vrf2 }}'
+
+sonic_ospfv3_tests:
+
+  - name: test_case_01
+    description: Add OSPFv3 configuration
+    state: merged
+    input:
+      - vrf_name: 'default'
+        router_id: "10.10.10.10"
+        distance:
+          external: 20
+        redistribute:
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+          - protocol: "default_route"
+            always: true
+            metric: 10
+        graceful_restart:
+          grace_period: 100
+          enable: true
+          helper:
+            enable: true
+            planned_only: true
+            advertise_router_id:
+              - '1.1.1.1'
+              - '2.2.2.2'
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 155783
+        graceful_restart:
+          helper:
+            enable: true
+            planned_only: true
+            strict_lsa_checking: true
+            supported_grace_time: 30
+        log_adjacency_changes: "detail"
+
+  - name: test_case_02
+    description: Add OSPFv3 configuration for Vrfs
+    state: merged
+    input:
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf2 }}'
+        write_multiplier: 20
+        router_id: "20.20.20.20"
+        distance:
+          all: 30
+        redistribute:
+          - protocol: 'default_route'
+            always: true
+            metric: 20
+            metric_type: 1
+          - protocol: "kernel"
+            metric: 87
+            metric_type: 1
+            route_map: "rmap_reg2"
+
+  - name: test_case_del_01
+    description: Delete OSPFv3 configuration
+    state: deleted
+    input:
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf2 }}'
+        router_id: "20.20.20.20"
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
+        redistribute:
+          - protocol: "bgp"
+        graceful_restart:
+          helper:
+            enable: true
+            supported_grace_time: 30
+      - vrf_name: 'default'
+        graceful_restart:
+          enable: true
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            advertise_router_id:
+              - '1.1.1.1'
+              - '2.2.2.2'
+        redistribute:
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg2"
+          - protocol: "default_route"
+            always: true
+
+  - name: test_case_del_02
+    description: Delete entire OSPFv3 configuration for Vrf1 and Vrf2
+    state: deleted
+    input:
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf2 }}'
+
+  - name: test_case_03
+    description: Add OSPFv3 configuration for Vrf2 and default
+    state: merged
+    input:
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf2 }}'
+        write_multiplier: 20
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        graceful_restart:
+          helper:
+            enable: false
+            planned_only: false
+      - vrf_name: 'default'
+        redistribute:
+          - protocol: "kernel"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg2"
+        graceful_restart:
+          helper:
+            enable: false
+        maximum_paths: 200
+
+  - name: test_case_replace_01
+    description: Replace OSPFv3 configuration
+    state: replaced
+    input:
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf2 }}'
+        write_multiplier: 20
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 234823
+        graceful_restart:
+          helper:
+            enable: true
+            planned_only: true
+            strict_lsa_checking: true
+            supported_grace_time: 70
+        log_adjacency_changes: "brief"
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "connected"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        log_adjacency_changes: "brief"
+
+  - name: test_case_replace_02
+    description: Replace OSPFv3 configuration with existing same configuration
+    state: replaced
+    input:
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "connected"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 334251
+        graceful_restart:
+          helper:
+            enable: false
+            planned_only: false
+            strict_lsa_checking: true
+        log_adjacency_changes: "detail"
+      - vrf_name: 'default'
+        router_id: "10.10.10.10"
+        graceful_restart:
+          helper:
+            enable: true
+
+  - name: test_case_over_01
+    description: Override OSPFv3 configuration
+    state: overridden
+    input:
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf1 }}'
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "connected"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 222344
+        graceful_restart:
+          helper:
+            enable: true
+            planned_only: true
+        log_adjacency_changes: "brief"
+      - vrf_name: 'default'
+        write_multiplier: 20
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+
+  - name: test_case_over_02
+    description: Override OSPFv3 configuration with existing same configuration
+    state: overridden
+    input:
+      - vrf_name: 'default'
+        write_multiplier: 20
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        graceful_restart:
+          helper:
+            enable: true
+        maximum_paths: 100
+      - vrf_name: '{{ sonic_ospfv3_test_vars.vrf2 }}'
+        write_multiplier: 30
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: "bgp"
+            metric: 15
+            metric_type: 2
+            route_map: "rmap_reg1"
+        auto_cost_reference_bandwidth: 11111
+        graceful_restart:
+          helper:
+            enable: false
+            planned_only: true
+            strict_lsa_checking: true
+            supported_grace_time: 55
+        log_adjacency_changes: "detail"
+
+  - name: test_case_del_all
+    description: Delete all OSPFv3 configuration
+    state: deleted
+    input: []

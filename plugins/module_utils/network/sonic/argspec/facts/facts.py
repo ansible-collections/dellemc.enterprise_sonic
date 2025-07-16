@@ -36,6 +36,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'dcbx',
         'ospfv2_interfaces',
         'ospfv2',
+        'ospfv3',
         'mclag',
         'prefix_lists',
         'vlan_mapping',

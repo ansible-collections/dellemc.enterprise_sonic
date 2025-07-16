@@ -1,0 +1,26 @@
+---
+- name: Delete old OSPFv3 configurations
+  dellemc.enterprise_sonic.sonic_ospfv3:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: Initialize default interfaces
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ default_interface_cli }}"
+  register: output
+  failed_when: false
+
+- name: Create VRFs
+  dellemc.enterprise_sonic.sonic_vrfs:
+    config: "{{ sonic_ospfv3_preparations_tests.vrfs }}"
+    state: merged
+  failed_when: false
+
+- name: Initialize route maps
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ sonic_ospfv3_preparations_tests.init_route_map }}"
