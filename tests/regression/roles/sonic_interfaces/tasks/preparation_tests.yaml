@@ -1,44 +1,55 @@
-- name: Delete existing mclag
+---
+- name: Delete MCLAG configuration
   sonic_mclag:
-    config: 
+    config:
     state: deleted
-  ignore_errors: yes
-- name: Deletes old vxlans
+  failed_when: false
+
+- name: Deletes VXLANs configuration
   sonic_vxlans:
-    config: []
+    config:
     state: deleted
-  ignore_errors: yes
-- name: "initialize default interfaces"
+  failed_when: false
+
+- name: Initialize default interfaces
   vars:
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ default_interface_cli }}"
   register: output
-  ignore_errors: yes
-- name: "delete loopback interfaces"
-  vars:
-    ansible_connection: network_cli
-  sonic_config:
-    commands: "{{ preparations_tests.delete_port_configurations }}"
-  register: output
-  ignore_errors: yes  
-- name: delete VLANs 
+  failed_when: false
+
+- name: Delete loopback interfaces"
+  sonic_interfaces:
+    config:
+      - name: Loopback100
+      - name: Loopback101
+  failed_when: false
+
+- name: Delete VLANs configuration
   sonic_vlans:
-   config: []
-   state: deleted   
-  ignore_errors: yes
-- name: delete existing portchannels
+    config:
+    state: deleted
+  failed_when: false
+
+- name: Delete PortChannels configuration
   sonic_lag_interfaces:
-   config: []
-   state: deleted
-  ignore_errors: yes
-- name: create VLANs 
+    config:
+    state: deleted
+  failed_when: false
+
+- name: Create VLANs
   sonic_vlans:
-   config: "{{ preparations_tests.add_vlans_input }}"
-   state: merged
-  ignore_errors: yes
-- name: create sonic_lag_interfaces "merged" state
+    config:
+      - vlan_id: 500
+      - vlan_id: 501
+    state: merged
+  failed_when: false
+
+- name: Create PortChannels
   sonic_lag_interfaces:
-   config: "{{ preparations_tests.add_lag_interfaces }}"
-   state: merged
-  ignore_errors: yes
+    config:
+      - name: PortChannel50
+      - name: PortChannel51
+    state: merged
+  failed_when: false
