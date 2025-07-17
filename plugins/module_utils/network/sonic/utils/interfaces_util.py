@@ -168,10 +168,9 @@ def retrieve_valid_intf_speed(module, intf_name):
     Raises:
         ConnectionError: If unable to connect to the sonic-port module.
     """
-    valid_speed_method = "get"
     valid_speed_sonic_port_url = 'data/sonic-port:sonic-port/PORT/PORT_LIST=%s'
     valid_speed_sonic_port_vs_url = (valid_speed_sonic_port_url + '/valid_speeds') % quote(intf_name, safe='')
-    valid_speed_request = {"path": valid_speed_sonic_port_vs_url, "method": valid_speed_method}
+    valid_speed_request = {"path": valid_speed_sonic_port_vs_url, "method": GET}
     try:
         valid_speed_response = edit_config(module, to_request(module, valid_speed_request))
     except ConnectionError as exc:
