@@ -146,9 +146,6 @@ class Snmp(ConfigBase):
         :returns: the desired configuration with default values filled in
         """
         new_want = want
-        ## compare all the agentaddresses that are in the playbook with eachother
-        ### if 2 otoptions have the same values (including name option) then throw an exception
-        ## named or not
         if 'agentaddress' not in want:
             return want
         if 'agentaddress' in new_want:
@@ -162,12 +159,12 @@ class Snmp(ConfigBase):
         index = 0
 
         for want_conf in want_agentaddresses:
-            for want_conf_2 in want_agentaddresses[index+1:]:
+            for want_conf_2 in want_agentaddresses[index + 1:]:
                 if ('ip' in want_conf and 'ip' in want_conf_2 and want_conf.get('ip') == want_conf_2.get('ip')
                     and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
                     and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2
                     and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf'))):
-                    same = True
+                   same = True
             index += 1
         if same:
             raise Exception('Agentaddress option values must be unique')
@@ -481,10 +478,9 @@ class Snmp(ConfigBase):
             if 'name' in conf:
                 for agent_entry in have_agentaddress:
                     if (agent_entry.get('ip') == conf.get('ip')
-                        and agent_entry.get('port') == conf.get('port')
-                        and agent_entry.get('name') != conf['name']
+                        and agent_entry.get('port') == conf.get('port') and agent_entry.get('name') != conf['name']
                         and agent_entry.get('interface_vrf') == conf.get('interface_vrf')):
-                        self._module.fail_json(msg="The specified options are in use for an existing agent.")
+                       self._module.fail_json(msg="The specified options are in use for an existing agent.")
 
                 name = conf.get('name')
 
@@ -494,8 +490,7 @@ class Snmp(ConfigBase):
                 if have_agentaddress:
                     for agent_entry in have_agentaddress:
                         if (agent_entry.get('ip') == conf.get('ip')
-                            and agent_entry.get('port') == conf.get('port')
-                            and agent_entry.get('interface_vrf') == conf.get('interface_vrf')):
+                            and agent_entry.get('port') == conf.get('port') and agent_entry.get('interface_vrf') == conf.get('interface_vrf')):
                             name = agent_entry.get('name')
             if len(name) == 0:
                 name = self.get_agententry(have_agentaddress_names)
@@ -975,7 +970,7 @@ class Snmp(ConfigBase):
         have_user = have.get('user')
         have_view = have.get('view')
 
-        if delete_all or agentaddress: # Need to specify a name in order for the agentaddress to be deleted
+        if delete_all or agentaddress:
             if have_agentaddress is not None:
                 agentaddress_requests = []
                 if delete_all or self.check_dicts_matched(have_agentaddress, configs['agentaddress']):
@@ -996,7 +991,7 @@ class Snmp(ConfigBase):
                                 agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                                 agentaddress_requests.append(agentaddress_request)
                                 continue
-                            interface_vrf = want.get('interface_vrf') # do not dete (it is a required option)
+                            interface_vrf = want.get('interface_vrf')
                             ip = want.get('ip')
                             port = want.get('port')
                             # Handle deletion of UDP options.
@@ -1009,7 +1004,7 @@ class Snmp(ConfigBase):
                                     break
 
                             if not all_udp_deleted:
-                                if interface_vrf: # set to default do not delete
+                                if interface_vrf:
                                     add_interface_vrf_list = []
                                     payload_url = {}
                                     agentaddress_dict = {}
@@ -1022,7 +1017,7 @@ class Snmp(ConfigBase):
                                     payload_url['ietf-snmp:engine'] = agentaddressdict
                                     request = {'path': 'data/ietf-snmp:snmp/engine', 'method': PATCH, 'data': payload_url}
                                     agentaddress_requests.append(request)
-                                if port: # set to default DO NOT DELETE
+                                if port:
                                     add_port_list = []
                                     payload_url = {}
                                     agentaddress_dict = {}

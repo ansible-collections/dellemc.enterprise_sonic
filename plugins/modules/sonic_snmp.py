@@ -42,7 +42,7 @@ options:
           interface_vrf:
             description:
               - Name of interface
-              - "Default" is the default
+              - The default is "Default"
             type: str
           ip:
             description:
@@ -79,7 +79,8 @@ options:
           - The "all" choice can not be specified unless none of the other choices is specified
         type: list
         elements: str
-        choices: ['auth-fail', 'bgp', 'config-change', 'link-down', 'link-up', 'ospf', 'all']
+        choices:
+          ['auth-fail', 'bgp', 'config-change', 'link-down', 'link-up', 'ospf', 'all']
       engine:
         description:
           - SNMP engine ID
@@ -110,14 +111,16 @@ options:
                 description:
                   -  When I(security_model=v2c), specifies the minimum security level under which the access rights apply
                 required: true
-                choices: ['no-auth-no-priv', 'auth-no-priv', 'auth-priv']
+                choices:
+                  ['no-auth-no-priv', 'auth-no-priv', 'auth-priv']
                 type: str
               security_model:
                 description:
                   - Security model used for user authentication
                 type: str
                 required: true
-                choices: ['any', 'v2c', 'usm']
+                choices:
+                  ['any', 'v2c', 'usm']
               write_view:
                 description:
                   - Name of the write view
@@ -167,8 +170,7 @@ options:
               - If "inform" is selected, a "retries" value/option between 1 and 255 can be specified
             type: str
             choices:
-              - inform
-              - trap
+              ['inform', 'trap']
           timeout:
             description:
               - Inform acknowledgement timeout period in seconds, range 1-300
@@ -187,7 +189,8 @@ options:
                 description:
                   - Security level of the user
                 type: str
-                choices: ['auth', 'noauth', 'priv']
+                choices:
+                  ['auth', 'noauth', 'priv']
           vrf:
             description:
               - Name of VRF to be used for sending notifications
@@ -220,7 +223,8 @@ options:
                 description:
                   - Authentication type
                 type: str
-                choices: ['md5', 'sha', 'sha2-256', 'sha2-384', 'sha2-512']
+                choices:
+                  ['md5', 'sha', 'sha2-256', 'sha2-384', 'sha2-512']
               key:
                 description:
                   - Authentication key
@@ -234,7 +238,8 @@ options:
                 description:
                   - Type of encryption
                 type: str
-                choices: ['des', 'aes']
+                choices:
+                  ['des', 'aes']
               key:
                 description:
                   - Key for the priv_type
