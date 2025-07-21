@@ -406,7 +406,8 @@ class Fbs_groups(ConfigBase):
             if not group_type and not next_hops:
                 requests.append(self.get_delete_groups_request(oc_group, group_name, None))
 
-    def get_delete_groups_request(self, group, group_name, attr):
+    @staticmethod
+    def get_delete_groups_request(group, group_name, attr):
         url = '%s/%ss' % (FBS_PATH, group)
 
         if group_name:
@@ -416,7 +417,8 @@ class Fbs_groups(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def get_delete_next_hops_request(self, group, group_name, entry_id, attr):
+    @staticmethod
+    def get_delete_next_hops_request(group, group_name, entry_id, attr):
         url = '%s/%ss/%s=%s/next-hops/next-hop=%s' % (FBS_PATH, group, group, group_name, entry_id)
 
         if attr:
@@ -548,7 +550,8 @@ class Fbs_groups(ConfigBase):
 
         return config_dict, requests
 
-    def sort_lists_in_config(self, config):
+    @staticmethod
+    def sort_lists_in_config(config):
         """This method sorts the lists in the FBS groups configuration"""
         if config:
             if config.get('next_hop_groups'):
