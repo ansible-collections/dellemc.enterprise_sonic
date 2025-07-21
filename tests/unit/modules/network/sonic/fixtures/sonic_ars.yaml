@@ -5,7 +5,7 @@ merged_01:
         - name: obj1
           idle_time: 100
           max_flows: 1024
-          mode: flowlet_quality
+          mode: flowlet-quality
       port_profiles:
         - name: pp1
           enable: true
@@ -14,7 +14,7 @@ merged_01:
           load_scaling_factor: 0
       profiles:
         - name: p1
-          algo: EWMA
+          algorithm: EWMA
           load_current_max_val: 10000
           load_current_min_val: 100
           load_future_max_val: 20000
@@ -218,7 +218,7 @@ overridden_01:
         - name: obj1
           idle_time: 100
           max_flows: 1024
-          mode: flowlet_quality
+          mode: flowlet-quality
       port_profiles:
         - name: pp1
           enable: true
@@ -227,7 +227,7 @@ overridden_01:
           load_scaling_factor: 0
       profiles:
         - name: p1
-          algo: EWMA
+          algorithm: EWMA
           load_current_max_val: 10000
           load_current_min_val: 100
           load_future_max_val: 20000
@@ -342,7 +342,7 @@ overridden_02:
         - name: obj1
           idle_time: 100
           max_flows: 1024
-          mode: flowlet_quality
+          mode: flowlet-quality
     state: overridden
   existing_ars_config:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
@@ -393,11 +393,11 @@ deleted_01:
         - name: obj2
           idle_time: 80
           max_flows: 256
-          mode: flowlet_quality
+          mode: flowlet-quality
         - name: obj3
           idle_time: 700
           max_flows: 8192
-          mode: flowlet_random
+          mode: flowlet-random
         - name: obj4
       port_profiles:
         - name: pp2
@@ -413,7 +413,7 @@ deleted_01:
         - name: pp4
       profiles:
         - name: p2
-          algo: EWMA
+          algorithm: EWMA
           load_current_max_val: 6291456
           load_current_min_val: 1048576
           load_future_max_val: 12582912
@@ -429,7 +429,7 @@ deleted_01:
           random_seed: 10
           sampling_interval: 16
         - name: p3
-          algo: EWMA
+          algorithm: EWMA
           load_current_max_val: 333
           load_current_min_val: 111
           load_future_max_val: 678

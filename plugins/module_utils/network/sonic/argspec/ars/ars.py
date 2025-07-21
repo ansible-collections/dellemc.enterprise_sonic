@@ -27,7 +27,7 @@ class ArsArgs(object):  # pylint: disable=R0903
                         'idle_time': {'type': 'int'},
                         'max_flows': {'choices': [256, 512, 1024, 2048, 4096, 8192, 16384, 32768], 'type': 'int'},
                         'mode': {
-                            'choices': ['fixed', 'flowlet_quality', 'flowlet_random', 'packet_quality', 'packet_random'],
+                            'choices': ['fixed', 'flowlet-quality', 'flowlet-random', 'packet-quality', 'packet-random'],
                             'type': 'str'
                         },
                         'name': {'required': True, 'type': 'str'}
@@ -55,7 +55,7 @@ class ArsArgs(object):  # pylint: disable=R0903
                 'profiles': {
                     'elements': 'dict',
                     'options': {
-                        'algo': {'choices': ['EWMA'], 'type': 'str'},
+                        'algorithm': {'choices': ['EWMA'], 'type': 'str'},
                         'load_current_max_val': {'type': 'int'},
                         'load_current_min_val': {'type': 'int'},
                         'load_future_max_val': {'type': 'int'},

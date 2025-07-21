@@ -29,10 +29,10 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 enum_dict = {
     'ARS_MODE_FIXED': 'fixed',
-    'ARS_MODE_FLOWLET_QUALITY': 'flowlet_quality',
-    'ARS_MODE_FLOWLET_RANDOM': 'flowlet_random',
-    'ARS_MODE_PER_PACKET_QUALITY': 'packet_quality',
-    'ARS_MODE_PER_PACKET_RANDOM': 'packet_random'
+    'ARS_MODE_FLOWLET_QUALITY': 'flowlet-quality',
+    'ARS_MODE_FLOWLET_RANDOM': 'flowlet-random',
+    'ARS_MODE_PER_PACKET_QUALITY': 'packet-quality',
+    'ARS_MODE_PER_PACKET_RANDOM': 'packet-random'
 }
 
 
@@ -98,6 +98,8 @@ class ArsFacts(object):
                 profiles_list = []
                 for profile in cfg['ars-profile']['profile']:
                     if profile.get('config'):
+                        if 'algo' in profile['config']:
+                            profile['config']['algorithm'] = profile['config'].pop('algo')
                         profiles_list.append(self.get_renamed_dict(profile['config']))
                 if profiles_list:
                     config_dict['profiles'] = profiles_list

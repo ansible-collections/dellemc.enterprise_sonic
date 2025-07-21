@@ -39,9 +39,10 @@ options:
               - Name of profile
             type: str
             required: true
-          algo:
+          algorithm:
             description:
               - ARS algorithm used for quality computation
+              - C(EWMA) - Exponential Weighted Moving Average
             type: str
             choices: [EWMA]
           load_current_max_val:
@@ -197,7 +198,7 @@ options:
             description:
               - ARS path reassignment mode
             type: str
-            choices: [fixed, flowlet_quality, flowlet_random, packet_quality, packet_random]
+            choices: [fixed, flowlet-quality, flowlet-random, packet-quality, packet-random]
   state:
     description:
       - The state of the configuration after module completion
@@ -222,7 +223,7 @@ EXAMPLES = """
         - name: obj1
           idle_time: 100
           max_flows: 1024
-          mode: flowlet_quality
+          mode: flowlet-quality
       port_profiles:
         - name: pp1
           enable: true
@@ -231,7 +232,7 @@ EXAMPLES = """
           load_scaling_factor: 0
       profiles:
         - name: p1
-          algo: EWMA
+          algorithm: EWMA
           load_current_max_val: 10000
           load_current_min_val: 100
           load_future_max_val: 20000
@@ -425,7 +426,7 @@ EXAMPLES = """
         - name: obj4
           idle_time: 65
           max_flows: 4096
-          mode: flowlet_quality
+          mode: flowlet-quality
     state: overridden
 
 # After state:
@@ -545,23 +546,14 @@ before:
   description: The configuration prior to the module invocation.
   returned: always
   type: dict
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
 after:
-  description: The resulting configuration from module invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
   type: dict
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
 after(generated):
   description: The generated configuration from module invocation.
   returned: when C(check_mode)
   type: dict
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

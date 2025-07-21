@@ -59,16 +59,16 @@ enum_dict = {
     40.0: '40',
     80.0: '80',
     'fixed': 'ARS_MODE_FIXED',
-    'flowlet_quality': 'ARS_MODE_FLOWLET_QUALITY',
-    'flowlet_random': 'ARS_MODE_FLOWLET_RANDOM',
-    'packet_quality': 'ARS_MODE_PER_PACKET_QUALITY',
-    'packet_random': 'ARS_MODE_PER_PACKET_RANDOM'
+    'flowlet-quality': 'ARS_MODE_FLOWLET_QUALITY',
+    'flowlet-random': 'ARS_MODE_FLOWLET_RANDOM',
+    'packet-quality': 'ARS_MODE_PER_PACKET_QUALITY',
+    'packet-random': 'ARS_MODE_PER_PACKET_RANDOM'
 }
 DEFAULTS_MAP = {
     'ars_objects': {
         'idle_time': 80,
         'max_flows': 256,
-        'mode': 'flowlet_quality'
+        'mode': 'flowlet-quality'
     },
     'port_profiles': {
         'enable': False,
@@ -77,7 +77,7 @@ DEFAULTS_MAP = {
         'load_scaling_factor': 0.0,
     },
     'profiles': {
-        'algo': 'EWMA',
+        'algorithm': 'EWMA',
         'load_current_max_val': 6291456,
         'load_current_min_val': 1048576,
         'load_future_max_val': 12582912,
@@ -305,24 +305,27 @@ class Ars(ConfigBase):
         request = None
 
         if commands:
+            cmds = deepcopy(commands)
             ars_dict = {}
-            if commands.get('profiles'):
+            if cmds.get('profiles'):
                 profile_list = []
-                for profile in commands['profiles']:
+                for profile in cmds['profiles']:
+                    if 'algorithm' in profile:
+                        profile['algo'] = profile.pop('algorithm')
                     profile_list.append({'name': profile['name'], 'config': self.get_renamed_dict(profile)})
                 if profile_list:
                     ars_dict['ars-profile'] = {'profile': profile_list}
 
-            if commands.get('switch_bindings'):
+            if cmds.get('switch_bindings'):
                 switchbind_list = []
-                for bind in commands['switch_bindings']:
+                for bind in cmds['switch_bindings']:
                     switchbind_list.append({'name': bind['name'], 'config': bind})
                 if switchbind_list:
                     ars_dict['ars-switch-bind'] = {'switchbind': switchbind_list}
 
-            if commands.get('port_profiles'):
+            if cmds.get('port_profiles'):
                 portprofile_list = []
-                for profile in commands['port_profiles']:
+                for profile in cmds['port_profiles']:
                     profile_dict = self.get_renamed_dict(profile)
                     if profile_dict.get('load-scaling-factor') is not None:
                         profile_dict['load-scaling-factor'] = enum_dict[profile_dict['load-scaling-factor']]
@@ -330,16 +333,16 @@ class Ars(ConfigBase):
                 if portprofile_list:
                     ars_dict['ars-port-profile'] = {'portprofile': portprofile_list}
 
-            if commands.get('port_bindings'):
+            if cmds.get('port_bindings'):
                 portbind_list = []
-                for bind in commands['port_bindings']:
+                for bind in cmds['port_bindings']:
                     portbind_list.append({'name': bind['name'], 'config': bind})
                 if portbind_list:
                     ars_dict['ars-port-bind'] = {'portbind': portbind_list}
 
-            if commands.get('ars_objects'):
+            if cmds.get('ars_objects'):
                 arsobject_list = []
-                for obj in commands['ars_objects']:
+                for obj in cmds['ars_objects']:
                     obj_dict = self.get_renamed_dict(obj)
                     if obj_dict.get('mode'):
                         obj_dict['mode'] = enum_dict[obj_dict['mode']]
@@ -426,7 +429,11 @@ class Ars(ConfigBase):
                     if key == 'name':
                         continue
                     if profile.get(key) is not None:
-                        attr = key.replace('_', '-')
+                        attr = None
+                        if key == 'algorithm':
+                            attr = 'algo'
+                        else:
+                            attr = key.replace('_', '-')
                         requests.append(self.get_delete_profile(name, attr))
 
         return requests
