@@ -24,16 +24,14 @@ class SnmpArgs(object):  # pylint: disable=R0903
             'options': {
                 'agentaddress': {
                     'elements': 'dict',
-                    'mutually_exclusive': [['interface', 'vrf']],
                     'options': {
                         'name': {'type': 'str'},
-                        'interface': {'type': 'str'},
+                        'interface_vrf': {'type': 'str'},
                         'ip': {
                             'required': True,
                             'type': 'str'
                         },
-                        'port': {'type': 'int'},
-                        'vrf': {'type': 'str'}
+                        'port': {'type': 'int'}
                     },
                     'type': 'list'
                 },

@@ -107,7 +107,7 @@ class SnmpFacts(object):
         Get snmp agent address from the snmp list
         """
         agentaddress_list = []
-        agentaddress_udp_option_paths = {'interface': "ietf-snmp-ext:interface", 'ip': "ip", 'port': "port"}
+        agentaddress_udp_option_paths = {'interface_vrf': "ietf-snmp-ext:interface", 'ip': "ip", 'port': "port"}
 
         if not snmp_list.get('engine') or not snmp_list.get('engine').get('listen'):
             return agentaddress_list

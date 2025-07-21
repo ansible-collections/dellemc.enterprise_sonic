@@ -54,7 +54,7 @@ merged_02:
       agentaddress:
         - ip: '1.2.3.5'
           port: 1024 
-          interface: 'Eth1/30'
+          interface_vrf: 'Eth1/30'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
@@ -104,6 +104,77 @@ merged_03:
         ietf-snmp-ext:notifications:
           bgp-traps: True
           ospf-traps: True
+
+merged_04:
+  module_args:
+    config:
+      view:
+        - name: 'view2'
+          excluded:
+            - '1.2.3.4.5.6.7.8.9.2'
+      host:
+        - ip: '1.2.3.5'
+          timeout: 300
+          tag: 'inform'
+          retries: 20
+          vrf: 'Vrf1'
+          port: 2000
+          user:
+            name: 'user3'
+            security_level: 'auth'
+        - ip: '1.2.3.4'
+          timeout: 800
+          retries: 30
+          tag: 'inform'
+          vrf: 'Vrf1'
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/ietf-snmp:snmp/target'
+      method: 'patch'
+      data:
+        target:
+          - name: 'TargetEntry1'
+            udp:
+              ip: '1.2.3.5'
+              port: 2000
+              ietf-snmp-ext:vrf-name: 'Vrf1'
+            tag:
+              - 'informNotify'
+              - 'Vrf1'
+            timeout: 300
+            retries: 20
+            target-params: 'TargetEntry1'
+          - name: 'TargetEntry2'
+            udp:
+              ip: '1.2.3.4'
+              port: 162
+              ietf-snmp-ext:vrf-name: 'Vrf1'
+            tag:
+              - 'informNotify'
+              - 'Vrf1'
+            timeout: 800
+            retries: 30
+            target-params: 'TargetEntry2'
+    - path: 'data/ietf-snmp:snmp/target-params'
+      method: 'patch'
+      data:
+        target-params:
+          - name: 'TargetEntry1'
+            usm:
+              security-level: 'auth-no-priv'
+              user-name: 'user3'
+          - name: 'TargetEntry2'
+    - path: 'data/ietf-snmp:snmp/vacm'
+      method: 'patch'
+      data:
+        ietf-snmp:vacm:
+          view:
+            - name: 'view2'
+              exclude:
+                - '1.2.3.4.5.6.7.8.9.2'
 
 deleted_01:
   module_args:
@@ -287,13 +358,45 @@ replaced_02:
         ietf-snmp-ext:notifications:
           bgp-traps: True
 
+replaced_03:
+  module_args:
+    config:
+      host:
+        - port: 162
+          timeout: 500
+          retries: 50
+          ip: '1.2.3.5'
+          vrf: 'Vrf1'
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/ietf-snmp:snmp/target'
+      method: 'patch'
+      data:
+        target:
+          - name: 'TargetEntry1'
+            udp:
+              ip: '1.2.3.5'
+              port: 162
+              ietf-snmp-ext:vrf-name: 'Vrf1'
+            timeout: 500
+            retries: 50
+            target-params: 'TargetEntry1'
+    - path: 'data/ietf-snmp:snmp/target-params'
+      method: 'patch'
+      data:
+        target-params:
+          - name: 'TargetEntry1'
+
 overridden_01:
   module_args:
     state: overridden
     config:
       agentaddress:
           - ip: '1.2.3.5'
-            interface: 'Eth1/10'
+            interface_vrf: 'Eth1/10'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
@@ -334,6 +437,7 @@ overridden_01:
               udp:
                 ietf-snmp-ext:interface: 'Eth1/10'
                 ip: '1.2.3.5'
+                port: 161
     - path: 'data/ietf-snmp:snmp/engine/listen'
       method: 'delete'
       data:

@@ -31,7 +31,6 @@ options:
       agentaddress:
         description:
           - List of SNMP agent address configuration
-          - I(interface) and I(vrf) are mutually exclusive
         type: list
         elements: dict
         suboptions:
@@ -40,9 +39,10 @@ options:
               - Name of this agentaddress entry
               - The name is auto-generated if not explicitly specified for agentaddress entry creation
             type: str
-          interface:
+          interface_vrf:
             description:
               - Name of interface
+              - 'Default' is the default
             type: str
           ip:
             description:
@@ -52,6 +52,7 @@ options:
           port:
             description:
               - UDP listening port, range 1024-65535
+              - Default is 161
             type: int
           vrf:
             description:
@@ -489,7 +490,7 @@ EXAMPLES = """
       agentaddress:
         - ip: 1.2.3.5
           port: 1024
-          interface: Eth1/30
+          interface_vrf: Eth1/30
     state: replaced
 
 # After State:
@@ -519,7 +520,7 @@ EXAMPLES = """
       agentaddress:
         - ip: 1.2.3.5
           port: 1024
-          interface: Eth1/30
+          interface_vrf: Eth1/30
     state: overridden
 
 # After State:
