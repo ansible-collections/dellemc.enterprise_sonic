@@ -176,6 +176,21 @@ merged_04:
               exclude:
                 - '1.2.3.4.5.6.7.8.9.2'
 
+merged_05:
+  module_args:
+    config:
+      engine: '23:45:67:89:ab'
+  existing_snmp_config:
+    - path: "data/ietf-snmp:snmp"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/ietf-snmp:snmp/engine'
+      method: 'patch'
+      data:
+        ietf-snmp:engine:
+          engine-id: '23:45:67:89:ab'
+
 deleted_01:
   module_args:
     config:
@@ -360,6 +375,7 @@ replaced_02:
 
 replaced_03:
   module_args:
+    state: replaced
     config:
       host:
         - port: 162
@@ -371,24 +387,60 @@ replaced_03:
     - path: "data/ietf-snmp:snmp"
       response:
         code: 200
+        value:
+          ietf-snmp:snmp:
+            target:
+              - name: 'TargetEntry1'
+                udp:
+                  ip: '1.2.3.5'
+                  port: 2000
+                  ietf-snmp-ext:vrf-name: 'Vrf1'
+                tag:
+                  - 'informNotify'
+                  - 'Vrf1'
+                timeout: 300
+                retries: 20
+                target-params: 'TargetEntry1'
+              - name: 'TargetEntry2'
+                udp:
+                  ip: '1.2.3.4'
+                  port: 162
+                  ietf-snmp-ext:vrf-name: 'Vrf1'
+                tag:
+                  - 'informNotify'
+                  - 'Vrf1'
+                timeout: 800
+                retries: 30
+                target-params: 'TargetEntry2'
+            target-params:
+              - name: 'TargetEntry1'
+                usm:
+                security-level: 'auth-no-priv'
+                user-name: 'user3'
+              - name: 'TargetEntry2'
   expected_config_requests:
+    - path: 'data/ietf-snmp:snmp/target'
+      method: 'delete'
+      data:
     - path: 'data/ietf-snmp:snmp/target'
       method: 'patch'
       data:
         target:
-          - name: 'TargetEntry1'
+          - name: 'TargetEntry3'
             udp:
               ip: '1.2.3.5'
               port: 162
-              ietf-snmp-ext:vrf-name: 'Vrf1'
             timeout: 500
             retries: 50
-            target-params: 'TargetEntry1'
+            target-params: 'TargetEntry3'
+    - path: 'data/ietf-snmp:snmp/target-params'
+      method: 'delete'
+      data:
     - path: 'data/ietf-snmp:snmp/target-params'
       method: 'patch'
       data:
         target-params:
-          - name: 'TargetEntry1'
+          - name: 'TargetEntry3'
 
 overridden_01:
   module_args:

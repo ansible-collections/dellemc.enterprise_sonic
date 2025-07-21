@@ -79,6 +79,13 @@ class TestSonicSnmpModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_snmp_merged_05(self):
+        set_module_args(self.fixture_data['merged_05']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_05']['existing_snmp_config'])
+        self.initialize_config_requests(self.fixture_data['merged_05']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
     def test_sonic_snmp_deleted_01(self):
         set_module_args(self.fixture_data['deleted_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['deleted_01']['existing_snmp_config'])
