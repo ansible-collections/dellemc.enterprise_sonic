@@ -160,11 +160,11 @@ class Snmp(ConfigBase):
 
         for want_conf in want_agentaddresses:
             for want_conf_2 in want_agentaddresses[index + 1:]:
-                if ('ip' in want_conf and 'ip' in want_conf_2 and want_conf.get('ip') == want_conf_2.get('ip')
-                    and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
-                    and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2
-                    and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf'))):
-                   same = True
+                if (('ip' in want_conf and 'ip' in want_conf_2 and want_conf.get('ip') == want_conf_2.get('ip')
+                     and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
+                     and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2
+                     and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf')))):
+                    same = True
             index += 1
         if same:
             raise Exception('Agentaddress option values must be unique')
@@ -175,10 +175,10 @@ class Snmp(ConfigBase):
 
             for want_conf in want_agentaddresses:
                 for have_conf in have.get('agentaddress'):
-                    if ('ip' in want_conf and 'ip' in have_conf and want_conf.get('ip') == have_conf.get('ip')
-                        and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
-                        and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf
-                        and want_conf.get('interface_vrf') == have_conf.get('interface_vrf'))):
+                    if (('ip' in want_conf and 'ip' in have_conf and want_conf.get('ip') == have_conf.get('ip')
+                         and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
+                         and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf
+                         and want_conf.get('interface_vrf') == have_conf.get('interface_vrf')))):
                         same = True
                 if not same:
                     want_agentaddress.append(want_conf)
@@ -477,10 +477,9 @@ class Snmp(ConfigBase):
             interface = ""
             if 'name' in conf:
                 for agent_entry in have_agentaddress:
-                    if (agent_entry.get('ip') == conf.get('ip')
-                        and agent_entry.get('port') == conf.get('port') and agent_entry.get('name') != conf['name']
-                        and agent_entry.get('interface_vrf') == conf.get('interface_vrf')):
-                       self._module.fail_json(msg="The specified options are in use for an existing agent.")
+                    if ((agent_entry.get('ip') == conf.get('ip') and agent_entry.get('port') == conf.get('port')
+                         and agent_entry.get('name') != conf['name'] and agent_entry.get('interface_vrf') == conf.get('interface_vrf'))):
+                        self._module.fail_json(msg="The specified options are in use for an existing agent.")
 
                 name = conf.get('name')
 
@@ -489,8 +488,8 @@ class Snmp(ConfigBase):
                 # if there is already a matching agent, use that one
                 if have_agentaddress:
                     for agent_entry in have_agentaddress:
-                        if (agent_entry.get('ip') == conf.get('ip')
-                            and agent_entry.get('port') == conf.get('port') and agent_entry.get('interface_vrf') == conf.get('interface_vrf')):
+                        if ((agent_entry.get('ip') == conf.get('ip')
+                             and agent_entry.get('port') == conf.get('port') and agent_entry.get('interface_vrf') == conf.get('interface_vrf'))):
                             name = agent_entry.get('name')
             if len(name) == 0:
                 name = self.get_agententry(have_agentaddress_names)
