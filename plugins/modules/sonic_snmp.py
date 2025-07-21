@@ -36,13 +36,13 @@ options:
         suboptions:
           name:
             description:
-              - Name of this agentaddress entry
-              - The name is auto-generated if not explicitly specified for agentaddress entry creation
+              - Name of this agentaddress entry.
+              - The name is auto-generated if not explicitly specified for agentaddress entry creation.
             type: str
           interface_vrf:
             description:
               - Name of interface
-              - 'Default' is the default
+              - "Default" is the default
             type: str
           ip:
             description:
@@ -51,12 +51,12 @@ options:
             required: true
           port:
             description:
-              - UDP listening port, range 1024-65535
-              - Default is 161
+              - UDP listening port, range 1024-65535.
+              - Default is 161.
             type: int
       community:
         description:
-          - List of SNMP community configuration
+          - List of SNMP community configuration.
         type: list
         elements: dict
         suboptions:
@@ -75,8 +75,8 @@ options:
         type: str
       enable_trap:
         description:
-          - Specify trap(s) to enable. The "all" choice indicates all traps should be enabled.
-          - The "all" choice can not be specified unless none of the other choices is specified.
+          - Specify trap(s) to enable. The "all" choice indicates all traps should be enabled
+          - The "all" choice can not be specified unless none of the other choices is specified
         type: list
         elements: str
         choices:
