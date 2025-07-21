@@ -38,6 +38,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_relay
     dhcp_snooping:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
+    drop_counter:
+      redirect: dellemc.enterprise_sonic.sonic_drop_counter
     evpn_esi_multihome:
       redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
     facts:
@@ -86,6 +88,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_mgmt_servers
     mirroring:
       redirect: dellemc.enterprise_sonic.sonic_mirroring
+    network_policy:
+      redirect: dellemc.enterprise_sonic.sonic_network_policy
     ntp:
       redirect: dellemc.enterprise_sonic.sonic_ntp
     ospf_area:
@@ -100,6 +104,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_pim_interfaces
     pki:
       redirect: dellemc.enterprise_sonic.sonic_pki
+    pms:
+      redirect: dellemc.enterprise_sonic.sonic_pms
     poe:
       redirect: dellemc.enterprise_sonic.sonic_poe
     port_breakout:

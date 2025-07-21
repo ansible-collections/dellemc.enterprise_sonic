@@ -1,6 +1,6 @@
 ---
 - name: "Test SONiC CLI"
-  hosts: sonic1 
+  hosts: sonic1
   gather_facts: no
   connection: httpapi
   vars:
@@ -36,6 +36,7 @@
     - sonic_vrrp
     - sonic_vxlan
     - sonic_port_breakout
+    - sonic_pms
     - sonic_users
     - sonic_aaa
     - sonic_ldap
@@ -78,8 +79,10 @@
     - sonic_lst
     - sonic_fbs_classifiers
     - sonic_fbs_groups
+    - sonic_network_policy
     - sonic_ptp_default_ds
     - sonic_mirroring
+    - sonic_drop_counter
     - sonic_ptp_port_ds
     - sonic_evpn_esi_multihome
     - sonic_ssh_server
