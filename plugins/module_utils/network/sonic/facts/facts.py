@@ -87,6 +87,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lst.lst import LstFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_classifiers.fbs_classifiers import Fbs_classifiersFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ars.ars import ArsFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.network_policy.network_policy import Network_policyFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.br_l2pt.br_l2pt import Br_l2ptFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mirroring.mirroring import MirroringFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.drop_counter.drop_counter import Drop_counterFacts
@@ -165,6 +166,7 @@ FACT_RESOURCE_SUBSETS = dict(
     lst=LstFacts,
     fbs_classifiers=Fbs_classifiersFacts,
     ars=ArsFacts,
+    network_policy=Network_policyFacts,
     mirroring=MirroringFacts,
     drop_counter=Drop_counterFacts,
     br_l2pt=Br_l2ptFacts,
