@@ -165,11 +165,11 @@ class Snmp(ConfigBase):
             for want_conf_2 in want_agentaddresses[index+1:]:
                 if ('ip' in want_conf and 'ip' in want_conf_2 and want_conf.get('ip') == want_conf_2.get('ip')
                     and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
-                    and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2 
+                    and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2
                     and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf'))):
                     same = True
             index += 1
-        if same:        
+        if same:
             raise Exception('Agentaddress option values must be unique')
         want_agentaddress = []
         if 'agentaddress' in have:
@@ -180,10 +180,10 @@ class Snmp(ConfigBase):
                 for have_conf in have.get('agentaddress'):
                     if ('ip' in want_conf and 'ip' in have_conf and want_conf.get('ip') == have_conf.get('ip')
                         and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
-                        and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf 
+                        and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf
                         and want_conf.get('interface_vrf') == have_conf.get('interface_vrf'))):
                         same = True
-                if same == False:
+                if not same:
                     want_agentaddress.append(want_conf)
                 if same and state == 'merged':
                     same = False
@@ -1015,7 +1015,7 @@ class Snmp(ConfigBase):
                                     agentaddress_dict = {}
                                     agentaddressdict = {}
                                     udp_dict = {}
-                                    udp_dict['ietf-snmp-ext:interface'] = 'Default' 
+                                    udp_dict['ietf-snmp-ext:interface'] = 'Default'
                                     agentaddress_dict['udp'] = udp_dict
                                     add_interface_vrf_list.append(agentaddress_dict)
                                     agentaddressdict['listen'] = add_interface_vrf_list

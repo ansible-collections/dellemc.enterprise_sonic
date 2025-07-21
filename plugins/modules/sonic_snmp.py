@@ -54,10 +54,6 @@ options:
               - UDP listening port, range 1024-65535
               - Default is 161
             type: int
-          vrf:
-            description:
-              - Name of VRF
-            type: str
       community:
         description:
           - List of SNMP community configuration
