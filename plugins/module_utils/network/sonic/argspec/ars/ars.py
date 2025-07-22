@@ -74,13 +74,11 @@ class ArsArgs(object):  # pylint: disable=R0903
                     },
                     'type': 'list'
                 },
-                'switch_bindings': {
-                    'elements': 'dict',
+                'switch_binding': {
                     'options': {
-                        'name': {'choices': ['SWITCH'], 'required': True, 'type': 'str'},
                         'profile': {'type': 'str'}
                     },
-                    'type': 'list'
+                    'type': 'dict'
                 }
             },
             'type': 'dict'

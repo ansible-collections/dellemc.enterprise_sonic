@@ -125,12 +125,10 @@ class ArsFacts(object):
                     config_dict['ars_objects'] = ars_objects_list
 
             if cfg.get('ars-switch-bind') and cfg['ars-switch-bind'].get('switchbind'):
-                switch_bindings_list = []
                 for bind in cfg['ars-switch-bind']['switchbind']:
-                    if bind.get('config'):
-                        switch_bindings_list.append(bind['config'])
-                if switch_bindings_list:
-                    config_dict['switch_bindings'] = switch_bindings_list
+                    if bind.get('name') == 'SWITCH' and bind.get('config') and bind['config'].get('profile'):
+                        config_dict['switch_binding'] = {'profile': bind['config']['profile']}
+                        break
 
             if cfg.get('ars-port-bind') and cfg['ars-port-bind'].get('portbind'):
                 port_bindings_list = []

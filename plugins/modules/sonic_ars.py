@@ -157,18 +157,11 @@ options:
             description:
               - ARS port profile to bind to port
             type: str
-      switch_bindings:
+      switch_binding:
         description:
-          - List of ARS switch bindings configuration
-        type: list
-        elements: dict
+          - ARS switch binding configuration
+        type: dict
         suboptions:
-          name:
-            description:
-              - Name of switch
-            type: str
-            choices: [SWITCH]
-            required: true
           profile:
             description:
               - ARS profile to bind to switch
@@ -250,9 +243,8 @@ EXAMPLES = """
       port_bindings:
         - name: Ethernet20
           profile: pp1
-      switch_bindings:
-        - name: SWITCH
-          profile: p1
+      switch_binding:
+        profile: p1
     state: merged
 
 # After state:

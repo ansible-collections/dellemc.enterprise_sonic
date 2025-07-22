@@ -1,3 +1,4 @@
+---
 merged_01:
   module_args:
     config:
@@ -32,9 +33,8 @@ merged_01:
       port_bindings:
         - name: Ethernet24
           profile: pp1
-      switch_bindings:
-        - name: SWITCH
-          profile: p1
+      switch_binding:
+        profile: p1
   existing_ars_config:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
       response:
@@ -105,9 +105,8 @@ replaced_01:
         - name: p4
       port_bindings:
         - name: Ethernet28
-      switch_bindings:
-        - name: SWITCH
-          profile: p4
+      switch_binding:
+        profile: p4
     state: replaced
   existing_ars_config:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
@@ -168,7 +167,7 @@ replaced_01:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-profile'
       method: 'delete'
       data:
-    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-switch-bind'
+    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-switch-bind/switchbind=SWITCH'
       method: 'delete'
       data:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-port-profile'
@@ -245,9 +244,8 @@ overridden_01:
       port_bindings:
         - name: Ethernet24
           profile: pp1
-      switch_bindings:
-        - name: SWITCH
-          profile: p1
+      switch_binding:
+        profile: p1
     state: overridden
   existing_ars_config:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
@@ -449,9 +447,8 @@ deleted_01:
         - name: Ethernet24
           profile: pp3
         - name: Ethernet28
-      switch_bindings:
-        - name: SWITCH
-          profile: p3
+      switch_binding:
+        profile: p3
     state: deleted
   existing_ars_config:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
@@ -630,7 +627,7 @@ deleted_01:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-port-bind/portbind=Ethernet28'
       method: 'delete'
       data:
-    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-switch-bind/switchbind=SWITCH/config/profile'
+    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-switch-bind/switchbind=SWITCH'
       method: 'delete'
       data:
 

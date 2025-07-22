@@ -45,8 +45,7 @@ TEST_KEYS = [
     {'ars_objects': {'name': ''}},
     {'port_bindings': {'name': ''}},
     {'port_profiles': {'name': ''}},
-    {'profiles': {'name': ''}},
-    {'switch_bindings': {'name': ''}}
+    {'profiles': {'name': ''}}
 ]
 enum_dict = {
     0.0: '0',
@@ -316,12 +315,9 @@ class Ars(ConfigBase):
                 if profile_list:
                     ars_dict['ars-profile'] = {'profile': profile_list}
 
-            if cmds.get('switch_bindings'):
-                switchbind_list = []
-                for bind in cmds['switch_bindings']:
-                    switchbind_list.append({'name': bind['name'], 'config': bind})
-                if switchbind_list:
-                    ars_dict['ars-switch-bind'] = {'switchbind': switchbind_list}
+            if cmds.get('switch_binding'):
+                switchbind_list = [{'name': 'SWITCH', 'config': {'name': 'SWITCH', 'profile': cmds['switch_binding']['profile']}}]
+                ars_dict['ars-switch-bind'] = {'switchbind': switchbind_list}
 
             if cmds.get('port_profiles'):
                 portprofile_list = []
@@ -397,14 +393,8 @@ class Ars(ConfigBase):
                 if bind.get('profile'):
                     requests.append(self.get_delete_port_bind(name, 'profile'))
 
-        if commands.get('switch_bindings'):
-            for bind in commands['switch_bindings']:
-                name = bind['name']
-                if len(bind) == 1:
-                    requests.append(self.get_delete_switch_bind(name))
-                    continue
-                if bind.get('profile'):
-                    requests.append(self.get_delete_switch_bind(name, 'profile'))
+        if commands.get('switch_binding'):
+            requests.append(self.get_delete_switch_bind())
 
         if commands.get('port_profiles'):
             for profile in commands.get('port_profiles'):
@@ -479,12 +469,8 @@ class Ars(ConfigBase):
         return request
 
     @staticmethod
-    def get_delete_switch_bind(name=None, attr=None):
-        url = '%s/ars-switch-bind' % (ARS_PATH)
-        if name:
-            url += '/switchbind=%s' % (name)
-        if attr:
-            url += '/config/%s' % (attr)
+    def get_delete_switch_bind():
+        url = '%s/ars-switch-bind/switchbind=SWITCH' % (ARS_PATH)
         request = {'path': url, 'method': DELETE}
         return request
 
@@ -555,9 +541,9 @@ class Ars(ConfigBase):
         if new_want.get('port_bindings') and have.get('port_bindings') and new_want['port_bindings'] != have['port_bindings']:
             requests.append(self.get_delete_port_bind())
             config_dict['port_bindings'] = have['port_bindings']
-        if new_want.get('switch_bindings') and have.get('switch_bindings') and new_want['switch_bindings'] != have['switch_bindings']:
+        if new_want.get('switch_binding') and have.get('switch_binding') and new_want['switch_binding'] != have['switch_binding']:
             requests.append(self.get_delete_switch_bind())
-            config_dict['switch_bindings'] = have['switch_bindings']
+            config_dict['switch_binding'] = have['switch_binding']
         if new_want.get('port_profiles') and have.get('port_profiles') and new_want['port_profiles'] != have['port_profiles']:
             requests.append(self.get_delete_port_profile())
             config_dict['port_profiles'] = have['port_profiles']
@@ -573,7 +559,7 @@ class Ars(ConfigBase):
             return True, {}
 
         new_conf = exist_conf
-        ars_lists = ['ars_objects', 'port_bindings', 'port_profiles', 'profiles', 'switch_bindings']
+        ars_lists = ['ars_objects', 'port_bindings', 'port_profiles', 'profiles']
 
         for ars_list in ars_lists:
             if is_replaced:
@@ -596,6 +582,9 @@ class Ars(ConfigBase):
             if ars_list in new_conf and not new_conf[ars_list]:
                 new_conf.pop(ars_list)
 
+        if command.get('switch_binding'):
+            new_conf.pop('switch_binding')
+
         return True, new_conf
 
     def get_new_config(self, commands, have):
@@ -606,8 +595,7 @@ class Ars(ConfigBase):
             {'ars_objects': {'name': ''}},
             {'port_bindings': {'name': ''}},
             {'port_profiles': {'name': ''}},
-            {'profiles': {'name': ''}},
-            {'switch_bindings': {'name': ''}},
+            {'profiles': {'name': ''}}
         ]
         new_config = get_new_config(commands, have, key_set)
         self.add_default_entries(new_config)
