@@ -94,8 +94,6 @@ options:
         description:
           - Specifies switching mode in the device.
           - Operational default value is STORE_AND_FORWARD.
-          - REST Resource may not exist until after it is first configured on the device.
-          - The value if the resource is empty is then assumed to be STORE_AND_FORWARD.
         version_added: 3.1.0
         type: str
         choices:
