@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-sonic_system_module_name: system
 sonic_system_tests:
   - name: test_case_01
     description: System properties
