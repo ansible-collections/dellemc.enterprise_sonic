@@ -14,3 +14,11 @@
       - name: PortChannel51
     state: deleted
   failed_when: false
+
+- name: Delete loopback interfaces"
+  sonic_interfaces:
+    config:
+      - name: Loopback100
+      - name: Loopback101
+    state: deleted
+  failed_when: false

@@ -24,6 +24,7 @@
     config:
       - name: Loopback100
       - name: Loopback101
+    state: deleted
   failed_when: false
 
 - name: Delete VLANs configuration
