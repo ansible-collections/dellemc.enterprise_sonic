@@ -219,7 +219,6 @@ class System(ConfigBase):
         """
         commands = []
         requests = []
-        want = utils.remove_empties(want)
         new_have = self.remove_default_entries(have)
         want = remove_empties(want)
 
