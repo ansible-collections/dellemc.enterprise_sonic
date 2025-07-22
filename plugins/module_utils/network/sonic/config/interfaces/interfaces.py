@@ -454,7 +454,7 @@ class Interfaces(ConfigBase):
                     valid_speeds = port_group_info['valid_speeds']
                     self._module.fail_json(msg=("Please use the sonic_port_group module to change the speed. "
                                                 "Interface {} is in port-group ID {pg_id}. The valid speeds "
-                                                "for port-group ID {pg_id} are {}").format(intf_name, valid_speeds, pg_id=port_group_id))
+                                                "for port-group ID {pg_id} are {}.").format(intf_name, valid_speeds, pg_id=port_group_id))
                 payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
             if attr == 'advertised_speed':
                 c_ads = c_attr if c_attr else []
