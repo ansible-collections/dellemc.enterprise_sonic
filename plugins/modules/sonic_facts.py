@@ -78,6 +78,7 @@ options:
       - users
       - system
       - port_breakout
+      - pms
       - aaa
       - ldap
       - tacacs_server
@@ -93,6 +94,7 @@ options:
       - l2_acls
       - l3_acls
       - lldp_global
+      - ptp_default_ds
       - mac
       - bfd
       - copp
@@ -117,10 +119,13 @@ options:
       - ospf_area
       - ssh
       - lst
+      - ptp_port_ds
       - fbs_classifiers
+      - network_policy
       - br_l2pt
       - dcbx
       - mirroring
+      - drop_counter
       - evpn_esi_multihome
       - ssh_server
 """
