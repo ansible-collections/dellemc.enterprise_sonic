@@ -71,6 +71,10 @@ options:
             description:
               - Enable preempt
             type: bool
+          preempt_delay:
+            description:
+              - Configure preempt delay interval (0 to 1000)
+            type: int
           priority:
             description:
               - Priority for MASTER election (1 to 254)
@@ -138,6 +142,7 @@ EXAMPLES = """
 #  !
 #  vrrp 10 address-family ipv6
 #  priority 10
+#  preempt-delay 4
 #  advertisement-interval 4
 #  vip 81::3
 #  vip 81::4
@@ -172,6 +177,7 @@ EXAMPLES = """
             afi: ipv6
             advertisement_interval: 4
             priority: 10
+            preempt_delay: 4
       - name: 'Eth1/3'
         group:
           - virtual_router_id: 5
@@ -250,6 +256,7 @@ EXAMPLES = """
               - address: 81::4
             advertisement_interval: 4
             priority: 10
+            preempt_delay: 4
       - name: 'Eth1/3'
         group:
           - virtual_router_id: 5
@@ -284,6 +291,7 @@ EXAMPLES = """
 #  !
 #  vrrp 10 address-family ipv6
 #  priority 10
+#  preempt-delay 4
 #  advertisement-interval 4
 #  vip 81::3
 #  vip 81::4
@@ -327,6 +335,7 @@ EXAMPLES = """
 #  !
 #  vrrp 10 address-family ipv6
 #  priority 10
+#  preempt-delay 4
 #  advertisement-interval 4
 #  vip 81::3
 #  vip 81::4
@@ -427,6 +436,7 @@ EXAMPLES = """
 #  vrrp 10 address-family ipv6
 #  priority 10
 #  advertisement-interval 4
+#  preempt-delay 4
 #  vip 81::3
 #  vip 81::4
 # !
