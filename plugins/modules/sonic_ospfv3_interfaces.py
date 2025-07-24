@@ -24,7 +24,7 @@ short_description: Configure OSPFv3 interface mode protocol settings on SONiC.
 description:
   - This module provides configuration management of OSPFv3 interface mode parameters on devices running SONiC.
   - Configure VRF instance before configuring OSPFv3 in a VRF.
-  - Configure OSPFv3 instance before configuring OSPFv3 in interfaces.
+  - Configure global/VRF OSPFv3 instance before configuring OSPFv3 in interfaces.
 author: "Mansi Jharia (@Mansi062001)"
 options:
       config:
@@ -104,7 +104,7 @@ options:
         description:
           - Specifies the operation to be performed on the OSPFv3 interfaces configured on the device.
           - In case of merged, the input configuration will be merged with the existing OSPFv3 interfaces configuration on the device.
-          - In case of deleted, the existing OSPFv3 interfaces configuration will be removed from the device.
+          - In case of deleted, the specified existing OSPFv3 interfaces configuration will be removed from the device.
           - In case of overridden, all the existing OSPFv3 interfaces configuration will be deleted and the specified input
             configuration will be installed.
           - In case of replaced, the existing OSPFv3 interface configuration on the device will be replaced by the configuration in the
@@ -145,7 +145,7 @@ EXAMPLES = """
 # !
 # sonic#
 
-- name: Delete the OSPFv3_interface configurations
+- name: Delete the specified OSPFv3_interface configurations
   sonic_ospfv3_interfaces:
     config:
       - name: 'Eth1/1'
@@ -213,7 +213,7 @@ EXAMPLES = """
 # !
 # sonic#
 
-- name: Delete the OSPFv3_interface configurations
+- name: Delete the specified OSPFv3_interface configurations
   sonic_ospfv3_interfaces:
     config:
       - name: 'Eth1/1'
@@ -537,26 +537,26 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to the module invocation.
   returned: always
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after:
-  description: The resulting configuration model invocation.
+  description: The configuration resulting from  model invocation.
   returned: when changed
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 after(generated):
-  description: The generated configuration model invocation.
+  description: The generated(calculated) configuration that would be applied by module invocation.
   returned: when C(check_mode)
   type: list
   sample: >
     The configuration returned will always be in the same format
-     of the parameters above.
+    as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
