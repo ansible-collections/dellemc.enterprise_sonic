@@ -544,7 +544,7 @@ before:
     The configuration returned will always be in the same format
     as the parameters above.
 after:
-  description: The configuration resulting from  model invocation.
+  description: The configuration resulting from  module invocation.
   returned: when changed
   type: list
   sample: >
