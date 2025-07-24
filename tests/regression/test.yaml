@@ -30,6 +30,7 @@
     - sonic_br_l2pt
     - sonic_ospfv2_interfaces
     - sonic_ospfv2
+    - sonic_ospfv3_interfaces
     - sonic_dhcp_snooping
     - sonic_vlan_mapping
     - sonic_vrfs
