@@ -82,6 +82,7 @@
     - sonic_network_policy
     - sonic_ptp_default_ds
     - sonic_mirroring
+    - sonic_snmp
     - sonic_drop_counter
     - sonic_ptp_port_ds
     - sonic_evpn_esi_multihome
