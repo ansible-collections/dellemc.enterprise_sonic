@@ -187,7 +187,8 @@ tests:
     state: deleted
     input:
       agentaddress:
-        - ip: '1.2.3.5'
+        - name: 'AgentEntry1'
+          ip: '1.2.3.5'
           port: 1050
           interface_vrf: 'Eth1/30'
       enable_trap:

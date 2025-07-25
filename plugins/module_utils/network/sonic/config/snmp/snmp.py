@@ -140,7 +140,7 @@ class Snmp(ConfigBase):
         return to_list(resp)
 
     def fill_in_defaults_and_compare(self, want, have, state):
-        """ Fill in the defaults in the agentaddress edfconfig
+        """ Fill in the defaults in the agentaddress config
         :param want: the desired configuration as a dictionary
         :rtype: A dictionary
         :returns: the desired configuration with default values filled in
@@ -154,24 +154,11 @@ class Snmp(ConfigBase):
                     conf['port'] = 161
                 if 'interface_vrf' not in conf:
                     conf['interface_vrf'] = 'default'
-        same = False
-        want_agentaddresses = new_want.get('agentaddress')
-        index = 0
-
-        for want_conf in want_agentaddresses:
-            for want_conf_2 in want_agentaddresses[index + 1:]:
-                if (('ip' in want_conf and 'ip' in want_conf_2 and want_conf.get('ip') == want_conf_2.get('ip')
-                     and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
-                     and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2
-                     and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf')))):
-                    same = True
-            index += 1
-        if same:
-            raise Exception('Agentaddress option values must be unique')
+            want_agentaddresses = new_want.get('agentaddress')
+            self.check_same_agentaddress(want_agentaddresses)
         want_agentaddress = []
-        if 'agentaddress' in have:
-            same = False
-            index = 0
+        if 'agentaddress' in have and state == 'merged':
+            same = {}
 
             for want_conf in want_agentaddresses:
                 for have_conf in have.get('agentaddress'):
@@ -179,17 +166,41 @@ class Snmp(ConfigBase):
                          and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
                          and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf
                          and want_conf.get('interface_vrf') == have_conf.get('interface_vrf')))):
-                        same = True
+                        same = {'name': have_conf.get('name')}
+                        break
                 if not same:
                     want_agentaddress.append(want_conf)
                 if same and state == 'merged':
-                    same = False
-                index += 1
+                    same = {}
 
             if same:
-                raise Exception('Agentaddress option values must be unique')
+                self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of this agent: {}".format(same))
             new_want['agentaddress'] = want_agentaddress
         return new_want
+
+    def check_same_agentaddress(self, want_agentaddress):
+        """ Check if the agentaddress option values are the same
+        :param want_agentaddress: the desired configuration as a dictionary
+        :param have: the current configuration as a dictionary
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        same = {}
+        want_agentaddresses = want_agentaddress
+
+        for index, want_conf in enumerate(want_agentaddresses, 0):
+            for want_conf_2 in want_agentaddresses[index + 1:]:
+                if (('ip' in want_conf and 'ip' in want_conf_2 and want_conf.get('ip') == want_conf_2.get('ip')
+                     and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
+                     and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2
+                     and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf')))):
+                    same = {'ip': want_conf.get('ip'), 'port': want_conf.get('port'), 'interface_vrf': want_conf.get('interface_vrf')}
+                    break
+        if same:
+            self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of these options: {}".format(same))
+
+        return
 
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
@@ -341,6 +352,10 @@ class Snmp(ConfigBase):
             commands = have
             delete_all = True
         else:
+            if 'agentaddress' in want:
+                for want_agentaddress in want['agentaddress']:
+                    if not want_agentaddress.get('name'):
+                        self._module.fail_json(msg="An Agent name is required to delete an agentaddress entry.")
             new_want = self.get_configured_option(want, have)
             reverse_diff = get_diff(have, new_want, TEST_KEYS)
             commands = get_diff(have, reverse_diff, TEST_KEYS)
@@ -978,18 +993,14 @@ class Snmp(ConfigBase):
                     agentaddress_requests.append(agentaddress_request)
                 else:
                     for want in configs['agentaddress']:
-                        if want.get('name'):
-                            matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['name'] == want['name']), None)
-                        else:
-                            self._module.fail_json(msg="and Agent name is required to delete an agentaddress entry.")
+                        matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['name'] == want['name']), None)
                         if matched_agentaddress:
                             name = matched_agentaddress['name']
                             agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
                             # Delete the whole agentaddress entry if only 'name' is specified.
-                            if want.get('name') and len(want) == 1:
+                            if want.get('name') and want.get('ip') and len(want) == 2:
                                 agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                                 agentaddress_requests.append(agentaddress_request)
-                                continue
                             interface_vrf = want.get('interface_vrf')
                             ip = want.get('ip')
                             port = want.get('port')
@@ -1000,6 +1011,7 @@ class Snmp(ConfigBase):
                                     continue
                                 else:
                                     all_udp_deleted = False
+                                    self.check_same_agentaddress(configs['agentaddress'])
                                     break
 
                             if not all_udp_deleted:
