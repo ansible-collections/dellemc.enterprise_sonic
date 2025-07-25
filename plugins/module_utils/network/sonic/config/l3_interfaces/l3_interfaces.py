@@ -39,6 +39,11 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 from ansible.module_utils.connection import ConnectionError
 
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 TEST_KEYS = [
     {"addresses": {"address": ""}}
 ]
@@ -81,6 +86,9 @@ class L3_interfaces(ConfigBase):
     ipv4_addr_del_path = ipv4_addresses_path + '/address={address}'
     ipv4_sag_path = ipv4_path + '/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway'
     ipv4_sag_del_path = ipv4_sag_path + '={address}'
+    ipv4_proxy_arp_path = ipv4_path + '/proxy-arp'
+    ipv4_proxy_arp_config_path = ipv4_proxy_arp_path + '/config'
+    ipv4_proxy_arp_mode_path = ipv4_proxy_arp_config_path + '/mode'
 
     ipv6_path = '{l3_intf_path}/openconfig-if-ip:ipv6'
     ipv6_addresses_path = ipv6_path + '/addresses'
@@ -93,6 +101,11 @@ class L3_interfaces(ConfigBase):
         'dad': ipv6_config_root_path + '/ipv6_dad',
         'autoconf': ipv6_config_root_path + '/ipv6_autoconfig'
     }
+    ipv6_nd_proxy_path = ipv6_path + '/nd-proxy'
+    ipv6_nd_proxy_config_path = ipv6_nd_proxy_path + '/config'
+    ipv6_nd_proxy_mode_path = ipv6_nd_proxy_config_path + '/mode'
+    ipv6_nd_proxy_rules_path = ipv6_nd_proxy_config_path + '/nd-proxy-rules'
+    ipv6_nd_proxy_rules_del_path = ipv6_nd_proxy_rules_path + '={rule}'
 
     def __init__(self, module):
         super(L3_interfaces, self).__init__(module)
@@ -247,6 +260,35 @@ class L3_interfaces(ConfigBase):
                         if len(del_addrs['ipv4']['primary']) and len(del_addrs['ipv4']['secondary']) < len(have_addrs['ipv4']['secondary']):
                             del_addrs['ipv4']['secondary'] = have_addrs['ipv4']['secondary']
 
+                    if is_ipv6:
+                        have_nd_proxy = have_conf[option].get('nd_proxy')
+                        want_nd_proxy = conf[option].get('nd_proxy')
+                        # If ipv6 addresses are present in the delete list, then delete the nd_proxy config since
+                        # deleting of ipv6 addresses is not allowed if nd_proxy is present.
+                        if have_nd_proxy and (not want_nd_proxy or del_addrs['ipv6']['address'] or del_addrs['ipv6']['eui64']):
+                            command.setdefault('ipv6', {})['nd_proxy'] = have_nd_proxy
+                        elif have_nd_proxy and want_nd_proxy:
+                            nd_proxy_cmd = {}
+                            # If mode is different, then delete the existing nd_proxy config since
+                            # deleting of mode is not allowed if nd_proxy_rules are present.
+                            if have_nd_proxy.get('mode') != want_nd_proxy.get('mode'):
+                                command.setdefault('ipv6', {})['nd_proxy'] = have_nd_proxy
+                            else:
+                                have_nd_proxy_rules = set(have_nd_proxy.get('nd_proxy_rules', []))
+                                want_nd_proxy_rules = set(want_nd_proxy.get('nd_proxy_rules', []))
+                                del_nd_proxy_rules = have_nd_proxy_rules - want_nd_proxy_rules
+                                if del_nd_proxy_rules:
+                                    nd_proxy_cmd['nd_proxy_rules'] = list(del_nd_proxy_rules)
+                                if nd_proxy_cmd:
+                                    command.setdefault('ipv6', {})['nd_proxy'] = nd_proxy_cmd
+                    else:
+                        have_proxy_arp = have_conf[option].get('proxy_arp')
+                        want_proxy_arp = conf[option].get('proxy_arp')
+                        # If ipv4 addresses are present in the delete list, then delete the proxy_arp config
+                        # since deleting of ipv4 addresses is not allowed if proxy_arp is present.
+                        if have_proxy_arp and (not want_proxy_arp or del_addrs['ipv4']['primary'] or del_addrs['ipv4']['secondary']):
+                            command.setdefault('ipv4', {})['proxy_arp'] = have_proxy_arp
+
                 ipv4_addrs_list, ipv6_addrs_list = self.get_addresses_list(del_addrs)
                 if ipv4_addrs_list:
                     command.setdefault('ipv4', {})
@@ -356,9 +398,34 @@ class L3_interfaces(ConfigBase):
                         if del_ipv6_subopt_command:
                             command.setdefault('ipv6', {})
                             command['ipv6'].update(del_ipv6_subopt_command)
+
+                        # Handle nd proxy
+                        have_nd_proxy = have_conf[option].get('nd_proxy')
+                        conf_nd_proxy = conf[option].get('nd_proxy')
+                        if have_nd_proxy and conf_nd_proxy:
+                            nd_proxy_cmd = {}
+                            if have_nd_proxy.get('mode') == conf_nd_proxy.get('mode'):
+                                nd_proxy_cmd['mode'] = have_nd_proxy.get('mode')
+
+                            have_nd_proxy_rules = set(have_nd_proxy.get('nd_proxy_rules', []))
+                            conf_nd_proxy_rules = set(conf_nd_proxy.get('nd_proxy_rules', []))
+                            del_nd_proxy_rules = have_nd_proxy_rules.intersection(conf_nd_proxy_rules)
+
+                            if del_nd_proxy_rules:
+                                nd_proxy_cmd['nd_proxy_rules'] = list(del_nd_proxy_rules)
+
+                            if nd_proxy_cmd:
+                                command.setdefault('ipv6', {})['nd_proxy'] = nd_proxy_cmd
+
                     else:
                         del_addrs['ipv4']['primary'] = have_addrs['ipv4']['primary'].intersection(conf_addrs)
                         del_addrs['ipv4']['secondary'] = have_addrs['ipv4']['secondary'].intersection(conf_addrs)
+
+                        # Handle proxy arp
+                        have_proxy_arp = have_conf[option].get('proxy_arp')
+                        conf_proxy_arp = conf[option].get('proxy_arp')
+                        if have_proxy_arp and conf_proxy_arp and have_proxy_arp['mode'] == conf_proxy_arp['mode']:
+                            command.setdefault('ipv4', {})['proxy_arp'] = have_proxy_arp
 
                 ipv4_addrs_list, ipv6_addrs_list = self.get_addresses_list(del_addrs)
                 if ipv4_addrs_list:
@@ -425,6 +492,36 @@ class L3_interfaces(ConfigBase):
 
         return requests
 
+    def get_delete_proxy_arp_requests(self, l3_intf_path, proxy_arp):
+        """
+        Get requests to delete the proxy arp related configs
+        """
+        requests = []
+        if proxy_arp and 'mode' in proxy_arp:
+            requests.append({'path': self.ipv4_proxy_arp_mode_path.format(l3_intf_path=l3_intf_path), 'method': DELETE})
+
+        return requests
+
+    def get_delete_nd_proxy_requests(self, l3_intf_path, nd_proxy):
+        """
+        Get requests to delete nd_proxy configuration for IPv6.
+        If nd_proxy is provided and contains 'nd_proxy_rules', delete only those rules.
+        Otherwise, delete the entire nd_proxy config.
+        """
+        requests = []
+        if nd_proxy and isinstance(nd_proxy, dict):
+            if nd_proxy.get('nd_proxy_rules'):
+                for r in nd_proxy['nd_proxy_rules']:
+                    encoded_rule = quote(r, safe='')
+                    url = self.ipv6_nd_proxy_rules_del_path.format(l3_intf_path=l3_intf_path, rule=encoded_rule)
+                    requests.append({'path': url, 'method': DELETE})
+
+            if 'mode' in nd_proxy:
+                url = self.ipv6_nd_proxy_mode_path.format(l3_intf_path=l3_intf_path)
+                requests.append({'path': url, 'method': DELETE})
+
+        return requests
+
     def get_delete_ipv6_param_requests(self, command):
         """Get requests to delete specific IPv6 configurations
         based on the command specified
@@ -447,12 +544,16 @@ class L3_interfaces(ConfigBase):
         requests = []
         l3_intf_path = self.get_l3_interface_path(command['name'])
         if command.get('ipv4'):
+            if command['ipv4'].get('proxy_arp'):
+                requests.extend(self.get_delete_proxy_arp_requests(l3_intf_path, command['ipv4']['proxy_arp']))
             if command['ipv4'].get('addresses'):
                 delete_all_addrs = (len(command['ipv4']['addresses']) == len(have_conf['ipv4']['addresses']))
                 requests.extend(self.get_delete_addresses_requests(l3_intf_path, command['ipv4']['addresses'], delete_all=delete_all_addrs))
             if command['ipv4'].get('anycast_addresses'):
                 requests.extend(self.get_delete_anycast_addresses_requests(l3_intf_path, command['ipv4']['anycast_addresses']))
         if command.get('ipv6'):
+            if command['ipv6'].get('nd_proxy'):
+                requests.extend(self.get_delete_nd_proxy_requests(l3_intf_path, command['ipv6']['nd_proxy']))
             if command['ipv6'].get('addresses'):
                 delete_all_addrs = (len(command['ipv6']['addresses']) == len(have_conf['ipv6']['addresses']))
                 requests.extend(self.get_delete_addresses_requests(l3_intf_path, command['ipv6']['addresses'], ipv6=True, delete_all=delete_all_addrs))
@@ -498,6 +599,11 @@ class L3_interfaces(ConfigBase):
                     payload = {'openconfig-interfaces-ext:static-anycast-gateway': l3['ipv4']['anycast_addresses']}
                     requests.append({'path': self.ipv4_sag_path.format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
 
+                if l3['ipv4'].get('proxy_arp'):
+                    if 'mode' in l3['ipv4']['proxy_arp'] and l3['ipv4']['proxy_arp']['mode'] is not None:
+                        payload = {'openconfig-if-ip:mode': l3['ipv4']['proxy_arp']['mode']}
+                        requests.append({'path': self.ipv4_proxy_arp_mode_path.format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+
             if l3.get('ipv6'):
                 if l3['ipv6'].get('addresses'):
                     ipv6_addrs = l3['ipv6']['addresses']
@@ -524,6 +630,16 @@ class L3_interfaces(ConfigBase):
                 if l3['ipv6'].get('autoconf') is not None:
                     payload = {'openconfig-if-ip:ipv6_autoconfig': l3['ipv6']['autoconf']}
                     requests.append({'path': self.ipv6_config_path['autoconf'].format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+
+                if l3['ipv6'].get('nd_proxy'):
+                    nd_proxy = l3['ipv6']['nd_proxy']
+                    if isinstance(nd_proxy, dict):
+                        if 'mode' in nd_proxy and nd_proxy['mode'] is not None:
+                            payload = {"openconfig-if-ip:mode": nd_proxy['mode']}
+                            requests.append({'path': self.ipv6_nd_proxy_mode_path. format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+                        if 'nd_proxy_rules' in nd_proxy and nd_proxy['nd_proxy_rules'] is not None:
+                            payload = {"openconfig-if-ip:nd-proxy-rules": nd_proxy['nd_proxy_rules']}
+                            requests.append({'path': self.ipv6_nd_proxy_rules_path. format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
 
         return requests
 
@@ -565,14 +681,23 @@ class L3_interfaces(ConfigBase):
                     delete_ipv4 = delete_ipv6 = False
                     if conf_ipv4:
                         delete_ipv4 = True
-                        for option in ('addresses', 'anycast_addresses'):
+                        for option in ('addresses', 'anycast_addresses', 'proxy_arp'):
+                            # For proxy_arp, treat empty dict as not present
+                            if option == 'proxy_arp' and conf_ipv4.get(option) in [None, {}, []]:
+                                continue
                             if conf_ipv4.get(option) not in [None, []]:
                                 delete_ipv4 = False
                                 break
                     if conf_ipv6:
                         delete_ipv6 = True
-                        for option in ('addresses', 'anycast_addresses', 'dad', 'autoconf', 'enabled'):
-                            if conf_ipv6.get(option) not in [None, []]:
+                        for option in ('addresses', 'anycast_addresses', 'dad', 'autoconf', 'enabled', 'nd_proxy'):
+                            val = conf_ipv6.get(option)
+                            # For nd_proxy, treat empty dict or all-empty dict as not present
+                            # check if nd_proxy is a dictionary and all of its values are empty
+                            # For ex. nd_proxy = {'mode': None, 'nd_proxy_rules' : []}
+                            if option == 'nd_proxy' and val in [None, {}, []] or (isinstance(val, dict) and all(v in [None, {}, []] for v in val.values())):
+                                continue
+                            if val not in [None, []]:
                                 delete_ipv6 = False
                                 break
 
@@ -713,6 +838,11 @@ class L3_interfaces(ConfigBase):
                     for suboption in ('addresses', 'anycast_addresses'):
                         if suboption in conf[option] and len(conf[option][suboption]) == 0:
                             del conf[option][suboption]
+                    # --- Remove empty nd_proxy_rules ---
+                    if option == 'ipv6' and conf[option].get('nd_proxy'):
+                        nd_proxy = conf[option]['nd_proxy']
+                        if isinstance(nd_proxy, dict) and 'nd_proxy_rules' in nd_proxy and len(nd_proxy['nd_proxy_rules']) == 0:
+                            del nd_proxy['nd_proxy_rules']
 
                     if not conf[option]:
                         del conf[option]
@@ -733,6 +863,10 @@ class L3_interfaces(ConfigBase):
                             cfg[option]['addresses'].sort(key=lambda x: x['address'])
                         if cfg[option].get('anycast_addresses'):
                             cfg[option]['anycast_addresses'].sort()
+                        if option == 'ipv6' and cfg[option].get('nd_proxy'):
+                            nd_proxy = cfg[option]['nd_proxy']
+                            if isinstance(nd_proxy, dict) and nd_proxy.get('nd_proxy_rules'):
+                                nd_proxy['nd_proxy_rules'].sort()
 
     @staticmethod
     def is_mgmt_interface(intf_name):

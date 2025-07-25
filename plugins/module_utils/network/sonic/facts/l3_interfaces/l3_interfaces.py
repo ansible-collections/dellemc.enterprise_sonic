@@ -137,6 +137,11 @@ class L3_interfacesFacts(object):
                         and conf_ipv4['openconfig-interfaces-ext:sag-ipv4']['config'].get('static-anycast-gateway')):
                     ipv4['anycast_addresses'] = conf_ipv4['openconfig-interfaces-ext:sag-ipv4']['config']['static-anycast-gateway']
 
+            conf_proxy_arp = conf_ipv4.get('proxy-arp', {}).get('config')
+            if conf_proxy_arp and 'mode' in conf_proxy_arp:
+                ipv4.setdefault('proxy_arp', {})
+                ipv4['proxy_arp']['mode'] = conf_proxy_arp['mode']
+
             if ipv4:
                 only_defaults = False
                 transformed_conf['ipv4'] = ipv4
@@ -166,8 +171,21 @@ class L3_interfacesFacts(object):
                 if 'ipv6_autoconfig' in conf_ipv6['config']:
                     ipv6['autoconf'] = conf_ipv6['config']['ipv6_autoconfig']
 
+            conf_nd_proxy = conf_ipv6.get('nd-proxy', {}).get('config')
+            if conf_nd_proxy:
+                ipv6.setdefault('nd_proxy', {})
+                if 'mode' in conf_nd_proxy:
+                    ipv6['nd_proxy']['mode'] = conf_nd_proxy['mode']
+                if 'nd-proxy-rules' in conf_nd_proxy:
+                    ipv6['nd_proxy']['nd_proxy_rules'] = conf_nd_proxy['nd-proxy-rules']
+
             for option, value in ipv6.items():
-                if (option not in DEFAULT_IPV6_VALUES) or (value != DEFAULT_IPV6_VALUES[option]):
+                if option == 'nd_proxy':
+                    # If nd_proxy is present and has any keys, it's not default
+                    if value:  # value is a dict, so non-empty means non-default
+                        only_defaults = False
+                        break
+                elif (option not in DEFAULT_IPV6_VALUES) or (value != DEFAULT_IPV6_VALUES[option]):
                     only_defaults = False
                     break
 

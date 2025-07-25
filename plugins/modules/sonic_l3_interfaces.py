@@ -62,6 +62,20 @@ options:
               - List of IPv4 addresses to be set for anycast.
             type: list
             elements: str
+          proxy_arp:
+            description:
+              - Configurations parameters for ipv4 proxy ARP
+            type: dict
+            suboptions:
+              mode:
+                description:
+                  - Modes for proxy_arp
+                version_added: 3.1.0
+                type: str
+                choices:
+                  - DISABLE
+                  - REMOTE_ONLY
+                  - ALL
       ipv6:
         description:
           - ipv6 configurations to be set for the Layer 3 interface mentioned in name option.
@@ -107,6 +121,26 @@ options:
               - ENABLE
               - DISABLE
               - DISABLE_IPV6_ON_FAILURE
+          nd_proxy:
+            description:
+              - Configurations parameters for ipv6 ND-proxy
+            type: dict
+            suboptions:
+              mode:
+                description:
+                  - Modes for nd_proxy
+                version_added: 3.1.0
+                type: str
+                choices:
+                  - DISABLE
+                  - REMOTE_ONLY
+                  - ALL
+              nd_proxy_rules:
+                description:
+                  - List of nd_proxy rules can be added.
+                version_added: 3.1.0
+                type: list
+                elements: str
   state:
     description:
       - The state of the configuration after module completion.
@@ -139,6 +173,8 @@ EXAMPLES = """
 #  ipv6 enable
 #  ipv6 address autoconfig
 #  ipv6 nd dad enable
+#  ip proxy-arp enable remote-only
+#  ipv6 nd-proxy enable all
 # !
 # interface Ethernet24
 #  mtu 9100
@@ -163,6 +199,8 @@ EXAMPLES = """
     config:
       - name: Ethernet20
         ipv4:
+          proxy_arp:
+            - mode: REMOTE_ONLY
           addresses:
             - address: 83.1.1.1/16
             - address: 84.1.1.1/16
@@ -198,6 +236,7 @@ EXAMPLES = """
 #  ipv6 enable
 #  ipv6 address autoconfig
 #  ipv6 nd dad enable
+#  ipv6 nd-proxy enable all
 # !
 # interface Ethernet24
 #  mtu 9100
@@ -233,6 +272,9 @@ EXAMPLES = """
 #  ipv6 enable
 #  ipv6 address autoconfig
 #  ipv6 nd dad enable
+#  ip proxy-arp enable remote-only
+#  ipv6 nd-proxy enable all
+#  ipv6 nd-proxy rule prefix 5001::/24
 # !
 # interface Ethernet24
 #  mtu 9100
@@ -243,6 +285,9 @@ EXAMPLES = """
 #  ipv6 address 91::1/16
 #  ipv6 address 92::1/16
 #  ipv6 address 93::1/16
+#  ip proxy-arp enable all
+#  ipv6 nd-proxy enable remote-only
+#  ipv6 nd-proxy rule prefix 6001::/24
 # !
 # interface Vlan501
 #  ip anycast-address 11.12.13.14/12
