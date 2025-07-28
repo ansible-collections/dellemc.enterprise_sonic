@@ -1,0 +1,32 @@
+---
+- name: Delete old PMS configurations
+  dellemc.enterprise_sonic.sonic_pms:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: Initialize default interfaces
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ default_interface_cli }}"
+  register: output
+  failed_when: false
+
+- name: Create lag interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ sonic_pms_preparation_task_input.lag_interfaces }}"
+    state: merged
+  failed_when: false
+
+- name: Create VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ sonic_pms_preparation_task_input.vlans }}"
+    state: merged
+  failed_when: false
+
+- name: Configure l2 interfaces
+  dellemc.enterprise_sonic.sonic_l2_interfaces:
+    config: "{{ sonic_pms_preparation_task_input.l2_interfaces }}"
+    state: merged
+  failed_when: false
