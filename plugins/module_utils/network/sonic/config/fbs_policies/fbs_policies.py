@@ -132,7 +132,6 @@ class Fbs_policies(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_fbs_policies_facts = self.get_fbs_policies_facts()
@@ -161,7 +160,6 @@ class Fbs_policies(ConfigBase):
             self.sort_lists_in_config(old_config)
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_fbs_policies_facts):
@@ -186,8 +184,7 @@ class Fbs_policies(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
 
@@ -225,8 +222,7 @@ class Fbs_policies(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        mod_commands = []
+        commands, mod_commands = [], []
         replaced_config, requests = self.get_replaced_config(want, have)
 
         if replaced_config:
@@ -253,15 +249,9 @@ class Fbs_policies(ConfigBase):
         """
         global is_delete_all
         is_delete_all = False
-        commands = []
-        requests = []
-        mod_commands = None
-        mod_request = None
+        commands, requests = [], []
+        mod_commands, mod_request = None, None
         del_commands = get_diff(have, want, TEST_KEYS)
-
-        if not del_commands and diff:
-            mod_commands = diff
-            mod_request = self.get_modify_policies_request(mod_commands)
 
         if del_commands:
             is_delete_all = True
@@ -269,6 +259,9 @@ class Fbs_policies(ConfigBase):
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             mod_commands = want
+            mod_request = self.get_modify_policies_request(mod_commands)
+        elif diff:
+            mod_commands = diff
             mod_request = self.get_modify_policies_request(mod_commands)
 
         if mod_request:
@@ -528,18 +521,10 @@ class Fbs_policies(ConfigBase):
                             attr_path = '/sections/section=%s/copp/config/cpu-queue-index' % (classifier)
                             requests.append(self.get_delete_policies_request(policy_name, attr_path))
                         if policer:
-                            if policer.get('cbs'):
-                                attr_path = '/sections/section=%s/copp/policer/config/cbs' % (classifier)
-                                requests.append(self.get_delete_policies_request(policy_name, attr_path))
-                            if policer.get('pbs'):
-                                attr_path = '/sections/section=%s/copp/policer/config/pbs' % (classifier)
-                                requests.append(self.get_delete_policies_request(policy_name, attr_path))
-                            if policer.get('pir'):
-                                attr_path = '/sections/section=%s/copp/policer/config/pir' % (classifier)
-                                requests.append(self.get_delete_policies_request(policy_name, attr_path))
-                            if policer.get('cir'):
-                                attr_path = '/sections/section=%s/copp/policer/config/cir' % (classifier)
-                                requests.append(self.get_delete_policies_request(policy_name, attr_path))
+                            for item in ('cbs', 'pbs', 'pir', 'cir'):
+                                if policer.get(item):
+                                    attr_path = '/sections/section=%s/copp/policer/config/%s' % (classifier, item)
+                                    requests.append(self.get_delete_policies_request(policy_name, attr_path))
                     if qos:
                         output_queue_index = qos.get('output_queue_index')
                         policer = qos.get('policer')
@@ -549,18 +534,10 @@ class Fbs_policies(ConfigBase):
                             attr_path = '/sections/section=%s/qos/queuing/config/output-queue-index' % (classifier)
                             requests.append(self.get_delete_policies_request(policy_name, attr_path))
                         if policer:
-                            if policer.get('cbs'):
-                                attr_path = '/sections/section=%s/qos/policer/config/cbs' % (classifier)
-                                requests.append(self.get_delete_policies_request(policy_name, attr_path))
-                            if policer.get('pbs'):
-                                attr_path = '/sections/section=%s/qos/policer/config/pbs' % (classifier)
-                                requests.append(self.get_delete_policies_request(policy_name, attr_path))
-                            if policer.get('pir'):
-                                attr_path = '/sections/section=%s/qos/policer/config/pir' % (classifier)
-                                requests.append(self.get_delete_policies_request(policy_name, attr_path))
-                            if policer.get('cir'):
-                                attr_path = '/sections/section=%s/qos/policer/config/cir' % (classifier)
-                                requests.append(self.get_delete_policies_request(policy_name, attr_path))
+                            for item in ('cbs', 'pbs', 'pir', 'cir'):
+                                if policer.get(item):
+                                    attr_path = '/sections/section=%s/qos/policer/config/%s' % (classifier, item)
+                                    requests.append(self.get_delete_policies_request(policy_name, attr_path))
                         if remark:
                             if remark.get('set_dscp') is not None:
                                 attr_path = '/sections/section=%s/qos/remark/config/set-dscp' % (classifier)
@@ -649,8 +626,7 @@ class Fbs_policies(ConfigBase):
 
     def get_replaced_config(self, want, have):
         """This method returns the FBS policies configuration to be deleted and the respective delete requests"""
-        requests = []
-        config_list = []
+        requests, config_list = [], []
 
         if not want or not have:
             return config_list
@@ -669,7 +645,8 @@ class Fbs_policies(ConfigBase):
 
         return config_list, requests
 
-    def get_delete_policies_request(self, policy_name=None, attr_path=None):
+    @staticmethod
+    def get_delete_policies_request(policy_name=None, attr_path=None):
         url = FBS_POLICIES_PATH
 
         if policy_name:
@@ -679,7 +656,8 @@ class Fbs_policies(ConfigBase):
         request = {'path': url, 'method': DELETE}
         return request
 
-    def sort_lists_in_config(self, config):
+    @staticmethod
+    def sort_lists_in_config(config):
         """This method sorts the lists in the FBS policies configuration"""
         if config:
             config.sort(key=lambda x: x['policy_name'])

@@ -66,15 +66,12 @@ class Fbs_policiesFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        objs = []
-
         if not data:
             cfg = self.get_config(self._module)
             data = self.get_parsed_fbs_policies(cfg)
-        objs = data
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+        if data:
+            params = utils.validate_config(self.argument_spec, {'config': data})
             facts['fbs_policies'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
