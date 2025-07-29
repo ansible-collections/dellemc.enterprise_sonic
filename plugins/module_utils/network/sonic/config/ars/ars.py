@@ -148,15 +148,15 @@ class Ars(ConfigBase):
 
         if self._module.check_mode:
             new_config = self.get_new_config(commands, existing_ars_facts)
-            self.sort_lists_dicts_in_config(new_config)
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
         else:
             new_config = self.get_ars_facts()
             if result['changed']:
                 result['after'] = new_config
         if self._module._diff:
-            self.sort_lists_dicts_in_config(new_config)
-            self.sort_lists_dicts_in_config(old_config)
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
         return result
@@ -190,14 +190,14 @@ class Ars(ConfigBase):
         if state == 'merged':
             commands, requests = self._state_merged(diff)
         elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
+            commands, requests = self._state_replaced(want, have, diff)
         elif state == 'overridden':
             commands, requests = self._state_overridden(want, have, diff)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         return commands, requests
 
-    def _state_replaced(self, want, have):
+    def _state_replaced(self, want, have, diff):
         """ The command generator when state is replaced
 
         :rtype: A list
@@ -215,6 +215,8 @@ class Ars(ConfigBase):
             is_replaced = True
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
+        else:
+            mod_commands = diff
 
         if mod_commands:
             mod_request = self.get_modify_ars_request(mod_commands)
@@ -281,9 +283,11 @@ class Ars(ConfigBase):
         """
         global delete_all
         delete_all = False
-        requests = []
+        commands, requests = [], []
 
-        if not want:
+        if not have:
+            return commands, requests
+        elif not want:
             commands = deepcopy(have)
             delete_all = True
         else:
@@ -475,17 +479,13 @@ class Ars(ConfigBase):
         return request
 
     @staticmethod
-    def sort_lists_dicts_in_config(config):
-        """This method sorts the lists and dicts in the ARS configuration"""
+    def sort_lists_in_config(config):
+        """This method sorts the lists in the ARS configuration"""
         if config:
-            ars_lists = ['ars_objects', 'port_bindings', 'port_profiles', 'profiles', 'switch_bindings']
+            ars_lists = ['ars_objects', 'port_bindings', 'port_profiles', 'profiles']
             for ars_list in ars_lists:
                 if config.get(ars_list):
-                    dict_list = []
-                    for item in config[ars_list]:
-                        dict_list.append(dict(sorted(item.items())))
-                    dict_list.sort(key=lambda x: x['name'])
-                    config[ars_list] = dict_list
+                    config[ars_list].sort(key=lambda x: x['name'])
 
     def remove_default_entries(self, data):
         """This method removes the default entries from the ARS configuration"""
@@ -520,8 +520,7 @@ class Ars(ConfigBase):
             if data.get(ars_list):
                 for item in data[ars_list]:
                     for key in DEFAULTS_MAP[ars_list]:
-                        if key not in item:
-                            item[key] = DEFAULTS_MAP[ars_list][key]
+                        item.setdefault(key, DEFAULTS_MAP[ars_list][key])
 
     def get_replaced_config(self, want, have):
         """This method returns the ARS configuration to be deleted and the respective delete requests"""
@@ -529,27 +528,42 @@ class Ars(ConfigBase):
         requests = []
         new_want = deepcopy(want)
         self.add_default_entries(new_want)
-        self.sort_lists_dicts_in_config(new_want)
-        self.sort_lists_dicts_in_config(have)
+        self.sort_lists_in_config(new_want)
+        self.sort_lists_in_config(have)
 
         if not new_want or not have:
             return config_dict, requests
 
-        if new_want.get('ars_objects') and have.get('ars_objects') and new_want['ars_objects'] != have['ars_objects']:
-            requests.append(self.get_delete_ars_object())
-            config_dict['ars_objects'] = have['ars_objects']
-        if new_want.get('port_bindings') and have.get('port_bindings') and new_want['port_bindings'] != have['port_bindings']:
-            requests.append(self.get_delete_port_bind())
-            config_dict['port_bindings'] = have['port_bindings']
-        if new_want.get('switch_binding') and have.get('switch_binding') and new_want['switch_binding'] != have['switch_binding']:
-            requests.append(self.get_delete_switch_bind())
-            config_dict['switch_binding'] = have['switch_binding']
-        if new_want.get('port_profiles') and have.get('port_profiles') and new_want['port_profiles'] != have['port_profiles']:
-            requests.append(self.get_delete_port_profile())
-            config_dict['port_profiles'] = have['port_profiles']
-        if new_want.get('profiles') and have.get('profiles') and new_want['profiles'] != have['profiles']:
-            requests.append(self.get_delete_profile())
-            config_dict['profiles'] = have['profiles']
+        if new_want.get('ars_objects') and have.get('ars_objects'):
+            if new_want['ars_objects'] != have['ars_objects']:
+                requests.append(self.get_delete_ars_object())
+                config_dict['ars_objects'] = have['ars_objects']
+            else:
+                want.pop('ars_objects')
+        if new_want.get('port_bindings') and have.get('port_bindings'):
+            if new_want['port_bindings'] != have['port_bindings']:
+                requests.append(self.get_delete_port_bind())
+                config_dict['port_bindings'] = have['port_bindings']
+            else:
+                want.pop('port_bindings')
+        if new_want.get('switch_binding') and have.get('switch_binding'):
+            if new_want['switch_binding'] != have['switch_binding']:
+                requests.append(self.get_delete_switch_bind())
+                config_dict['switch_binding'] = have['switch_binding']
+            else:
+                want.pop('switch_binding')
+        if new_want.get('port_profiles') and have.get('port_profiles'):
+            if new_want['port_profiles'] != have['port_profiles']:
+                requests.append(self.get_delete_port_profile())
+                config_dict['port_profiles'] = have['port_profiles']
+            else:
+                want.pop('port_profiles')
+        if new_want.get('profiles') and have.get('profiles'):
+            if new_want['profiles'] != have['profiles']:
+                requests.append(self.get_delete_profile())
+                config_dict['profiles'] = have['profiles']
+            else:
+                want.pop('profiles')
 
         return config_dict, requests
 

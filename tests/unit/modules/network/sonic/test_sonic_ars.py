@@ -65,6 +65,19 @@ class TestSonicArsModule(TestSonicModule):
         result = self.execute_module(changed=True)
         self.validate_config_requests()
 
+    def test_sonic_ars_replaced_02(self):
+        set_module_args(self.fixture_data['replaced_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_02']['existing_ars_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_ars_replaced_03(self):
+        set_module_args(self.fixture_data['replaced_03']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_03']['existing_ars_config'])
+        result = self.execute_module(changed=False)
+        self.validate_config_requests()
+
     def test_sonic_ars_overridden_01(self):
         set_module_args(self.fixture_data['overridden_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['overridden_01']['existing_ars_config'])

@@ -210,6 +210,148 @@ replaced_01:
                 config:
                   name: obj4
 
+replaced_02:
+  module_args:
+    config:
+      ars_objects:
+        - name: obj1
+          idle_time: 100
+          max_flows: 1024
+          mode: flowlet-quality
+    state: replaced
+  existing_ars_config:
+    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:adaptive-routing-switching:
+            ars-profile:
+              profile:
+                - name: p1
+                  config:
+                    name: p1
+                    algo: EWMA
+                    sampling-interval: 140
+                    random-seed: 800000
+                    port-load-past: true
+                    port-load-past-weight: 11
+                    port-load-future: true
+                    port-load-future-weight: 9
+                    port-load-current: true
+                    port-load-exponent: 7
+                    load-past-min-val: 50
+                    load-past-max-val: 500
+                    load-future-min-val: 200
+                    load-future-max-val: 20000
+                    load-current-min-val: 100
+                    load-current-max-val: 10000
+  expected_config_requests:
+    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
+      method: 'patch'
+      data:
+        openconfig-system-ext:adaptive-routing-switching:
+          ars-object:
+            arsobject:
+              - name: obj1
+                config:
+                  name: obj1
+                  idle-time: 100
+                  max-flows: 1024
+                  mode: ARS_MODE_FLOWLET_QUALITY
+
+replaced_03:
+  module_args:
+    config:
+      ars_objects:
+        - name: obj1
+          idle_time: 100
+          max_flows: 1024
+          mode: flowlet-quality
+      port_profiles:
+        - name: pp1
+          enable: true
+          load_future_weight: 9
+          load_past_weight: 20
+          load_scaling_factor: 0
+      profiles:
+        - name: p1
+          algorithm: EWMA
+          load_current_max_val: 10000
+          load_current_min_val: 100
+          load_future_max_val: 20000
+          load_future_min_val: 200
+          load_past_max_val: 500
+          load_past_min_val: 50
+          port_load_current: true
+          port_load_exponent: 7
+          port_load_future: true
+          port_load_future_weight: 9
+          port_load_past: true
+          port_load_past_weight: 11
+          random_seed: 800000
+          sampling_interval: 140
+      port_bindings:
+        - name: Ethernet24
+          profile: pp1
+      switch_binding:
+        profile: p1
+    state: replaced
+  existing_ars_config:
+    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching'
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:adaptive-routing-switching:
+            ars-profile:
+              profile:
+                - name: p1
+                  config:
+                    name: p1
+                    algo: EWMA
+                    sampling-interval: 140
+                    random-seed: 800000
+                    port-load-past: true
+                    port-load-past-weight: 11
+                    port-load-future: true
+                    port-load-future-weight: 9
+                    port-load-current: true
+                    port-load-exponent: 7
+                    load-past-min-val: 50
+                    load-past-max-val: 500
+                    load-future-min-val: 200
+                    load-future-max-val: 20000
+                    load-current-min-val: 100
+                    load-current-max-val: 10000
+            ars-switch-bind:
+              switchbind:
+                - name: SWITCH
+                  config:
+                    name: SWITCH
+                    profile: p1
+            ars-port-profile:
+              portprofile:
+                - name: pp1
+                  config:
+                    name: pp1
+                    enable: true
+                    load-scaling-factor: '0'
+                    load-past-weight: 20
+                    load-future-weight: 9
+            ars-port-bind:
+              portbind:
+                - name: Ethernet24
+                  config:
+                    name: Ethernet24
+                    profile: pp1
+            ars-object:
+              arsobject:
+                - name: obj1
+                  config:
+                    name: obj1
+                    idle-time: 100
+                    max-flows: 1024
+                    mode: ARS_MODE_FLOWLET_QUALITY
+
 overridden_01:
   module_args:
     config:
