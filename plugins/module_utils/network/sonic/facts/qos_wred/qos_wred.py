@@ -68,8 +68,11 @@ class Qos_wredFacts(object):
         return ansible_facts
 
     def update_qos_wred(self, cfg):
+
         config_list = []
-        lookup_dict = {'ECN_ALL': 'ALL', 'ECN_NONE' : 'NONE'}
+        lookup_dict = {'ECN_ALL': 'all', 'ECN_NONE': 'none'}
+        colors = ['green', 'red', 'yellow']
+        attributes = ['enable', 'min_threshold', 'max_threshold', 'drop_probability']
 
         if cfg:
             wred_profiles = cfg.get('wred-profile')
@@ -79,55 +82,27 @@ class Qos_wredFacts(object):
                     name = profile.get('name')
                     config = profile.get('config')
                     if config:
-                        green_dict = {}
-                        red_dict = {}
-                        yellow_dict = {}
                         ecn = config.get('ecn')
-                        wred_green_enable = config.get('wred-green-enable')
-                        green_min_threshold = config.get('green-min-threshold')
-                        green_max_threshold = config.get('green-max-threshold')
-                        green_drop_probability = config.get('green-drop-probability')
-                        wred_red_enable = config.get('wred-red-enable')
-                        red_min_threshold = config.get('red-min-threshold')
-                        red_max_threshold = config.get('red-max-threshold')
-                        red_drop_probability = config.get('red-drop-probability')
-                        wred_yellow_enable = config.get('wred-yellow-enable')
-                        yellow_min_threshold = config.get('yellow-min-threshold')
-                        yellow_max_threshold = config.get('yellow-max-threshold')
-                        yellow_drop_probability = config.get('yellow-drop-probability')
                         if ecn:
                             wred_dict['ecn'] = lookup_dict[ecn]
-                        if wred_green_enable is not None:
-                            green_dict['enable'] = wred_green_enable
-                        if green_min_threshold:
-                            green_dict['min_threshold'] = green_min_threshold
-                        if green_max_threshold:
-                            green_dict['max_threshold'] = green_max_threshold
-                        if green_drop_probability:
-                            green_dict['drop_probability'] = green_drop_probability
-                        if green_dict:
-                            wred_dict['green'] = green_dict
-                        if wred_red_enable is not None:
-                            red_dict['enable'] = wred_red_enable
-                        if red_min_threshold:
-                            red_dict['min_threshold'] = red_min_threshold
-                        if red_max_threshold:
-                            red_dict['max_threshold'] = red_max_threshold
-                        if red_drop_probability:
-                            red_dict['drop_probability'] = red_drop_probability
-                        if red_dict:
-                            wred_dict['red'] = red_dict
 
-                        if wred_yellow_enable is not None:
-                            yellow_dict['enable'] = wred_yellow_enable
-                        if yellow_min_threshold:
-                            yellow_dict['min_threshold'] = yellow_min_threshold
-                        if yellow_max_threshold:
-                            yellow_dict['max_threshold'] = yellow_max_threshold
-                        if yellow_drop_probability:
-                            yellow_dict['drop_probability'] = yellow_drop_probability
-                        if yellow_dict:
-                            wred_dict['yellow'] = yellow_dict
+                        for color in colors:
+                            color_dict = {}
+                            wred_enable = config.get(f'wred-{color}-enable')
+                            min_threshold = config.get(f'{color}-min-threshold')
+                            max_threshold = config.get(f'{color}-max-threshold')
+                            drop_probability = config.get(f'{color}-drop-probability')
+
+                            if wred_enable is not None:
+                                color_dict['enable'] = wred_enable
+                            if min_threshold:
+                                color_dict['min_threshold'] = min_threshold
+                            if max_threshold:
+                                color_dict['max_threshold'] = max_threshold
+                            if drop_probability:
+                                color_dict['drop_probability'] = drop_probability
+                            if color_dict:
+                                wred_dict[color] = color_dict
 
                     if name:
                         wred_dict['name'] = name

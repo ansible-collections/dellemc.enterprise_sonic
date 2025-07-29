@@ -2,7 +2,7 @@ merged_01:
   module_args:
     config:
       - name: profile1
-        ecn: ALL
+        ecn: all
         green:
           enable: True
           min_threshold: 1000
@@ -99,7 +99,7 @@ overridden_01:
   module_args:
     config:
       - name: profile2
-        ecn: ALL
+        ecn: all
         green:
           enable: True
           min_threshold: 3000
@@ -169,7 +169,7 @@ deleted_01:
     config:
       - name: profile1
       - name: profile2
-        ecn: ALL
+        ecn: all
         green:
           enable: True
           min_threshold: 3000

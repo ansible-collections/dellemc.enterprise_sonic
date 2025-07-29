@@ -40,7 +40,7 @@ class Qos_wredArgs(object):  # pylint: disable=R0903
         'config': {
             'elements': 'dict',
             'options': {
-                'ecn': {'choices': ['ALL', 'NONE'], 'type': 'str'},
+                'ecn': {'choices': ['all', 'none'], 'type': 'str'},
                 'green': {
                     'options': {
                         'drop_probability': {'type': 'int'},

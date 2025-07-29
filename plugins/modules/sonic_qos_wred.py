@@ -39,8 +39,8 @@ options:
           - ECN setting for colored packets
         type: str
         choices:
-          - 'ALL'
-          - 'NONE'
+          - 'all'
+          - 'none'
       green:
         description:
           - WRED configuration for green packets
