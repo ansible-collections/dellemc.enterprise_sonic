@@ -351,7 +351,7 @@ class Vlans(ConfigBase):
 
     def deal_with_default_entries(self, configs, method="add"):
         """
-        Remove default entries for the data value in overridden state
+        Add/remove default entries for a given configuration
         Autostate is defaulted to True and can never be truly deleted so it is a no-op
         Optional parameter: method [add|remove] to determine whether to fill in the missing default value or to remove the fields that are auto-populated
         """
