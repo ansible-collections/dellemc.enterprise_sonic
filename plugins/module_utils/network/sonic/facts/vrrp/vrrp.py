@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -33,6 +33,7 @@ VRRP_ATTRIBUTES = {
     'virtual-router-id': 'virtual_router_id',
     'advertisement-interval': 'advertisement_interval',
     'preempt': 'preempt',
+    'preempt-delay': 'preempt_delay',
     'priority': 'priority',
     'openconfig-interfaces-ext:use-v2-checksum': 'use_v2_checksum',
     'openconfig-interfaces-ext:version': 'version',
