@@ -172,7 +172,6 @@ class Vlans(ConfigBase):
         replaced_config = get_replaced_config(self.deal_with_default_entries(want, method="add"), have, TEST_KEYS)
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
         replaced_vlans = []
-        if reverse_diff:
             for config in replaced_config:
                 vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
                 if vlan_obj:
