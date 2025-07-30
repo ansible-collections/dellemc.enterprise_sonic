@@ -369,6 +369,7 @@ class System(ConfigBase):
         switching_mode_payload = self.build_create_switching_mode_payload(commands)
         if switching_mode_payload:
             request = {'path': switching_mode_path, 'method': method, 'data': switching_mode_payload}
+            requests.append(request)
         adjust_txrx_clock_freq_path = 'data/openconfig-system:system/config/adjust-txrx-clock-freq'
         adjust_txrx_clock_freq_payload = self.build_create_adjust_txrx_clock_freq_payload(commands)
         if adjust_txrx_clock_freq_payload:
