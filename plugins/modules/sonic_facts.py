@@ -69,6 +69,7 @@ options:
       - ospfv2_interfaces
       - ospfv2
       - ospfv3
+      - ospfv3_interfaces
       - mclag
       - prefix_lists
       - vlan_mapping

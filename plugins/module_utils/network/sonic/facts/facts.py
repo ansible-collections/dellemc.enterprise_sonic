@@ -31,6 +31,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     Bgp_ext_communitiesFacts,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv2_interfaces.ospfv2_interfaces import Ospfv2_interfacesFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv3_interfaces.ospfv3_interfaces import Ospfv3_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv2.ospfv2 import Ospfv2Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv3.ospfv3 import Ospfv3Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mclag.mclag import MclagFacts
@@ -112,6 +113,7 @@ FACT_RESOURCE_SUBSETS = dict(
     bgp_communities=Bgp_communitiesFacts,
     bgp_ext_communities=Bgp_ext_communitiesFacts,
     ospfv2_interfaces=Ospfv2_interfacesFacts,
+    ospfv3_interfaces=Ospfv3_interfacesFacts,
     ospfv2=Ospfv2Facts,
     ospfv3=Ospfv3Facts,
     mclag=MclagFacts,

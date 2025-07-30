@@ -98,6 +98,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_ospfv3
     ospfv2_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2_interfaces
+    ospfv3_interfaces:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3_interfaces
     pim_global:
       redirect: dellemc.enterprise_sonic.sonic_pim_global
     pim_interfaces:
