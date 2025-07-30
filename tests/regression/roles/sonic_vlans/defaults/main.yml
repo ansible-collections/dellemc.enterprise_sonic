@@ -74,7 +74,7 @@ tests:
       - vlan_id: 506
         description: "overridden vlan506 description"
   - name: test_case_07
-    description: Create VLANs for the folowing replaced and overriden cases
+    description: Create VLANs for the following replaced and overridden cases
     state: merged
     input:
       - vlan_id: 510
