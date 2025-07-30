@@ -44,7 +44,6 @@ options:
         description:
         - Enable or disable autostate functionality for the VLAN interface.
         - Default value for this field if not configured yet will be "enable" which is equivalent to true.
-        - For usability it is converted to a bool in the facts file.
         type: bool
 
   state:
