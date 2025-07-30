@@ -1,71 +1,51 @@
 ---
 ansible_connection: httpapi
-module_name: interfaces
 
-po1: PortChannel50
-po2: PortChannel51
-
-lo1: Loopback 100
-lo2: Loopback 101
-
-vlan1: 500
-vlan2: 501
-
-preparations_tests:
-    add_vlans_input:
-        - vlan_id: "{{ vlan1 }}"
-        - vlan_id: "{{ vlan2 }}"
-    add_lag_interfaces:
-      - name: "{{ po1 }}"
-      - name: "{{ po2 }}"
-    delete_port_configurations:
-          - "no interface {{ lo1 }}"
-          - "no interface {{ lo2 }}"
-
-tests:
-
-  # Ethernet testcases started...
+sonic_interfaces_tests:
   - name: test_case_01
     description: Update interface parameters
     state: merged
     input:
       - name: "{{ interface7 }}"
-        description: ansible Ethernet96
+        description: Ansible interface7
         mtu: 6445
         enabled: false
         unreliable_los: UNRELIABLE_LOS_MODE_AUTO
+
   - name: test_case_02
     description: Update interface parameters
     state: merged
     input:
       - name: "{{ interface7 }}"
-        description: ansible Ethernet96
+        description: Ansible intf7
         mtu: 6444
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
       - name: "{{ interface8 }}"
-        description: ansible Ethernet100
+        description: Ansible interface8
         mtu: 6000
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_ON
       - name: "{{ interface10 }}"
-        description: ansible Ethernet108
+        description: Ansible interface10
         mtu: 5666
         enabled: false
         unreliable_los: UNRELIABLE_LOS_MODE_AUTO
       - name: "{{ interface9 }}"
-        description: ansible Ethernet104
+        description: Ansible interface9
         mtu: 5222
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_ON
+
   - name: test_case_03
-    description: Configure interface parameter speed
+    description: Configure interface speed parameter
     state: merged
     input:
-      - name: "{{ interface7 }}"
+      - name: "{{ interface9 }}"
         speed: SPEED_40GB
+
   - name: test_case_04
-    description: Configure interface parameters auto_negotiate and advertised_speed
+    description: Configure interface auto_negotiate and advertised_speed parameters
     state: merged
     input:
       - name: "{{ interface10 }}"
@@ -73,13 +53,15 @@ tests:
         advertised_speed:
           - 100000
           - 40000
+
   - name: test_case_05
-    description: Configure interface parameters FEC
+    description: Configure interface FEC parameter
     state: merged
     input:
       - name: "{{ interface8 }}"
         fec: FEC_AUTO
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
+
   - name: test_case_06
     description: Delete interface parameters
     state: deleted
@@ -93,110 +75,122 @@ tests:
         enabled:
       - name: "{{ interface9 }}"
         unreliable_los: UNRELIABLE_LOS_MODE_ON
+
   - name: test_case_07
     description: Update interface parameters
     state: merged
     input:
       - name: "{{ interface7 }}"
-        description: ansible Ethernet96
+        description: Ansible interface7
         mtu: 6444
         enabled: true
       - name: "{{ interface8 }}"
-        description: ansible Ethernet100
+        description: Ansible interface8
       - name: "{{ interface9 }}"
-        description: ansible eth60
-# Loopback test cases started
+        description: Ansible interface9
+
+  # Loopback test cases
   - name: test_case_08
-    description: Loopback interface parameters
+    description: Configure loopback interface parameters
     state: merged
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
-        description: ansible Loopback1
-      - name: "{{ lo2 }}" # Loopback: mtu not configurable in sonic-os
-        description: ansible Loopback2
+      - name: Loopback100   # Loopback: mtu not configurable in sonic-os
+        description: Ansible Loopback100
+      - name: Loopback101   # Loopback: mtu not configurable in sonic-os
+        description: Ansible Loopback101
         enabled: false
+
   - name: test_case_09
-    description: Loopback delete interface parameters
+    description: Delete loopback interface parameters
     state: deleted
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
-        description: ansible Loopback1
+      - name: Loopback100   # Loopback: mtu not configurable in sonic-os
+        description: Ansible Loopback100
+
   - name: test_case_10
-    description: Loopback delete interface parameters
+    description: Delete loopback interfaces
     state: deleted
     input:
-      - name: "{{ lo1 }}" # Loopback: mtu not configurable in sonic-os
-      - name: "{{ lo2 }}" # Loopback: mtu not configurable in sonic-os
-# Vlan test cases started
+      - name: Loopback100   # Loopback: mtu not configurable in sonic-os
+      - name: Loopback101   # Loopback: mtu not configurable in sonic-os
+
+  # Vlan test cases
   - name: test_case_11
-    description: Update interface parameters
+    description: Update VLAN interface mtu parameter
     state: merged
     input:
-      - name: "Vlan{{ vlan1 }}" # Vlan: desc, enabled not configurable in sonic-os
+      - name: "Vlan500"   # Vlan: desc, enabled not configurable in sonic-os
         mtu: 5000
-      - name: "Vlan{{ vlan2 }}"
+      - name: "Vlan501"
         mtu: 5001
+
   - name: test_case_12
-    description: Delete interface parameters
+    description: Delete VLAN interface mtu parameter
     state: deleted
     input:
-      - name: "Vlan{{ vlan1 }}"
+      - name: "Vlan500"
         mtu: 5000
+
   - name: test_case_13
-    description: Update interface parameters
+    description: Update VLAN interface mtu parameter
     state: merged
     input:
-      - name: "Vlan{{ vlan1 }}"
+      - name: "Vlan500"
         mtu: 6676
-      - name: "Vlan{{ vlan2 }}"
+      - name: "Vlan501"
         mtu: 5113
-# Portchannel testcase started
+
+  # PortChannel test cases
   - name: test_case_14
-    description: Update interface parameters
+    description: Update PortChannel interface parameters
     state: merged
     input:
-      - name: "{{ po1 }}"
+      - name: PortChannel50
         mtu: 3434
         enabled: true
-      - name: "{{ po2 }}"
-        description: ansible PortChannel51 descr
+      - name: PortChannel51
+        description: Ansible PortChannel51 descr
         mtu: 5454
         enabled: true
+
   - name: test_case_15
-    description: Delete interface parameters
+    description: Delete PortChannel interface parameters
     state: deleted
     input:
-      - name: "{{ po1 }}"
+      - name: PortChannel50
         mtu: 3434
         enabled: true
-      - name: "{{ po2 }}"
+      - name: PortChannel51
         mtu: 5454
+
   - name: test_case_16
-    description: Update interface parameters
+    description: Update PortChanel interface parameters
     state: merged
     input:
-      - name: "{{ po1 }}"
+      - name: PortChannel50
         mtu: 3434
         enabled: true
-      - name: "{{ po2 }}"
-        description: ansible PortChannel51 descr
+      - name: PortChannel51
+        description: Ansible PortChannel51 descr
         mtu: 5454
         enabled: true
+
   - name: test_case_17
-    description: Update interface parameters descr and mtu
+    description: Update interface description and mtu parameters
     state: merged
     input:
       - name: "{{ interface7 }}"
-        description: Ansible Interface1 descr
+        description: Ansible interface7 descr
         mtu: 6500
         enabled: true
       - name: "{{ interface9 }}"
-        description: ansible Interface2 descr
+        description: Ansible interface9 descr
         mtu: 7500
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_ON
+
   - name: test_case_18
-    description: Replace interface mtu parameters
+    description: Replace interface mtu parameter
     state: replaced
     input:
       - name: "{{ interface7 }}"
@@ -210,6 +204,7 @@ tests:
         auto_negotiate: true
         advertised_speed:
           - 100000
+
   - name: test_case_19
     description: Replace interface parameters
     state: replaced
@@ -220,29 +215,31 @@ tests:
         advertised_speed:
           - 40000
       - name: "{{ interface9 }}"
-        description: Ansible Interface2
+        description: Ansible intf9
         mtu: 3500
         auto_negotiate: true
         advertised_speed:
           - 100000
           - 40000
-      - name: "{{ lo1 }}"
-        description: Ansible Loopback1
+      - name: Loopback100
+        description: Ansible Loopback100
+
   - name: test_case_20
     description: Replace interface parameters
     state: replaced
     input:
       - name: "{{ interface9 }}"
-        description: Ansible Interface2
-      - name: "{{ lo1 }}"
-        description: Ansible Loopback1 Replace
+        description: Ansible interface9
+      - name: Loopback100
+        description: Ansible Loopback100 replace
+
   - name: test_case_21
     description: Override interface parameters
     state: overridden
     input:
       - name: "{{ interface7 }}"
-        description: Interface1
+        description: intf7
         mtu: 3300
         enabled: true
-      - name: "{{ lo2 }}"
-        description: Ansible Loopback2
+      - name: Loopback101
+        description: Ansible Loopback101
