@@ -278,13 +278,13 @@ class Qos_wred(ConfigBase):
                         max_threshold = color_dict.get('max_threshold')
                         drop_probability = color_dict.get('drop_probability')
                         if enable is not None:
-                            config_dict['wred-{}-enable'.format(color)] = enable
+                            config_dict[f'wred-{color}-enable'] = enable
                         if min_threshold:
-                            config_dict['{}-min-threshold'.format(color)] = str(min_threshold)
+                            config_dict[f'{color}-min-threshold'] = str(min_threshold)
                         if max_threshold:
-                            config_dict['{}-max-threshold'.format(color)] = str(max_threshold)
+                            config_dict[f'{color}-max-threshold'] = str(max_threshold)
                         if drop_probability is not None:
-                            config_dict['{}-drop-probability'.format(color)] = str(drop_probability)
+                            config_dict[f'{color}-drop-probability'] = str(drop_probability)
                 if ecn:
                     config_dict['ecn'] = lookup_dict[ecn]
                 if name:
@@ -328,11 +328,10 @@ class Qos_wred(ConfigBase):
                             for attr in attributes:
                                 val = color_dict.get(attr)
                                 cfg_val = cfg_color_dict.get(attr)
-                                if attr == 'enable':
-                                    if val is not None and val == cfg_val:
+                                if val is not None and val == cfg_val:
+                                    if attr == 'enable':
                                         requests.append(self.get_delete_wred_cfg_attr(name, f'wred-{color}-{attr}'))
-                                else:
-                                    if val and val == cfg_val:
+                                    else:
                                         requests.append(self.get_delete_wred_cfg_attr(name, f'{color}-{attr.replace("_", "-")}'))
                                 color_attr_dict[attr] = val
                         if color_attr_dict:

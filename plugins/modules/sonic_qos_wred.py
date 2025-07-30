@@ -68,6 +68,7 @@ options:
       yellow:
         description:
           - WRED configuration for yellow packets
+        version_added: 4.0.0
         type: dict
         suboptions:
           enable:
@@ -92,6 +93,7 @@ options:
       red:
         description:
           - WRED configuration for red packets
+        version_added: 4.0.0
         type: dict
         suboptions:
           enable:

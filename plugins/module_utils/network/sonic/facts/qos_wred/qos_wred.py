@@ -72,7 +72,6 @@ class Qos_wredFacts(object):
         config_list = []
         lookup_dict = {'ECN_ALL': 'all', 'ECN_NONE': 'none'}
         colors = ['green', 'red', 'yellow']
-        attributes = ['enable', 'min_threshold', 'max_threshold', 'drop_probability']
 
         if cfg:
             wred_profiles = cfg.get('wred-profile')
