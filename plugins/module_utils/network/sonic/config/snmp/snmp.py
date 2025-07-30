@@ -42,6 +42,15 @@ DELETE = 'delete'
 
 TEST_KEYS = [
     {'agentaddress': {'name': ''}},
+    # there are keys that identify an agent
+    # have to avoid collisions, can't have 2 agets with the same names
+    #as we sequence 2 agents are the same with different names
+    # having 2 agents with the same properties should not happen
+    # SONIC does not allow users to change or delete the options of an agent
+      # they could delete and change an agent with 
+
+      ## if the same key is mensioned twice in a playbook then it merges the multiple playbooks
+      # rest api provides more flexibility (need to make sure this does not leade to a collision (2 that are the same thing))
     {'community': {'name': ''}},
     {'group': {'name': ''}},
     {'access': {'security_model': '', 'security_level': ''}},
@@ -159,24 +168,44 @@ class Snmp(ConfigBase):
         want_agentaddress = []
         if 'agentaddress' in have and state == 'merged':
             same = {}
-
+            # this loop should not happen unless it is a merge state
+            #  if it has a name that is different then the name of have then that is a problem
+            # only in merge state and only for incoming named agentaddress
             for want_conf in want_agentaddresses:
-                for have_conf in have.get('agentaddress'):
-                    if (('ip' in want_conf and 'ip' in have_conf and want_conf.get('ip') == have_conf.get('ip')
-                         and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
-                         and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf
-                         and want_conf.get('interface_vrf') == have_conf.get('interface_vrf')))):
-                        same = {'name': have_conf.get('name')}
-                        break
+                # check to see if want has a name if it doesnt then dont need to do the check
+                if 'name' in want_conf:
+                    for have_conf in have.get('agentaddress'):
+                        self.same_name_agents(want_conf, have_conf)
+                        # none of them have the same name 
+                        # if they already named then not ok
+                        # if the want is not named but have is named then that is going to be the name
+                        if (('ip' in want_conf and 'ip' in have_conf and want_conf.get('ip') == have_conf.get('ip')
+                             and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
+                             and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf
+                             and want_conf.get('interface_vrf') == have_conf.get('interface_vrf')))):
+                                # found a match but there is a name conflict do something
+                                same = {'name': want_conf.get('name')}
+                                break
                 if not same:
                     want_agentaddress.append(want_conf)
-                if same and state == 'merged':
-                    same = {}
 
             if same:
                 self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of this agent: {}".format(same))
             new_want['agentaddress'] = want_agentaddress
         return new_want
+
+
+ # incoming name agent is the same as an existing agent
+    def same_name_agents(self, want_conf, have_conf):
+        """ Check to see if the name of a wanted agentaddress matches the name of an existing agentaddress
+        """
+        if have_conf['name'] == want_conf['name']:
+            merged_conf = (have_conf, want_conf)
+            for have_conf in have_conf.get('agentaddress'):
+                if merged_conf == have_conf:
+                    break
+                else:
+                    self._module.fail_json(msg="The specified options are in use for an existing agent.")
 
     def check_same_agentaddress(self, want_agentaddress):
         """ Check if the agentaddress option values are the same
@@ -189,6 +218,11 @@ class Snmp(ConfigBase):
         same = {}
         want_agentaddresses = want_agentaddress
 
+        # precede this loop with a check for a "name" conflict between any 2 incoming agnets
+        for index, want_conf in enumerate(want_agentaddresses, 0):
+            for want_conf_2 in want_agentaddresses[index + 1:]:
+                if 'name' in want_conf and 'name' in want_conf_2 and want_conf.get('name') == want_conf_2.get('name'):
+                    self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of these options: {}".format(want_conf))
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
                 if (('ip' in want_conf and 'ip' in want_conf_2 and want_conf.get('ip') == want_conf_2.get('ip')
@@ -985,6 +1019,7 @@ class Snmp(ConfigBase):
         have_view = have.get('view')
 
         if delete_all or agentaddress:
+            ## want to avoid deletion if deleting would cause the agent to match an existing agent
             if have_agentaddress is not None:
                 agentaddress_requests = []
                 if delete_all or self.check_dicts_matched(have_agentaddress, configs['agentaddress']):
@@ -996,8 +1031,13 @@ class Snmp(ConfigBase):
                         matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['name'] == want['name']), None)
                         if matched_agentaddress:
                             name = matched_agentaddress['name']
+                            remaining_options = get_diff(want, matched_agentaddress)
+                            for option in remaining_options:
+                                for have_option in matched_agentaddress:
+                                    if option == have_option:
+                                        self._module.fail_json(msg="The specified options are in use for an existing agent.")
                             agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
-                            # Delete the whole agentaddress entry if only 'name' is specified.
+                            # Delete the whole agentaddress entry if only 'name' and 'ip' are specified.
                             if want.get('name') and want.get('ip') and len(want) == 2:
                                 agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                                 agentaddress_requests.append(agentaddress_request)
