@@ -169,7 +169,7 @@ class Vlans(ConfigBase):
         """
         commands = []
         requests = []
-        reverse_diff = get_diff(have, self.deal_with_default_entries(want, method="add"), TEST_KEYS)
+        replaced_config = get_replaced_config(self.deal_with_default_entries(want, method="add"), have, TEST_KEYS)
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
         replaced_vlans = []
         if reverse_diff:
