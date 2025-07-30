@@ -177,7 +177,10 @@ class Vlans(ConfigBase):
                 if vlan_obj:
                     replaced_vlans.append(vlan_obj)
 
-            del_requests = self.get_delete_vlans_requests(replaced_vlans, delete_vlan=True)
+            if replaced_vlans:
+                del_requests = self.get_delete_vlans_requests(replaced_vlans, delete_vlan=True)
+                requests.extend(del_requests)
+                commands.extend(update_states(replaced_config, "deleted"))
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, "deleted"))
 
