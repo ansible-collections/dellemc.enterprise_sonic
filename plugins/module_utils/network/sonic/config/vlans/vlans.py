@@ -354,7 +354,6 @@ class Vlans(ConfigBase):
         Remove default entries for the data value in overridden state
         Autostate is defaulted to True and can never be truly deleted so it is a no-op
         Optional parameter: method [add|remove] to determine whether to fill in the missing default value or to remove the fields that are auto-populated
-        # Delete want for diff of all vlans that exist in Want in replaced state, then behaves like overridden.
         """
         if configs:
             pop_list = []
