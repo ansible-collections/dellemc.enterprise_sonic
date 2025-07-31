@@ -332,7 +332,7 @@ EXAMPLES = """
           enable: true
           load_future_weight: 8
           load_past_weight: 15
-       port_bindings:
+      port_bindings:
         - name: Ethernet20
           profile: pp2
     state: replaced
