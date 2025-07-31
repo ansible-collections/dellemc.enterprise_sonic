@@ -42,15 +42,6 @@ DELETE = 'delete'
 
 TEST_KEYS = [
     {'agentaddress': {'name': ''}},
-    # there are keys that identify an agent
-    # have to avoid collisions, can't have 2 agets with the same names
-    #as we sequence 2 agents are the same with different names
-    # having 2 agents with the same properties should not happen
-    # SONIC does not allow users to change or delete the options of an agent
-      # they could delete and change an agent with 
-
-      ## if the same key is mensioned twice in a playbook then it merges the multiple playbooks
-      # rest api provides more flexibility (need to make sure this does not leade to a collision (2 that are the same thing))
     {'community': {'name': ''}},
     {'group': {'name': ''}},
     {'access': {'security_model': '', 'security_level': ''}},
@@ -143,7 +134,6 @@ class Snmp(ConfigBase):
                   to the desired configuration
         """
         want = remove_none(self._module.params['config'])
-        # want to fill in the defaults
         have = existing_snmp_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -168,24 +158,22 @@ class Snmp(ConfigBase):
         want_agentaddress = []
         if 'agentaddress' in have and state == 'merged':
             same = {}
-            # this loop should not happen unless it is a merge state
-            #  if it has a name that is different then the name of have then that is a problem
-            # only in merge state and only for incoming named agentaddress
             for want_conf in want_agentaddresses:
-                # check to see if want has a name if it doesnt then dont need to do the check
                 if 'name' in want_conf:
                     for have_conf in have.get('agentaddress'):
-                        self.same_name_agents(want_conf, have_conf)
-                        # none of them have the same name 
-                        # if they already named then not ok
-                        # if the want is not named but have is named then that is going to be the name
-                        if (('ip' in want_conf and 'ip' in have_conf and want_conf.get('ip') == have_conf.get('ip')
+                        same_name = self.same_name_agents(want_conf, have_conf)
+                        if not same_name and (('ip' in want_conf and 'ip' in have_conf and want_conf.get('ip') == have_conf.get('ip')
                              and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
                              and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf
                              and want_conf.get('interface_vrf') == have_conf.get('interface_vrf')))):
-                                # found a match but there is a name conflict do something
                                 same = {'name': want_conf.get('name')}
                                 break
+                else:
+                    copy_want = deepcopy(want_conf)
+                    for key, item in copy_want.items():
+                        for have_conf in have.get('agentaddress'):
+                            if key in have_conf and item == have_conf.get(key):
+                                want_conf['name'] = have_conf.get('name')
                 if not same:
                     want_agentaddress.append(want_conf)
 
@@ -194,31 +182,28 @@ class Snmp(ConfigBase):
             new_want['agentaddress'] = want_agentaddress
         return new_want
 
-
- # incoming name agent is the same as an existing agent
     def same_name_agents(self, want_conf, have_conf):
         """ Check to see if the name of a wanted agentaddress matches the name of an existing agentaddress
+
+        :rtype: boolean
+        :returns: False if the given wanted agentaddress name does not matched the given agentaddress name
         """
         if have_conf['name'] == want_conf['name']:
-            merged_conf = (have_conf, want_conf)
-            for have_conf in have_conf.get('agentaddress'):
-                if merged_conf == have_conf:
-                    break
-                else:
-                    self._module.fail_json(msg="The specified options are in use for an existing agent.")
+            for key_want, value_want in want_conf.items():
+                for key_have, value_have in have_conf.items():
+                    if key_want == key_have and value_want != value_have:
+                        self._module.fail_json(msg="The specified options are in use for an existing agent.")
+                        break
+        return False
 
     def check_same_agentaddress(self, want_agentaddress):
         """ Check if the agentaddress option values are the same
         :param want_agentaddress: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
         """
         same = {}
         want_agentaddresses = want_agentaddress
 
-        # precede this loop with a check for a "name" conflict between any 2 incoming agnets
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
                 if 'name' in want_conf and 'name' in want_conf_2 and want_conf.get('name') == want_conf_2.get('name'):

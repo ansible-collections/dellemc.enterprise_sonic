@@ -4,7 +4,7 @@
     config: {}
     state: deleted
 
-- name: Delete old vrfs
+- name: Delete old VRFs
   sonic_vrfs:
     config:
       - name: "{{ vrf1 }}"

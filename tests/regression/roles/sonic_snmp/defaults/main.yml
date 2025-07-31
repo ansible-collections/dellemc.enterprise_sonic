@@ -180,7 +180,7 @@ tests:
           interface_vrf: 'Eth1/30'
         - ip: '1.2.3.6'
           port: 1080
-          interface_vrf: 'Eth1/30'
+          interface_vrf: 'Eth1/40'
 
   - name: test_case_08_delete_agentaddress_enable_trap
     description: Delete SNMP agentaddress and enable_trap
