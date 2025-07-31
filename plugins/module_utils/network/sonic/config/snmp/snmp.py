@@ -162,12 +162,13 @@ class Snmp(ConfigBase):
                 if 'name' in want_conf:
                     for have_conf in have.get('agentaddress'):
                         same_name = self.same_name_agents(want_conf, have_conf)
-                        if not same_name and (('ip' in want_conf and 'ip' in have_conf and want_conf.get('ip') == have_conf.get('ip')
-                             and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
-                             and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf
-                             and want_conf.get('interface_vrf') == have_conf.get('interface_vrf')))):
-                                same = {'name': want_conf.get('name')}
-                                break
+                        if (not same_name and 'ip' in want_conf and 'ip' in have_conf
+                            and want_conf.get('ip') == have_conf.get('ip')
+                            and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
+                            and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf)
+                            and want_conf.get('interface_vrf') == have_conf.get('interface_vrf')):
+                            same = {'name': want_conf.get('name')}
+                            break
                 else:
                     copy_want = deepcopy(want_conf)
                     for key, item in copy_want.items():
@@ -1004,7 +1005,6 @@ class Snmp(ConfigBase):
         have_view = have.get('view')
 
         if delete_all or agentaddress:
-            ## want to avoid deletion if deleting would cause the agent to match an existing agent
             if have_agentaddress is not None:
                 agentaddress_requests = []
                 if delete_all or self.check_dicts_matched(have_agentaddress, configs['agentaddress']):
