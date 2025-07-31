@@ -337,7 +337,7 @@ class Ars(ConfigBase):
                 portbind_list = []
                 for bind in cmds['port_bindings']:
                     if not bind.get('profile'):
-                        self._module.fail_json(msg=f'Must specify a profile for {bind['name']} port binding.')
+                        self._module.fail_json(msg='Must specify a profile for %s port binding.' % (bind['name']))
                     portbind_list.append({'name': bind['name'], 'config': bind})
                 if portbind_list:
                     ars_dict['ars-port-bind'] = {'portbind': portbind_list}
