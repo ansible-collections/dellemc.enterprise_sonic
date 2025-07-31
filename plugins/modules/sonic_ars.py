@@ -332,6 +332,9 @@ EXAMPLES = """
           enable: true
           load_future_weight: 8
           load_past_weight: 15
+       port_bindings:
+        - name: Ethernet20
+          profile: pp2
     state: replaced
 
 # After state:
@@ -367,7 +370,7 @@ EXAMPLES = """
 #  fec RS
 #  unreliable-los auto
 #  shutdown
-#  ars bind pp1
+#  ars bind pp2
 # !
 # ars bind profile p1
 

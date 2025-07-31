@@ -356,7 +356,8 @@ class Ars(ConfigBase):
 
         return request
 
-    def get_renamed_dict(self, cfg_dict):
+    @staticmethod
+    def get_renamed_dict(cfg_dict):
         """This method renames the keys in a dictionary by replacing underscores with hyphens"""
         renamed_dict = {}
         for key in cfg_dict:
@@ -423,7 +424,6 @@ class Ars(ConfigBase):
                     if key == 'name':
                         continue
                     if profile.get(key) is not None:
-                        attr = None
                         if key == 'algorithm':
                             attr = 'algo'
                         else:
