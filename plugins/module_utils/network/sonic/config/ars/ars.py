@@ -336,6 +336,8 @@ class Ars(ConfigBase):
             if cmds.get('port_bindings'):
                 portbind_list = []
                 for bind in cmds['port_bindings']:
+                    if not bind.get('profile'):
+                        self._module.fail_json(msg=f'Must specify a profile for {bind['name']} port binding.')
                     portbind_list.append({'name': bind['name'], 'config': bind})
                 if portbind_list:
                     ars_dict['ars-port-bind'] = {'portbind': portbind_list}
@@ -391,12 +393,7 @@ class Ars(ConfigBase):
 
         if commands.get('port_bindings'):
             for bind in commands['port_bindings']:
-                name = bind['name']
-                if len(bind) == 1:
-                    requests.append(self.get_delete_port_bind(name))
-                    continue
-                if bind.get('profile'):
-                    requests.append(self.get_delete_port_bind(name, 'profile'))
+                requests.append(self.get_delete_port_bind(bind['name']))
 
         if commands.get('switch_binding'):
             requests.append(self.get_delete_switch_bind())
@@ -443,12 +440,10 @@ class Ars(ConfigBase):
         return request
 
     @staticmethod
-    def get_delete_port_bind(name=None, attr=None):
+    def get_delete_port_bind(name=None):
         url = '%s/ars-port-bind' % (ARS_PATH)
         if name:
             url += '/portbind=%s' % (name)
-        if attr:
-            url += '/config/%s' % (attr)
         request = {'path': url, 'method': DELETE}
         return request
 
@@ -591,6 +586,8 @@ class Ars(ConfigBase):
                         new_conf[ars_list][idx][key] = DEFAULTS_MAP[ars_list][key]
                     else:
                         new_conf[ars_list][idx].pop(key)
+                        if len(new_conf[ars_list][idx]) == 1:
+                            pop_list.insert(0, idx)
             for idx in pop_list:
                 new_conf[ars_list].pop(idx)
             if ars_list in new_conf and not new_conf[ars_list]:

@@ -156,6 +156,7 @@ options:
           profile:
             description:
               - ARS port profile to bind to port
+              - Required for modifcation
             type: str
       switch_binding:
         description:

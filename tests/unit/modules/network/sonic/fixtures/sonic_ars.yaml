@@ -105,6 +105,7 @@ replaced_01:
         - name: p4
       port_bindings:
         - name: Ethernet28
+          profile: pp4
       switch_binding:
         profile: p4
     state: replaced
@@ -204,6 +205,7 @@ replaced_01:
               - name: Ethernet28
                 config:
                   name: Ethernet28
+                  profile: pp4
           ars-object:
             arsobject:
               - name: obj4
@@ -763,7 +765,7 @@ deleted_01:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-profile/profile=p4'
       method: 'delete'
       data:
-    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-port-bind/portbind=Ethernet24/config/profile'
+    - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-port-bind/portbind=Ethernet24'
       method: 'delete'
       data:
     - path: 'data/openconfig-system:system/openconfig-system-ext:adaptive-routing-switching/ars-port-bind/portbind=Ethernet28'
