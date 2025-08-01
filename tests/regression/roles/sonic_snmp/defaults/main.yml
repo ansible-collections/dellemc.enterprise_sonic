@@ -89,7 +89,14 @@ tests:
             key: 'U2FsdGVkX19LUhXu+GHOeKOR3jDvIYhob/EgD6q7If+eCumbDCurRQUFsQHjDBQPYoq5llVBXCat+vwwx7y6PQ=='
           encrypted: True
 
-  - name: test_case_04_delete_some_options
+  - name: test_case_04_delete_user
+    descrioption: Delete user3
+    state: deleted
+    input:
+      user:
+        - name: 'user3'
+
+  - name: test_case_05_delete_some_options
     description: Delete SNMP engine, location, contact and enable_trap configuration
     state: deleted
     input:
@@ -104,7 +111,7 @@ tests:
         - 'ospf'
       contact: 'Dell Support'
 
-  - name: test_case_05_merge_existing_user
+  - name: test_case_06_merge_existing_user
     description: Merge SNMP user configuration
     state: merged
     input:
@@ -121,7 +128,7 @@ tests:
         - 'all'
 
 
-  - name: test_case_06_merged_group_community_view
+  - name: test_case_07_merged_group_community_view
     description: Merge group access, community, and view SNMP configuration
     state: merged
     input:
@@ -155,7 +162,7 @@ tests:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
 
-  - name: test_case_07_merge_multiple_host_and_agentaddress
+  - name: test_case_08_merge_multiple_host_and_agentaddress
     description: Merge multiple SNMP hosts and agentaddresses
     state: merged
     input:
@@ -182,7 +189,7 @@ tests:
           port: 1080
           interface_vrf: 'Eth1/40'
 
-  - name: test_case_08_delete_agentaddress_enable_trap
+  - name: test_case_09_delete_agentaddress_enable_trap
     description: Delete SNMP agentaddress and enable_trap
     state: deleted
     input:
@@ -194,7 +201,7 @@ tests:
       enable_trap:
         - 'all'
 
-  - name: test_case_09_merge_multiple_user_one_group
+  - name: test_case_10_merge_multiple_user_one_group
     description: Merge multiple SNMP users and groups
     state: merged
     input:
@@ -209,14 +216,24 @@ tests:
         - group: 'group-lab'
           name: 'comm4'
 
-  - name: test_case_10_delete_community
+  - name: test_case_11_delete_host
+    description: Delete host by name
+    state: deleted
+    input:
+      host:
+        - ip: '1.2.3.5'
+          user:
+            name: 'user3'
+            security_level: 'auth'
+
+  - name: test_case_12_delete_community
     description: Delete SNMP community
     state: deleted
     input:
       community:
           - name: 'comm4'
 
-  - name: test_case_11_replaced_group
+  - name: test_case_13_replaced_group
     description: Replace some of a SNMP group
     state: replaced
     input:
@@ -229,7 +246,7 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_12_replaced_host
+  - name: test_case_14_replaced_host
     description: Replace SNMP host
     state: replaced
     input:
@@ -241,7 +258,7 @@ tests:
           port: 162
           vrf: '{{ vrf1 }}'
 
-  - name: test_case_13_overridden_host
+  - name: test_case_15_overridden_host
     description: Override host and group
     state: overridden
     input:
@@ -253,7 +270,7 @@ tests:
           port: 162
           vrf: '{{ vrf1 }}'
 
-  - name: test_case_14_merge_group
+  - name: test_case_16_merge_group
     description: Merge some of a SNMP group
     state: merged
     input:
@@ -266,14 +283,14 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_15_delete_group
+  - name: test_case_17_delete_group
     description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted
     input:
       group:
         - name: 'group-lab'
 
-  - name: test_case_16_merge_community_and_view
+  - name: test_case_18_merge_community_and_view
     description: Merge some of the SNMP configuration
     state: merged
     input:
@@ -287,7 +304,16 @@ tests:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
 
-  - name: test_case_17_deleted_all
+  - name: test_case_19_delete_view
+    description: Delete SNMP view
+    state: deleted
+    input:
+      view:
+        - name: 'view2'
+          excluded:
+            - '1.2.3.4.5.6.7.8.9.2'
+
+  - name: test_case_20_deleted_all
     description: Delete all SNMP server configuration
     state: deleted
     input: {}

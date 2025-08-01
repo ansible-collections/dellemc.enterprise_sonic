@@ -162,13 +162,13 @@ class Snmp(ConfigBase):
                 if 'name' in want_conf:
                     for have_conf in have.get('agentaddress'):
                         same_name = self.same_name_agents(want_conf, have_conf)
-                        if (not same_name and 'ip' in want_conf and 'ip' in have_conf
-                            and want_conf.get('ip') == have_conf.get('ip')
-                            and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
-                            and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf)
-                            and want_conf.get('interface_vrf') == have_conf.get('interface_vrf')):
+                        same_option_conflict = (not same_name and 'ip' in want_conf and 'ip' in have_conf
+                                                and want_conf.get('ip') == have_conf.get('ip')
+                                                and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
+                                                and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf)
+                                                and want_conf.get('interface_vrf') == have_conf.get('interface_vrf'))
+                        if same_option_conflict:
                             same = {'name': want_conf.get('name')}
-                            break
                 else:
                     copy_want = deepcopy(want_conf)
                     for key, item in copy_want.items():
@@ -183,6 +183,20 @@ class Snmp(ConfigBase):
             new_want['agentaddress'] = want_agentaddress
         return new_want
 
+    def merged_config(have_conf, want_conf):
+        default_values = {
+            'ip': "",
+            'port': 161,
+            'interface_vrf': 'default'
+        } 
+
+        merged_conf = {}
+        for key, value in have_conf.items():
+             merged_conf[key] = have_conf[key]
+             if want_conf.get(key) is not None and want_conf.get(key) != default_values[key]:
+                 merged_conf[key] = want_conf[key]
+        return merged_conf
+
     def same_name_agents(self, want_conf, have_conf):
         """ Check to see if the name of a wanted agentaddress matches the name of an existing agentaddress
 
@@ -190,12 +204,25 @@ class Snmp(ConfigBase):
         :returns: False if the given wanted agentaddress name does not matched the given agentaddress name
         """
         if have_conf['name'] == want_conf['name']:
-            for key_want, value_want in want_conf.items():
-                for key_have, value_have in have_conf.items():
-                    if key_want == key_have and value_want != value_have:
-                        self._module.fail_json(msg="The specified options are in use for an existing agent.")
-                        break
+            merged_conf = self.merged_config(have_conf, want_conf)
+            for have_conf in have_conf.get('agentaddress'):
+                check_same = self.same_agentaddress(merged_conf, have_conf)
+                if check_same:
+                    self._module.fail_json(msg="The specified options are in use for an existing agent.")
+                    break
         return False
+ 
+    def same_agentaddress(self, merged_conf, have_conf):
+        """ Returns true if the wanted agent has the same values and keys as the given agent
+
+        :rtype: boolean
+        :returns: True if the keys and values are the same
+        """
+        for keys, values in merged_conf.items():
+            for have_keys, have_values in have_conf.items():
+                if keys == have_keys and values != have_values:
+                    return False
+        return True
 
     def check_same_agentaddress(self, want_agentaddress):
         """ Check if the agentaddress option values are the same
@@ -211,12 +238,15 @@ class Snmp(ConfigBase):
                     self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of these options: {}".format(want_conf))
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
-                if (('ip' in want_conf and 'ip' in want_conf_2 and want_conf.get('ip') == want_conf_2.get('ip')
-                     and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
-                     and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2
-                     and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf')))):
+                same_option_conflict = ('ip' in want_conf and 'ip' in want_conf_2
+                                                and want_conf.get('ip') == want_conf_2.get('ip')
+                                                and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
+                                                and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2)
+                                                and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf'))
+                if same_option_conflict:
                     same = {'ip': want_conf.get('ip'), 'port': want_conf.get('port'), 'interface_vrf': want_conf.get('interface_vrf')}
                     break
+
         if same:
             self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of these options: {}".format(same))
 
@@ -1017,10 +1047,17 @@ class Snmp(ConfigBase):
                         if matched_agentaddress:
                             name = matched_agentaddress['name']
                             remaining_options = get_diff(want, matched_agentaddress)
-                            for option in remaining_options:
-                                for have_option in matched_agentaddress:
-                                    if option == have_option:
-                                        self._module.fail_json(msg="The specified options are in use for an existing agent.")
+                            for key, value in remaining_options.items():
+                                remaining_options_len = len(remaining_options)
+                                matched_options = 0
+                                for matched_key, matched_value in matched_agentaddress.items():
+                                    if key == matched_key and value != matched_value:
+                                        break
+                                    elif key == matched_key and value == matched_value:
+                                        matched_options += 1
+
+                                if matched_options == remaining_options_len:
+                                    self._module.fail_json(msg="The specified options are in use for an existing agent.")
                             agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
                             # Delete the whole agentaddress entry if only 'name' and 'ip' are specified.
                             if want.get('name') and want.get('ip') and len(want) == 2:
@@ -1256,8 +1293,7 @@ class Snmp(ConfigBase):
                             else:
                                 host_request = {"path": host_target_url, "method": DELETE}
                                 host_requests.append(host_request)
-                                name = want.get('name')
-                                host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(name)
+                                host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
                                 host_request = {"path": host_target_params_url, "method": DELETE}
                                 host_requests.append(host_request)
                                 continue
@@ -1269,7 +1305,7 @@ class Snmp(ConfigBase):
                                 user_name = want.get('user').get('name')
                                 security_level = want.get('user').get('security_level')
                             name = want.get('name')
-                            host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(name)
+                            host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
 
                             if security_name:
                                 host_tp_url = host_target_params_url + '/v2c/security-name'
