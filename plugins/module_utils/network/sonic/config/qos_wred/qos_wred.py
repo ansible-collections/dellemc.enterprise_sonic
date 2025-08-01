@@ -261,7 +261,7 @@ class Qos_wred(ConfigBase):
 
     def get_modify_qos_wred_request(self, commands):
         request = None
-        lookup_dict = {'all': 'ECN_ALL'}
+        lookup_dict = {'all': 'ECN_ALL', 'none': 'ECN_NONE'}
 
         if commands:
             wred_list = []

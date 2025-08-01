@@ -1,3 +1,3 @@
 ---
-minor_changes:
-  - sonic_qos_wred - Update QoS WRED module for yellow and red colors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/574).
+breaking_changes:
+  - sonic_qos_wred - Add support for yellow and red colors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/574).

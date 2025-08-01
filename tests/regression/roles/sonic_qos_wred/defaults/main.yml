@@ -25,7 +25,7 @@ tests:
           max_threshold: 5000
           drop_probability: 25
       - name: profile2
-        ecn: all
+        ecn: none
         green:
           enable: True
           min_threshold: 12000
@@ -104,7 +104,7 @@ tests:
           max_threshold: 40000
           drop_probability: 30
       - name: profile5
-        ecn: all
+        ecn: none
         green:
           enable: False
           min_threshold: 1000
@@ -123,7 +123,7 @@ tests:
     input:
       - name: profile4
       - name: profile5
-        ecn: all
+        ecn: none
         green:
           enable: False
           min_threshold: 1000
