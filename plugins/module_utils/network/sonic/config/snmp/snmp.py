@@ -170,14 +170,13 @@ class Snmp(ConfigBase):
                                                                 want_conf.get('port') == have_conf.get('port'))
                                                                 and ('interface_vrf' in want_conf
                                                                 and 'interface_vrf' in have_conf)
-                                                                and want_conf.get('interface_vrf') == 
-                                                                have_conf.get('interface_vrf'))
+                                                                and want_conf.get('interface_vrf') == have_conf.get('interface_vrf'))
                             if same_option_conflict:
                                 same = want_conf['name']
                                 same_conflict = have_conf['name']
-                                self._module.fail_json(msg="Agentaddress option values for input agentadress entry {0}"
-                                                       + " conflict with option values for existing agentaddress entry {1}."
-                                                       + " Please change the values for agentaddress entry {2} or remove it from the play.".format(same, same_conflict, same))
+                                self._module.fail_json(msg="Agentaddress option values for input agentadress entry {}".format(same)
+                                                       + " conflict with option values for existing agentaddress entry {}.".format(same_conflict)
+                                                       + " Please change the values for agentaddress entry {} or remove it from the play.".format(same))
                 else:
                     # Unnamed input agentaddress entry: Determine if it matches an existing
                     # agentaddress and use the name of the matching agentaddress if there is one.
@@ -243,8 +242,8 @@ class Snmp(ConfigBase):
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
                 if 'name' in want_conf and 'name' in want_conf_2 and want_conf.get('name') == want_conf_2.get('name'):
-                    self._module.fail_json(msg="Agentaddress name '{}' is used twice in this play. Please consolidate the configuration for this agentaddress entry or use"
-                                           + " a different name for the second instance.".format(want_conf['name']))
+                    self._module.fail_json(msg="Agentaddress name '{}' is used twice in this play. Please consolidate the configuration for this agentaddress entry or use".format(want_conf['name'])
+                                           + " a different name for the second instance.")
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
                 same_option_conflict = ('ip' in want_conf and 'ip' in want_conf_2
@@ -607,7 +606,6 @@ class Snmp(ConfigBase):
             if have and len(have) > 0 and have.get('group'):
                 for group in have.get('group'):
                     if 'security-name' in group and group['security-name'] == conf.get('name') and group.get('name') != community_group_name:
-
                         # If this community is already a member of some group other than the new requested group,
                         # remove the "member" entry for this community in the "old" group member list.
                         group_name = group.get('name')
