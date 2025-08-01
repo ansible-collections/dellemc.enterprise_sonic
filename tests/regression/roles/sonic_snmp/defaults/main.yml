@@ -233,7 +233,15 @@ tests:
       community:
           - name: 'comm4'
 
-  - name: test_case_13_replaced_group
+  - name: test_case_13_delete_users
+    description: Delete two users
+    state:  deleted
+    input:
+      user:
+        - name: 'user8'
+        - name: 'user9'
+
+  - name: test_case_14_replaced_group
     description: Replace some of a SNMP group
     state: replaced
     input:
@@ -246,7 +254,7 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_14_replaced_host
+  - name: test_case_15_replaced_host
     description: Replace SNMP host
     state: replaced
     input:
@@ -258,7 +266,7 @@ tests:
           port: 162
           vrf: '{{ vrf1 }}'
 
-  - name: test_case_15_overridden_host
+  - name: test_case_16_overridden_host
     description: Override host and group
     state: overridden
     input:
@@ -270,7 +278,7 @@ tests:
           port: 162
           vrf: '{{ vrf1 }}'
 
-  - name: test_case_16_merge_group
+  - name: test_case_17_merge_group
     description: Merge some of a SNMP group
     state: merged
     input:
@@ -283,14 +291,14 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_17_delete_group
+  - name: test_case_18_delete_group
     description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted
     input:
       group:
         - name: 'group-lab'
 
-  - name: test_case_18_merge_community_and_view
+  - name: test_case_19_merge_community_and_view
     description: Merge some of the SNMP configuration
     state: merged
     input:
@@ -304,7 +312,7 @@ tests:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
 
-  - name: test_case_19_delete_view
+  - name: test_case_20_delete_view
     description: Delete SNMP view
     state: deleted
     input:
@@ -313,7 +321,7 @@ tests:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
 
-  - name: test_case_20_deleted_all
+  - name: test_case_21_deleted_all
     description: Delete all SNMP server configuration
     state: deleted
     input: {}
