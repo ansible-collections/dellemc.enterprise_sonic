@@ -122,6 +122,7 @@ options:
       - lst
       - ptp_port_ds
       - fbs_classifiers
+      - ars
       - network_policy
       - br_l2pt
       - dcbx

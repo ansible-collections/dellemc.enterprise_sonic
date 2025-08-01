@@ -1,0 +1,238 @@
+---
+ansible_connection: httpapi
+
+sonic_ars_tests:
+  - name: test_case_01
+    description: Initial configuration of ARS
+    state: merged
+    input:
+      ars_objects:
+        - name: obj1
+          idle_time: 100
+          max_flows: 1024
+          mode: flowlet-quality
+      port_profiles:
+        - name: pp1
+          enable: true
+          load_future_weight: 9
+          load_past_weight: 20
+          load_scaling_factor: 0
+      profiles:
+        - name: p1
+          algorithm: EWMA
+          load_current_max_val: 10000
+          load_current_min_val: 100
+          load_future_max_val: 20000
+          load_future_min_val: 200
+          load_past_max_val: 500
+          load_past_min_val: 50
+          port_load_current: true
+          port_load_exponent: 7
+          port_load_future: true
+          port_load_future_weight: 9
+          port_load_past: true
+          port_load_past_weight: 11
+          random_seed: 800000
+          sampling_interval: 140
+      port_bindings:
+        - name: '{{ interface1 }}'
+          profile: pp1
+      switch_binding:
+        profile: p1
+
+  - name: test_case_02
+    description: Modify ARS configuration
+    state: merged
+    input:
+      ars_objects:
+        - name: obj1
+          idle_time: 110
+          max_flows: 2048
+        - name: obj2
+          idle_time: 85
+          max_flows: 512
+          mode: flowlet-quality
+      port_profiles:
+        - name: pp1
+          enable: false
+          load_future_weight: 11
+          load_past_weight: 22
+          load_scaling_factor: 40
+        - name: pp2
+          enable: true
+          load_future_weight: 15
+          load_past_weight: 80
+          load_scaling_factor: 0
+      profiles:
+        - name: p1
+          load_current_max_val: 12000
+          load_current_min_val: 130
+          load_future_max_val: 24000
+          load_future_min_val: 250
+          load_past_max_val: 560
+          load_past_min_val: 57
+          port_load_current: false
+          port_load_exponent: 8
+          port_load_future: false
+          port_load_future_weight: 10
+          port_load_past: false
+          port_load_past_weight: 12
+          random_seed: 899000
+          sampling_interval: 146
+        - name: p2
+          load_current_max_val: 3000
+          load_current_min_val: 1000
+          load_future_max_val: 57000
+          load_future_min_val: 75
+          load_past_max_val: 800
+          load_past_min_val: 400
+          port_load_current: true
+          port_load_exponent: 4
+          port_load_future: true
+          port_load_future_weight: 3
+          port_load_past: true
+          port_load_past_weight: 6
+          random_seed: 12345
+          sampling_interval: 175
+      port_bindings:
+        - name: '{{ interface1 }}'
+          profile: pp2
+        - name: '{{ interface2 }}'
+          profile: pp1
+      switch_binding:
+        profile: p2
+
+  - name: test_case_03
+    description: Replace ARS configuration
+    state: replaced
+    input:
+      ars_objects:
+        - name: obj3
+          idle_time: 700
+          max_flows: 8192
+          mode: flowlet-quality
+        - name: obj4
+      port_profiles:
+        - name: pp3
+          enable: false
+          load_future_weight: 5
+          load_past_weight: 30
+          load_scaling_factor: 0
+        - name: pp4
+      profiles:
+        - name: p3
+          algorithm: EWMA
+          load_current_max_val: 333
+          load_current_min_val: 111
+          load_future_max_val: 678
+          load_future_min_val: 123
+          load_past_max_val: 300
+          load_past_min_val: 120
+          port_load_current: true
+          port_load_exponent: 4
+          port_load_future: true
+          port_load_future_weight: 10
+          port_load_past: true
+          port_load_past_weight: 14
+          random_seed: 37158
+          sampling_interval: 55
+        - name: p4
+      port_bindings:
+        - name: '{{ interface3 }}'
+          profile: pp3
+        - name: '{{ interface4 }}'
+          profile: pp4
+      switch_binding:
+        profile: p3
+
+  - name: test_case_04
+    description: Delete ARS configuration by individual attributes and by key
+    state: deleted
+    input:
+      ars_objects:
+        - name: obj3
+          idle_time: 700
+          max_flows: 8192
+          mode: flowlet-quality
+        - name: obj4
+      port_profiles:
+        - name: pp3
+          enable: false
+          load_future_weight: 5
+          load_past_weight: 30
+          load_scaling_factor: 0
+        - name: pp4
+      profiles:
+        - name: p3
+          algorithm: EWMA
+          load_current_max_val: 333
+          load_current_min_val: 111
+          load_future_max_val: 678
+          load_future_min_val: 123
+          load_past_max_val: 300
+          load_past_min_val: 120
+          port_load_current: true
+          port_load_exponent: 4
+          port_load_future: true
+          port_load_future_weight: 10
+          port_load_past: true
+          port_load_past_weight: 14
+          random_seed: 37158
+          sampling_interval: 55
+        - name: p4
+      port_bindings:
+        - name: '{{ interface3 }}'
+          profile: pp3
+        - name: '{{ interface4 }}'
+
+  - name: test_case_05
+    description: Delete dependecies in order to delete switch binding profile
+    state: deleted
+    input:
+      ars_objects:
+        - name: obj3
+      switch_binding:
+        profile: p3
+
+  - name: test_case_06
+    description: Override ARS configuration
+    state: overridden
+    input:
+      ars_objects:
+        - name: obj1
+          idle_time: 100
+          max_flows: 1024
+          mode: flowlet-quality
+      port_profiles:
+        - name: pp1
+          enable: true
+          load_future_weight: 9
+          load_past_weight: 20
+          load_scaling_factor: 0
+      profiles:
+        - name: p1
+          algorithm: EWMA
+          load_current_max_val: 10000
+          load_current_min_val: 100
+          load_future_max_val: 20000
+          load_future_min_val: 200
+          load_past_max_val: 500
+          load_past_min_val: 50
+          port_load_current: true
+          port_load_exponent: 7
+          port_load_future: true
+          port_load_future_weight: 9
+          port_load_past: true
+          port_load_past_weight: 11
+          random_seed: 800000
+          sampling_interval: 140
+      port_bindings:
+        - name: '{{ interface1 }}'
+          profile: pp1
+      switch_binding:
+        profile: p1
+
+  - name: test_case_7
+    description: Delete all ARS configuration
+    state: deleted
+    input: {}
