@@ -183,18 +183,18 @@ class Snmp(ConfigBase):
             new_want['agentaddress'] = want_agentaddress
         return new_want
 
-    def merged_config(have_conf, want_conf):
+    def merged_config(self, have_conf, want_conf):
         default_values = {
             'ip': "",
             'port': 161,
             'interface_vrf': 'default'
-        } 
+        }
 
         merged_conf = {}
         for key, value in have_conf.items():
-             merged_conf[key] = have_conf[key]
-             if want_conf.get(key) is not None and want_conf.get(key) != default_values[key]:
-                 merged_conf[key] = want_conf[key]
+            merged_conf[key] = have_conf[key]
+            if want_conf.get(key) is not None and want_conf.get(key) != default_values[key]:
+                merged_conf[key] = want_conf[key]
         return merged_conf
 
     def same_name_agents(self, want_conf, have_conf):
@@ -211,7 +211,7 @@ class Snmp(ConfigBase):
                     self._module.fail_json(msg="The specified options are in use for an existing agent.")
                     break
         return False
- 
+
     def same_agentaddress(self, merged_conf, have_conf):
         """ Returns true if the wanted agent has the same values and keys as the given agent
 
@@ -239,10 +239,10 @@ class Snmp(ConfigBase):
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
                 same_option_conflict = ('ip' in want_conf and 'ip' in want_conf_2
-                                                and want_conf.get('ip') == want_conf_2.get('ip')
-                                                and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
-                                                and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2)
-                                                and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf'))
+                                        and want_conf.get('ip') == want_conf_2.get('ip')
+                                        and ('port' in want_conf and 'port' in want_conf_2 and want_conf.get('port') == want_conf_2.get('port'))
+                                        and ('interface_vrf' in want_conf and 'interface_vrf' in want_conf_2)
+                                        and want_conf.get('interface_vrf') == want_conf_2.get('interface_vrf'))
                 if same_option_conflict:
                     same = {'ip': want_conf.get('ip'), 'port': want_conf.get('port'), 'interface_vrf': want_conf.get('interface_vrf')}
                     break
