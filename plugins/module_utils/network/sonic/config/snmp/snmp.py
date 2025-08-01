@@ -167,9 +167,9 @@ class Snmp(ConfigBase):
                             same_option_conflict = ('ip' in want_conf and 'ip' in have_conf
                                                     and want_conf.get('ip') == have_conf.get('ip')
                                                     and ('port' in want_conf and 'port' in have_conf and
-                                                    want_conf.get('port') == have_conf.get('port'))
+                                                         want_conf.get('port') == have_conf.get('port'))
                                                     and ('interface_vrf' in want_conf
-                                                    and 'interface_vrf' in have_conf)
+                                                         and 'interface_vrf' in have_conf)
                                                     and want_conf.get('interface_vrf') == have_conf.get('interface_vrf'))
                             if same_option_conflict:
                                 same = want_conf['name']
