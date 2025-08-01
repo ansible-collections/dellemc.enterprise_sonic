@@ -292,7 +292,7 @@ class Ars(ConfigBase):
             delete_all = True
         else:
             commands = get_diff(want, diff, TEST_KEYS)
-            self.remove_default_entries(commands)
+            self.remove_default_entries(commands, True)
 
         if commands:
             requests = self.get_delete_ars_requests(commands, delete_all)
@@ -482,7 +482,7 @@ class Ars(ConfigBase):
                 if config.get(ars_list):
                     config[ars_list].sort(key=lambda x: x['name'])
 
-    def remove_default_entries(self, data):
+    def remove_default_entries(self, data, is_state_deleted=False):
         """This method removes the default entries from the ARS configuration"""
         if data:
             ars_lists = ['ars_objects', 'port_profiles', 'profiles']
@@ -500,7 +500,7 @@ class Ars(ConfigBase):
                                 key_pop_list.append(key)
                         for key in key_pop_list:
                             ars_dict.pop(key)
-                        if len(ars_dict) == 1:
+                        if len(ars_dict) == 1 and is_state_deleted:
                             pop_list.insert(0, idx)
                     for idx in pop_list:
                         data[ars_list].pop(idx)
