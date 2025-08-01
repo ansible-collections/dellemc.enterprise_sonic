@@ -157,29 +157,41 @@ class Snmp(ConfigBase):
             self.check_same_agentaddress(want_agentaddresses)
         want_agentaddress = []
         if 'agentaddress' in have and state == 'merged':
-            same = {}
+            same = ''
             for want_conf in want_agentaddresses:
                 if 'name' in want_conf:
                     for have_conf in have.get('agentaddress'):
-                        same_name = self.same_name_agents(want_conf, have_conf)
-                        same_option_conflict = (not same_name and 'ip' in want_conf and 'ip' in have_conf
-                                                and want_conf.get('ip') == have_conf.get('ip')
-                                                and ('port' in want_conf and 'port' in have_conf and want_conf.get('port') == have_conf.get('port'))
-                                                and ('interface_vrf' in want_conf and 'interface_vrf' in have_conf)
-                                                and want_conf.get('interface_vrf') == have_conf.get('interface_vrf'))
-                        if same_option_conflict:
-                            same = {'name': want_conf.get('name')}
+                        if have_conf['name'] == want_conf['name']:
+                            self.same_name_agents_conflict_check(want_conf, have_conf)
+                        else:
+                            same_option_conflict = ('ip' in want_conf and 'ip' in have_conf
+                                                                and want_conf.get('ip') == have_conf.get('ip')
+                                                                and ('port' in want_conf and 'port' in have_conf and
+                                                                want_conf.get('port') == have_conf.get('port'))
+                                                                and ('interface_vrf' in want_conf
+                                                                and 'interface_vrf' in have_conf)
+                                                                and want_conf.get('interface_vrf') == 
+                                                                have_conf.get('interface_vrf'))
+                            if same_option_conflict:
+                                same = want_conf['name']
+                                same_conflict = have_conf['name']
+                                self._module.fail_json(msg="Agentaddress option values for input agentadress entry {0}"
+                                                       + " conflict with option values for existing agentaddress entry {1}."
+                                                       + " Please change the values for agentaddress entry {2} or remove it from the play.".format(same, same_conflict, same))
                 else:
-                    copy_want = deepcopy(want_conf)
-                    for key, item in copy_want.items():
-                        for have_conf in have.get('agentaddress'):
-                            if key in have_conf and item == have_conf.get(key):
-                                want_conf['name'] = have_conf.get('name')
-                if not same:
-                    want_agentaddress.append(want_conf)
+                    # Unnamed input agentaddress entry: Determine if it matches an existing
+                    # agentaddress and use the name of the matching agentaddress if there is one.
+                    for have_conf in have.get('agentaddress'):
+                        matched = True
+                        for key, value in want_conf.items():
+                            if have_conf[key] != value:
+                                matched = False
+                                break
+                        if matched:
+                            want_conf['name'] = have_conf.get('name')
+                            break
 
-            if same:
-                self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of this agent: {}".format(same))
+                    want_agentaddress.append(want_conf)
             new_want['agentaddress'] = want_agentaddress
         return new_want
 
@@ -197,20 +209,16 @@ class Snmp(ConfigBase):
                 merged_conf[key] = want_conf[key]
         return merged_conf
 
-    def same_name_agents(self, want_conf, have_conf):
-        """ Check to see if the name of a wanted agentaddress matches the name of an existing agentaddress
-
-        :rtype: boolean
-        :returns: False if the given wanted agentaddress name does not matched the given agentaddress name
+    def same_name_agents_conflict_check(self, want_conf, have_conf):
+        """ Check to see if the merged result of an input agentaddress entry with an existing agenteaddress entry having the same
+        name conflicts with any other existing agentaddress entry with a different name.
         """
-        if have_conf['name'] == want_conf['name']:
-            merged_conf = self.merged_config(have_conf, want_conf)
-            for have_conf in have_conf.get('agentaddress'):
-                check_same = self.same_agentaddress(merged_conf, have_conf)
-                if check_same:
-                    self._module.fail_json(msg="The specified options are in use for an existing agent.")
-                    break
-        return False
+        merged_conf = self.merged_config(have_conf, want_conf)
+        for have_conf in have_conf.get('agentaddress'):
+            check_same = self.same_agentaddress(merged_conf, have_conf)
+            if check_same:
+                self._module.fail_json(msg="The specified options are in use for an existing agent.")
+                break
 
     def same_agentaddress(self, merged_conf, have_conf):
         """ Returns true if the wanted agent has the same values and keys as the given agent
@@ -235,7 +243,8 @@ class Snmp(ConfigBase):
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
                 if 'name' in want_conf and 'name' in want_conf_2 and want_conf.get('name') == want_conf_2.get('name'):
-                    self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of these options: {}".format(want_conf))
+                    self._module.fail_json(msg="Agentaddress name '{}' is used twice in this play. Please consolidate the configuration for this agentaddress entry or use"
+                                           + " a different name for the second instance.".format(want_conf['name']))
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
                 same_option_conflict = ('ip' in want_conf and 'ip' in want_conf_2
@@ -248,7 +257,8 @@ class Snmp(ConfigBase):
                     break
 
         if same:
-            self._module.fail_json(msg="Agentaddress option values must be unique. Please change the values of these options: {}".format(same))
+            self._module.fail_json(msg="Agentaddress option values must be unique. Two agentaddress entries are specified in this play with the same option values."
+                                   + " Please change or remove one of the duplicate agentaddress options sets currently set as follows: {}".format(same))
 
         return
 
