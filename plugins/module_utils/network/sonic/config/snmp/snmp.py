@@ -165,12 +165,12 @@ class Snmp(ConfigBase):
                             self.same_name_agents_conflict_check(want_conf, have_conf)
                         else:
                             same_option_conflict = ('ip' in want_conf and 'ip' in have_conf
-                                                                and want_conf.get('ip') == have_conf.get('ip')
-                                                                and ('port' in want_conf and 'port' in have_conf and
-                                                                want_conf.get('port') == have_conf.get('port'))
-                                                                and ('interface_vrf' in want_conf
-                                                                and 'interface_vrf' in have_conf)
-                                                                and want_conf.get('interface_vrf') == have_conf.get('interface_vrf'))
+                                                    and want_conf.get('ip') == have_conf.get('ip')
+                                                    and ('port' in want_conf and 'port' in have_conf and
+                                                    want_conf.get('port') == have_conf.get('port'))
+                                                    and ('interface_vrf' in want_conf
+                                                    and 'interface_vrf' in have_conf)
+                                                    and want_conf.get('interface_vrf') == have_conf.get('interface_vrf'))
                             if same_option_conflict:
                                 same = want_conf['name']
                                 same_conflict = have_conf['name']
@@ -242,7 +242,8 @@ class Snmp(ConfigBase):
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
                 if 'name' in want_conf and 'name' in want_conf_2 and want_conf.get('name') == want_conf_2.get('name'):
-                    self._module.fail_json(msg="Agentaddress name '{}' is used twice in this play. Please consolidate the configuration for this agentaddress entry or use".format(want_conf['name'])
+                    self._module.fail_json(msg="Agentaddress name '{}' is used twice in this play.".format(want_conf['name'])
+                                           + " Please consolidate the configuration for this agentaddress entry or use"
                                            + " a different name for the second instance.")
         for index, want_conf in enumerate(want_agentaddresses, 0):
             for want_conf_2 in want_agentaddresses[index + 1:]:
@@ -256,8 +257,9 @@ class Snmp(ConfigBase):
                     break
 
         if same:
-            self._module.fail_json(msg="Agentaddress option values must be unique. Two agentaddress entries are specified in this play with the same option values."
-                                   + " Please change or remove one of the duplicate agentaddress options sets currently set as follows: {}".format(same))
+            self._module.fail_json(msg="Agentaddress option values must be unique. Two agentaddress entries are specified in this play with"
+                                   + " the same option values. Please change or remove one of the duplicate agentaddress options sets currently"
+                                   + " set as follows: {}".format(same))
 
         return
 
