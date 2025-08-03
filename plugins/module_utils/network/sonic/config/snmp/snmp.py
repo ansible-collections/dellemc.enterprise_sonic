@@ -144,18 +144,16 @@ class Snmp(ConfigBase):
         :rtype: A dictionary
         :returns: the desired configuration with default values filled in
         """
-        new_want = want
         if 'agentaddress' not in want:
             return want
-        if 'agentaddress' in new_want:
-            for conf in new_want.get('agentaddress'):
-                if 'port' not in conf:
-                    conf['port'] = 161
-                if 'interface_vrf' not in conf:
-                    conf['interface_vrf'] = 'default'
-            want_agentaddresses = new_want.get('agentaddress')
-            self.check_same_agentaddress(want_agentaddresses)
         want_agentaddress = []
+        for conf in want.get('agentaddress'):
+            if 'port' not in conf:
+                conf['port'] = 161
+            if 'interface_vrf' not in conf:
+                conf['interface_vrf'] = 'default'
+        want_agentaddresses = want.get('agentaddress')
+        self.check_same_agentaddress(want_agentaddresses)
         if 'agentaddress' in have and state == 'merged':
             same = ''
             for want_conf in want_agentaddresses:
@@ -191,8 +189,8 @@ class Snmp(ConfigBase):
                             break
 
                     want_agentaddress.append(want_conf)
-            new_want['agentaddress'] = want_agentaddress
-        return new_want
+            want['agentaddress'] = want_agentaddress
+        return want
 
     def merged_config(self, have_conf, want_conf):
         default_values = {
@@ -225,10 +223,9 @@ class Snmp(ConfigBase):
         :rtype: boolean
         :returns: True if the keys and values are the same
         """
-        for keys, values in merged_conf.items():
-            for have_keys, have_values in have_conf.items():
-                if keys == have_keys and values != have_values:
-                    return False
+        for key, value in merged_conf.items():
+            if merged_conf[key] != have_conf[key]:
+                return False
         return True
 
     def check_same_agentaddress(self, want_agentaddress):
@@ -1002,6 +999,16 @@ class Snmp(ConfigBase):
 
         return user_requests
 
+    def agent_same_after_deletion(self, new_wanted_agent_1, new_wanted_agent_2):
+        """ Determines if the given list of agents have agents with the same values
+        """
+        for key1, value1 in new_wanted_agent_1.items():
+            for key2, value2 in new_wanted_agent_2.items():
+                if key1 == key2:
+                    if value1 != value2:
+                        return
+        self._module.fail_json(msg="Deletion of these options will create a conflict. Deleting the entire agent would be better.")
+
     def get_delete_snmp_request(self, configs, have, delete_all):
         """ Create the requests necessary to delete the given configuration
         :rtype: A list
@@ -1052,71 +1059,66 @@ class Snmp(ConfigBase):
                     agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                     agentaddress_requests.append(agentaddress_request)
                 else:
+                    after_deletion = get_diff(configs['agentaddress'], have_agentaddress)
                     for want in configs['agentaddress']:
                         matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['name'] == want['name']), None)
                         if matched_agentaddress:
                             name = matched_agentaddress['name']
-                            remaining_options = get_diff(want, matched_agentaddress)
-                            for key, value in remaining_options.items():
-                                remaining_options_len = len(remaining_options)
-                                matched_options = 0
-                                for matched_key, matched_value in matched_agentaddress.items():
-                                    if key == matched_key and value != matched_value:
-                                        break
-                                    elif key == matched_key and value == matched_value:
-                                        matched_options += 1
 
-                                if matched_options == remaining_options_len:
-                                    self._module.fail_json(msg="The specified options are in use for an existing agent.")
                             agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
                             # Delete the whole agentaddress entry if only 'name' and 'ip' are specified.
                             if want.get('name') and want.get('ip') and len(want) == 2:
                                 agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                                 agentaddress_requests.append(agentaddress_request)
+
                             interface_vrf = want.get('interface_vrf')
                             ip = want.get('ip')
                             port = want.get('port')
+                            if port:
+                                if want in after_deletion:
+                                    after_deletion.get(want)['port'] = 161
+                            if interface_vrf:
+                                if want in after_deletion:
+                                    after_deletion.get(want)['interface_vrf'] = 'default'
+                            for index, after_want in enumerate(after_deletion, 0):
+                                for after_want_2 in after_deletion[index + 1:]:
+                                    self.agent_same_after_deletion(after_want, after_want_2)
+
                             # Handle deletion of UDP options.
-                            all_udp_deleted = True
-                            for option in ('interface', 'ip', 'port'):
+                            for option in ('interface_vrf', 'port'):
                                 if option not in matched_agentaddress or option in want:
                                     continue
                                 else:
-                                    all_udp_deleted = False
                                     self.check_same_agentaddress(configs['agentaddress'])
                                     break
 
-                            if not all_udp_deleted:
-                                if interface_vrf:
-                                    add_interface_vrf_list = []
-                                    payload_url = {}
-                                    agentaddress_dict = {}
-                                    agentaddressdict = {}
-                                    udp_dict = {}
-                                    udp_dict['ietf-snmp-ext:interface'] = 'Default'
-                                    agentaddress_dict['udp'] = udp_dict
-                                    add_interface_vrf_list.append(agentaddress_dict)
-                                    agentaddressdict['listen'] = add_interface_vrf_list
-                                    payload_url['ietf-snmp:engine'] = agentaddressdict
-                                    request = {'path': 'data/ietf-snmp:snmp/engine', 'method': PATCH, 'data': payload_url}
-                                    agentaddress_requests.append(request)
-                                if port:
-                                    add_port_list = []
-                                    payload_url = {}
-                                    agentaddress_dict = {}
-                                    agentaddressdict = {}
-                                    udp_dict = {}
-                                    udp_dict['port'] = 161
-                                    agentaddress_dict['udp'] = udp_dict
-                                    add_port_list.append(agentaddress_dict)
-                                    agentaddressdict['listen'] = add_port_list
-                                    payload_url['ietf-snmp:engine'] = agentaddressdict
-                                    request = {'path': 'data/ietf-snmp:snmp/engine', 'method': PATCH, 'data': payload_url}
-                                    agentaddress_requests.append(request)
-                                else:
-                                    agentaddress_udp_url = agentaddress_url + "/udp"
-                                    agentaddress_request = {"path": agentaddress_udp_url, "method": DELETE}
-                                    agentaddress_requests.append(agentaddress_request)
+                            if interface_vrf:
+                                add_interface_vrf_list = []
+                                payload_url = {}
+                                agentaddress_dict = {}
+                                agentaddressdict = {}
+                                udp_dict = {}
+                                udp_dict['ietf-snmp-ext:interface'] = 'Default'
+                                agentaddress_dict['udp'] = udp_dict
+                                add_interface_vrf_list.append(agentaddress_dict)
+                                agentaddressdict['listen'] = add_interface_vrf_list
+                                payload_url['ietf-snmp:engine'] = agentaddressdict
+                                request = {'path': 'data/ietf-snmp:snmp/engine', 'method': PATCH, 'data': payload_url}
+                                agentaddress_requests.append(request)
+                            if port:
+                                add_port_list = []
+                                payload_url = {}
+                                agentaddress_dict = {}
+                                agentaddressdict = {}
+                                udp_dict = {}
+                                udp_dict['port'] = 161
+                                agentaddress_dict['udp'] = udp_dict
+                                add_port_list.append(agentaddress_dict)
+                                agentaddressdict['listen'] = add_port_list
+                                payload_url['ietf-snmp:engine'] = agentaddressdict
+                                request = {'path': 'data/ietf-snmp:snmp/engine', 'method': PATCH, 'data': payload_url}
+                                agentaddress_requests.append(request)
+
                 if agentaddress_requests:
                     agentaddress_requests_list.extend(agentaddress_requests)
 
