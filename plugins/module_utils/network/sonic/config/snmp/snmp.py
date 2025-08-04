@@ -1086,7 +1086,8 @@ class Snmp(ConfigBase):
                                 for index, after_want in enumerate(after_deletion, 0):
                                     for after_want_2 in after_deletion[index + 1:]:
                                         if self.same_options(after_want, after_want_2):
-                                            self._module.fail_json(msg="Deletion of these options will create a conflict. Deleting the entire agent would be better.")
+                                            self._module.fail_json(msg="Deletion of these options will create a conflict."
+                                                                   + " Deleting the entire agent would be better.")
 
                                 # Handle deletion of UDP options.
                                 for option in ('interface_vrf', 'port'):
