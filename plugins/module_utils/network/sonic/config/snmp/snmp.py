@@ -999,15 +999,18 @@ class Snmp(ConfigBase):
 
         return user_requests
 
-    def agent_same_after_deletion(self, new_wanted_agent_1, new_wanted_agent_2):
-        """ Determines if the given list of agents have agents with the same values
+    def same_options(self, options_1, options_2):
+        """ Determines if the given list of options have the same values
+
+        :rtype: Boolean
+        :returns: True if the values are the same
         """
-        for key1, value1 in new_wanted_agent_1.items():
-            for key2, value2 in new_wanted_agent_2.items():
+        for key1, value1 in options_1.items():
+            for key2, value2 in options_2.items():
                 if key1 == key2:
                     if value1 != value2:
-                        return
-        self._module.fail_json(msg="Deletion of these options will create a conflict. Deleting the entire agent would be better.")
+                        return False
+        return True
 
     def get_delete_snmp_request(self, configs, have, delete_all):
         """ Create the requests necessary to delete the given configuration
@@ -1067,57 +1070,50 @@ class Snmp(ConfigBase):
 
                             agentaddress_url = "data/ietf-snmp:snmp/engine/listen={0}".format(name)
                             # Delete the whole agentaddress entry if only 'name' and 'ip' are specified.
-                            if want.get('name') and want.get('ip') and len(want) == 2:
+                            if want.get('name') and want.get('ip') and len(want) == 2 or len(want) == len(matched_agentaddress):
                                 agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                                 agentaddress_requests.append(agentaddress_request)
+                            else:
+                                interface_vrf = want.get('interface_vrf')
+                                ip = want.get('ip')
+                                port = want.get('port')
+                                if port:
+                                    if want in after_deletion:
+                                        after_deletion.get(want)['port'] = 161
+                                if interface_vrf:
+                                    if want in after_deletion:
+                                        after_deletion.get(want)['interface_vrf'] = 'default'
+                                for index, after_want in enumerate(after_deletion, 0):
+                                    for after_want_2 in after_deletion[index + 1:]:
+                                        if self.same_options(after_want, after_want_2):
+                                            self._module.fail_json(msg="Deletion of these options will create a conflict. Deleting the entire agent would be better.")
 
-                            interface_vrf = want.get('interface_vrf')
-                            ip = want.get('ip')
-                            port = want.get('port')
-                            if port:
-                                if want in after_deletion:
-                                    after_deletion.get(want)['port'] = 161
-                            if interface_vrf:
-                                if want in after_deletion:
-                                    after_deletion.get(want)['interface_vrf'] = 'default'
-                            for index, after_want in enumerate(after_deletion, 0):
-                                for after_want_2 in after_deletion[index + 1:]:
-                                    self.agent_same_after_deletion(after_want, after_want_2)
+                                # Handle deletion of UDP options.
+                                for option in ('interface_vrf', 'port'):
+                                    if option not in matched_agentaddress or option in want:
+                                        continue
+                                    else:
+                                        self.check_same_agentaddress(configs['agentaddress'])
+                                        break
+                                if interface_vrf or port:
+                                    add_interface_vrf_list = []
+                                    payload_url = {}
+                                    agentaddress_dict = {}
+                                    agentaddressdict = {}
+                                    udp_dict = {}
+                                    if interface_vrf:
+                                        udp_dict['ietf-snmp-ext:interface'] = 'default'
+                                    if port:
+                                        udp_dict['port'] = 161
 
-                            # Handle deletion of UDP options.
-                            for option in ('interface_vrf', 'port'):
-                                if option not in matched_agentaddress or option in want:
-                                    continue
-                                else:
-                                    self.check_same_agentaddress(configs['agentaddress'])
-                                    break
-
-                            if interface_vrf:
-                                add_interface_vrf_list = []
-                                payload_url = {}
-                                agentaddress_dict = {}
-                                agentaddressdict = {}
-                                udp_dict = {}
-                                udp_dict['ietf-snmp-ext:interface'] = 'Default'
-                                agentaddress_dict['udp'] = udp_dict
-                                add_interface_vrf_list.append(agentaddress_dict)
-                                agentaddressdict['listen'] = add_interface_vrf_list
-                                payload_url['ietf-snmp:engine'] = agentaddressdict
-                                request = {'path': 'data/ietf-snmp:snmp/engine', 'method': PATCH, 'data': payload_url}
-                                agentaddress_requests.append(request)
-                            if port:
-                                add_port_list = []
-                                payload_url = {}
-                                agentaddress_dict = {}
-                                agentaddressdict = {}
-                                udp_dict = {}
-                                udp_dict['port'] = 161
-                                agentaddress_dict['udp'] = udp_dict
-                                add_port_list.append(agentaddress_dict)
-                                agentaddressdict['listen'] = add_port_list
-                                payload_url['ietf-snmp:engine'] = agentaddressdict
-                                request = {'path': 'data/ietf-snmp:snmp/engine', 'method': PATCH, 'data': payload_url}
-                                agentaddress_requests.append(request)
+                                    udp_dict['ip'] = ip
+                                    agentaddress_dict['udp'] = udp_dict
+                                    agentaddress_dict['name'] = name
+                                    add_interface_vrf_list.append(agentaddress_dict)
+                                    agentaddressdict['listen'] = add_interface_vrf_list
+                                    payload_url['ietf-snmp:engine'] = agentaddressdict
+                                    request = {'path': 'data/ietf-snmp:snmp/engine', 'method': PATCH, 'data': payload_url}
+                                    agentaddress_requests.append(request)
 
                 if agentaddress_requests:
                     agentaddress_requests_list.extend(agentaddress_requests)
@@ -1204,53 +1200,54 @@ class Snmp(ConfigBase):
                         matched_group = next((each_snmp for each_snmp in have_group if each_snmp['name'] == want['name']), None)
                         if matched_group:
                             group_name = matched_group['name']
-
-                            if 'access' in want:
-                                for access in want['access']:
-                                    matched_access = next(
-                                        (each_access for each_access in matched_group['access']
-                                         if each_access['security_model'] == access.get('security_model')
-                                            and each_access['security_level'] == access.get('security_level')), None)
-                                    matched_security_model = ""
-                                    if matched_access:
-                                        matched_security_model = matched_access['security_model']
-                                    if matched_security_model:
-                                        security_model = access.get('security_model')
-                                        security_level = matched_access.get('security_level')
-                                        read_view = access.get('read_view')
-                                        write_view = access.get('write_view')
-                                        notify_view = access.get('notify_view')
-                                        group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=Default,{1},{2}".format(
-                                            group_name, security_model, security_level)
-                                        if not (read_view and write_view and notify_view):
-                                            if read_view:
-                                                group_access_url_read_view = group_access_url + "/read-view"
-                                                group_request = {"path": group_access_url_read_view, "method": DELETE}
-                                                group_requests.append(group_request)
-                                            if write_view:
-                                                group_access_url_write_view = group_access_url + "/write-view"
-                                                group_request = {"path": group_access_url_write_view, "method": DELETE}
-                                                group_requests.append(group_request)
-                                            if notify_view:
-                                                group_access_url_notify_view = group_access_url + "/notify-view"
-                                                group_request = {"path": group_access_url_notify_view, "method": DELETE}
-                                                group_requests.append(group_request)
-                                        else:
-                                            group_request = {"path": group_access_url, "method": DELETE}
-                                            group_requests.append(group_request)
-                            else:
-                                if have_community:
-                                    community_url = "data/ietf-snmp:snmp/community"
-                                    matched_community = next((each_snmp for each_snmp in have_community if 'group' in each_snmp
-                                                              and each_snmp['group'].get('name') == want['name']), None)
-                                    if matched_community:
-                                        index = matched_community.get('name')
-                                        community_url = "data/ietf-snmp:snmp/community={0}/security-name".format(index)
-                                        community_request = {"path": community_url, "method": DELETE}
-                                        group_requests.append(community_request)
+                            if len(want) == len(matched_group):
                                 group_url = "data/ietf-snmp:snmp/vacm/group={0}".format(group_name)
                                 group_request = {"path": group_url, "method": DELETE}
                                 group_requests.append(group_request)
+                            else:
+                                if 'access' in want:
+                                    for access in want['access']:
+                                        matched_access = next(
+                                            (each_access for each_access in matched_group['access']
+                                             if each_access['security_model'] == access.get('security_model')
+                                             and each_access['security_level'] == access.get('security_level')), None)
+                                        matched_security_model = ""
+                                        if matched_access:
+                                            matched_security_model = matched_access['security_model']
+                                        if matched_security_model:
+                                            security_model = access.get('security_model')
+                                            security_level = matched_access.get('security_level')
+                                            read_view = access.get('read_view')
+                                            write_view = access.get('write_view')
+                                            notify_view = access.get('notify_view')
+                                            group_access_url = "data/ietf-snmp:snmp/vacm/group={0}/access=Default,{1},{2}".format(
+                                                group_name, security_model, security_level)
+                                            if not (read_view and write_view and notify_view):
+                                                if read_view:
+                                                    group_access_url_read_view = group_access_url + "/read-view"
+                                                    group_request = {"path": group_access_url_read_view, "method": DELETE}
+                                                    group_requests.append(group_request)
+                                                if write_view:
+                                                    group_access_url_write_view = group_access_url + "/write-view"
+                                                    group_request = {"path": group_access_url_write_view, "method": DELETE}
+                                                    group_requests.append(group_request)
+                                                if notify_view:
+                                                    group_access_url_notify_view = group_access_url + "/notify-view"
+                                                    group_request = {"path": group_access_url_notify_view, "method": DELETE}
+                                                    group_requests.append(group_request)
+                                            else:
+                                                group_request = {"path": group_access_url, "method": DELETE}
+                                                group_requests.append(group_request)
+                                else:
+                                    if have_community:
+                                        community_url = "data/ietf-snmp:snmp/community"
+                                        matched_community = next((each_snmp for each_snmp in have_community if 'group' in each_snmp
+                                                                  and each_snmp['group'] == want['name']), None)
+                                        if matched_community:
+                                            index = matched_community.get('name')
+                                            community_url = "data/ietf-snmp:snmp/community={0}/security-name".format(index)
+                                            community_request = {"path": community_url, "method": DELETE}
+                                            group_requests.append(community_request)
 
                 if group_requests:
                     group_requests_list.extend(group_requests)
@@ -1270,79 +1267,82 @@ class Snmp(ConfigBase):
                         matched_host = self.get_host(want=want, have=have)
                         if matched_host != '{}':
                             host_target_url = "data/ietf-snmp:snmp/target={0}".format(matched_host['name'])
-                            ip = want.get('ip')
-                            port = want.get('port')
-                            ietf_snmp_ext_vrf_name = want.get('vrf')
-                            tag = want.get('tag')
-                            timeout = want.get('timeout')
-                            retries = want.get('retries')
-                            source_interface = want.get('source_interface')
-                            if not ((ip and port and ietf_snmp_ext_vrf_name and tag and timeout and retries and source_interface)
-                                    or (ip and ietf_snmp_ext_vrf_name and len(want) == 2)):
-                                if timeout:
-                                    host_tg_url = host_target_url + '/timeout'
-                                    host_request = {"path": host_tg_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                if retries:
-                                    host_tg_url = host_target_url + '/retries'
-                                    host_request = {"path": host_tg_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                if source_interface:
-                                    host_tg_url = host_target_url + '/ietf-snmp-ext:source-interface'
-                                    host_request = {"path": host_tg_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                if tag:
-                                    host_tag_url = host_target_url + '/tag'
-                                    host_tag_url += "={0}".format(tag)
-                                    host_request = {"path": host_tag_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                    host_requests.append(host_request)
-                                if port:
-                                    host_udp_url = host_target_url + '/udp/port'
-                                    host_request = {"path": host_udp_url, "method": DELETE}
-                                    host_requests.append(host_request)
-
-                            else:
+                            if len(want) == len(matched_host):
                                 host_request = {"path": host_target_url, "method": DELETE}
                                 host_requests.append(host_request)
+                            else:
+                                ip = want.get('ip')
+                                port = want.get('port')
+                                ietf_snmp_ext_vrf_name = want.get('vrf')
+                                tag = want.get('tag')
+                                timeout = want.get('timeout')
+                                retries = want.get('retries')
+                                source_interface = want.get('source_interface')
+                                if not ((ip and port and ietf_snmp_ext_vrf_name and tag and timeout and retries and source_interface)
+                                        or (ip and ietf_snmp_ext_vrf_name and len(want) == 2)):
+                                    if timeout:
+                                        host_tg_url = host_target_url + '/timeout'
+                                        host_request = {"path": host_tg_url, "method": DELETE}
+                                        host_requests.append(host_request)
+                                    if retries:
+                                        host_tg_url = host_target_url + '/retries'
+                                        host_request = {"path": host_tg_url, "method": DELETE}
+                                        host_requests.append(host_request)
+                                    if source_interface:
+                                        host_tg_url = host_target_url + '/ietf-snmp-ext:source-interface'
+                                        host_request = {"path": host_tg_url, "method": DELETE}
+                                        host_requests.append(host_request)
+                                    if tag:
+                                        host_tag_url = host_target_url + '/tag'
+                                        host_tag_url += "={0}".format(tag)
+                                        host_request = {"path": host_tag_url, "method": DELETE}
+                                        host_requests.append(host_request)
+                                    if port:
+                                        host_udp_url = host_target_url + '/udp/port'
+                                        host_request = {"path": host_udp_url, "method": DELETE}
+                                        host_requests.append(host_request)
+
+                                else:
+                                    host_request = {"path": host_target_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                    host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
+                                    host_request = {"path": host_target_params_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                    continue
+
+                                security_name = want.get('community')
+                                user_name = None
+                                security_level = None
+                                if 'user' in want:
+                                    user_name = want.get('user').get('name')
+                                    security_level = want.get('user').get('security_level')
+                                name = want.get('name')
                                 host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
-                                host_request = {"path": host_target_params_url, "method": DELETE}
-                                host_requests.append(host_request)
-                                continue
 
-                            security_name = want.get('community')
-                            user_name = None
-                            security_level = None
-                            if 'user' in want:
-                                user_name = want.get('user').get('name')
-                                security_level = want.get('user').get('security_level')
-                            name = want.get('name')
-                            host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
+                                if security_name:
+                                    host_tp_url = host_target_params_url + '/v2c/security-name'
+                                    host_request = {"path": host_tp_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                elif user_name and security_level:
+                                    host_tp_url = host_target_params_url + '/usm'
+                                    host_request = {"path": host_tp_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                elif user_name:
+                                    host_tp_url = host_target_params_url + '/usm/user-name'
+                                    host_request = {"path": host_tp_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                elif security_level:
+                                    host_tp_url = host_target_params_url + '/usm/security-level'
+                                    host_request = {"path": host_tp_url, "method": DELETE}
+                                    host_requests.append(host_request)
 
-                            if security_name:
-                                host_tp_url = host_target_params_url + '/v2c/security-name'
-                                host_request = {"path": host_tp_url, "method": DELETE}
-                                host_requests.append(host_request)
-                            elif user_name and security_level:
-                                host_tp_url = host_target_params_url + '/usm'
-                                host_request = {"path": host_tp_url, "method": DELETE}
-                                host_requests.append(host_request)
-                            elif user_name:
-                                host_tp_url = host_target_params_url + '/usm/user-name'
-                                host_request = {"path": host_tp_url, "method": DELETE}
-                                host_requests.append(host_request)
-                            elif security_level:
-                                host_tp_url = host_target_params_url + '/usm/security-level'
-                                host_request = {"path": host_tp_url, "method": DELETE}
-                                host_requests.append(host_request)
-
-                    if configs['host'] == []:
-                        host_target_url = "data/ietf-snmp:snmp/target"
-                        host_request = {"path": host_target_url, "method": DELETE}
-                        host_requests.append(host_request)
-                        host_target_params_url = "data/ietf-snmp:snmp/target-params"
-                        host_request = {"path": host_target_params_url, "method": DELETE}
-                        host_requests.append(host_request)
+                        if configs['host'] == []:
+                            host_target_url = "data/ietf-snmp:snmp/target"
+                            host_request = {"path": host_target_url, "method": DELETE}
+                            host_requests.append(host_request)
+                            host_target_params_url = "data/ietf-snmp:snmp/target-params"
+                            host_request = {"path": host_target_params_url, "method": DELETE}
+                            host_requests.append(host_request)
                 if host_requests:
                     host_requests_list.extend(host_requests)
 
@@ -1367,47 +1367,51 @@ class Snmp(ConfigBase):
                         if matched_user:
                             user_name = want['name']
                             user_url = "data/ietf-snmp:snmp/usm/local/user={0}".format(user_name)
-                            auth = None
-                            priv = None
-                            priv_key = None
-                            auth_key = None
-                            if auth and auth_key and priv and priv_key and encrypted:
+                            if len(want) == 1 or len(want) == len(matched_user):
                                 user_request = {"path": user_url, "method": DELETE}
                                 user_requests.append(user_request)
                             else:
-                                if want.get('auth') and 'auth_type' in want.get('auth'):
-                                    auth = want.get('auth').get('auth_type')
-                                if want.get('priv') and 'priv_type' in want.get('priv'):
-                                    priv = want.get('priv').get('priv_type')
-                                if want.get('auth') and 'key' in want.get('auth'):
-                                    auth_key = want.get('auth').get('key')
-                                if want.get('priv') and 'key' in want.get('priv'):
-                                    priv_key = want.get('priv').get('key')
-                                encrypted = want.get('encrypted')
-                                if auth and auth_key or auth:
-                                    if auth == 'sha2-256':
-                                        auth = 'ietf-snmp-ext:sha2-256'
-                                    elif auth == 'sha2-384':
-                                        auth = 'ietf-snmp-ext:sha2-384'
-                                    elif auth == 'sha2-512':
-                                        auth = 'ietf-snmp-ext:sha2-512'
-                                    auth_url = "{0}/auth/{1}".format(user_url, auth)
-                                    user_request = {"path": auth_url, "method": DELETE}
+                                auth = None
+                                priv = None
+                                priv_key = None
+                                auth_key = None
+                                if auth and auth_key and priv and priv_key and encrypted:
+                                    user_request = {"path": user_url, "method": DELETE}
                                     user_requests.append(user_request)
-                                if priv and priv_key or priv:
-                                    priv_url = "{0}/priv/{1}".format(user_url, priv)
-                                    user_request = {"path": priv_url, "method": DELETE}
-                                    user_requests.append(user_request)
-                                if encrypted:
-                                    encrypted_url = user_url + "/ietf-snmp-ext:encrypted"
-                                    user_request = {"path": encrypted_url, "method": DELETE}
-                                    user_requests.append(user_request)
+                                else:
+                                    if want.get('auth') and 'auth_type' in want.get('auth'):
+                                        auth = want.get('auth').get('auth_type')
+                                    if want.get('priv') and 'priv_type' in want.get('priv'):
+                                        priv = want.get('priv').get('priv_type')
+                                    if want.get('auth') and 'key' in want.get('auth'):
+                                        auth_key = want.get('auth').get('key')
+                                    if want.get('priv') and 'key' in want.get('priv'):
+                                        priv_key = want.get('priv').get('key')
+                                    encrypted = want.get('encrypted')
+                                    if auth and auth_key or auth:
+                                        if auth == 'sha2-256':
+                                            auth = 'ietf-snmp-ext:sha2-256'
+                                        elif auth == 'sha2-384':
+                                            auth = 'ietf-snmp-ext:sha2-384'
+                                        elif auth == 'sha2-512':
+                                            auth = 'ietf-snmp-ext:sha2-512'
+                                        auth_url = "{0}/auth/{1}".format(user_url, auth)
+                                        user_request = {"path": auth_url, "method": DELETE}
+                                        user_requests.append(user_request)
+                                    if priv and priv_key or priv:
+                                        priv_url = "{0}/priv/{1}".format(user_url, priv)
+                                        user_request = {"path": priv_url, "method": DELETE}
+                                        user_requests.append(user_request)
+                                    if encrypted:
+                                        encrypted_url = user_url + "/ietf-snmp-ext:encrypted"
+                                        user_request = {"path": encrypted_url, "method": DELETE}
+                                        user_requests.append(user_request)
 
-                            group_name = want.get('group')
-                            if group_name and have_group:
-                                group_url = "data/ietf-snmp:snmp/vacm/group={0}/member={1}".format(group_name, user_name)
-                                group_request = {"path": group_url, "method": DELETE}
-                                user_requests.append(group_request)
+                                group_name = want.get('group')
+                                if group_name and have_group:
+                                    group_url = "data/ietf-snmp:snmp/vacm/group={0}/member={1}".format(group_name, user_name)
+                                    group_request = {"path": group_url, "method": DELETE}
+                                    user_requests.append(group_request)
 
                 if user_requests:
                     user_requests_list.extend(user_requests)
@@ -1486,9 +1490,11 @@ class Snmp(ConfigBase):
         """
         for option in have_list:
             for config in config_list:
-                if option == config:
-                    return True
-        return False
+                if isinstance(option, dict) and isinstance(config, dict) and not self.same_options(option, config):
+                    return False
+                if isinstance(option, str) and isinstance(config, str) and option != config:
+                    return False
+        return True
 
     def get_matched_access(self, access_list, want_access):
         """ Finds and returns the access list that matches the wanted access list

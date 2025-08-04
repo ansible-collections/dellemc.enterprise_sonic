@@ -94,7 +94,14 @@ tests:
     state: deleted
     input:
       user:
-        - name: 'user3'
+        - name: 'user7'
+          auth:
+            auth_type: 'sha2-512'
+            key: 'U2FsdGVkX1/vqhOHul6YKTTxMfJb1785U8Hh5yDEETDfKsPEqai2uH8v6KX0nt1WRzLgSFLb1WhGzmy7NzsvTQ=='
+          priv:
+            priv_type: 'des'
+            key: 'U2FsdGVkX19LUhXu+GHOeKOR3jDvIYhob/EgD6q7If+eCumbDCurRQUFsQHjDBQPYoq5llVBXCat+vwwx7y6PQ=='
+          encrypted: True
 
   - name: test_case_05_delete_some_options
     description: Delete SNMP engine, location, contact and enable_trap configuration
@@ -263,8 +270,6 @@ tests:
           timeout: 500
           tag: 'inform'
           retries: 50
-          port: 162
-          vrf: '{{ vrf1 }}'
 
   - name: test_case_16_overridden_host
     description: Override host and group
@@ -298,7 +303,7 @@ tests:
       group:
         - name: 'group-lab'
 
-  - name: test_case_19_merge_community_and_view
+  - name: test_case_19_merge_community_enable_trap_and_view
     description: Merge some of the SNMP configuration
     state: merged
     input:
@@ -311,8 +316,23 @@ tests:
         - name: 'view2'
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
+      enable_trap:
+        - 'auth-fail'
+        - 'bgp'
+        - 'config-change'
+        - 'link-down'
+        - 'link-up'
+        - 'ospf'
 
-  - name: test_case_20_delete_view
+  - name: test_case_20_delete_some_enable_trap
+    description: Delete SNMP enable_trap
+    state: deleted
+    input:
+      enable_trap:
+        - 'auth-fail'
+        - 'bgp'
+
+  - name: test_case_21_delete_view
     description: Delete SNMP view
     state: deleted
     input:
@@ -321,7 +341,7 @@ tests:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
 
-  - name: test_case_21_deleted_all
+  - name: test_case_22_deleted_all
     description: Delete all SNMP server configuration
     state: deleted
     input: {}
