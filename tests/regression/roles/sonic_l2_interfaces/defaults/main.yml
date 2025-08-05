@@ -1,69 +1,68 @@
 ---
 ansible_connection: httpapi
-module_name: l2_interfaces
 
 preparations_tests:
-    add_vlans_input:
-        - vlan_id: 500
-        - vlan_id: 501
-        - vlan_id: 502
-        - vlan_id: 503
-        - vlan_id: 504
-        - vlan_id: 505
-        - vlan_id: 400
-        - vlan_id: 401
-        - vlan_id: 402
-        - vlan_id: 605
-        - vlan_id: 606
-        - vlan_id: 607
-        - vlan_id: 609
-        - vlan_id: 610
-        - vlan_id: 611
-        - vlan_id: 612
-        - vlan_id: 613
-        - vlan_id: 615
-        - vlan_id: 616
-        - vlan_id: 617
-        - vlan_id: 619
-        - vlan_id: 620
-        - vlan_id: 621
-        - vlan_id: 622
-        - vlan_id: 624
-        - vlan_id: 625
-        - vlan_id: 626
-        - vlan_id: 627
-        - vlan_id: 628
-        - vlan_id: 629
-        - vlan_id: 634
-        - vlan_id: 635
-        - vlan_id: 636
-        - vlan_id: 637
-        - vlan_id: 639
-        - vlan_id: 640
-        - vlan_id: 642
-        - vlan_id: 643
-        - vlan_id: 644
-        - vlan_id: 646
-        - vlan_id: 647
-        - vlan_id: 649
-        - vlan_id: 650
-        - vlan_id: 651
-        - vlan_id: 653
-        - vlan_id: 654
-        - vlan_id: 655
-        - vlan_id: 656
-        - vlan_id: 658
-        - vlan_id: 659
-        - vlan_id: 660
-    delete_port_configurations:
-          - name: "{{ interface1 }}"
-          - name: "{{ interface2 }}"
-          - name: "{{ interface3 }}"
-    add_lag_interfaces:
-      - name: PortChannel100
-      - name: PortChannel101
+  add_vlans_input:
+    - vlan_id: 500
+    - vlan_id: 501
+    - vlan_id: 502
+    - vlan_id: 503
+    - vlan_id: 504
+    - vlan_id: 505
+    - vlan_id: 400
+    - vlan_id: 401
+    - vlan_id: 402
+    - vlan_id: 605
+    - vlan_id: 606
+    - vlan_id: 607
+    - vlan_id: 609
+    - vlan_id: 610
+    - vlan_id: 611
+    - vlan_id: 612
+    - vlan_id: 613
+    - vlan_id: 615
+    - vlan_id: 616
+    - vlan_id: 617
+    - vlan_id: 619
+    - vlan_id: 620
+    - vlan_id: 621
+    - vlan_id: 622
+    - vlan_id: 624
+    - vlan_id: 625
+    - vlan_id: 626
+    - vlan_id: 627
+    - vlan_id: 628
+    - vlan_id: 629
+    - vlan_id: 634
+    - vlan_id: 635
+    - vlan_id: 636
+    - vlan_id: 637
+    - vlan_id: 639
+    - vlan_id: 640
+    - vlan_id: 642
+    - vlan_id: 643
+    - vlan_id: 644
+    - vlan_id: 646
+    - vlan_id: 647
+    - vlan_id: 649
+    - vlan_id: 650
+    - vlan_id: 651
+    - vlan_id: 653
+    - vlan_id: 654
+    - vlan_id: 655
+    - vlan_id: 656
+    - vlan_id: 658
+    - vlan_id: 659
+    - vlan_id: 660
+  delete_port_configurations:
+    - name: "{{ interface1 }}"
+    - name: "{{ interface2 }}"
+    - name: "{{ interface3 }}"
+  add_lag_interfaces:
+    - name: PortChannel100
+    - name: PortChannel101
 
-tests:
+sonic_l2_interfaces_tests:
   # merge test cases started
   - name: test_case_01
     description: Add access and trunk VLANs
@@ -104,7 +103,7 @@ tests:
         access:
           vlan: 402
   - name: test_case_03
-    description: Add trunk vlan range base config
+    description: Add trunk VLAN range base config
     state: merged
     input:
       - name: "{{ interface5 }}"
@@ -125,7 +124,7 @@ tests:
         access:
           vlan: 611
   - name: test_case_04
-    description: Add trunk vlan range overlay lower half
+    description: Add trunk VLAN range overlay lower half
     state: merged
     input:
       - name: "{{ interface5 }}"
@@ -141,7 +140,7 @@ tests:
         access:
           vlan: 611
   - name: test_case_05
-    description: Add trunk vlan range overlay all
+    description: Add trunk VLAN range overlay all
     state: merged
     input:
       - name: "{{ interface5 }}"
@@ -163,14 +162,14 @@ tests:
           vlan: 611
   # delete test cases started
   - name: test_case_06
-    description: Delete Access VLAN
+    description: Delete access VLANs from specified interface
     state: deleted
     input:
       - name: "{{ interface1 }}"
         access:
           vlan:
   - name: test_case_07
-    description: Delete specific trunk VLANs
+    description: Delete specified trunk VLAN
     state: deleted
     input:
       - name: "{{ interface3 }}"
@@ -178,7 +177,7 @@ tests:
           allowed_vlans:
             - vlan: 502
   - name: test_case_08
-    description: Delete access VLANs from both associations
+    description: Delete access VLANs from specified interface
     state: deleted
     input:
       - name: "{{ interface3 }}"
@@ -192,12 +191,12 @@ tests:
         trunk:
           allowed_vlans:
   - name: test_case_10
-    description: Delete all associations in specific interface
+    description: Delete L2 configuration for specified interface
     state: deleted
     input:
       - name: "{{ interface2 }}"
   - name: test_case_11
-    description: Delete trunk vlan range overlay base
+    description: Delete trunk VLAN range overlay base
     state: deleted
     input:
       - name: "{{ interface5 }}"
@@ -218,7 +217,7 @@ tests:
         access:
           vlan: 611
   - name: test_case_12
-    description: Delete trunk vlan range overlay lower half
+    description: Delete trunk VLAN range overlay lower half
     state: deleted
     input:
       - name: "{{ interface5 }}"
@@ -234,7 +233,7 @@ tests:
         access:
           vlan: 611
   - name: test_case_13
-    description: Delete trunk vlan range overlay all
+    description: Delete trunk VLAN range overlay all
     state: deleted
     input:
       - name: "{{ interface5 }}"
@@ -318,6 +317,6 @@ tests:
             - vlan: 600
             - vlan: 605
   - name: test_case_17
-    description: Delete All associations in all interfaces
+    description: Delete all L2 interfaces configuration
     state: deleted
     input: []

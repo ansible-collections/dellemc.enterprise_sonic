@@ -3,6 +3,6 @@
   sonic_lag_interfaces:
     config:
       - name: Portchannel100
-      - name: Portchannel200
+      - name: Portchannel101
     state: deleted
   failed_when: false
