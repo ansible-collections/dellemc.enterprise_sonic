@@ -52,6 +52,6 @@ tests:
       startup_delay: 500
 
   - name: test_case_07
-    description: Delete EVPN esi multihome configuration
+    description: Delete all EVPN esi multihome configuration
     state: deleted
     input: {}
