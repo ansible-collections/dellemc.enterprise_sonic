@@ -435,16 +435,7 @@ replaced_03:
       data:
         target-params:
           - name: 'TargetEntry3'
-    - path: 'data/ietf-snmp:snmp/target=TargetEntry1/retries'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/target=TargetEntry1/tag=inform'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/target=TargetEntry1/timeout'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/target=TargetEntry1/udp/port'
+    - path: 'data/ietf-snmp:snmp/target=TargetEntry1'
       method: 'delete'
       data:
     - path: 'data/ietf-snmp:snmp/target=TargetEntry2'

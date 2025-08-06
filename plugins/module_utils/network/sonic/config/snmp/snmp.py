@@ -146,7 +146,7 @@ class Snmp(ConfigBase):
         """
         if 'agentaddress' not in want:
             return want
-        want_agentaddress = []
+
         for conf in want.get('agentaddress'):
             if 'port' not in conf:
                 conf['port'] = 161
@@ -188,8 +188,6 @@ class Snmp(ConfigBase):
                             want_conf['name'] = have_conf.get('name')
                             break
 
-                    want_agentaddress.append(want_conf)
-            want['agentaddress'] = want_agentaddress
         return want
 
     def merged_config(self, have_conf, want_conf):
@@ -323,17 +321,16 @@ class Snmp(ConfigBase):
                 for command in del_commands.get('host'):
                     # If no differences were found other than 'name' (which is auto-generated for the config),
                     # don't delete this entry.
-                    matched_host = None
-                    matched_values = 1
-                    for key, value in command.items():
-                        matched_host = next((cnf for cnf in want.get('host') if key in cnf and cnf.get(key) == value), None)
-                        if key == 'name' and len(command) == 1:
+                    new_command = {}
+                    if (len(command) == 1 and 'name' in command
+                        or len(command) == 2 and 'name' in command and 'ip' in command
+                        or len(command) == 3 and 'ip' in command and 'port' in command and 'name' in command):
                             break
-                        if matched_host:
-                            matched_values += 1
+                    else:
+                        new_command = command
 
-                    if (len(command) == 1 and command.get('name')) or matched_values < len(command):
-                        delete_these_hosts.append(command)
+                    if (new_command):
+                        delete_these_hosts.append(new_command)
 
                 if len(delete_these_hosts) == 0:
                     del_commands.pop('host')
@@ -1131,17 +1128,14 @@ class Snmp(ConfigBase):
                         matched_community = next((each_snmp for each_snmp in have_community if each_snmp['name'] == want['name']), None)
                         if matched_community:
                             community_name = matched_community.get('name')
-                            group_name = want.get('group')
+                            group_name = matched_community.get('group')
                             community_url = "data/ietf-snmp:snmp/community={0}".format(community_name)
-                            if group_name:
+                            if group_name and community_name:
                                 community_sn_url = community_url + "/security-name"
                                 security_name_request = {"path": community_sn_url, "method": DELETE}
                                 community_requests.append(security_name_request)
                                 community_request = {"path": community_url, "method": DELETE}
                                 community_requests.append(community_request)
-                                group_community_url = "data/ietf-snmp:snmp/vacm/group={0}/member={1}".format(group_name, community_name)
-                                group_request = {"path": group_community_url, "method": DELETE}
-                                community_requests.append(group_request)
                             else:
                                 # Delete this community if only the 'name' is specified
                                 community_request = {"path": community_url, "method": DELETE}
@@ -1266,92 +1260,90 @@ class Snmp(ConfigBase):
                 else:
                     for want in configs['host']:
                         matched_host = self.get_host(want=want, have=have)
-                        if matched_host != '{}':
+                        if matched_host:
                             host_target_url = "data/ietf-snmp:snmp/target={0}".format(matched_host['name'])
-                            if len(want) == len(matched_host):
-                                host_request = {"path": host_target_url, "method": DELETE}
-                                host_requests.append(host_request)
-                            else:
-                                ip = want.get('ip')
-                                port = want.get('port')
-                                ietf_snmp_ext_vrf_name = want.get('vrf')
-                                tag = want.get('tag')
-                                timeout = want.get('timeout')
-                                retries = want.get('retries')
-                                source_interface = want.get('source_interface')
-                                if not ((ip and port and ietf_snmp_ext_vrf_name and tag and timeout and retries and source_interface)
-                                        or (ip and ietf_snmp_ext_vrf_name and len(want) == 2)):
-                                    if timeout:
-                                        host_tg_url = host_target_url + '/timeout'
-                                        host_request = {"path": host_tg_url, "method": DELETE}
-                                        host_requests.append(host_request)
-                                    if retries:
-                                        host_tg_url = host_target_url + '/retries'
-                                        host_request = {"path": host_tg_url, "method": DELETE}
-                                        host_requests.append(host_request)
-                                    if source_interface:
-                                        host_tg_url = host_target_url + '/ietf-snmp-ext:source-interface'
-                                        host_request = {"path": host_tg_url, "method": DELETE}
-                                        host_requests.append(host_request)
-                                    if tag:
-                                        host_tag_url = host_target_url + '/tag'
-                                        host_tag_url += "={0}".format(tag)
-                                        host_request = {"path": host_tag_url, "method": DELETE}
-                                        host_requests.append(host_request)
-                                    if port:
-                                        host_udp_url = host_target_url + '/udp/port'
-                                        host_request = {"path": host_udp_url, "method": DELETE}
-                                        host_requests.append(host_request)
-
-                                else:
-                                    host_request = {"path": host_target_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                    host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
-                                    host_request = {"path": host_target_params_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                    continue
-
-                                security_name = want.get('community')
-                                user_name = None
-                                security_level = None
-                                if 'user' in want:
-                                    user_name = want.get('user').get('name')
-                                    security_level = want.get('user').get('security_level')
-                                name = want.get('name')
-                                host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
-
-                                if security_name:
-                                    host_tp_url = host_target_params_url + '/v2c/security-name'
-                                    host_request = {"path": host_tp_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                elif user_name and security_level:
-                                    host_tp_url = host_target_params_url + '/usm'
-                                    host_request = {"path": host_tp_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                elif user_name:
-                                    host_tp_url = host_target_params_url + '/usm/user-name'
-                                    host_request = {"path": host_tp_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                elif security_level:
-                                    host_tp_url = host_target_params_url + '/usm/security-level'
-                                    host_request = {"path": host_tp_url, "method": DELETE}
-                                    host_requests.append(host_request)
-
-                        if configs['host'] == []:
-                            host_target_url = "data/ietf-snmp:snmp/target"
                             host_request = {"path": host_target_url, "method": DELETE}
                             host_requests.append(host_request)
-                            host_target_params_url = "data/ietf-snmp:snmp/target-params"
-                            host_request = {"path": host_target_params_url, "method": DELETE}
-                            host_requests.append(host_request)
+                        else:
+                            ip = want.get('ip')
+                            port = want.get('port')
+                            ietf_snmp_ext_vrf_name = want.get('vrf')
+                            tag = want.get('tag')
+                            timeout = want.get('timeout')
+                            retries = want.get('retries')
+                            source_interface = want.get('source_interface')
+                            if not ((ip and port and ietf_snmp_ext_vrf_name and tag and timeout and retries and source_interface)
+                                    or (ip and ietf_snmp_ext_vrf_name and len(want) == 2)):
+                                if timeout:
+                                    host_tg_url = host_target_url + '/timeout'
+                                    host_request = {"path": host_tg_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                if retries:
+                                    host_tg_url = host_target_url + '/retries'
+                                    host_request = {"path": host_tg_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                if source_interface:
+                                    host_tg_url = host_target_url + '/ietf-snmp-ext:source-interface'
+                                    host_request = {"path": host_tg_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                if tag:
+                                    host_tag_url = host_target_url + '/tag'
+                                    host_tag_url += "={0}".format(tag)
+                                    host_request = {"path": host_tag_url, "method": DELETE}
+                                    host_requests.append(host_request)
+                                if port:
+                                    host_udp_url = host_target_url + '/udp/port'
+                                    host_request = {"path": host_udp_url, "method": DELETE}
+                                    host_requests.append(host_request)
+
+                            else:
+                                host_request = {"path": host_target_url, "method": DELETE}
+                                host_requests.append(host_request)
+                                host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
+                                host_request = {"path": host_target_params_url, "method": DELETE}
+                                host_requests.append(host_request)
+                                continue
+
+                            security_name = want.get('community')
+                            user_name = None
+                            security_level = None
+                            if 'user' in want:
+                                user_name = want.get('user').get('name')
+                                security_level = want.get('user').get('security_level')
+                            name = want.get('name')
+                            host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
+
+                            if security_name:
+                                host_tp_url = host_target_params_url + '/v2c/security-name'
+                                host_request = {"path": host_tp_url, "method": DELETE}
+                                host_requests.append(host_request)
+                            elif user_name and security_level:
+                                host_tp_url = host_target_params_url + '/usm'
+                                host_request = {"path": host_tp_url, "method": DELETE}
+                                host_requests.append(host_request)
+                            elif user_name:
+                                host_tp_url = host_target_params_url + '/usm/user-name'
+                                host_request = {"path": host_tp_url, "method": DELETE}
+                                host_requests.append(host_request)
+                            elif security_level:
+                                host_tp_url = host_target_params_url + '/usm/security-level'
+                                host_request = {"path": host_tp_url, "method": DELETE}
+                                host_requests.append(host_request)
+
+                    if configs['host'] == []:
+                        host_target_url = "data/ietf-snmp:snmp/target"
+                        host_request = {"path": host_target_url, "method": DELETE}
+                        host_requests.append(host_request)
+                        host_target_params_url = "data/ietf-snmp:snmp/target-params"
+                        host_request = {"path": host_target_params_url, "method": DELETE}
+                        host_requests.append(host_request)
                 if host_requests:
                     host_requests_list.extend(host_requests)
 
         if delete_all or location:
-            if delete_all or have_location is not None and self.check_dicts_matched(have_location, configs['location']):
-                location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
-                location_request = {"path": location_url, "method": DELETE}
-                location_requests_list.append(location_request)
+            location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
+            location_request = {"path": location_url, "method": DELETE}
+            location_requests_list.append(location_request)
 
         if delete_all or user:
             if have_user is not None:
