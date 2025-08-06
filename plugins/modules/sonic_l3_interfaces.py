@@ -351,6 +351,8 @@ EXAMPLES = """
             - address: 83.1.1.1/16
             - address: 84.1.1.1/16
               secondary: true
+          proxy_arp:
+            - mode: REMOTE_ONLY
         ipv6:
           enabled: true
           dad: ENABLE
@@ -370,6 +372,10 @@ EXAMPLES = """
             - address: 91::1/16
             - address: 92::1/16
             - address: 93::1/16
+          nd_proxy:
+            - mode: REMOTE_ONLY
+            - rule:
+                prefix: 6001::/24
       - name: Vlan501
         ipv4:
           anycast_addresses:
@@ -390,6 +396,7 @@ EXAMPLES = """
 #  shutdown
 #  ip address 83.1.1.1/16
 #  ip address 84.1.1.1/16 secondary
+#  ip proxy-arp enable remote-only
 #  ipv6 address 83::1/16
 #  ipv6 address 84::1/16
 #  ipv6 address 85::/64 eui-64
@@ -406,6 +413,8 @@ EXAMPLES = """
 #  ipv6 address 91::1/16
 #  ipv6 address 92::1/16
 #  ipv6 address 93::1/16
+#  ipv6 nd-proxy enable remote-only
+#  ipv6 nd-proxy rule prefix 6001::/24
 # !
 # interface Vlan501
 #  ip anycast-address 1.2.3.4/22
@@ -448,6 +457,8 @@ EXAMPLES = """
       - name: Ethernet20
         ipv4:
           - address: 81.1.1.1/16
+        proxy_arp:
+          - mode: ALL
     state: replaced
 
 # After state:
@@ -460,6 +471,7 @@ EXAMPLES = """
 #  speed 100000
 #  shutdown
 #  ip address 81.1.1.1/16
+#  ip proxy-arp enable all
 # !
 # interface Ethernet24
 #  mtu 9100
@@ -485,9 +497,12 @@ EXAMPLES = """
 #  shutdown
 #  ip address 83.1.1.1/16
 #  ip address 84.1.1.1/16 secondary
+#  ip proxy-arp enable all
 #  ipv6 address 83::1/16
 #  ipv6 address 84::1/16
 #  ipv6 enable
+#  ipv6 nd-proxy enable remote-only
+#  ipv6 nd-proxy rule prefix 6001::/24
 # !
 # interface Ethernet24
 #  mtu 9100
@@ -546,6 +561,8 @@ EXAMPLES = """
 #  ipv6 enable
 #  ipv6 address autoconfig
 #  ipv6 nd dad enable
+#  ipv6 nd-proxy enable remote-only
+#  ipv6 nd-proxy rule prefix 6001::/24
 # !
 # interface Ethernet24
 #  mtu 9100
@@ -564,6 +581,8 @@ EXAMPLES = """
       - name: Ethernet24
         ipv4:
           - address: 81.1.1.1/16
+        proxy_arp:
+          - mode: ALL
       - name: Vlan100
         ipv4:
           anycast_addresses:
@@ -573,6 +592,10 @@ EXAMPLES = """
           anycast_addresses:
             - 83::1/24
             - 85::1/24
+          nd_proxy:
+            - mode: REMOTE_ONLY
+            - rule:
+                prefix: 6001::/24
     state: overridden
 
 # After state:
@@ -590,12 +613,16 @@ EXAMPLES = """
 #  speed 100000
 #  shutdown
 #  ip address 81.1.1.1/16
+#  ip proxy-arp enable all
 # !
 # interface Vlan100
 #  ip anycast-address 83.1.1.1/24
 #  ip anycast-address 85.1.1.12/24
 #  ipv6 anycast-address 83::1/24
 #  ipv6 anycast-address 85::1/24
+#  ipv6 nd-proxy enable remote-only
+#  ipv6 nd-proxy rule prefix 6001::/24
+
 # !
 """
 

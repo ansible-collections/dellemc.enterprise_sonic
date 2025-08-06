@@ -139,8 +139,7 @@ class L3_interfacesFacts(object):
 
             conf_proxy_arp = conf_ipv4.get('proxy-arp', {}).get('config')
             if conf_proxy_arp and 'mode' in conf_proxy_arp:
-                ipv4.setdefault('proxy_arp', {})
-                ipv4['proxy_arp']['mode'] = conf_proxy_arp['mode']
+                ipv4.setdefault('proxy_arp', {})['mode'] = conf_proxy_arp['mode']
 
             if ipv4:
                 only_defaults = False
