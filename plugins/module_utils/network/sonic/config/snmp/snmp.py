@@ -322,7 +322,7 @@ class Snmp(ConfigBase):
                     # If no differences were found other than 'name' (which is auto-generated for the config),
                     # don't delete this entry.
                     new_command = {}
-                    if (((len(command) == 1 and 'name' in command) or (len(command) == 2 and 'name' in command and 'ip' in command) 
+                    if (((len(command) == 1 and 'name' in command) or (len(command) == 2 and 'name' in command and 'ip' in command)
                          or (len(command) == 3 and 'ip' in command and 'port' in command and 'name' in command))):
                         break
                     else:
