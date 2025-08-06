@@ -182,6 +182,6 @@ deleted_02:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh'
       method: 'delete'
       data:
