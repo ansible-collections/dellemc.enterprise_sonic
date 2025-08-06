@@ -50,7 +50,7 @@ replaced_01:
       neigh_holdtime: 2000
     state: replaced
   existing_evpn_esi_multihome_config:
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
       response:
         code: 200
         value:
