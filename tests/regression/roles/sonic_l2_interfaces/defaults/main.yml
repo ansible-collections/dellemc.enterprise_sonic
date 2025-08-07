@@ -184,7 +184,7 @@ sonic_l2_interfaces_tests:
         access:
           vlan:
   - name: test_case_09
-    description: Delete all trunk VLANs
+    description: Delete all trunk VLANs for the specified interface
     state: deleted
     input:
       - name: "{{ interface3 }}"
