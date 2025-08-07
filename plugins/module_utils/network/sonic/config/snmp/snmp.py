@@ -560,8 +560,10 @@ class Snmp(ConfigBase):
                         if ((agent_entry.get('ip') == conf.get('ip')
                              and agent_entry.get('port') == conf.get('port') and agent_entry.get('interface_vrf') == conf.get('interface_vrf'))):
                             name = agent_entry.get('name')
+                            conf['name'] = name
             if len(name) == 0:
                 name = self.get_agententry(have_agentaddress_names)
+                conf['name'] = name
             vrf = conf.get('interface_vrf')
             if vrf:
                 interface = vrf
