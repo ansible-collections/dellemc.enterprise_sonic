@@ -1,0 +1,11 @@
+---
+- name: Delete LAG interfaces
+  sonic_lag_interfaces:
+    config: "{{ preparations_tests.add_lag_interfaces }}"
+    state: deleted
+  failed_when: false
+- name: Delete VLAN interfaces
+  sonic_vlans:
+    config: "{{ preparations_tests.add_vlans_input }}"
+    state: deleted
+  failed_when: false
