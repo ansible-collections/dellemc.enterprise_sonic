@@ -162,7 +162,7 @@ sonic_l2_interfaces_tests:
           vlan: 611
   # delete test cases started
   - name: test_case_06
-    description: Delete access VLANs from specified interface
+    description: Delete the access VLAN from the specified interface
     state: deleted
     input:
       - name: "{{ interface1 }}"
