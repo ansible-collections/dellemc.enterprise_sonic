@@ -134,7 +134,6 @@ tests:
       enable_trap:
         - 'all'
 
-
   - name: test_case_07_merged_group_community_view
     description: Merge group access, community, and view SNMP configuration
     state: merged
@@ -208,7 +207,16 @@ tests:
       enable_trap:
         - 'all'
 
-  - name: test_case_10_merge_multiple_user_one_group
+  - name: test_case_10_replace_agentaddress
+    description: Replace a SNMP agentaddress
+    state: replaced
+    input:
+      agentaddress:
+        - ip: '1.2.3.6'
+          port: 1050
+          interface_vrf: 'Eth1/30'
+
+  - name: test_case_11_merge_multiple_user_one_group
     description: Merge multiple SNMP users and groups
     state: merged
     input:
@@ -223,7 +231,7 @@ tests:
         - group: 'group-lab'
           name: 'comm4'
 
-  - name: test_case_11_delete_host
+  - name: test_case_12_delete_host
     description: Delete host by name
     state: deleted
     input:
@@ -233,14 +241,14 @@ tests:
             name: 'user3'
             security_level: 'auth'
 
-  - name: test_case_12_delete_community
+  - name: test_case_13_delete_community
     description: Delete SNMP community
     state: deleted
     input:
       community:
           - name: 'comm4'
 
-  - name: test_case_13_delete_users
+  - name: test_case_14_delete_users
     description: Delete two users
     state:  deleted
     input:
@@ -248,7 +256,7 @@ tests:
         - name: 'user8'
         - name: 'user9'
 
-  - name: test_case_14_replaced_group
+  - name: test_case_15_replaced_group
     description: Replace some of a SNMP group
     state: replaced
     input:
@@ -261,17 +269,17 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_15_replaced_host
+  - name: test_case_16_replaced_host
     description: Replace SNMP host
     state: replaced
     input:
       host:
-        - ip: '1.2.3.5'
+        - ip: '1.2.3.4'
           timeout: 500
           tag: 'inform'
           retries: 50
 
-  - name: test_case_16_overridden_host
+  - name: test_case_17_overridden_host
     description: Override host and group
     state: overridden
     input:
@@ -283,7 +291,7 @@ tests:
           port: 162
           vrf: '{{ vrf1 }}'
 
-  - name: test_case_17_merge_group
+  - name: test_case_18_merge_group
     description: Merge some of a SNMP group
     state: merged
     input:
@@ -296,14 +304,14 @@ tests:
               write_view: 'w_view'
               notify_view: 'n_view'
 
-  - name: test_case_18_delete_group
+  - name: test_case_19_delete_group
     description: Delete all SNMP server configuration for the "group" sub-option
     state: deleted
     input:
       group:
         - name: 'group-lab'
 
-  - name: test_case_19_merge_community_enable_trap_and_view
+  - name: test_case_20_merge_community_enable_trap_and_view
     description: Merge some of the SNMP configuration
     state: merged
     input:
@@ -324,7 +332,7 @@ tests:
         - 'link-up'
         - 'ospf'
 
-  - name: test_case_20_delete_some_enable_trap
+  - name: test_case_21_delete_some_enable_trap
     description: Delete SNMP enable_trap
     state: deleted
     input:
@@ -332,7 +340,7 @@ tests:
         - 'auth-fail'
         - 'bgp'
 
-  - name: test_case_21_delete_view
+  - name: test_case_22_delete_view
     description: Delete SNMP view
     state: deleted
     input:
@@ -341,7 +349,7 @@ tests:
           excluded:
             - '1.2.3.4.5.6.7.8.9.2'
 
-  - name: test_case_22_deleted_all
+  - name: test_case_23_deleted_all
     description: Delete all SNMP server configuration
     state: deleted
     input: {}
