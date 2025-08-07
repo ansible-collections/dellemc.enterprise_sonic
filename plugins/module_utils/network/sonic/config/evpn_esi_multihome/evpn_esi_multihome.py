@@ -243,9 +243,12 @@ class Evpn_esi_multihome(ConfigBase):
         request = {'path': EVPN_MH_PATH, 'method': PATCH, 'data': request_info}
         return request
 
-    def get_delete_evpn_esi_mh_request(self, attr=None):
+    def get_delete_evpn_esi_mh_request(self, attr=None, is_delete_all=False):
         url = EVPN_MH_PATH
-        if attr:
+        # For delete all, the configuration must be deleted at this url to truly remove the entry from DB
+        if is_delete_all:
+            url = url.replace('/config', '')
+        elif attr:
             url = '{0}/{1}'.format(url, attr)
         request = {'path': url, 'method': DELETE}
         return request
@@ -261,7 +264,7 @@ class Evpn_esi_multihome(ConfigBase):
             return requests
 
         if delete_all:
-            requests.append(self.get_delete_evpn_esi_mh_request())
+            requests.append(self.get_delete_evpn_esi_mh_request(None, delete_all))
             return requests
 
         if configs.get('df_election_time') is not None:
