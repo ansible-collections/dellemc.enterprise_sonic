@@ -191,7 +191,7 @@ sonic_l2_interfaces_tests:
         trunk:
           allowed_vlans:
   - name: test_case_10
-    description: Delete L2 configuration for specified interface
+    description: Delete L2 configuration for the specified interface
     state: deleted
     input:
       - name: "{{ interface2 }}"
