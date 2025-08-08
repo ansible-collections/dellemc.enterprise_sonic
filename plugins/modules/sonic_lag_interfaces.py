@@ -122,6 +122,48 @@ options:
           - The range is from 1 to 32.
         version_added: 3.1.0
         type: int
+      adv_speed:
+        description:
+          - Advertised speed of the LAG interface measured in megabytes.
+          - Supported speeds are dependent on the type of switch.
+        choices:
+          - 10
+          - 100
+          - 1000
+          - 2500
+          - 5000
+          - 10000
+          - 20000
+          - 25000
+          - 40000
+          - 50000
+          - 100000
+          - 200000
+          - 400000
+          - 800000
+        version_added: 4.0.0
+        type: int
+      speed:
+        description:
+          - LAG interface speed measured in megabytes.
+          - Supported speeds are dependent on the type of switch.
+        choices:
+          - 10
+          - 100
+          - 1000
+          - 2500
+          - 5000
+          - 10000
+          - 20000
+          - 25000
+          - 40000
+          - 50000
+          - 100000
+          - 200000
+          - 400000
+          - 800000
+        version_added: 4.0.0
+        type: int
       system_mac:
         description:
           - Specifies system MAC address for the portchannel.
