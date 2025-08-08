@@ -23,6 +23,7 @@ class Lag_interfacesArgs(object):  # pylint: disable=R0903
     argument_spec = {
         "config": {
             "elements": "dict",
+            "mutually_exclusive": [["adv_speed", "speed"]],
             "options": {
                 "fallback": {"type": "bool"},
                 "fast_rate": {"type": "bool"},
