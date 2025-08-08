@@ -170,21 +170,17 @@ class Vlans(ConfigBase):
         commands = []
         requests = []
         replaced_config = get_replaced_config(self.deal_with_default_entries(want, method="add"), have, TEST_KEYS)
-        replaced_config = get_replaced_config(want, have, TEST_KEYS)
         replaced_vlans = []
-            for config in replaced_config:
-                vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
-                if vlan_obj:
-                    replaced_vlans.append(vlan_obj)
+        for config in replaced_config:
+            vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
+            if vlan_obj:
+                replaced_vlans.append(vlan_obj)
 
-            if replaced_vlans:
-                del_requests = self.get_delete_vlans_requests(replaced_vlans, delete_vlan=True)
-                requests.extend(del_requests)
-                commands.extend(update_states(replaced_config, "deleted"))
+        if replaced_vlans:
+            del_requests = self.get_delete_vlans_requests(replaced_vlans, delete_vlan=True)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, "deleted"))
 
-        diff = get_diff(want, have, TEST_KEYS)
         diff = self.deal_with_default_entries(diff, method="remove")
         if diff:
             rep_requests = self.get_create_vlans_requests(diff)
