@@ -160,6 +160,7 @@ replaced_01:
     config:
       - vlan_id: 10
         description: "Desc2"
+        autostate: true
       - vlan_id: 30
         autostate: false
   existing_vlans_config:
