@@ -31,7 +31,7 @@ merged_01:
         fallback: true
         fast_rate: true
       - name: PortChannel90
-        speed: SPEED_40GB
+        speed: 40000
         members:
           interfaces:
             - member: Eth1/49

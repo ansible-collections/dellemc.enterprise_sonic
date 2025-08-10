@@ -42,7 +42,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
-
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
+    intf_speed_map
+)
 
 PATCH = 'patch'
 DELETE = 'delete'
@@ -382,10 +384,10 @@ class Lag_interfaces(ConfigBase):
                 if cmd['lacp_individual'].get('timeout') is not None:
                     config_dict['lacp-individual-timeout'] = cmd['lacp_individual']['timeout']
             if cmd.get('speed') is not None:
-                config_dict['openconfig-interfaces-ext:speed'] = cmd['speed']
+                config_dict['openconfig-interfaces-ext:speed'] = intf_speed_map[cmd['speed']]
 
             if cmd.get('adv_speed') is not None:
-                config_dict['openconfig-interfaces-ext:adv-speed'] = cmd['adv_speed']
+                config_dict['openconfig-interfaces-ext:adv-speed'] = str(cmd['adv_speed'])
 
             if config_dict:
                 url = self.lag_interface_config_root_path.format(name=cmd['name'])

@@ -31,22 +31,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
-intf_po_speed_map = {
-    "10": "SPEED_10MB",
-    "100": "SPEED_100MB",
-    "1000": "SPEED_1GB",
-    "2500": "SPEED_2500MB",
-    "5000": "SPEED_5GB",
-    "10000": "SPEED_10GB",
-    "20000": "SPEED_20GB",
-    "25000": "SPEED_25GB",
-    "40000": "SPEED_40GB",
-    "50000": "SPEED_50GB",
-    "100000": "SPEED_100GB",
-    "200000": "SPEED_200GB",
-    "400000": "SPEED_400GB",
-    "800000": "SPEED_800GB"
-}
 
 GET = 'get'
 PATCH = 'patch'

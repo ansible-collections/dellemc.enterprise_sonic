@@ -25,10 +25,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
-    intf_po_speed_map
-)
-
 GET = "get"
 ESI_TYPE_PAYLOAD_TO_VALUE = {
     'TYPE_0_OPERATOR_CONFIGURED': 'ethernet_segment_id',
@@ -120,12 +116,9 @@ class Lag_interfacesFacts(object):
                         po_data[po['name']][option] = po[option]
                 if po.get('speed'):
                     speed_value = po['speed']
-                    if speed_value == "SPEED_UNKNOWN":
-                        continue
-                    elif speed_value in intf_po_speed_map:
-                        po_data[po['name']]['speed'] = intf_po_speed_map[speed_value]
+                    po_data[po['name']]['speed'] = int(po['speed'])
                 if po.get('adv_speeds'):
-                    po_data[po['name']]['adv_speed'] = po['adv_speeds']
+                    po_data[po['name']]['adv_speed'] = int(po['adv_speeds'])
 
         if 'PORTCHANNEL_MEMBER' in conf and conf['PORTCHANNEL_MEMBER'].get('PORTCHANNEL_MEMBER_LIST'):
             for po_member in conf['PORTCHANNEL_MEMBER']['PORTCHANNEL_MEMBER_LIST']:

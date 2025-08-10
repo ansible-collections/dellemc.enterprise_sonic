@@ -124,47 +124,46 @@ options:
         type: int
       speed:
         description:
-          - Lag Interface speed.
-          - Applicable only for Lag interfaces.
+          - LAG Interface speed measured in megabytes.
           - Supported speeds are dependent on the type of switch.
-        type: str
         choices:
-          - SPEED_10MB
-          - SPEED_100MB
-          - SPEED_1GB
-          - SPEED_2500MB
-          - SPEED_5GB
-          - SPEED_10GB
-          - SPEED_20GB
-          - SPEED_25GB
-          - SPEED_40GB
-          - SPEED_50GB
-          - SPEED_100GB
-          - SPEED_200GB
-          - SPEED_400GB
-          - SPEED_800GB
-        version_added: 3.2.0
+          - 10
+          - 100
+          - 1000
+          - 2500
+          - 5000
+          - 10000
+          - 20000
+          - 25000
+          - 40000
+          - 50000
+          - 100000
+          - 200000
+          - 400000
+          - 800000
+        version_added: 4.0.0
+        type: int
       adv_speed:
         description:
-          - Advertised speeds of the lag interface.
+          - Advertised speeds of the LAG interface measured in megabytes.
           - Supported speeds are dependent on the type of switch.
-        type: str
         choices:
-          - '10'
-          - '100'
-          - '1000'
-          - '2500'
-          - '5000'
-          - '10000'
-          - '20000'
-          - '25000'
-          - '40000'
-          - '50000'
-          - '100000'
-          - '200000'
-          - '400000'
-          - '800000'
-        version_added: 3.2.0
+          - 10
+          - 100
+          - 1000
+          - 2500
+          - 5000
+          - 10000
+          - 20000
+          - 25000
+          - 40000
+          - 50000
+          - 100000
+          - 200000
+          - 400000
+          - 800000
+        version_added: 4.0.0
+        type: int
       system_mac:
         description:
           - Specifies system MAC address for the portchannel.

@@ -23,7 +23,7 @@ sonic_lag_interfaces_preparation_task_input:
     - "default interface {{ interface6 }}"
     - "default interface {{ interface7 }}"
     - "default interface {{ interface8 }}"
-    - "default interface {{ interface13 }}"
+    - "default interface {{ interface9 }}"
 
 sonic_lag_interfaces_tests:
   - name: test_case_01
@@ -64,10 +64,10 @@ sonic_lag_interfaces_tests:
           interfaces:
             - member: "{{ interface7 }}"
       - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
-        speed: SPEED_40GB
+        speed: 40000
         members:
           interfaces:
-            - member: "{{ interface13 }}"
+            - member: "{{ interface9 }}"
   - name: test_case_03
     description: Update portchannel parameters
     state: merged
@@ -108,10 +108,10 @@ sonic_lag_interfaces_tests:
         fallback: true
         fast_rate: true
       - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
-        speed: SPEED_100GB
+        speed: 100000
         members:
           interfaces:
-            - member: "{{ interface13 }}"
+            - member: "{{ interface9 }}"
   - name: test_case_04
     description: Delete portchannel and specific portchannel parameters
     state: deleted
@@ -140,7 +140,7 @@ sonic_lag_interfaces_tests:
         fallback: true
         fast_rate: true
       - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
-        speed: SPEED_100GB
+        speed: 100000
   - name: test_case_05
     description: Update portchannel parameters
     state: merged
@@ -169,7 +169,7 @@ sonic_lag_interfaces_tests:
         adv_speed: 40000
         members:
           interfaces:
-            - member: "{{ interface13 }}"
+            - member: "{{ interface9 }}"
   - name: test_case_06
     description: Replace portchannel configuration
     state: replaced
@@ -196,7 +196,7 @@ sonic_lag_interfaces_tests:
         adv_speed: 100000
         members:
           interfaces:
-            - member: "{{ interface13 }}"
+            - member: "{{ interface9 }}"
   - name: test_case_07
     description: Override portchannel configuration
     state: overridden
@@ -220,7 +220,7 @@ sonic_lag_interfaces_tests:
       - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
         members:
           interfaces:
-            - member: "{{ interface13 }}"
+            - member: "{{ interface9 }}"
   - name: test_case_08
     description: Override portchannel configuration
     state: overridden
