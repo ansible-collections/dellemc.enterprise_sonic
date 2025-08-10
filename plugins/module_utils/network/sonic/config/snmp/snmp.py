@@ -796,8 +796,8 @@ class Snmp(ConfigBase):
                         enable_trap_dict['ospf-traps'] = True
 
             payload['ietf-snmp-ext:notifications'] = enable_trap_dict
-            trap_enable_request = {'path': enable_trap_url, 'method': method, 'data': payload}
-            requests.append(trap_enable_request)
+        trap_enable_request = {'path': enable_trap_url, 'method': method, 'data': payload}
+        requests.append(trap_enable_request)
         return requests
 
     def build_create_group_payload(self, config):
@@ -1341,7 +1341,7 @@ class Snmp(ConfigBase):
                 if host_requests:
                     host_requests_list.extend(host_requests)
 
-        if delete_all or location:
+        if have_location and (delete_all or location):
             location_url = "data/ietf-snmp:snmp/ietf-snmp-ext:system/location"
             location_request = {"path": location_url, "method": DELETE}
             location_requests_list.append(location_request)

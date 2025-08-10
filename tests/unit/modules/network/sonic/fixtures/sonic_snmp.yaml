@@ -78,6 +78,10 @@ merged_03:
       enable_trap:
         - "bgp"
         - "ospf"
+        - "auth-fail"
+        - "config-change"
+        - "link-down"
+        - "link-up"
       contact: 'Dell Support'
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
@@ -98,12 +102,10 @@ merged_03:
         ietf-snmp-ext:notifications:
           bgp-traps: True
           ospf-traps: True
-    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/notifications'
-      method: 'patch'
-      data:
-        ietf-snmp-ext:notifications:
-          bgp-traps: True
-          ospf-traps: True
+          authentication-failure-trap: True
+          config-change-trap: True
+          link-down-trap: True
+          link-up-trap: True
 
 merged_04:
   module_args:
@@ -180,6 +182,15 @@ merged_05:
   module_args:
     config:
       engine: '23:45:67:89:ab'
+      user:
+        - name: 'user1'
+          auth:
+            auth_type: 'sha'
+            key: 'U2FsdGVkX1+32ZWR59pAz9fBpX2cBt/Taphdov2f+jEzwPDQpWlBdzIS7j6GSKHSnryXROEkk6Z1pDvzpvae0g=='
+          priv:
+            priv_type: 'aes'
+            key: 'U2FsdGVkX1/W3glwEVU3mQu/R5PPTnudp7hnhvrS1UyGFCmCcnDW3YEJZvw1xyFE1AN2L/r7TAwCUhvAP3XLcw=='
+          encrypted: True
   existing_snmp_config:
     - path: "data/ietf-snmp:snmp"
       response:
@@ -190,6 +201,23 @@ merged_05:
       data:
         ietf-snmp:engine:
           engine-id: '23:45:67:89:ab'
+    - path: 'data/ietf-snmp:snmp/usm/local/user'
+      method: 'patch'
+      data:
+        user:
+          - name: 'user1'
+            encrypted: True
+            priv:
+              aes:
+                key: 'U2FsdGVkX1/W3glwEVU3mQu/R5PPTnudp7hnhvrS1UyGFCmCcnDW3YEJZvw1xyFE1AN2L/r7TAwCUhvAP3XLcw=='
+            auth:
+              sha:
+                key: 'U2FsdGVkX1+32ZWR59pAz9fBpX2cBt/Taphdov2f+jEzwPDQpWlBdzIS7j6GSKHSnryXROEkk6Z1pDvzpvae0g=='
+    - path: 'data/ietf-snmp:snmp/vacm'
+      method: 'patch'
+      data:
+        ietf-snmp:vacm:
+          group: []
 
 deleted_01:
   module_args:
@@ -250,7 +278,7 @@ deleted_02:
     - path: 'data/ietf-snmp:snmp/vacm/view'
       method: 'delete'
       data:
-
+#
 deleted_03:
   module_args:
     config: {}
@@ -275,9 +303,6 @@ deleted_03:
                     port: 1024
   expected_config_requests:
     - path: 'data/ietf-snmp:snmp/engine/listen'
-      method: 'delete'
-      data:
-    - path: 'data/ietf-snmp:snmp/ietf-snmp-ext:system/location'
       method: 'delete'
       data:
     - path: 'data/ietf-snmp:snmp/vacm/view'
