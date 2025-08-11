@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -45,6 +45,7 @@ from ansible.module_utils.connection import ConnectionError
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
     intf_speed_map
 )
+
 
 PATCH = 'patch'
 DELETE = 'delete'

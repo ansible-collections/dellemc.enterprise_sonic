@@ -26,7 +26,9 @@ author: Abirami N (@abirami-n)
 
 options:
   config:
-    description: A list of LAG configurations.
+    description:
+      - A list of LAG configurations.
+      - I(adv_speed) and I(speed) are mutually exclusive.
     type: list
     elements: dict
     suboptions:
