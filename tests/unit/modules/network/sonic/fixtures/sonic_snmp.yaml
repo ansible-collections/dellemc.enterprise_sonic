@@ -468,7 +468,7 @@ replaced_03:
       method: 'delete'
       data:
     - path: 'data/ietf-snmp:snmp/target=TargetEntry1/timeout'
-      method: 'delete
+      method: 'delete'
       data:
     - path: 'data/ietf-snmp:snmp/target=TargetEntry1/udp/port'
       method: 'delete'
