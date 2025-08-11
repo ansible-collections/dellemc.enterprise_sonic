@@ -147,7 +147,7 @@ options:
         type: int
       adv_speed:
         description:
-          - Advertised speeds of the LAG interface measured in megabytes.
+          - Advertised speed of the LAG interface measured in megabytes.
           - Supported speeds are dependent on the type of switch.
         choices:
           - 10
