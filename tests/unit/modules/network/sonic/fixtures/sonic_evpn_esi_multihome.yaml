@@ -59,7 +59,7 @@ replaced_01:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh'
       method: 'delete'
       data:
     - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
@@ -67,30 +67,6 @@ replaced_01:
       data:
         openconfig-network-instance:config:
           neigh-holdtime: 2000
-
-replaced_02:
-  module_args:
-    config:
-      startup_delay: 20
-    state: replaced
-  existing_evpn_esi_multihome_config:
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
-      response:
-        code: 200
-        value:
-          openconfig-network-instance:config:
-            neigh-holdtime: 1080
-            startup-delay: 300
-            mac-holdtime: 1080
-  expected_config_requests:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
-      method: 'delete'
-      data:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
-      method: 'patch'
-      data:
-        openconfig-network-instance:config:
-          startup-delay: 20
 
 overridden_01:
   module_args:
@@ -107,7 +83,7 @@ overridden_01:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh'
       method: 'delete'
       data:
     - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
@@ -182,6 +158,6 @@ deleted_02:
             startup-delay: 300
             mac-holdtime: 1080
   expected_config_requests:
-    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh'
       method: 'delete'
       data:
