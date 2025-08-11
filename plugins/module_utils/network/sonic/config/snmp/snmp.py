@@ -326,7 +326,7 @@ class Snmp(ConfigBase):
                     # If no differences were found other than 'name' (which is auto-generated for the config),
                     # don't delete this entry.
                     want_host = self.get_host(command, want)
-                    if not (len(command) == 1 and 'name' in command and want_host and not 'name' in want_host):
+                    if not (len(command) == 1 and 'name' in command and want_host and 'name' not in want_host):
                         delete_these_hosts.append(command)
 
                 if len(delete_these_hosts) == 0:
@@ -354,14 +354,13 @@ class Snmp(ConfigBase):
                 if delete_these_agents:
                     new_agentaddresses = []
                     for delete_agent in del_commands['agentaddress']:
-                        print('\n delete_agent = \n{}\n\n'.format(delete_agent), file=open('snmp.log', 'a'))
                         matched_agent = next((agent for agent in have['agentaddress'] if agent == delete_agent), None)
                         if not matched_agent:
                             new_agentaddresses.append(delete_agent)
 
                     if new_agentaddresses:
-                            have['agentaddress'] = new_agentaddresses
-                            diff_want = get_diff(want, have, TEST_KEYS)
+                        have['agentaddress'] = new_agentaddresses
+                        diff_want = get_diff(want, have, TEST_KEYS)
                     else:
                         have.pop('agentaddress')
 
