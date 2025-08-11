@@ -462,7 +462,7 @@ replaced_03:
         target-params:
           - name: 'TargetEntry2'
     - path: 'data/ietf-snmp:snmp/target=TargetEntry1/retries'
-      method: 'delete
+      method: 'delete'
       data:
     - path: 'data/ietf-snmp:snmp/target=TargetEntry1/tag=inform'
       method: 'delete'
