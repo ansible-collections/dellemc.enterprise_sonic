@@ -8,6 +8,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_acl_interfaces
     api:
       redirect: dellemc.enterprise_sonic.sonic_api
+    ars:
+      redirect: dellemc.enterprise_sonic.sonic_ars
     bfd:
       redirect: dellemc.enterprise_sonic.sonic_bfd
     bgp:
@@ -96,6 +98,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_ospf_area
     ospfv2:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2
+    ospfv3:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3
     ospfv2_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2_interfaces
     ospfv3_interfaces:
