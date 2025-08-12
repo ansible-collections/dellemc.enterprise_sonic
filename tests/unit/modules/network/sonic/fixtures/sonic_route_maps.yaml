@@ -91,6 +91,7 @@ merged_02:
         action: permit
         sequence_num: 80
         set:
+          ars_object: obj1
           as_path_prepend: 200,315,7135
           comm_list_delete: bgp_comm_list2
           community:
@@ -109,7 +110,7 @@ merged_02:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
           ipv6_next_hop:
             global_addr: 30::30
@@ -136,7 +137,7 @@ merged_02:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
       response:
         code: 200
-        value: 
+        value:
           openconfig-routing-policy:policy-definitions:
             policy-definition:
               - name: rm1
@@ -205,6 +206,9 @@ merged_02:
                       config:
                         policy-result: ACCEPT_ROUTE
                       openconfig-bgp-policy:bgp-actions:
+                        openconfig-routing-policy-ext:ars-object:
+                          config:
+                            set-ars-object: obj1
                         set-as-path-prepend:
                           config:
                             openconfig-routing-policy-ext:asn-list: "200,315,7135"
@@ -798,7 +802,8 @@ merged_04:
                         config:
                           openconfig-routing-policy-ext:address:
                             - PortChannel14
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-neighbor-set/config/openconfig-routing-policy-ext:address=10.20.30.40"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-neighbor-set/\
+             config/openconfig-routing-policy-ext:address=10.20.30.40"
       method: "delete"
       data:
 
@@ -1496,7 +1501,7 @@ merged_07:
         action: permit
         sequence_num: 100
         set:
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
             native: true
           ipv6_next_hop:
@@ -1596,6 +1601,7 @@ replaced_01:
         action: permit
         sequence_num: 100
         set:
+          ars_object: obj2
           as_path_prepend: 0.200,315,7135,10.4
           extcommunity:
             rt:
@@ -1891,6 +1897,9 @@ replaced_01:
                       name: "80"
                     - actions:
                         openconfig-bgp-policy:bgp-actions:
+                          openconfig-routing-policy-ext:ars-object:
+                            config:
+                              set-ars-object: obj1
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: 100,0.315,0.7135,655364
@@ -1983,6 +1992,9 @@ replaced_01:
                       config:
                         policy-result: ACCEPT_ROUTE
                       openconfig-bgp-policy:bgp-actions:
+                        openconfig-routing-policy-ext:ars-object:
+                          config:
+                            set-ars-object: obj2
                         set-as-path-prepend:
                           config:
                             openconfig-routing-policy-ext:asn-list: "0.200,315,7135,10.4"
@@ -1997,10 +2009,12 @@ replaced_01:
                                 - route-target:10.3:241
                                 - route-origin:200.4:79
                                 - route-origin:200.4:279
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-community:
@@ -2018,7 +2032,8 @@ replaced_01:
                 - openconfig-bgp-types:NOPEER
                 - openconfig-routing-policy-ext:ADDITIVE
                 - openconfig-bgp-types:NO_EXPORT_SUBCONFED
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-ext-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-ext-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-ext-community:
@@ -2030,7 +2045,8 @@ replaced_01:
               communities:
                 - route-target:30:40
                 - route-origin:10.73.14.9:78
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm6/statements/statement=100/actions/openconfig-bgp-policy:bgp-actions/set-ext-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm6/statements/statement=100/actions/\
+             openconfig-bgp-policy:bgp-actions/set-ext-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-ext-community:
@@ -2042,19 +2058,24 @@ replaced_01:
               communities:
                 - route-target:655363:41
                 - route-origin:10.73.14.9:78
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/prefix-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/\
+             prefix-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/openconfig-bgp-policy-ext:next-hop-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/openconfig-bgp-policy-ext:next-hop-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
       method: "delete"
       data:
 
@@ -2353,55 +2374,71 @@ replaced_02:
                             match-set-options: ANY
                         config:
                           ext-community-set: bgp_ext_comm2
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/config/install-protocol-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/config/\
+             install-protocol-eq"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-interface"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-neighbor-set/config/openconfig-routing-policy-ext:address=PortChannel14"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-neighbor-set/\
+             config/openconfig-routing-policy-ext:address=PortChannel14"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/openconfig-routing-policy-ext:ipv6-prefix-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/\
+             openconfig-routing-policy-ext:ipv6-prefix-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/prefix-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/\
+             prefix-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/prefix-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/\
+             prefix-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-tag-set/config/openconfig-routing-policy-ext:tag-value"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-tag-set/config/\
+             openconfig-routing-policy-ext:tag-value"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/community-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/community-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/local-pref-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/local-pref-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/med-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/med-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/openconfig-bgp-policy-ext:next-hop-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/openconfig-bgp-policy-ext:next-hop-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/openconfig-bgp-policy-ext:next-hop-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/openconfig-bgp-policy-ext:next-hop-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/origin-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/origin-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-routing-policy-ext:match-src-network-instance"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-routing-policy-ext:match-src-network-instance"
       method: "delete"
       data:
 
@@ -2430,7 +2467,7 @@ replaced_03:
         action: deny
         sequence_num: 285
         match:
-           local_preference: 14783
+          local_preference: 14783
         set:
           comm_list_delete: bgp_comm_list1
     state: replaced
@@ -2457,6 +2494,9 @@ replaced_03:
                             set-route-origin: EGP
                             set-weight: 93471
                             set-tag: 65
+                          openconfig-routing-policy-ext:ars-object:
+                            config:
+                              set-ars-object: obj1
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -2745,46 +2785,63 @@ replaced_03:
                       openconfig-bgp-policy:bgp-conditions:
                         config:
                           local-pref-eq: 14783
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/config/install-protocol-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/config/\
+             install-protocol-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/match-neighbor-set/config/openconfig-routing-policy-ext:address=Ethernet8"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/match-neighbor-set/\
+             config/openconfig-routing-policy-ext:address=Ethernet8"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/openconfig-bgp-policy:bgp-conditions/config/ext-community-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/ext-community-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/openconfig-bgp-policy:bgp-conditions/match-as-path-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/\
+             openconfig-bgp-policy:bgp-conditions/match-as-path-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/metric-action/config"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-global"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-local-pref"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-local-pref"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-next-hop"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-next-hop"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-weight"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-weight"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-tag"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-tag"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-as-path-prepend"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/openconfig-routing-policy-ext:ars-object"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-as-path-prepend"
+      method: "delete"
+      data:
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-community:
@@ -2804,10 +2861,12 @@ replaced_03:
                 - openconfig-bgp-types:NO_EXPORT_SUBCONFED
                 - openconfig-bgp-types:NO_EXPORT
                 - openconfig-bgp-types:NO_ADVERTISE
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-community-delete"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-community-delete"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-ext-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-ext-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-ext-community:
@@ -2821,19 +2880,23 @@ replaced_03:
                 - route-target:30:40
                 - route-origin:45:55
                 - route-origin:10.73.14.9:78
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-global"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/actions/metric-action/config"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/actions/openconfig-bgp-policy:bgp-actions/config/set-route-origin"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-route-origin"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/actions/openconfig-bgp-policy:bgp-actions/set-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/actions/\
+             openconfig-bgp-policy:bgp-actions/set-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-community:
@@ -2844,16 +2907,20 @@ replaced_03:
             config:
               communities:
                 - openconfig-bgp-types:NONE
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/config/install-protocol-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/config/\
+             install-protocol-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/match-neighbor-set/config/openconfig-routing-policy-ext:address=87:95:15::53"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/match-neighbor-set/\
+             config/openconfig-routing-policy-ext:address=87:95:15::53"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/openconfig-bgp-policy:bgp-conditions/config/origin-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/origin-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/"
       method: "delete"
       data:
 
@@ -2915,10 +2982,12 @@ replaced_04:
                         config:
                           set-next-hop: 10.48.16.20
                           set-ipv6-next-hop-global: 20::40
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-next-hop-native"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-next-hop-native"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-ipv6-next-hop-native"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-ipv6-next-hop-native"
       method: "delete"
       data:
 
@@ -2935,6 +3004,7 @@ overridden_01:
         action: permit
         sequence_num: 100
         set:
+          ars_object: obj4
           as_path_prepend: 0.200,315,7135,10.4
           extcommunity:
             rt:
@@ -3285,6 +3355,9 @@ overridden_01:
                       config:
                         policy-result: ACCEPT_ROUTE
                       openconfig-bgp-policy:bgp-actions:
+                        openconfig-routing-policy-ext:ars-object:
+                          config:
+                            set-ars-object: obj4
                         set-as-path-prepend:
                           config:
                             openconfig-routing-policy-ext:asn-list: "0.200,315,7135,10.4"
@@ -3824,8 +3897,8 @@ deleted_01:
         action: permit
         sequence_num: 80
         match:
-          as_path:  bgp_as2
-          community:  bgp_comm_list3
+          as_path: bgp_as2
+          community: bgp_comm_list3
           evpn:
             default_route: true
             route_type: prefix
@@ -3845,6 +3918,7 @@ deleted_01:
           source_vrf: Vrf1
           tag: 7284
         set:
+          ars_object: obj3
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -3857,7 +3931,7 @@ deleted_01:
               - "30:40"
             soo:
               - 10.73.14.9:78
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
           ipv6_next_hop:
             global_addr: 30::30
@@ -3947,6 +4021,9 @@ deleted_01:
                             set-route-origin: EGP
                             set-weight: 93471
                             set-tag: 65
+                          openconfig-routing-policy-ext:ars-object:
+                            config:
+                              set-ars-object: obj3
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "188,257"
@@ -4234,46 +4311,63 @@ deleted_01:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/actions/metric-action/config"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/actions/openconfig-bgp-policy:bgp-actions/config/set-route-origin"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-route-origin"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/config/install-protocol-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/config/\
+             install-protocol-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/openconfig-bgp-policy:bgp-conditions/config/origin-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/origin-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/route-type"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=3047/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/route-type"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/metric-action/config"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-global"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-local-pref"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-local-pref"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-next-hop"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-next-hop"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-route-origin"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-route-origin"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-weight"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-weight"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-tag"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-tag"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-as-path-prepend"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/openconfig-routing-policy-ext:ars-object"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-as-path-prepend"
+      method: "delete"
+      data:
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-community:
@@ -4285,10 +4379,12 @@ deleted_01:
               communities:
                 - openconfig-bgp-types:NO_EXPORT_SUBCONFED
                 - "35:58"
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-community-delete"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-community-delete"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/set-ext-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/set-ext-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-ext-community:
@@ -4300,7 +4396,8 @@ deleted_01:
               communities:
                 - route-target:30:40
                 - route-origin:10.73.14.9:78
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm6/statements/statement=100/actions/openconfig-bgp-policy:bgp-actions/set-ext-community"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm6/statements/statement=100/actions/\
+             openconfig-bgp-policy:bgp-actions/set-ext-community"
       method: "patch"
       data:
         openconfig-bgp-policy:set-ext-community:
@@ -4315,85 +4412,109 @@ deleted_01:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-interface"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-neighbor-set/config/openconfig-routing-policy-ext:address=PortChannel14"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-neighbor-set/\
+             config/openconfig-routing-policy-ext:address=PortChannel14"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/openconfig-routing-policy-ext:ipv6-prefix-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/\
+             openconfig-routing-policy-ext:ipv6-prefix-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/prefix-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/\
+             prefix-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-tag-set/config/openconfig-routing-policy-ext:tag-value"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-tag-set/config/\
+             openconfig-routing-policy-ext:tag-value"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/community-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/community-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/ext-community-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/ext-community-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/local-pref-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/local-pref-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/med-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/med-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/openconfig-bgp-policy-ext:next-hop-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/openconfig-bgp-policy-ext:next-hop-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/config/origin-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/config/origin-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/match-as-path-set"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/match-as-path-set"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/default-type5-route"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/default-type5-route"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/route-type"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/route-type"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/vni-number"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/vni-number"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/openconfig-routing-policy-ext:match-src-network-instance"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/\
+             openconfig-routing-policy-ext:match-src-network-instance"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/metric-action/config"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/openconfig-bgp-policy:bgp-actions/config/set-med"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-med"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/conditions/config/install-protocol-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/conditions/config/\
+             install-protocol-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/conditions/match-neighbor-set/config/openconfig-routing-policy-ext:address=5.6.7.8"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm2/statements/statement=100/conditions/match-neighbor-set/\
+             config/openconfig-routing-policy-ext:address=5.6.7.8"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/actions/metric-action/config"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/actions/openconfig-bgp-policy:bgp-actions/config/set-route-origin"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-route-origin"
       method: "delete"
       data:
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/config/call-policy"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/config/install-protocol-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/config/\
+             install-protocol-eq"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/match-neighbor-set/config/openconfig-routing-policy-ext:address=87:95:15::53"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/match-neighbor-set/\
+             config/openconfig-routing-policy-ext:address=87:95:15::53"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/route-type"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm3/statements/statement=285/conditions/\
+             openconfig-bgp-policy:bgp-conditions/openconfig-bgp-policy-ext:match-evpn-set/config/route-type"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm4/statements/statement=480/conditions/config/install-protocol-eq"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm4/statements/statement=480/conditions/config/\
+             install-protocol-eq"
       method: "delete"
       data:
 
@@ -4944,6 +5065,9 @@ deleted_04:
                         openconfig-bgp-policy:bgp-actions:
                           config:
                             set-med: "7249"
+                          openconfig-routing-policy-ext:ars-object:
+                            config:
+                              set-ars-object: obj1
                           set-as-path-prepend:
                             config:
                               openconfig-routing-policy-ext:asn-list: "150,275"
@@ -4978,7 +5102,7 @@ deleted_05:
         action: permit
         sequence_num: 80
         set:
-          ip_next_hop: 
+          ip_next_hop:
             native: true
           ipv6_next_hop:
             prefer_global: true
@@ -5008,12 +5132,15 @@ deleted_05:
                         name: "80"
                       name: "80"
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-ipv6-next-hop-native"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-ipv6-next-hop-native"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-next-hop-native"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/openconfig-bgp-policy-ext:set-next-hop-native"
       method: "delete"
       data:
-    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
+    - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/actions/\
+             openconfig-bgp-policy:bgp-actions/config/set-ipv6-next-hop-prefer-global"
       method: "delete"
       data:
