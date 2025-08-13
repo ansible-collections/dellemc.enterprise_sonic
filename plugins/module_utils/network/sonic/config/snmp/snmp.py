@@ -210,19 +210,17 @@ class Snmp(ConfigBase):
         """
         merged_conf = self.merged_config(have_conf, want_conf)
         for have_conf in have_conf.get('agentaddress'):
-            check_same = self.same_values(merged_conf, have_conf)
-            if check_same:
+            if have_conf['name'] != merged_conf['name'] and self.same_values(merged_conf, have_conf):
                 self._module.fail_json(msg="The specified options are in use for an existing agent.")
                 break
 
     def same_values(self, merged_conf, have_conf):
-        """ Returns true if the wanted agent has the same values and keys as the given agent
-
+        """ Returns true if the wanted agent has the same values and keys (other than 'name') as the given agent
         :rtype: boolean
-        :returns: True if the keys and values are the same
+        :returns: True if the keys and values for keys other than 'name' are the same
         """
         for key, value in merged_conf.items():
-            if isinstance(value, str) and have_conf[key] and isinstance(have_conf[key], str) and merged_conf[key] != have_conf[key]:
+            if key != 'name' and merged_conf[key] != have_conf[key]:
                 return False
         return True
 
@@ -310,12 +308,13 @@ class Snmp(ConfigBase):
                         pop_list.append(option)
                 for option in pop_list:
                     del_commands.pop(option)
-            if 'agentaddress' in del_commands and 'agentaddress' in want:
+            if 'agentaddress' in del_commands and 'agentaddress' in want and 'agentaddress' in have:
                 for command in del_commands.get('agentaddress'):
                     # If no differences were found other than 'name' (which is auto-generated for the config),
                     # don't delete this entry.
-                    if not (len(command) == 1 and command.get('name')):
-                        delete_these_agents.append(command)
+                    for command_2 in want.get('agentaddress'):
+                        if not self.same_values(command, command_2):
+                            delete_these_agents.append(command)
                 if len(delete_these_agents) == 0:
                     del_commands.pop('agentaddress')
                 else:
@@ -325,8 +324,10 @@ class Snmp(ConfigBase):
                 for command in del_commands.get('host'):
                     # If no differences were found other than 'name' (which is auto-generated for the config),
                     # don't delete this entry.
-                    want_host = self.get_host(command, want)
-                    if not (len(command) == 1 and 'name' in command and want_host and 'name' not in want_host):
+                    want_host = self.get_host(command, del_commands)
+                    if state == 'replaced':
+                        want_host = self.get_host(command, want)
+                    if not want_host or (len(command) == 1 and 'name' in command and want_host and 'name' not in want_host):
                         delete_these_hosts.append(command)
 
                 if len(delete_these_hosts) == 0:
@@ -434,8 +435,8 @@ class Snmp(ConfigBase):
                     if not want_agentaddress.get('name'):
                         self._module.fail_json(msg="An Agent name is required to delete an agentaddress entry.")
             new_want = self.get_configured_option(want, have)
-            reverse_diff = get_diff(have, new_want, TEST_KEYS)
-            commands = get_diff(have, reverse_diff, TEST_KEYS)
+            mismatch_diff = get_diff(new_want, have, TEST_KEYS)
+            commands = get_diff(new_want, mismatch_diff, TEST_KEYS)
 
         requests = self.get_delete_snmp_request(commands, have, delete_all)
 
@@ -935,7 +936,7 @@ class Snmp(ConfigBase):
                     target_entry_name = matched_host['name']
             if not target_entry_name:
                 target_entry_name = self.get_targetentry(have_targetentry_names)
-            conf['name'] = target_entry_name
+                conf['name'] = target_entry_name
             if overridden_or_replaced:
                 if matched_host and 'community' in conf and 'usm' in matched_host or 'user' in conf and 'v2c' in matched_host:
                     # delete user from matched_host before replacing it with the new community
@@ -1284,8 +1285,8 @@ class Snmp(ConfigBase):
                 else:
                     for want in configs['host']:
                         matched_host = self.get_host(target_host=want, search_dict=have)
-                        host_target_url = "data/ietf-snmp:snmp/target={0}".format(matched_host['name'])
                         if matched_host and (len(want) == 1 and 'ip' in want or len(matched_host) == len(want)):
+                            host_target_url = "data/ietf-snmp:snmp/target={0}".format(matched_host['name'])
                             host_request = {"path": host_target_url, "method": DELETE}
                             host_requests.append(host_request)
                         else:
@@ -1296,39 +1297,29 @@ class Snmp(ConfigBase):
                             timeout = want.get('timeout')
                             retries = want.get('retries')
                             source_interface = want.get('source_interface')
-                            if not ((ip and port and ietf_snmp_ext_vrf_name and tag and timeout and retries and source_interface)
-                                    or (ip and ietf_snmp_ext_vrf_name and len(want) == 2)):
-                                if timeout:
-                                    host_tg_url = host_target_url + '/timeout'
-                                    host_request = {"path": host_tg_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                if retries:
-                                    host_tg_url = host_target_url + '/retries'
-                                    host_request = {"path": host_tg_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                if source_interface:
-                                    host_tg_url = host_target_url + '/ietf-snmp-ext:source-interface'
-                                    host_request = {"path": host_tg_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                if tag:
-                                    host_tag_url = host_target_url + '/tag'
-                                    host_tag_url += "={0}".format(tag)
-                                    host_request = {"path": host_tag_url, "method": DELETE}
-                                    host_requests.append(host_request)
-                                if port:
-                                    host_udp_url = host_target_url + '/udp/port'
-                                    host_request = {"path": host_udp_url, "method": DELETE}
-                                    host_requests.append(host_request)
-
-                            else:
-                                host_request = {"path": host_target_url, "method": DELETE}
+                            if timeout:
+                                host_tg_url = host_target_url + '/timeout'
+                                host_request = {"path": host_tg_url, "method": DELETE}
                                 host_requests.append(host_request)
-                                host_target_params_url = "data/ietf-snmp:snmp/target-params={0}".format(matched_host['name'])
-                                host_request = {"path": host_target_params_url, "method": DELETE}
+                            if retries:
+                                host_tg_url = host_target_url + '/retries'
+                                host_request = {"path": host_tg_url, "method": DELETE}
                                 host_requests.append(host_request)
-                                continue
+                            if source_interface:
+                                host_tg_url = host_target_url + '/ietf-snmp-ext:source-interface'
+                                host_request = {"path": host_tg_url, "method": DELETE}
+                                host_requests.append(host_request)
+                            if tag:
+                                host_tag_url = host_target_url + '/tag'
+                                host_tag_url += "={0}".format(tag)
+                                host_request = {"path": host_tag_url, "method": DELETE}
+                                host_requests.append(host_request)
+                            if port:
+                                host_udp_url = host_target_url + '/udp/port'
+                                host_request = {"path": host_udp_url, "method": DELETE}
+                                host_requests.append(host_request)
 
-                            # Collect the informatoin on the wanted options to delete
+                            # Collect the information on the wanted options to delete
                             security_name = want.get('community')
                             user_name = None
                             security_level = None
@@ -1355,13 +1346,6 @@ class Snmp(ConfigBase):
                                 host_request = {"path": host_tp_url, "method": DELETE}
                                 host_requests.append(host_request)
 
-                    if configs['host'] == []:
-                        host_target_url = "data/ietf-snmp:snmp/target"
-                        host_request = {"path": host_target_url, "method": DELETE}
-                        host_requests.append(host_request)
-                        host_target_params_url = "data/ietf-snmp:snmp/target-params"
-                        host_request = {"path": host_target_params_url, "method": DELETE}
-                        host_requests.append(host_request)
                 if host_requests:
                     host_requests_list.extend(host_requests)
 
@@ -1538,8 +1522,6 @@ class Snmp(ConfigBase):
         if 'host' in search_dict:
             for each_host in search_dict.get('host'):
                 if each_host['ip'] == target_host['ip']:
-                    return each_host
-                if self.same_values(target_host, each_host):
                     return each_host
         return {}
 
