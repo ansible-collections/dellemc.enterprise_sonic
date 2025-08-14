@@ -213,7 +213,7 @@ class Lldp_interfaces(ConfigBase):
 
     def set_config(self, existing_lldp_interfaces_facts):
         """ Collect the configuration from the args passed to the module,
-            collect the current configuration (as a dict from facts)
+            collect the current configuration (as a list from facts)
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
