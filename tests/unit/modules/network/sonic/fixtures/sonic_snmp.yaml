@@ -448,18 +448,31 @@ replaced_03:
       method: 'patch'
       data:
         target:
-          - name: 'TargetEntry1'
+          - name: 'TargetEntry2'
             udp:
               ip: '1.2.3.5'
               port: 162
+              ietf-snmp-ext:vrf-name: 'Vrf1'
             timeout: 500
             retries: 50
-            target-params: 'TargetEntry1'
+            target-params: 'TargetEntry2'
     - path: 'data/ietf-snmp:snmp/target-params'
       method: 'patch'
       data:
         target-params:
-          - name: 'TargetEntry1'
+          - name: 'TargetEntry2'
+    - path: 'data/ietf-snmp:snmp/target=TargetEntry1/retries'
+      method: 'delete'
+      data:
+    - path: 'data/ietf-snmp:snmp/target=TargetEntry1/tag=inform'
+      method: 'delete'
+      data:
+    - path: 'data/ietf-snmp:snmp/target=TargetEntry1/timeout'
+      method: 'delete'
+      data:
+    - path: 'data/ietf-snmp:snmp/target=TargetEntry1/udp/port'
+      method: 'delete'
+      data:
     - path: 'data/ietf-snmp:snmp/target=TargetEntry2'
       method: 'delete'
       data:

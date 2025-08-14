@@ -308,26 +308,13 @@ class Snmp(ConfigBase):
                         pop_list.append(option)
                 for option in pop_list:
                     del_commands.pop(option)
-            if 'agentaddress' in del_commands and 'agentaddress' in want and 'agentaddress' in have:
-                for command in del_commands.get('agentaddress'):
-                    # If no differences were found other than 'name' (which is auto-generated for the config),
-                    # don't delete this entry.
-                    for command_2 in want.get('agentaddress'):
-                        if not self.same_values(command, command_2):
-                            delete_these_agents.append(command)
-                if len(delete_these_agents) == 0:
-                    del_commands.pop('agentaddress')
-                else:
-                    del_commands['agentaddress'] = delete_these_agents
 
             if 'host' in del_commands and 'host' in want:
                 for command in del_commands.get('host'):
                     # If no differences were found other than 'name' (which is auto-generated for the config),
                     # don't delete this entry.
-                    want_host = self.get_host(command, del_commands)
-                    if state == 'replaced':
-                        want_host = self.get_host(command, want)
-                    if not want_host or (len(command) == 1 and 'name' in command and want_host and 'name' not in want_host):
+                    want_host = self.get_host(command, want)
+                    if not (len(command) == 1 and 'name' in command and want_host and 'name' not in want_host):
                         delete_these_hosts.append(command)
 
                 if len(delete_these_hosts) == 0:
@@ -1285,8 +1272,8 @@ class Snmp(ConfigBase):
                 else:
                     for want in configs['host']:
                         matched_host = self.get_host(target_host=want, search_dict=have)
+                        host_target_url = "data/ietf-snmp:snmp/target={0}".format(matched_host['name'])
                         if matched_host and (len(want) == 1 and 'ip' in want or len(matched_host) == len(want)):
-                            host_target_url = "data/ietf-snmp:snmp/target={0}".format(matched_host['name'])
                             host_request = {"path": host_target_url, "method": DELETE}
                             host_requests.append(host_request)
                         else:
