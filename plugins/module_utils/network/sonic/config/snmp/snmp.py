@@ -1083,7 +1083,7 @@ class Snmp(ConfigBase):
                                 agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                                 agentaddress_requests.append(agentaddress_request)
                             else:
-                                matched_after_agent = next((each_agent for each_agent in after_deletion if each_agent['name'] == want['name']), None)                                
+                                matched_after_agent = next((each_agent for each_agent in after_deletion if each_agent['name'] == want['name']), None)
                                 interface_vrf = want.get('interface_vrf')
                                 ip = want.get('ip')
                                 port = want.get('port')
@@ -1093,8 +1093,8 @@ class Snmp(ConfigBase):
                                     matched_after_agent['interface_vrf'] = 'default'
                                 for have_agent_entry in have_agentaddress:
                                     if self.same_values(have_agent_entry, matched_after_agent):
-                                            self._module.fail_json(msg="Deletion of these options will create a conflict."
-                                                                   + " Deleting the entire agent would be better.")
+                                        self._module.fail_json(msg="Deletion of these options will create a conflict."
+                                                               + " Deleting the entire agent would be better.")
 
                                 # Handle deletion of UDP options.
                                 for option in ('interface_vrf', 'port'):
@@ -1476,7 +1476,7 @@ class Snmp(ConfigBase):
         returns: True if all dicts in config_list are in have_list
         """
         for have_dict in have_list:
-            if not have_dict in config_list:
+            if have_dict not in config_list:
                 return False
         return True
 
