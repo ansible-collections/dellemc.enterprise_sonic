@@ -1286,6 +1286,10 @@ class Snmp(ConfigBase):
                                 host_tg_url = host_target_url + '/timeout'
                                 host_request = {"path": host_tg_url, "method": DELETE}
                                 host_requests.append(host_request)
+                            if ietf_snmp_ext_vrf_name:
+                                host_tg_url = host_target_url + '/udp/ietf-snmp-ext:vrf-name'
+                                host_request = {"path": host_tg_url, "method": DELETE}
+                                host_requests.append(host_request)
                             if retries:
                                 host_tg_url = host_target_url + '/retries'
                                 host_request = {"path": host_tg_url, "method": DELETE}
@@ -1304,7 +1308,7 @@ class Snmp(ConfigBase):
                                 host_request = {"path": host_udp_url, "method": DELETE}
                                 host_requests.append(host_request)
 
-                            # Collect the information on the wanted options to delete
+                            # Handle deletion for host 'user' or 'community' configuration options.
                             security_name = want.get('community')
                             user_name = None
                             security_level = None
