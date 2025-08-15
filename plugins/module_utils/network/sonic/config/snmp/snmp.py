@@ -1071,7 +1071,7 @@ class Snmp(ConfigBase):
                     agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                     agentaddress_requests.append(agentaddress_request)
                 else:
-                    after_deletion = get_diff(configs['agentaddress'], have_agentaddress)
+                    after_deletion = get_diff(have_agentaddress, configs['agentaddress'])
                     for want in configs['agentaddress']:
                         matched_agentaddress = next((each_snmp for each_snmp in have_agentaddress if each_snmp['name'] == want['name']), None)
                         if matched_agentaddress:
@@ -1083,18 +1083,16 @@ class Snmp(ConfigBase):
                                 agentaddress_request = {"path": agentaddress_url, "method": DELETE}
                                 agentaddress_requests.append(agentaddress_request)
                             else:
+                                matched_after_agent = next((each_agent for each_agent in after_deletion if each_agent['name'] == want['name']), None)                                
                                 interface_vrf = want.get('interface_vrf')
                                 ip = want.get('ip')
                                 port = want.get('port')
                                 if port:
-                                    if want in after_deletion:
-                                        after_deletion.get(want)['port'] = 161
+                                    matched_after_agent['port'] = 161
                                 if interface_vrf:
-                                    if want in after_deletion:
-                                        after_deletion.get(want)['interface_vrf'] = 'default'
-                                for index, after_want in enumerate(after_deletion, 0):
-                                    for after_want_2 in after_deletion[index + 1:]:
-                                        if self.same_options(after_want, after_want_2):
+                                    matched_after_agent['interface_vrf'] = 'default'
+                                for have_agent_entry in have_agentaddress:
+                                    if self.same_values(have_agent_entry, matched_after_agent):
                                             self._module.fail_json(msg="Deletion of these options will create a conflict."
                                                                    + " Deleting the entire agent would be better.")
 
@@ -1477,12 +1475,9 @@ class Snmp(ConfigBase):
         rtype: boolean
         returns: True if all dicts in config_list are in have_list
         """
-        for option in have_list:
-            for config in config_list:
-                if isinstance(option, dict) and isinstance(config, dict) and not self.same_options(option, config):
-                    return False
-                if isinstance(option, str) and isinstance(config, str) and option != config:
-                    return False
+        for have_dict in have_list:
+            if not have_dict in config_list:
+                return False
         return True
 
     def get_matched_access(self, access_list, want_access):
