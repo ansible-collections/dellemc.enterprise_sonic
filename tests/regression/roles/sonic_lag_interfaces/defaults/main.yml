@@ -7,6 +7,7 @@ sonic_lag_interfaces_test_vars:
   lag3: PortChannel42
   lag4: PortChannel43
   lag5: PortChannel44
+  lag6: PortChannel45
   lag1_lower: portchannel 40
   lag3_lower: portchannel 42
   lag2_short: po41
@@ -22,6 +23,7 @@ sonic_lag_interfaces_preparation_task_input:
     - "default interface {{ interface6 }}"
     - "default interface {{ interface7 }}"
     - "default interface {{ interface8 }}"
+    - "default interface {{ interface9 }}"
 
 sonic_lag_interfaces_tests:
   - name: test_case_01
@@ -61,6 +63,11 @@ sonic_lag_interfaces_tests:
         members:
           interfaces:
             - member: "{{ interface7 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
+        speed: 40000
+        members:
+          interfaces:
+            - member: "{{ interface9 }}"
   - name: test_case_03
     description: Update portchannel parameters
     state: merged
@@ -100,6 +107,11 @@ sonic_lag_interfaces_tests:
       - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
         fallback: true
         fast_rate: true
+      - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
+        speed: 100000
+        members:
+          interfaces:
+            - member: "{{ interface9 }}"
   - name: test_case_04
     description: Delete portchannel and specific portchannel parameters
     state: deleted
@@ -127,6 +139,8 @@ sonic_lag_interfaces_tests:
       - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
         fallback: true
         fast_rate: true
+      - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
+        speed: 100000
   - name: test_case_05
     description: Update portchannel parameters
     state: merged
@@ -151,6 +165,11 @@ sonic_lag_interfaces_tests:
         fallback: true
         fast_rate: true
         min_links: 5
+      - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
+        adv_speed: 40000
+        members:
+          interfaces:
+            - member: "{{ interface9 }}"
   - name: test_case_06
     description: Replace portchannel configuration
     state: replaced
@@ -173,6 +192,11 @@ sonic_lag_interfaces_tests:
       - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
         min_links: 2
         graceful_shutdown: true
+      - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
+        adv_speed: 100000
+        members:
+          interfaces:
+            - member: "{{ interface9 }}"
   - name: test_case_07
     description: Override portchannel configuration
     state: overridden
@@ -193,6 +217,10 @@ sonic_lag_interfaces_tests:
         lacp_individual:
           enable: true
           timeout: 60
+      - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
+        members:
+          interfaces:
+            - member: "{{ interface9 }}"
   - name: test_case_08
     description: Override portchannel configuration
     state: overridden
