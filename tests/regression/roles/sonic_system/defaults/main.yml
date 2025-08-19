@@ -40,7 +40,7 @@ sonic_system_tests:
       password_complexity:
         min_upper_case: 1
         min_numerals: 2
-        
+
   - name: test_case_03
     description: Update System properties - associate mac address
     state: merged
