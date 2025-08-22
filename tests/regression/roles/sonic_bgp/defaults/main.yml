@@ -115,14 +115,7 @@ sonic_bgp_tests:
             multipath_relax_as_set: true
           bandwidth: default_weight
           compare_routerid: true
-            confed: true
-            ignore: true
-            multipath_relax: true
-            multipath_relax_as_set: true
-          compare_routerid: true
           med:
-            confed: true
-            missing_as_worst: true
             confed: true
             missing_as_worst: true
         max_med:
@@ -136,7 +129,7 @@ sonic_bgp_tests:
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         rt_delay: 20
-        vrf_name: "{{  vrf_1  }}"
+        vrf_name: "{{ vrf_1 }}"
         bestpath:
           as_path:
             confed: true
