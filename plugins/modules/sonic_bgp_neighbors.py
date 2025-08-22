@@ -445,6 +445,7 @@ options:
               - Enforces EBGP multihop performance for neighbor.
             type: bool
           extended_link_bandwidth:
+            version_added: 3.1.0
             description:
               - Configure Extended Link Bandwidth for BGP neighbors.
             type: bool
