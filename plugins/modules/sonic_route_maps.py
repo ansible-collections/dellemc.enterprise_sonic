@@ -191,6 +191,11 @@ options:
         description: "Information to set into a matching route for re-distribution"
         type: dict
         suboptions:
+          ars_object:
+            description:
+              - Adaptive Routing and Switching object
+            type: str
+            version_added: 3.1.0
           as_path_prepend:
             description:
               - "String specifying a comma-separated list of AS-path numbers"

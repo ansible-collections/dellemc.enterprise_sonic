@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -197,6 +197,16 @@ class Route_mapsFacts(object):
         is specified by the "set_bgp_policy" input parameter. Parse the
         information to convert it to a dictionary matching the "argspec" for
         the "route_maps" resource module.'''
+
+        # Fetch ars_object config
+        set_ars_obj_top = set_bgp_policy.get('openconfig-routing-policy-ext:ars-object')
+        if set_ars_obj_top and set_ars_obj_top.get('config'):
+            ars_object = \
+                set_ars_obj_top['config'].get(
+                    'set-ars-object')
+            if ars_object:
+                parsed_route_map_stmt_set['ars_object'] = \
+                    ars_object
 
         # Fetch as_path_prepend config
         set_as_path_top = set_bgp_policy.get('set-as-path-prepend')

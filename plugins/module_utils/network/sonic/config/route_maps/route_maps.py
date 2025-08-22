@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -613,6 +613,14 @@ class Route_maps(ConfigBase):
         route_map_actions['openconfig-bgp-policy:bgp-actions'] = {}
         route_map_bgp_actions = \
             route_map_actions['openconfig-bgp-policy:bgp-actions'] = {}
+        # Handle 'set' ARS object
+        if cmd_set_top.get('ars_object'):
+            route_map_bgp_actions['openconfig-routing-policy-ext:ars-object'] = {
+                'config': {
+                    'set-ars-object': cmd_set_top['ars_object']
+                }
+            }
+
         # Handle 'set' AS path prepend
         if cmd_set_top.get('as_path_prepend'):
             route_map_bgp_actions['set-as-path-prepend'] = {
@@ -1323,6 +1331,18 @@ class Route_maps(ConfigBase):
         # Handle BGP "set" items within the "config" sub-tree in the openconfig REST API definitons.
         self.get_route_map_delete_set_bgp_cfg(command, set_both_keys, cmd_rmap_have, requests)
 
+        # Handle ars_object
+        if ('ars_object' in set_both_keys and
+                cmd_set_top['ars_object'] == cfg_set_top['ars_object']):
+            request_uri = bgp_set_delete_req_base + 'openconfig-routing-policy-ext:ars-object'
+            request = {'path': request_uri, 'method': DELETE}
+            requests.append(request)
+        else:
+            if cmd_set_top.get('ars_object'):
+                cmd_set_top.pop('ars_object')
+                if not cmd_set_top:
+                    return
+
         # Handle as_path_prepend
         if ('as_path_prepend' in set_both_keys and
                 cmd_set_top['as_path_prepend'] == cfg_set_top['as_path_prepend']):
@@ -2012,6 +2032,7 @@ class Route_maps(ConfigBase):
         # is handled as a "top level" attribute because it can contain
         # only one configured member (either an rtt_action or a "value").
         set_top_level_keys = [
+            'ars_object',
             'as_path_prepend',
             'comm_list_delete',
             'local_preference',
@@ -2022,6 +2043,7 @@ class Route_maps(ConfigBase):
         ]
 
         set_uri_attr = {
+            'ars_object': bgp_set_delete_req_base + 'openconfig-routing-policy-ext:ars-object',
             'as_path_prepend': bgp_set_delete_req_base + 'set-as-path-prepend',
             'comm_list_delete': bgp_set_delete_req_base + 'set-community-delete',
             'community': bgp_set_delete_req_base + 'set-community',

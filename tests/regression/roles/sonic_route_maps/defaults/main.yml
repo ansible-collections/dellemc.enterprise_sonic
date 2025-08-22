@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_route_maps
 
 preparation_tests:
   init_vrfs:
@@ -50,7 +49,7 @@ cleanup_tests:
     - 'no interface Vlan7'
     - 'no interface PortChannel 14'
 
-tests:
+sonic_route_maps_tests:
   - name: test_case_01_merged_base_rm1_80_match
     description: Add initial route map match configuration for map rm1 80
     state: merged
@@ -87,6 +86,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj1
           as_path_prepend: 200,315,7135
           comm_list_delete: bgp_comm_list2
           community:
@@ -125,6 +125,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj2
           as_path_prepend: 0.200,1000.315,7135
           extcommunity:
             rt:
@@ -210,6 +211,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj3
           as_path_prepend: 188,257
           community:
             community_number:
@@ -226,6 +228,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj4
           as_path_prepend: 0.188,257
           extcommunity:
             rt:
@@ -263,6 +266,7 @@ tests:
           peer:
             ip: 5.6.7.8
         set:
+          # ars_object: obj1
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -305,6 +309,7 @@ tests:
           source_vrf: Vrf1
           tag: 7284
         set:
+          # ars_object: obj3
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -380,6 +385,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj4
           as_path_prepend: 188,257
           extcommunity:
             rt:
@@ -426,6 +432,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj1
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -465,6 +472,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj2
           as_path_prepend: 188,257
           extcommunity:
             rt:
@@ -503,6 +511,7 @@ tests:
             ip: 5.6.7.8
           source_protocol: ospf
         set:
+          # ars_object: obj3
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -578,6 +587,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj4
           as_path_prepend: 1.188,0.257
           extcommunity:
             rt:
@@ -624,6 +634,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj1
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -664,6 +675,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj2
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -701,6 +713,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj3
           as_path_prepend: 375,94
       - map_name: rm3
         action: deny
@@ -751,6 +764,7 @@ tests:
             ip: 5.6.7.8
           source_protocol: ospf
         set:
+          # ars_object: obj3
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -800,6 +814,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj4
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -927,6 +942,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj1
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -1023,6 +1039,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj2
           as_path_prepend: 1.188,0.257
           extcommunity:
             rt:
@@ -1066,6 +1083,7 @@ tests:
             ip: 5.6.7.8
           source_protocol: ospf
         set:
+          # ars_object: obj4
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -1111,6 +1129,7 @@ tests:
         match:
           interface: "{{ interface6 }}"
         set:
+          # ars_object: obj2
           as_path_prepend: 150,275
           metric:
             value: 7249
@@ -1148,6 +1167,7 @@ tests:
             ip: 5.6.7.8
           source_protocol: ospf
         set:
+          # ars_object: obj1
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -1187,4 +1207,3 @@ tests:
     description: Delete all route map configuration
     state: deleted
     input: []
-    
