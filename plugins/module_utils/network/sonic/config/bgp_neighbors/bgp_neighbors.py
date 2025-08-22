@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -124,6 +124,13 @@ DEFAULT_ENTRIES = [
         {'name': 'afis'},
         {'name': 'prefix_limit'},
         {'name': 'prevent_teardown', 'default': False}
+    ],
+    [
+        {'name': 'peer_group'},
+        {'name': 'address_family'},
+        {'name': 'afis'},
+        {'name': 'prefix_limit'},
+        {'name': 'discard_extra', 'default': False}
     ],
     [
         {'name': 'neighbors'},
@@ -1044,6 +1051,7 @@ class Bgp_neighbors(ConfigBase):
         prevent_teardown = prefix_limit.get('prevent_teardown')
         warning_threshold = prefix_limit.get('warning_threshold')
         restart_timer = prefix_limit.get('restart_timer')
+        discard_extra = prefix_limit.get('discard_extra')
         if max_prefixes:
             delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/max-prefixes' % (afi_safi_name, afi_safi)
             requests.append({'path': delete_path, 'method': DELETE})
@@ -1055,6 +1063,9 @@ class Bgp_neighbors(ConfigBase):
             requests.append({'path': delete_path, 'method': DELETE})
         if restart_timer:
             delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/restart-timer' % (afi_safi_name, afi_safi)
+            requests.append({'path': delete_path, 'method': DELETE})
+        if discard_extra:
+            delete_path = delete_static_path + '/afi-safis/afi-safi=%s/%s/prefix-limit/config/openconfig-bgp-ext:discard-extra' % (afi_safi_name, afi_safi)
             requests.append({'path': delete_path, 'method': DELETE})
 
         return requests
@@ -1189,7 +1200,10 @@ class Bgp_neighbors(ConfigBase):
                                 afis.pop('ip_afi', None)
                             if len(afis.get('prefix_limit', {})) > 1:
                                 afis['prefix_limit'].setdefault('prevent_teardown', False)
+                                afis['prefix_limit'].setdefault('discard_extra', False)
                             elif 'prevent_teardown' in afis.get('prefix_limit', {}):
+                                afis.pop('prefix_limit', None)
+                            elif 'discard_extra' in afis.get('prefix_limit', {}):
                                 afis.pop('prefix_limit', None)
             for neighbor in conf.get('neighbors', []):
                 neighbor.setdefault('passive', False)

@@ -38,6 +38,10 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_relay
     dhcp_snooping:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
+    drop_counter:
+      redirect: dellemc.enterprise_sonic.sonic_drop_counter
+    evpn_esi_multihome:
+      redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
     facts:
       redirect: dellemc.enterprise_sonic.sonic_facts
     fbs_classifiers:
@@ -82,6 +86,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_mgmt_servers
     mirroring:
       redirect: dellemc.enterprise_sonic.sonic_mirroring
+    network_policy:
+      redirect: dellemc.enterprise_sonic.sonic_network_policy
     ntp:
       redirect: dellemc.enterprise_sonic.sonic_ntp
     ospf_area:
@@ -90,12 +96,16 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2
     ospfv2_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2_interfaces
+    ospfv3_interfaces:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3_interfaces
     pim_global:
       redirect: dellemc.enterprise_sonic.sonic_pim_global
     pim_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_pim_interfaces
     pki:
       redirect: dellemc.enterprise_sonic.sonic_pki
+    pms:
+      redirect: dellemc.enterprise_sonic.sonic_pms
     poe:
       redirect: dellemc.enterprise_sonic.sonic_poe
     port_breakout:
@@ -104,6 +114,10 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_port_group
     prefix_lists:
       redirect: dellemc.enterprise_sonic.sonic_prefix_lists
+    ptp_port_ds:
+      redirect: dellemc.enterprise_sonic.sonic_ptp_port_ds
+    ptp_default_ds:
+      redirect: dellemc.enterprise_sonic.sonic_ptp_default_ds
     qos_buffer:
       redirect: dellemc.enterprise_sonic.sonic_qos_buffer
     qos_interfaces:
@@ -146,3 +160,5 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_vrrp
     vxlans:
       redirect: dellemc.enterprise_sonic.sonic_vxlans
+    ssh_server:
+      redirect: dellemc.enterprise_sonic.sonic_ssh_server

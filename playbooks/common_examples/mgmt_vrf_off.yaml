@@ -1,7 +1,8 @@
 ---
 - name: Delete mgmt VRF configuration
-  sonic_vrfs:
-    config:
-      - name: mgmt
-    state: deleted
-  ignore_errors: true  # noqa: ignore-errors
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands:
+      - "no ip vrf mgmt"
+  register: output

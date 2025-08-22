@@ -36,6 +36,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'dcbx',
         'ospfv2_interfaces',
         'ospfv2',
+        'ospfv3_interfaces',
         'mclag',
         'prefix_lists',
         'vlan_mapping',
@@ -45,6 +46,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'users',
         'system',
         'port_breakout',
+        'pms',
         'aaa',
         'ldap',
         'tacacs_server',
@@ -78,7 +80,9 @@ class FactsArgs(object):  # pylint: disable=R0903
         'qos_wred',
         'qos_interfaces',
         'pim_global',
+        'ptp_default_ds',
         'pim_interfaces',
+        'ptp_port_ds',
         'login_lockout',
         'poe',
         'mgmt_servers',
@@ -86,8 +90,12 @@ class FactsArgs(object):  # pylint: disable=R0903
         'ssh',
         'lst',
         'fbs_classifiers',
+        'mirroring',
+        'network_policy',
+        'drop_counter',
         'br_l2pt',
-        'mirroring'
+        'evpn_esi_multihome',
+        'ssh_server'
     ]
 
     argument_spec = {

@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: bgp
 
 vrf_1: VrfReg1
 vrf_2: VrfReg2
@@ -29,50 +28,9 @@ preparations_tests:
     - "ip vrf {{ vrf_6 }}"
     - "ip vrf {{ vrf_7 }}"
 
-tests_cli:
-  - name: cli_test_case_01
-    description: creates bestpath BGP properties
-    state: merged
-    input:
-      - bgp_as: "{{ bgp_as_1 }}"
-        router_id: 110.2.2.4
-        rt_delay: 10
-        bestpath:
-          as_path:
-            confed: true
-            ignore: true
-            multipath_relax: true
-            multipath_relax_as_set: true
-          compare_routerid: true
-          med:
-            confed: true
-            missing_as_worst: true
-        max_med:
-          on_startup:
-            timer: 667
-            med_val: 7878
-      - bgp_as: "{{ bgp_as_2 }}"
-        router_id: 110.2.2.5
-        rt_delay: 20
-        vrf_name: "{{ vrf_1 }}"
-        bestpath:
-          as_path:
-            confed: true
-            ignore: true
-            multipath_relax: true
-            multipath_relax_as_set: true
-          compare_routerid: true
-          med:
-            confed: true
-            missing_as_worst: true
-        max_med:
-          on_startup:
-            timer: 889
-            med_val: 8854
-
-tests:
+sonic_bgp_tests:
   - name: test_case_01
-    description: creates BGP properties
+    description: Create BGP properties
     state: merged
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -100,7 +58,7 @@ tests:
         as_notation: "asdot+"
 
   - name: test_case_02
-    description: Updates BGP properties
+    description: Update BGP properties
     state: merged
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -123,7 +81,7 @@ tests:
         as_notation: "asdot"
 
   - name: test_case_03
-    description: Deletes BGP properties
+    description: Delete BGP properties
     state: deleted
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -143,7 +101,7 @@ tests:
         as_notation: "asdot"
 
   - name: test_case_04
-    description: creates bestpath BGP properties
+    description: Create bestpath BGP properties
     state: merged
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -157,7 +115,14 @@ tests:
             multipath_relax_as_set: true
           bandwidth: default_weight
           compare_routerid: true
+            confed: true
+            ignore: true
+            multipath_relax: true
+            multipath_relax_as_set: true
+          compare_routerid: true
           med:
+            confed: true
+            missing_as_worst: true
             confed: true
             missing_as_worst: true
         max_med:
@@ -171,7 +136,7 @@ tests:
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         rt_delay: 20
-        vrf_name: "{{ vrf_1 }}"
+        vrf_name: "{{  vrf_1  }}"
         bestpath:
           as_path:
             confed: true
@@ -189,9 +154,9 @@ tests:
             med_val: 5567
         graceful_restart:
           restart_time: 1
-          
+
   - name: test_case_05
-    description: Update bestpath BGP properties
+    description: First update of bestpath BGP properties
     state: merged
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -234,7 +199,7 @@ tests:
           stale_routes_time: 1000
 
   - name: test_case_06
-    description: Update1 bestpath BGP properties
+    description: Second update of bestpath BGP properties
     state: merged
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -262,7 +227,7 @@ tests:
             missing_as_worst: true
 
   - name: test_case_07
-    description: Deletes BGP properties
+    description: Delete BGP properties
     state: deleted
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -299,9 +264,9 @@ tests:
           restart_time: 1
           stale_routes_time: 1000
           preserve_fw_state: false
-          
+
   - name: test_case_08
-    description: Update1 bestpath BGP properties
+    description: Update bestpath BGP properties
     state: merged
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -353,7 +318,7 @@ tests:
         vrf_name: "{{ vrf_1 }}"
 
   - name: test_case_10
-    description: Replaces BGP properties
+    description: Replace BGP properties
     state: replaced
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -399,7 +364,7 @@ tests:
           bandwidth: default_weight
 
   - name: test_case_11
-    description: Overrides BGP properties
+    description: Override BGP properties
     state: overridden
     input:
       - bgp_as: "{{ bgp_as_1 }}"
@@ -438,6 +403,6 @@ tests:
         as_notation: "asdot+"
 
   - name: test_case_12
-    description: Deletes all BGP properties
+    description: Delete all BGP properties
     state: deleted
     input: []

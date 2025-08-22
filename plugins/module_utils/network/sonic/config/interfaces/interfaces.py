@@ -43,9 +43,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
     build_interfaces_create_request,
     retrieve_default_intf_speed,
-    retrieve_port_group_interfaces,
-    retrieve_valid_intf_speed,
-    intf_speed_to_number_map
+    retrieve_port_group_info,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
@@ -450,13 +448,13 @@ class Interfaces(ConfigBase):
         else:
             payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
             if attr == 'speed':
-                valid_intf_speeds = retrieve_valid_intf_speed(self._module, intf_name)
-                if self.is_port_in_port_group(intf_name) and (intf_speed_to_number_map.get(c_attr) not in valid_intf_speeds):
-                    self._module.fail_json(msg=("If a port-group is configured to the default speed, a member interface"
-                                                " can not be set to a non-default speed. Please use the port-group module to change"
-                                                " the speed of the port-group containing the member interface"
-                                                " before changing the interface's port speed."
-                                                " Valid speeds for {} are currently {}").format(intf_name, valid_intf_speeds))
+                port_group_info = retrieve_port_group_info(self._module, intf_name)
+                if port_group_info.get('port_group_id'):
+                    port_group_id = port_group_info['port_group_id']
+                    valid_speeds = port_group_info['valid_speeds']
+                    self._module.fail_json(msg=("Please use the sonic_port_group module to change the speed. "
+                                                "Interface {} is in port-group ID {pg_id}. The valid speeds "
+                                                "for port-group ID {pg_id} are {}.").format(intf_name, valid_speeds, pg_id=port_group_id))
                 payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
             if attr == 'advertised_speed':
                 c_ads = c_attr if c_attr else []
@@ -685,20 +683,11 @@ class Interfaces(ConfigBase):
                 have.remove(intf)
                 break
 
-    def is_port_in_port_group(self, intf_name):
-        global port_group_interfaces
-        if port_group_interfaces is None:
-            port_group_interfaces = retrieve_port_group_interfaces(self._module)
-        port_num = re.search(port_num_regex, intf_name)
-        port_num = int(port_num.group(0))
-        if port_num in port_group_interfaces:
-            return True
-
-        return False
-
     def _retrieve_default_intf_speed(self, intf_name):
         # To avoid multiple get requests
-        if self.is_port_in_port_group(intf_name):
+        port_group_info = retrieve_port_group_info(self._module, intf_name)
+        # Check if interface is in a port-group
+        if port_group_info.get('port_group_id'):
             return "SPEED_DEFAULT"
 
         if default_intf_speeds.get(intf_name) is None:
