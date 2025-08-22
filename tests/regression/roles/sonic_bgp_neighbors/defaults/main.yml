@@ -1168,7 +1168,7 @@ replaced_tasks:
     description: Replace BGP peer-group prefix-limit attributes
     state: replaced
     input:
-      - bgp_as: "{{bgp_as_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE3
             address_family:
@@ -1282,9 +1282,6 @@ overridden_tasks:
           - neighbor: "{{ interface1 }}"
             remote_as:
               peer_as: 1234
-<<<<<<< HEAD
- 
-=======
           - neighbor: 11::11
             remote_as:
               peer_type: external
@@ -1294,8 +1291,8 @@ overridden_tasks:
               keepalive: 41
               holdtime: 51
               connect_retry: 61
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_1}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
 
@@ -1326,8 +1323,8 @@ overridden_tasks:
     description: Override BGP Neighbors prefix-limit properties
     state: overridden
     input:
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_2}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_2 }}"
         peer_group:
           - name: SPINE3
             address_family:
