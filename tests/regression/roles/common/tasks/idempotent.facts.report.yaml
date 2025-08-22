@@ -10,4 +10,3 @@
         'msg': idempotent_task_output.msg  | default('Not defined'),
         }}}, recursive=True) }}"
   no_log: true
-

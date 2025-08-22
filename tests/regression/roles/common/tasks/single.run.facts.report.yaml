@@ -9,4 +9,3 @@
         'configs': item.input | default('Not defined'),
         }}}, recursive=True) }}"
   no_log: true
-
