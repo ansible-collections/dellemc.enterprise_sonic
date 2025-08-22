@@ -291,10 +291,10 @@ options:
                 type: list
                 elements: str
               bandwidth:
-                type: dict
                 version_added: "3.1.0"
                 description:
                   - Link bandwidth extended community
+                type: dict
                 suboptions:
                   bandwidth_value:
                     description:
