@@ -1,0 +1,4 @@
+- set_fact:
+    ansible_facts:
+      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({}, recursive=True) }}"
+

@@ -7,5 +7,5 @@
         'configs': item.input  | default('Not defined'),
         'msg': cli_tests_output.msg  | default('Not defined'),
         }}}, recursive=True) }}"
-  # no_log: true
-  
+  no_log: true
+
