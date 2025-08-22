@@ -135,6 +135,7 @@ options:
                   - Configures the multipath_relax_as_set values of as-path.
                 type: bool
           bandwidth:
+            version_added: 3.1.0
             description:
               - Link Bandwidth attribute for the bestpath selection process
               - Options are as follows
