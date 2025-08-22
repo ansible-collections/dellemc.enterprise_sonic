@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -58,7 +58,7 @@ TEST_KEYS = [
     {'config': {'vrf_name': '', 'bgp_as': ''}},
     {'neighbors': {'neighbor': ''}},
     {'peer_group': {'name': ''}},
-    {'afis': {'afi': '', 'safi': ''}},
+    {'afis': {'afi': '', 'safi': ''}}
 ]
 
 DEFAULT_ENTRIES = [
@@ -150,11 +150,6 @@ DEFAULT_ENTRIES = [
     [
         {'name': 'neighbors'},
         {'name': 'advertisement_interval', 'default': 0}
-    ],
-    [
-        {'name': 'neighbors'},
-        {'name': 'auth_pwd'},
-        {'name': 'encrypted', 'default': False}
     ],
     [
         {'name': 'neighbors'},
@@ -257,7 +252,6 @@ class Bgp_neighbors(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
         existing_bgp_facts = self.get_bgp_neighbors_facts()
         commands, requests = self.set_config(existing_bgp_facts)
         if commands and len(requests) > 0:
@@ -295,7 +289,6 @@ class Bgp_neighbors(ConfigBase):
                                                        new_config,
                                                        self._module._verbosity)
         result['commands'] = commands
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_bgp_facts):
@@ -381,7 +374,7 @@ class Bgp_neighbors(ConfigBase):
                   the current configuration
         """
         requests = []
-        commands = get_diff(want, have, TEST_KEYS)
+        commands = self.get_diff_bgp_nbr(want, have)
         validate_bgps(self._module, commands, have)
         for cmd in commands:
             neighbors = cmd.get('neighbors', [])
@@ -449,16 +442,45 @@ class Bgp_neighbors(ConfigBase):
 
         return commands, requests
 
+    def get_diff_bgp_nbr(self, base_data, compare_data):
+        """Special diff method is needed to handle the case of pwd and encrypted needing to be configured together for auth_pwd"""
+        diff = get_diff(base_data, compare_data, TEST_KEYS)
+
+        for cfg in diff:
+            neighbors = cfg.get('neighbors')
+            peer_group = cfg.get('peer_group')
+
+            if neighbors:
+                for nbr in neighbors:
+                    auth_pwd = nbr.get('auth_pwd')
+                    if auth_pwd:
+                        match_nbr = self.find_nei(base_data, cfg['bgp_as'], cfg['vrf_name'], nbr)
+                        if auth_pwd.get('pwd') and auth_pwd.get('encrypted') is None:
+                            auth_pwd['encrypted'] = match_nbr['auth_pwd']['encrypted']
+                        if auth_pwd.get('encrypted') and not auth_pwd.get('pwd'):
+                            auth_pwd['pwd'] = match_nbr['auth_pwd']['pwd']
+
+            if peer_group:
+                for pg in peer_group:
+                    auth_pwd = pg.get('auth_pwd')
+                    if auth_pwd:
+                        match_pg = self.find_pg(base_data, cfg['bgp_as'], cfg['vrf_name'], pg)
+                        if auth_pwd.get('pwd') and auth_pwd.get('encrypted') is None:
+                            auth_pwd['encrypted'] = match_pg['auth_pwd']['encrypted']
+                        if auth_pwd.get('encrypted') and not auth_pwd.get('pwd'):
+                            auth_pwd['pwd'] = match_pg['auth_pwd']['pwd']
+        return diff
+
     def _get_replaced_overridden_config(self, want, have, want_skeleton):
         add_config, del_config = [], []
 
-        diff1 = get_diff(want, have, TEST_KEYS)
+        diff1 = self.get_diff_bgp_nbr(want, have)
         for default_entry in DEFAULT_ENTRIES:
             remove_matching_defaults(have, default_entry)
             remove_matching_defaults(want, default_entry)
         want = remove_empties_from_list(want)
         have = remove_empties_from_list(have)
-        diff2 = get_diff(have, want, TEST_KEYS)
+        diff2 = self.get_diff_bgp_nbr(have, want)
         state = self._module.params['state']
 
         add_config = diff1
@@ -542,7 +564,7 @@ class Bgp_neighbors(ConfigBase):
         for peer_group in cmd:
             if peer_group:
                 bgp_peer_group, peer_group_cfg = {}, {}
-                tmp_bfd, tmp_ebgp, tmp_capability = {}, {}, {}
+                tmp_bfd, tmp_auth, tmp_ebgp, tmp_capability = {}, {}, {}, {}
                 tmp_transport, tmp_timers, tmp_remote = {}, {}, {}
                 afi = []
 
@@ -555,9 +577,8 @@ class Bgp_neighbors(ConfigBase):
                     self.update_dict(peer_group['bfd'], tmp_bfd, 'profile', 'bfd-profile')
 
                 if peer_group.get('auth_pwd') is not None:
-                    if (peer_group['auth_pwd'].get('pwd') is not None and peer_group['auth_pwd'].get('encrypted') is not None):
-                        bgp_peer_group.update({'auth-password': {'config': {'password': peer_group['auth_pwd']['pwd'],
-                                                                            'encrypted': peer_group['auth_pwd']['encrypted']}}})
+                    self.update_dict(peer_group['auth_pwd'], tmp_auth, 'pwd', 'password')
+                    self.update_dict(peer_group['auth_pwd'], tmp_auth, 'encrypted', 'encrypted')
 
                 if peer_group.get('ebgp_multihop') is not None:
                     self.update_dict(peer_group['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
@@ -677,6 +698,7 @@ class Bgp_neighbors(ConfigBase):
 
                 self.update_dict(tmp_timers, bgp_peer_group, '', '', {'timers': {'config': tmp_timers}})
                 self.update_dict(tmp_bfd, bgp_peer_group, '', '', {'enable-bfd': {'config': tmp_bfd}})
+                self.update_dict(tmp_auth, bgp_peer_group, '', '', {'auth-password': {'config': tmp_auth}})
                 self.update_dict(tmp_ebgp, bgp_peer_group, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
                 self.update_dict(tmp_capability, peer_group_cfg, '', '', tmp_capability)
                 self.update_dict(tmp_transport, bgp_peer_group, '', '', {'transport': {'config': tmp_transport}})
@@ -695,7 +717,7 @@ class Bgp_neighbors(ConfigBase):
         for neighbor in cmd:
             if neighbor:
                 bgp_neighbor, neighbor_cfg = {}, {}
-                tmp_bfd, tmp_ebgp, tmp_capability = {}, {}, {}
+                tmp_bfd, tmp_auth, tmp_ebgp, tmp_capability = {}, {}, {}, {}
                 tmp_transport, tmp_timers, tmp_remote = {}, {}, {}
 
                 self.update_dict(neighbor, bgp_neighbor, 'neighbor', 'neighbor-address')
@@ -707,8 +729,8 @@ class Bgp_neighbors(ConfigBase):
                     self.update_dict(neighbor['bfd'], tmp_bfd, 'profile', 'bfd-profile')
 
                 if neighbor.get('auth_pwd') is not None:
-                    if (neighbor['auth_pwd'].get('pwd') is not None and neighbor['auth_pwd'].get('encrypted') is not None):
-                        bgp_neighbor['auth-password'] = {'config': {'password': neighbor['auth_pwd']['pwd'], 'encrypted': neighbor['auth_pwd']['encrypted']}}
+                    self.update_dict(neighbor['auth_pwd'], tmp_auth, 'pwd', 'password')
+                    self.update_dict(neighbor['auth_pwd'], tmp_auth, 'encrypted', 'encrypted')
 
                 if neighbor.get('ebgp_multihop') is not None:
                     self.update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
@@ -772,6 +794,7 @@ class Bgp_neighbors(ConfigBase):
 
                 self.update_dict(tmp_timers, bgp_neighbor, '', '', {'timers': {'config': tmp_timers}})
                 self.update_dict(tmp_bfd, bgp_neighbor, '', '', {'enable-bfd': {'config': tmp_bfd}})
+                self.update_dict(tmp_auth, bgp_neighbor, '', '', {'auth-password': {'config': tmp_auth}})
                 self.update_dict(tmp_ebgp, bgp_neighbor, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
                 self.update_dict(tmp_capability, neighbor_cfg, '', '', tmp_capability)
                 self.update_dict(tmp_transport, bgp_neighbor, '', '', {'transport': {'config': tmp_transport}})
