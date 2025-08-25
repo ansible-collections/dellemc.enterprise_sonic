@@ -25,14 +25,14 @@ class Fbs_policiesArgs(object):  # pylint: disable=R0903
                 'policy_description': {'type': 'str'},
                 'policy_name': {'required': True, 'type': 'str'},
                 'policy_type': {
-                    'choices': ['copp', 'forwarding', 'monitoring', 'qos'],
+                    'choices': ['acl-copp', 'copp', 'forwarding', 'monitoring', 'qos'],
                     'type': 'str'
                 },
                 'sections': {
                     'elements': 'dict',
                     'options': {
                         'class': {'required': True, 'type': 'str'},
-                        'copp': {
+                        'acl_copp': {
                             'options': {
                                 'cpu_queue_index': {'type': 'int'},
                                 'policer': {
@@ -49,8 +49,7 @@ class Fbs_policiesArgs(object):  # pylint: disable=R0903
                         },
                         'forwarding': {
                             'options': {
-                                'ars_disable': {'type': 'bool', 'choices': [True]},
-                                'discard': {'type': 'bool', 'choices': [True]},
+                                'ars_disable': {'type': 'bool'},
                                 'egress_interfaces': {
                                     'elements': 'dict',
                                     'options': {
@@ -62,8 +61,8 @@ class Fbs_policiesArgs(object):  # pylint: disable=R0903
                                 'next_hops': {
                                     'elements': 'dict',
                                     'options': {
-                                        'ip_address': {'required': True, 'type': 'str'},
-                                        'network_instance': {'required': True, 'type': 'str'},
+                                        'address': {'required': True, 'type': 'str'},
+                                        'vrf': {'type': 'str'},
                                         'priority': {'type': 'int'}
                                     },
                                     'type': 'list'

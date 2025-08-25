@@ -14,12 +14,12 @@ merged_01:
                   priority: 1
             priority: 0
             section_description: xyz
-      - policy_name: policy2
+      - policy_name: copp-system-policy
         policy_description: qwerty
         policy_type: copp
         sections:
           - class: class1
-            copp:
+            acl_copp:
               cpu_queue_index: 0
               policer:
                 cbs: 80
@@ -57,11 +57,12 @@ merged_01:
         sections:
           - class: class1
             forwarding:
-              discard: true
               next_hops:
-                - ip_address: 1.1.1.1
-                  network_instance: default
+                - address: 1.1.1.1
+                  vrf: default
                   priority: 1
+                - address: 2.2.2.2
+                  priority: 2
               next_hop_groups:
                 - group_name: hop1
                   group_type: ipv4
@@ -104,10 +105,10 @@ merged_01:
                             config:
                               intf-name: Ethernet20
                               priority: 1
-            - policy-name: policy2
+            - policy-name: copp-system-policy
               config:
                 description: qwerty
-                name: policy2
+                name: copp-system-policy
                 type: POLICY_COPP
               sections:
                 section:
@@ -180,7 +181,6 @@ merged_01:
                       priority: 0
                     forwarding:
                       config:
-                        discard: true
                       next-hop-groups:
                         next-hop-group:
                           - group-name: hop1
@@ -196,6 +196,12 @@ merged_01:
                               ip-address: 1.1.1.1
                               network-instance: default
                               priority: 1
+                          - ip-address: 2.2.2.2
+                            network-instance: openconfig-fbs-ext:INTERFACE_NETWORK_INSTANCE
+                            config:
+                              ip-address: 2.2.2.2
+                              network-instance: openconfig-fbs-ext:INTERFACE_NETWORK_INSTANCE
+                              priority: 2
                       replication-groups:
                         replication-group:
                           - group-name: rep1
@@ -415,7 +421,7 @@ deleted_01:
         policy_description: qwerty
         sections:
           - class: class1
-            copp:
+            acl_copp:
               cpu_queue_index: 0
               policer:
                 cbs: 80
@@ -447,10 +453,9 @@ deleted_01:
         sections:
           - class: class1
             forwarding:
-              discard: true
               next_hops:
-                - ip_address: 2::2
-                  network_instance: VrfReg1
+                - address: 2::2
+                  vrf: VrfReg1
               next_hop_groups:
                 - group_name: hop1
                   group_type: ipv6
@@ -573,7 +578,6 @@ deleted_01:
                         priority: 0
                       forwarding:
                         config:
-                          discard: true
                         next-hop-groups:
                           next-hop-group:
                             - group-name: hop1
@@ -685,9 +689,6 @@ deleted_01:
       method: 'delete'
       data:
     - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/config/description'
-      method: 'delete'
-      data:
-    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/config/discard'
       method: 'delete'
       data:
     - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/next-hop-groups/next-hop-group=hop1/config/group-type'

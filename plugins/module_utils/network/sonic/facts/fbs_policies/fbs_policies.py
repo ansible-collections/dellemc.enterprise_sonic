@@ -105,6 +105,8 @@ class Fbs_policiesFacts(object):
                         policy_dict['policy_description'] = config['description']
                     if config.get('type'):
                         policy_dict['policy_type'] = enum_dict[config['type']]
+                        if policy_dict['policy_type'] == 'copp' and policy_dict['policy_name'] != 'copp-system-policy':
+                            policy_dict['policy_type'] = 'acl-' + policy_dict['policy_type']
 
                 # Parse sections container
                 if policy.get('sections') and policy['sections'].get('section'):
@@ -151,7 +153,7 @@ class Fbs_policiesFacts(object):
                             if copp.get('policer') and copp['policer'].get('config'):
                                 copp_dict['policer'] = copp['policer']['config']
                             if copp_dict:
-                                section_dict['copp'] = copp_dict
+                                section_dict['acl_copp'] = copp_dict
 
                         # Parse mirror-sessions container
                         if (section.get('monitoring') and section['monitoring'].get('mirror-sessions') and
@@ -168,8 +170,6 @@ class Fbs_policiesFacts(object):
                         if section.get('forwarding'):
                             forwarding = section['forwarding']
                             forwarding_dict = {}
-                            if forwarding.get('config') and forwarding['config'].get('discard') is not None:
-                                forwarding_dict['discard'] = forwarding['config']['discard']
 
                             # Parse egress-interfaces container
                             if forwarding.get('egress-interfaces') and forwarding['egress-interfaces'].get('egress-interface') is not None:
@@ -193,9 +193,9 @@ class Fbs_policiesFacts(object):
                                 for hop in next_hop:
                                     hop_dict = {}
                                     if hop.get('ip-address'):
-                                        hop_dict['ip_address'] = hop['ip-address']
-                                    if hop.get('network-instance'):
-                                        hop_dict['network_instance'] = hop['network-instance']
+                                        hop_dict['address'] = hop['ip-address']
+                                    if hop.get('network-instance') and hop['network-instance'] != 'openconfig-fbs-ext:INTERFACE_NETWORK_INSTANCE':
+                                        hop_dict['vrf'] = hop['network-instance']
                                     if hop.get('config') and hop['config'].get('priority'):
                                         hop_dict['priority'] = hop['config']['priority']
                                     if hop_dict:
@@ -226,11 +226,17 @@ class Fbs_policiesFacts(object):
                                         forwarding_dict[groups_list_name] = groups_list
 
                             # Parse ars container
-                            if forwarding.get('ars') and forwarding['ars'].get('config') and forwarding['ars']['config'].get('disable') is not None:
+                            if forwarding.get('ars') and forwarding['ars'].get('config') and forwarding['ars']['config'].get('disable'):
                                 forwarding_dict['ars_disable'] = forwarding['ars']['config']['disable']
+                            else:
+                                # Functional default
+                                forwarding_dict['ars_disable'] = False
 
                             if forwarding_dict:
                                 section_dict['forwarding'] = forwarding_dict
+                        else:
+                            # Functional default
+                            section_dict['forwarding'] = {'ars_disable': False}
                         if section_dict:
                             sections_list.append(section_dict)
                     if sections_list:

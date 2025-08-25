@@ -38,7 +38,7 @@ options:
         description:
           - Type of policy
         type: str
-        choices: ['copp', 'forwarding', 'monitoring', 'qos']
+        choices: ['acl-copp', 'copp', 'forwarding', 'monitoring', 'qos']
       policy_description:
         description:
           - Description of policy
@@ -62,9 +62,9 @@ options:
             description:
               - Description of section
             type: str
-          copp:
+          acl_copp:
             description:
-              - CoPP configuration
+              - ACL CoPP configuration
             type: dict
             suboptions:
               cpu_queue_index:
@@ -153,15 +153,8 @@ options:
             suboptions:
               ars_disable:
                 description:
-                  - Enbale/disable adaptive routing and switching forwarding
+                  - Enable/disable adaptive routing and switching forwarding
                 type: bool
-                choices: [true]
-              discard:
-                description:
-                  - When set to true traffic will be dropped if none off the configured next hops or egress interfaces are reachable.
-                  - Otherwise, traffic will go through the normal forwarding path.
-                type: bool
-                choices: [true]
               egress_interfaces:
                 description:
                   - Egress interfaces configuration
@@ -183,16 +176,15 @@ options:
                 type: list
                 elements: dict
                 suboptions:
-                  ip_address:
+                  address:
                     description:
-                      - Forwarding IP address
+                      - Forwarding IP/IPv6 address
                     type: str
                     required: true
-                  network_instance:
+                  vrf:
                     description:
                       - Forwarding network instance
                     type: str
-                    required: true
                   priority:
                     description:
                       - Priority of the next hop to be selected for forwarding, range 1-65535
@@ -265,10 +257,67 @@ EXAMPLES = """
             forwarding:
               ars_disable: true
               egress_interfaces:
-                - intf_name: Ethernet20
+                - intf_name: Ethernet96
                   priority: 1
             priority: 0
             section_description: xyz
+      - policy_name: policy2
+        policy_description: qwerty
+        policy_type: acl-copp
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 0
+              policer:
+                cbs: 80
+                cir: 75
+                pbs: 95
+                pir: 96
+            priority: 0
+      - policy_name: policy3
+        policy_description: 'this is policy 3'
+        policy_type: qos
+        sections:
+          - class: class1
+            qos:
+              output_queue_index: 0
+              policer:
+                cbs: 15
+                cir: 20
+                pbs: 21
+                pir: 24
+              remark:
+                set_dot1p: 0
+                set_dscp: 0
+            priority: 0
+      - policy_name: policy4
+        policy_description: 'this is policy 4'
+        policy_type: monitoring
+        sections:
+          - class: class1
+            mirror_sessions:
+              - session_name: session1
+            priority: 0
+      - policy_name: policy5
+        policy_description: abc
+        policy_type: forwarding
+        sections:
+          - class: class1
+            forwarding:
+              next_hops:
+                - address: 1.1.1.1
+                  vrf: default
+                  priority: 1
+              next_hop_groups:
+                - group_name: hop1
+                  group_type: ipv4
+                  priority: 1
+              replication_groups:
+                - group_name: rep1
+                  group_type: ipv4
+                  priority: 1
+            priority: 0
+            section_description: 'section for class1'
     state: merged
 
 # After state:
@@ -280,8 +329,39 @@ EXAMPLES = """
 #  description abc
 #  class class1 priority 0
 #  description xyz
-#   set interface Ethernet20 priority 1
+#   set interface Ethernet96 priority 1
 #   set ars disable
+#  !
+# !
+# policy-map policy2 type acl-copp
+#  description qwerty
+#  class class1 priority 0
+#   set trap-queue 0
+#   police cir 75 cbs 80 pir 96 pbs 95
+#  !
+# !
+# policy-map policy3 type qos
+#  description "this is policy 3"
+#  class class1 priority 0
+#   set pcp 0
+#   set dscp 0
+#   set traffic-class 0
+#   police cir 20 cbs 15 pir 24 pbs 21
+#  !
+# !
+# policy-map policy4 type monitoring
+#  description "this is policy 4"
+#  class class1 priority 0
+#   set mirror-session session1
+#  !
+# !
+# policy-map policy5 type forwarding
+#  description abc
+#  class class1 priority 0
+#  description "section for class1"
+#   set ip next-hop 1.1.1.1 vrf default priority 1
+#   set ip next-hop-group hop1 priority 1
+#   set ip replication-group rep1 priority 1
 #  !
 
 
@@ -362,7 +442,7 @@ EXAMPLES = """
         policy_type: copp
         sections:
           - class: class1
-            copp:
+            acl_copp:
               cpu_queue_index: 0
               policer:
                 cbs: 80
@@ -420,7 +500,7 @@ EXAMPLES = """
       - policy_name: policy2
         sections:
           - class: class1
-            copp:
+            acl_copp:
               policer:
                 cbs: 80
                 cir: 75

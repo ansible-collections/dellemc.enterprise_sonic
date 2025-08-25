@@ -14,16 +14,16 @@ sonic_fbs_policies_tests:
             forwarding:
               ars_disable: true
               egress_interfaces:
-                - intf_name: '{{ interface1 }}'
+                - intf_name: '{{ interface9 }}'
                   priority: 1
             priority: 0
             section_description: xyz
       - policy_name: policy2
         policy_description: qwerty
-        policy_type: copp
+        policy_type: acl-copp
         sections:
           - class: class1
-            copp:
+            acl_copp:
               cpu_queue_index: 0
               policer:
                 cbs: 80
@@ -61,10 +61,9 @@ sonic_fbs_policies_tests:
         sections:
           - class: class1
             forwarding:
-              discard: true
               next_hops:
-                - ip_address: 1.1.1.1
-                  network_instance: default
+                - address: 1.1.1.1
+                  vrf: default
                   priority: 1
               next_hop_groups:
                 - group_name: hop1
@@ -86,10 +85,11 @@ sonic_fbs_policies_tests:
         sections:
           - class: class1
             forwarding:
+              ars_disable: false
               egress_interfaces:
-                - intf_name: '{{ interface1 }}'
+                - intf_name: '{{ interface9 }}'
                   priority: 2
-                - intf_name: '{{ interface2 }}'
+                - intf_name: '{{ interface10 }}'
                   priority: 4
             section_description: xyz789
           - class: class2
@@ -97,7 +97,7 @@ sonic_fbs_policies_tests:
       - policy_name: policy2
         sections:
           - class: class1
-            copp:
+            acl_copp:
               cpu_queue_index: 10
               policer:
                 cbs: 85
@@ -127,11 +127,11 @@ sonic_fbs_policies_tests:
           - class: class1
             forwarding:
               next_hops:
-                - ip_address: 1.1.1.1
-                  network_instance: default
+                - address: 1.1.1.1
+                  vrf: default
                   priority: 5
-                - ip_address: 2.2.2.2
-                  network_instance: VrfReg1
+                - address: 2.2.2.2
+                  vrf: VrfReg1
                   priority: 9
               next_hop_groups:
                 - group_name: hop1
@@ -170,10 +170,23 @@ sonic_fbs_policies_tests:
             forwarding:
               ars_disable: true
               egress_interfaces:
-                - intf_name: '{{ interface1 }}'
+                - intf_name: '{{ interface9 }}'
                   priority: 1
             priority: 0
             section_description: xyz
+      - policy_name: copp-system-policy
+        policy_description: qwerty
+        policy_type: copp
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 0
+              policer:
+                cbs: 80
+                cir: 75
+                pbs: 95
+                pir: 96
+            priority: 0
 
   - name: test_case_05
     description: Merge FBS policies configuration for deletion
@@ -184,16 +197,16 @@ sonic_fbs_policies_tests:
           - class: class1
             forwarding:
               egress_interfaces:
-                - intf_name: '{{ interface2 }}'
+                - intf_name: '{{ interface10 }}'
                   priority: 4
           - class: class2
             priority: 3
       - policy_name: policy2
         policy_description: qwerty
-        policy_type: copp
+        policy_type: acl-copp
         sections:
           - class: class1
-            copp:
+            acl_copp:
               cpu_queue_index: 0
               policer:
                 cbs: 80
@@ -231,13 +244,11 @@ sonic_fbs_policies_tests:
         sections:
           - class: class1
             forwarding:
-              discard: true
               next_hops:
-                - ip_address: 1::1
-                  network_instance: default
+                - address: 1::1
+                  vrf: default
                   priority: 1
-                - ip_address: 2::2
-                  network_instance: VrfReg1
+                - address: 2::2
                   priority: 9
               next_hop_groups:
                 - group_name: hop1
@@ -270,14 +281,14 @@ sonic_fbs_policies_tests:
             forwarding:
               ars_disable: true
               egress_interfaces:
-                - intf_name: '{{ interface2 }}'
+                - intf_name: '{{ interface10 }}'
             section_description: xyz
           - class: class2
       - policy_name: policy2
         policy_description: qwerty
         sections:
           - class: class1
-            copp:
+            acl_copp:
               cpu_queue_index: 0
               policer:
                 cbs: 80
@@ -309,10 +320,8 @@ sonic_fbs_policies_tests:
         sections:
           - class: class1
             forwarding:
-              discard: true
               next_hops:
-                - ip_address: 2::2
-                  network_instance: VrfReg1
+                - address: 2::2
               next_hop_groups:
                 - group_name: hop1
                   group_type: ipv6

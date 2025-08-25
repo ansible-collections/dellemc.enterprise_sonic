@@ -19,9 +19,9 @@
     config:
       span:
         - name: session1
-          dst_port: "{{ interface1 }}"
+          dst_port: "{{ interface9 }}"
         - name: session2
-          dst_port: "{{ interface2 }}"  
+          dst_port: "{{ interface10 }}"
 
 - name: Create VRFs
   sonic_vrfs:
