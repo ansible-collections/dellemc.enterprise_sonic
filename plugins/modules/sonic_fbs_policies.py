@@ -154,6 +154,7 @@ options:
               ars_disable:
                 description:
                   - Enable/disable adaptive routing and switching forwarding
+                  - Default false
                 type: bool
               egress_interfaces:
                 description:
