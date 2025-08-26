@@ -8,7 +8,7 @@ merged_01:
         sections:
           - class: class1
             forwarding:
-              ars_disable: true
+              ars_disable: false
               egress_interfaces:
                 - intf_name: Ethernet20
                   priority: 1
@@ -57,6 +57,7 @@ merged_01:
         sections:
           - class: class1
             forwarding:
+              ars_disable: true
               next_hops:
                 - address: 1.1.1.1
                   vrf: default
@@ -77,7 +78,25 @@ merged_01:
     - path: 'data/openconfig-fbs-ext:fbs/policies'
       response:
         code: 200
+        value:
+          openconfig-fbs-ext:policies:
+            policy:
+              - policy-name: policy1
+                config:
+                  name: policy1
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                      forwarding:
+                        ars:
+                          config:
+                            disable: true
   expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy1/sections/section=class1/forwarding/ars/config/disable'
+      method: 'delete'
+      data:
     - path: 'data/openconfig-fbs-ext:fbs/policies'
       method: 'patch'
       data:
@@ -96,9 +115,6 @@ merged_01:
                       name: class1
                       priority: 0
                     forwarding:
-                      ars:
-                        config:
-                          disable: true
                       egress-interfaces:
                         egress-interface:
                           - intf-name: Ethernet20
@@ -180,6 +196,9 @@ merged_01:
                       name: class1
                       priority: 0
                     forwarding:
+                      ars:
+                        config:
+                          disable: true
                       config:
                       next-hop-groups:
                         next-hop-group:

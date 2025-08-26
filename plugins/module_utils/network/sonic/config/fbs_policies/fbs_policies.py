@@ -226,7 +226,7 @@ class Fbs_policies(ConfigBase):
         diff = self.get_diff_fbs_policies(want, have)
 
         if state == 'merged':
-            commands, requests = self._state_merged(diff)
+            commands, requests = self._state_merged(have, diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
         elif state == 'overridden':
@@ -235,7 +235,7 @@ class Fbs_policies(ConfigBase):
             commands, requests = self._state_deleted(want, have, diff)
         return commands, requests
 
-    def _state_merged(self, diff):
+    def _state_merged(self, have, diff):
         """ The command generator when state is merged
 
         :rtype: A list
@@ -243,7 +243,7 @@ class Fbs_policies(ConfigBase):
                   the current configuration
         """
         commands = diff
-        requests = self.get_modify_policies_requests(commands)
+        requests = self.get_modify_policies_requests(commands, have)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
@@ -259,16 +259,19 @@ class Fbs_policies(ConfigBase):
                   to the desired configuration
         """
         commands, mod_commands = [], []
+        tmp_have = deepcopy(have)
         replaced_config, requests = self.get_replaced_config(want, have)
 
         if replaced_config:
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
+            new_config = remove_empties_from_list(get_new_config(commands, tmp_have, TEST_KEYS_generate_config))
+            tmp_have = new_config
         else:
             mod_commands = diff
 
         if mod_commands:
-            mod_requests = self.get_modify_policies_requests(mod_commands)
+            mod_requests = self.get_modify_policies_requests(mod_commands, tmp_have)
 
             if mod_requests:
                 requests.extend(mod_requests)
@@ -287,6 +290,7 @@ class Fbs_policies(ConfigBase):
         is_delete_all = False
         commands, requests = [], []
         mod_commands, mod_requests = None, None
+        tmp_have = deepcopy(have)
         del_commands = self.get_diff_fbs_policies(have, want)
         self.handle_default_entries(del_commands)
 
@@ -295,11 +299,13 @@ class Fbs_policies(ConfigBase):
             del_requests = self.get_delete_policies_requests(del_commands, is_delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
+            new_config = remove_empties_from_list(get_new_config(commands, tmp_have, TEST_KEYS_generate_config))
+            tmp_have = new_config
             mod_commands = want
-            mod_requests = self.get_modify_policies_requests(mod_commands)
+            mod_requests = self.get_modify_policies_requests(mod_commands, tmp_have)
         elif diff:
             mod_commands = diff
-            mod_requests = self.get_modify_policies_requests(mod_commands)
+            mod_requests = self.get_modify_policies_requests(mod_commands, tmp_have)
 
         if mod_requests:
             requests.extend(mod_requests)
@@ -334,7 +340,18 @@ class Fbs_policies(ConfigBase):
 
         return commands, requests
 
-    def get_modify_policies_requests(self, commands):
+    @staticmethod
+    def check_ars_disable(policy_name, classifier, config):
+        """This method returns a boolean based on whether ars_disable has a value of true in the given config"""
+        if config:
+            match_policy = next((policy for policy in config if policy['policy_name'] == policy_name), None)
+            if match_policy and match_policy.get('sections'):
+                match_section = next((section for section in match_policy['sections'] if section['class'] == classifier), None)
+                if match_section and match_section.get('forwarding') and match_section['forwarding'].get('ars_disable'):
+                    return True
+        return False
+
+    def get_modify_policies_requests(self, commands, have):
         """This method returns a patch request to modify the FBS policies configuration"""
         requests = []
         policy_list = []
@@ -424,7 +441,11 @@ class Fbs_policies(ConfigBase):
 
                         if ars_disable:
                             forwarding_dict['ars'] = {'config': {'disable': ars_disable}}
-                        if ars_disable is False:
+
+                        # Current SONiC behavior doesn't allow ars_disable to be patched to false,
+                        # so ars_disable gets deleted instead. Also, it's necessary to make sure ars_disable
+                        # is configured to true before deleting to avoid resource not found error.
+                        if ars_disable is False and self.check_ars_disable(policy_name, classifier, have):
                             attr_path = '/sections/section=%s/forwarding/ars/config/disable' % (classifier)
                             requests.append(self.get_delete_policies_request(policy_name, attr_path))
                         if egress_interfaces:
