@@ -66,6 +66,7 @@ options:
         - SPEED_100GB
         - SPEED_200GB
         - SPEED_400GB
+        - SPEED_800GB
       auto_negotiate:
         description:
         - auto-negotiate transmission parameters with peer interface.
@@ -97,6 +98,15 @@ options:
         - UNRELIABLE_LOS_MODE_ON
         - UNRELIABLE_LOS_MODE_OFF
         - UNRELIABLE_LOS_MODE_AUTO
+      autoneg_mode:
+        description:
+        - BAM/MSA configuration for autonegotiation
+        - Applicable only for Ethernet interfaces.
+        version_added: '4.0.0'
+        type: str
+        choices:
+        - AUTONEG_MODE_BAM
+        - AUTONEG_MODE_MSA
   state:
     description:
     - The state the configuration should be left in.
@@ -133,6 +143,14 @@ EXAMPLES = """
 #  fec AUTO
 #  shutdown
 #
+# show running-configuration interface Ethernet 12
+# !
+# interface Ethernet12
+#  mtu 9100
+#  speed auto MSA
+#  fec AUTO
+#  shutdown
+#
 - name: Configure interfaces
   sonic_interfaces:
     config:
@@ -151,7 +169,7 @@ EXAMPLES = """
 # Ethernet0           -                   up                              100000       9100
 # Ethernet4           -                   up                              100000       9100
 # Ethernet8           -                   up                              100000       9100
-# Ethernet12          -                   up                              100000       9100
+# Ethernet12          -                   up                   on         100000       9100
 # Ethernet16          -                   up                              100000       9100
 #
 # show running-configuration interface Ethernet 8
@@ -159,6 +177,13 @@ EXAMPLES = """
 # interface Ethernet8
 #  mtu 9100
 #  speed 100000
+#  shutdown
+#
+# show running-configuration interface Ethernet 12
+# !
+# interface Ethernet12
+#  mtu 9100
+#  speed auto
 #  shutdown
 #
 # Using "deleted" state
@@ -219,6 +244,13 @@ EXAMPLES = """
 #  speed 100000
 #  shutdown
 #
+# show running-configuration interface Ethernet 12
+# !
+# interface Ethernet12
+#  mtu 9100
+#  speed 100000
+#  shutdown
+
 - name: Configure interfaces
   sonic_interfaces:
     config:
@@ -227,6 +259,7 @@ EXAMPLES = """
       - name: Ethernet12
         description: 'Ethernet Twelve'
         auto_negotiate: true
+        autoneg_mode: AUTONEG_MODE_MSA
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         enabled: true
@@ -252,6 +285,14 @@ EXAMPLES = """
 # interface Ethernet8
 #  mtu 9100
 #  speed 100000
+#  fec AUTO
+#  shutdown
+#
+# show running-configuration interface Ethernet 12
+# !
+# interface Ethernet12
+#  mtu 9100
+#  speed auto MSA
 #  fec AUTO
 #  shutdown
 #
@@ -287,6 +328,7 @@ EXAMPLES = """
         mtu: 3500
         enabled: true
         auto_negotiate: true
+        autoneg_mode: AUTONEG_MODE_MSA
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
@@ -311,7 +353,7 @@ EXAMPLES = """
 # !
 # interface Ethernet8
 #  mtu 9100
-#  speed 100000
+#  speed auto MSA
 #  fec AUTO
 #  no shutdown
 #
@@ -337,6 +379,13 @@ EXAMPLES = """
 #  speed auto 40000
 #  shutdown
 #
+# show running-configuration interface Ethernet 12
+# !
+# interface Ethernet12
+#  mtu 9100
+#  speed 100000
+#  shutdown
+#
 - name: Configure interfaces
   sonic_interfaces:
     config:
@@ -349,6 +398,7 @@ EXAMPLES = """
         mtu: 3500
         enabled: true
         auto_negotiate: true
+        autoneg_mode: AUTONEG_MODE_MSA
       - name: Ethernet16
         description: 'Ethernet Sixteen'
         mtu: 3000
@@ -376,6 +426,14 @@ EXAMPLES = """
 #  speed auto 100000
 #  fec AUTO
 #  shutdown
+#
+# show running-configuration interface Ethernet 12
+# !
+# interface Ethernet12
+#  mtu 3500
+#  speed auto MSA
+#  fec AUTO
+#  no shutdown
 #
 """
 
