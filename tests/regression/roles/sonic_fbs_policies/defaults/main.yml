@@ -1,0 +1,341 @@
+---
+ansible_connection: httpapi
+
+sonic_fbs_policies_tests:
+  - name: test_case_01
+    description: Initial FBS policies configuration
+    state: merged
+    input:
+      - policy_name: policy1
+        policy_description: abc
+        policy_type: forwarding
+        sections:
+          - class: class1
+            forwarding:
+              ars_disable: true
+              egress_interfaces:
+                - intf_name: '{{ interface9 }}'
+                  priority: 1
+            priority: 0
+            section_description: xyz
+      - policy_name: policy2
+        policy_description: qwerty
+        policy_type: acl-copp
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 0
+              policer:
+                cbs: 80
+                cir: 75
+                pbs: 95
+                pir: 96
+            priority: 0
+      - policy_name: policy3
+        policy_description: 'this is policy 3'
+        policy_type: qos
+        sections:
+          - class: class1
+            qos:
+              output_queue_index: 0
+              policer:
+                cbs: 15
+                cir: 20
+                pbs: 21
+                pir: 24
+              remark:
+                set_dot1p: 0
+                set_dscp: 0
+            priority: 0
+      - policy_name: policy4
+        policy_description: 'this is policy 4'
+        policy_type: monitoring
+        sections:
+          - class: class1
+            mirror_sessions:
+              - session_name: session1
+            priority: 0
+      - policy_name: policy5
+        policy_description: abc
+        policy_type: forwarding
+        sections:
+          - class: class1
+            forwarding:
+              next_hops:
+                - address: 1.1.1.1
+                  vrf: default
+                  priority: 1
+              next_hop_groups:
+                - group_name: hop1
+                  group_type: ipv4
+                  priority: 1
+              replication_groups:
+                - group_name: rep1
+                  group_type: ipv4
+                  priority: 1
+            priority: 0
+            section_description: 'section for class1'
+
+  - name: test_case_02
+    description: Update FBS policies configuration
+    state: merged
+    input:
+      - policy_name: policy1
+        policy_description: abc123
+        sections:
+          - class: class1
+            forwarding:
+              ars_disable: false
+              egress_interfaces:
+                - intf_name: '{{ interface9 }}'
+                  priority: 2
+                - intf_name: '{{ interface10 }}'
+                  priority: 4
+            section_description: xyz789
+          - class: class2
+            priority: 3
+      - policy_name: policy2
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 10
+              policer:
+                cbs: 85
+                cir: 77
+                pbs: 97
+                pir: 98
+      - policy_name: policy3
+        sections:
+          - class: class1
+            qos:
+              output_queue_index: 5
+              policer:
+                cbs: 25
+                cir: 30
+                pbs: 31
+                pir: 34
+              remark:
+                set_dot1p: 4
+                set_dscp: 63
+      - policy_name: policy4
+        sections:
+          - class: class1
+            mirror_sessions:
+              - session_name: session2
+      - policy_name: policy5
+        sections:
+          - class: class1
+            forwarding:
+              next_hops:
+                - address: 1.1.1.1
+                  vrf: default
+                  priority: 5
+                - address: 2.2.2.2
+                  vrf: VrfReg1
+                  priority: 9
+              next_hop_groups:
+                - group_name: hop1
+                  group_type: ipv4
+                  priority: 36
+                - group_name: hop2
+                  group_type: ipv4
+                  priority: 34
+              replication_groups:
+                - group_name: rep1
+                  group_type: ipv4
+                  priority: 41
+                - group_name: rep2
+                  group_type: ipv4
+                  priority: 39
+
+  - name: test_case_03
+    description: Replace FBS policies configuration
+    state: replaced
+    input:
+      - policy_name: policy5
+        policy_type: forwarding
+        sections:
+          - class: class1
+            priority: 1
+
+  - name: test_case_04
+    description: Override FBS policies configuration
+    state: overridden
+    input:
+      - policy_name: policy1
+        policy_description: abc
+        policy_type: forwarding
+        sections:
+          - class: class1
+            forwarding:
+              ars_disable: true
+              egress_interfaces:
+                - intf_name: '{{ interface9 }}'
+                  priority: 1
+            priority: 0
+            section_description: xyz
+      - policy_name: copp-system-policy
+        policy_description: qwerty
+        policy_type: copp
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 0
+              policer:
+                cbs: 80
+                cir: 75
+                pbs: 95
+                pir: 96
+            priority: 0
+
+  - name: test_case_05
+    description: Merge FBS policies configuration for deletion
+    state: merged
+    input:
+      - policy_name: policy1
+        sections:
+          - class: class1
+            forwarding:
+              egress_interfaces:
+                - intf_name: '{{ interface10 }}'
+                  priority: 4
+          - class: class2
+            priority: 3
+      - policy_name: policy2
+        policy_description: qwerty
+        policy_type: acl-copp
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 0
+              policer:
+                cbs: 80
+                cir: 75
+                pbs: 95
+                pir: 96
+            priority: 0
+      - policy_name: policy3
+        policy_description: 'this is policy 3'
+        policy_type: qos
+        sections:
+          - class: class1
+            qos:
+              output_queue_index: 0
+              policer:
+                cbs: 15
+                cir: 20
+                pbs: 21
+                pir: 24
+              remark:
+                set_dot1p: 0
+                set_dscp: 0
+            priority: 0
+      - policy_name: policy4
+        policy_description: 'this is policy 4'
+        policy_type: monitoring
+        sections:
+          - class: class1
+            mirror_sessions:
+              - session_name: session1
+            priority: 0
+      - policy_name: policy5
+        policy_description: abc
+        policy_type: forwarding
+        sections:
+          - class: class1
+            forwarding:
+              next_hops:
+                - address: 1::1
+                  vrf: default
+                  priority: 1
+                - address: 2::2
+                  priority: 9
+              next_hop_groups:
+                - group_name: hop1
+                  group_type: ipv6
+                  priority: 1
+                - group_name: hop2
+                  group_type: ipv6
+                  priority: 34
+              replication_groups:
+                - group_name: rep1
+                  group_type: ipv6
+                  priority: 1
+                - group_name: rep2
+                  group_type: ipv6
+                  priority: 39
+            priority: 0
+            section_description: 'section for class1'
+      - policy_name: policy6
+        policy_description: abc
+        policy_type: forwarding
+
+  - name: test_case_06
+    description: Delete FBS policies configuration
+    state: deleted
+    input:
+      - policy_name: policy1
+        policy_description: abc
+        sections:
+          - class: class1
+            forwarding:
+              ars_disable: true
+              egress_interfaces:
+                - intf_name: '{{ interface10 }}'
+            section_description: xyz
+          - class: class2
+      - policy_name: policy2
+        policy_description: qwerty
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 0
+              policer:
+                cbs: 80
+                cir: 75
+                pbs: 95
+                pir: 96
+      - policy_name: policy3
+        policy_description: 'this is policy 3'
+        sections:
+          - class: class1
+            qos:
+              output_queue_index: 0
+              policer:
+                cbs: 15
+                cir: 20
+                pbs: 21
+                pir: 24
+              remark:
+                set_dot1p: 0
+                set_dscp: 0
+      - policy_name: policy4
+        policy_description: 'this is policy 4'
+        sections:
+          - class: class1
+            mirror_sessions:
+              - session_name: session1
+      - policy_name: policy5
+        policy_description: abc
+        sections:
+          - class: class1
+            forwarding:
+              next_hops:
+                - address: 2::2
+              next_hop_groups:
+                - group_name: hop1
+                  group_type: ipv6
+                  priority: 1
+                - group_name: hop2
+              replication_groups:
+                - group_name: rep1
+                  group_type: ipv6
+                  priority: 1
+                - group_name: rep2
+            section_description: 'section for class1'
+      - policy_name: policy6
+
+  - name: test_case_07
+    description: Delete all FBS policies configuration
+    state: deleted
+    input: []
