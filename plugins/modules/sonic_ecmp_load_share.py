@@ -327,8 +327,8 @@ commands:
 
 
 from ansible.module_utils.basic import AnsibleModule
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.loadshare_mode.loadshare_mode import Loadshare_modeArgs
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.loadshare_mode.loadshare_mode import Loadshare_mode
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.ecmp_load_share.ecmp_load_share import Ecmp_load_shareArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.config.ecmp_load_share.ecmp_load_share import Ecmp_load_share
 
 
 def main():
@@ -337,7 +337,7 @@ def main():
 
     :returns: the result form module invocation
     """
-    module = AnsibleModule(argument_spec=Loadshare_modeArgs.argument_spec,
+    module = AnsibleModule(argument_spec=Ecmp_load_shareArgs.argument_spec,
                            supports_check_mode=True)
 
     result = Loadshare_mode(module).execute_module()

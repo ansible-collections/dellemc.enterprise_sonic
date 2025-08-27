@@ -202,7 +202,7 @@ class Ecmp_load_shareFacts(object):
 
         ansible_facts['ansible_network_resources'].pop('ecmp_load_share', None)
         facts = {}
-        if loadshare_mode_facts:
+        if ecmp_load_share_facts:
             params = utils.validate_config(self.argument_spec, {'config': ecmp_load_share_facts})
             facts['ecmp_load_share'] = remove_empties(params['config'])
 
