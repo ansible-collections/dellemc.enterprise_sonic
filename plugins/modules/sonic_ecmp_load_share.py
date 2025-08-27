@@ -340,7 +340,7 @@ def main():
     module = AnsibleModule(argument_spec=Ecmp_load_shareArgs.argument_spec,
                            supports_check_mode=True)
 
-    result = Loadshare_mode(module).execute_module()
+    result = Ecmp_load_share(module).execute_module()
     module.exit_json(**result)
 
 
