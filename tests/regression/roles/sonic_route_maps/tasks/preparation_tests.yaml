@@ -1,4 +1,5 @@
-- name: "Delete old route maps"
+---
+- name: Delete old route maps
   vars:
     ansible_connection: httpapi
   sonic_route_maps:
@@ -40,3 +41,16 @@
     ansible_connection: network_cli
   sonic_config:
     commands: "{{ preparation_tests.init_interfaces }}"
+
+# - name: Create ARS objects
+#   sonic_ars:
+#     config:
+#       ars_objects:
+#         - name: obj1
+#         - name: obj2
+#         - name: obj3
+#         - name: obj4
+#       profiles:
+#         - name: p1
+#       switch_binding:
+#         profile: p1

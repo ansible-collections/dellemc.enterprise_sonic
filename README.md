@@ -28,6 +28,7 @@ Name | Description | Connection type
 [**sonic_command**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_command/)|Run commands through the Management Framework CLI|network_cli
 [**sonic_config**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_config)|Manage configuration through the Management Framework CLI|network_cli
 [**sonic_api**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_api)|Perform REST operations through the Management Framework REST API|httpapi
+[**sonic_api**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_facts)|Collect "facts" (configuration) in argspec format for selected modules|httpapi
 
 Collection network resource modules
 -----------------------------------

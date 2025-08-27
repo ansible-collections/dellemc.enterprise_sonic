@@ -1,7 +1,8 @@
 ---
-- name: Delete interfaces
+- name: Delete LAG interfaces
   sonic_lag_interfaces:
     config:
       - name: Portchannel100
       - name: Portchannel200
+    state: deleted
   failed_when: false
