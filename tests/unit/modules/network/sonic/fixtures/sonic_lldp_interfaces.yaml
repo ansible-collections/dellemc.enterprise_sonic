@@ -4,6 +4,7 @@ merged_01:
     config:
       - name: 'Ethernet0'
         mode: receive
+        network_policy: 2
         tlv_set:
           ipv4_management_address: '10.1.1.1'
         med_tlv_select:
@@ -31,6 +32,7 @@ merged_01:
             - name: 'Ethernet0'
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:network-policy: 1
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.2"
                 openconfig-lldp-ext:suppress-tlv-advertisement:
                   - openconfig-lldp-ext:MED_NETWORK_POLICY
@@ -47,6 +49,10 @@ merged_01:
       method: patch
       data:
         openconfig-lldp-ext:mode: 'RECEIVE'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:network-policy
+      method: patch
+      data:
+        openconfig-lldp-ext:network-policy: 2
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: patch
       data:
@@ -192,6 +198,7 @@ deleted_01:
     config:
       - name: 'Ethernet0'
         mode: receive
+        network_policy: 1
         tlv_set:
           ipv4_management_address: '10.1.1.1'
         med_tlv_select:
@@ -214,6 +221,7 @@ deleted_01:
             - name: 'Ethernet0'
               config:
                 openconfig-lldp-ext:mode: RECEIVE
+                openconfig-lldp-ext:network-policy: 1
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
                 openconfig-lldp-ext:suppress-tlv-advertisement:
                   - openconfig-lldp-ext:MED_NETWORK_POLICY
@@ -225,6 +233,8 @@ deleted_01:
                   - openconfig-lldp-ext:MAX_FRAME_SIZE
   expected_config_requests:
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
+      method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:network-policy
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: delete
@@ -350,6 +360,7 @@ replaced_01:
     config:
       - name: 'Ethernet0'
         mode: receive
+        network_policy: 2
         tlv_set:
           ipv4_management_address: '10.1.1.2'
         med_tlv_select:
@@ -369,6 +380,7 @@ replaced_01:
             - name: 'Ethernet0'
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:network-policy: 1
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
                 openconfig-lldp-ext:MED_NETWORK_POLICY: true
                 openconfig-lldp-ext:allowed-vlans:
@@ -381,6 +393,8 @@ replaced_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:network-policy
+      method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=10
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:allowed-vlans=15..20
@@ -391,6 +405,10 @@ replaced_01:
       method: patch
       data:
         openconfig-lldp-ext:mode: 'RECEIVE'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:network-policy
+      method: patch
+      data:
+        openconfig-lldp-ext:network-policy: 2
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: patch
       data:
@@ -416,6 +434,7 @@ overridden_01:
     config:
       - name: 'Ethernet0'
         mode: receive
+        network_policy: 2
         tlv_set:
           ipv4_management_address: '10.1.1.2'
         med_tlv_select:
@@ -444,6 +463,7 @@ overridden_01:
             - name: 'Ethernet0'
               config:
                 openconfig-lldp-ext:mode: TRANSMIT
+                openconfig-lldp-ext:network-policy: 1
                 openconfig-lldp-ext:management-address-ipv4: "10.1.1.1"
                 openconfig-lldp-ext:MED_NETWORK_POLICY: true
             - name: 'Ethernet1'
@@ -466,6 +486,8 @@ overridden_01:
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:mode
       method: delete
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:network-policy
+      method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=10
       method: delete
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet1/config/openconfig-lldp-ext:allowed-vlans=15..20
@@ -476,6 +498,10 @@ overridden_01:
       method: patch
       data:
         openconfig-lldp-ext:mode: 'RECEIVE'
+    - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:network-policy
+      method: patch
+      data:
+        openconfig-lldp-ext:network-policy: 2
     - path: data/openconfig-lldp:lldp/interfaces/interface=Ethernet0/config/openconfig-lldp-ext:management-address-ipv4
       method: patch
       data:
