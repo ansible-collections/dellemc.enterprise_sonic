@@ -4,7 +4,7 @@
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
-The sonic_loadshare_mode
+The sonic_ecmp_load_share
 It is in this file where the current configuration (as dict)
 is compared to the provided configuration (as dict) and the command set
 necessary to bring the current configuration to it's desired end-state is
@@ -36,7 +36,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_new_config,
     get_formatted_config_diff
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.loadshare_mode.loadshare_mode import (
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ecmp_load_share.ecmp_load_share import (
     LOADSHARE_MODE_ATTR_MAP,
     LOADSHARE_MODE_DICT_MAP
 )
@@ -93,9 +93,9 @@ TEST_KEYS_generate_config = [
 ]
 
 
-class Loadshare_mode(ConfigBase):
+class Ecmp_load_share(ConfigBase):
     """
-    The sonic_loadshare_mode class
+    The sonic_ecmp_load_share class
     """
 
     gather_subset = [
@@ -104,13 +104,13 @@ class Loadshare_mode(ConfigBase):
     ]
 
     gather_network_resources = [
-        'loadshare_mode',
+        'ecmp_load_share',
     ]
 
     def __init__(self, module):
-        super(Loadshare_mode, self).__init__(module)
+        super(Ecmp_load_share, self).__init__(module)
 
-    def get_loadshare_mode_facts(self):
+    def get_ecmp_load_share_facts(self):
         """ Get the 'facts' (the current configuration)
 
         :rtype: A dictionary
@@ -118,10 +118,10 @@ class Loadshare_mode(ConfigBase):
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset,
                                                          self.gather_network_resources)
-        loadshare_mode_facts = facts['ansible_network_resources'].get('loadshare_mode')
-        if not loadshare_mode_facts:
+        ecmp_load_share_facts = facts['ansible_network_resources'].get('ecmp_load_share')
+        if not ecmp_load_share_facts:
             return {}
-        return loadshare_mode_facts
+        return ecmp_load_share_facts
 
     def execute_module(self):
         """ Execute the module
@@ -130,8 +130,8 @@ class Loadshare_mode(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        existing_loadshare_mode_facts = self.get_loadshare_mode_facts()
-        commands, requests = self.set_config(existing_loadshare_mode_facts)
+        existing_ecmp_load_share_facts = self.get_ecmp_load_share_facts()
+        commands, requests = self.set_config(existing_ecmp_load_share_facts)
         if commands and len(requests) > 0:
             if not self._module.check_mode:
                 try:
@@ -141,14 +141,14 @@ class Loadshare_mode(ConfigBase):
             result['changed'] = True
         result['commands'] = commands
 
-        changed_loadshare_mode_facts = self.get_loadshare_mode_facts()
+        changed_ecmp_load_share_facts = self.get_ecmp_load_share_facts()
 
-        result['before'] = existing_loadshare_mode_facts
+        result['before'] = existing_ecmp_load_share_facts
         if result['changed']:
-            result['after'] = changed_loadshare_mode_facts
+            result['after'] = changed_ecmp_load_share_facts
 
-        new_config = changed_loadshare_mode_facts
-        old_config = existing_loadshare_mode_facts
+        new_config = changed_ecmp_load_share_facts
+        old_config = existing_ecmp_load_share_facts
         if self._module.check_mode:
             result.pop('after', None)
             new_config = get_new_config(commands, old_config,
@@ -162,7 +162,7 @@ class Loadshare_mode(ConfigBase):
                                                        self._module._verbosity)
         return result
 
-    def set_config(self, existing_mirroring_facts):
+    def set_config(self, existing_ecmp_load_share_facts):
         """ Collect the configuration from the args passed to the module,
             collect the current configuration (as a dict from facts)
 
@@ -171,7 +171,7 @@ class Loadshare_mode(ConfigBase):
                   to the desired configuration
         """
         want = remove_empties(self._module.params['config'])
-        have = existing_mirroring_facts
+        have = existing_ecmp_load_share_facts
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -210,7 +210,7 @@ class Loadshare_mode(ConfigBase):
         commands = []
         diff = get_diff(want, have)
         command = diff
-        requests = self.get_modify_loadshare_mode_requests(command, have)
+        requests = self.get_modify_ecmp_load_share_requests(command, have)
         if command and len(requests) > 0:
             commands = update_states([command], 'merged')
         else:
@@ -236,7 +236,7 @@ class Loadshare_mode(ConfigBase):
         else:
             command = want
 
-        requests = self.get_delete_loadshare_mode_requests(command, have, True, delete_all)
+        requests = self.get_delete_ecmp_load_share_requests(command, have, True, delete_all)
 
         if command and len(requests) > 0:
             commands = update_states([command], 'deleted')
@@ -261,7 +261,7 @@ class Loadshare_mode(ConfigBase):
         add_commands = []
 
         if replaced_config:
-            del_requests = self.get_delete_loadshare_mode_requests(replaced_config, have)
+            del_requests = self.get_delete_ecmp_load_share_requests(replaced_config, have)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, 'deleted'))
             add_commands = want
@@ -269,7 +269,7 @@ class Loadshare_mode(ConfigBase):
             add_commands = diff
 
         if add_commands:
-            add_requests = self.get_modify_loadshare_mode_requests(add_commands, have)
+            add_requests = self.get_modify_ecmp_load_share_requests(add_commands, have)
             if len(add_requests) > 0:
                 requests.extend(add_requests)
                 commands.extend(update_states(add_commands, 'replaced'))
@@ -293,14 +293,14 @@ class Loadshare_mode(ConfigBase):
         diff = get_diff(want, have)
         r_diff = get_diff(have, want)
         if have and (diff or r_diff):
-            del_requests = self.get_delete_loadshare_mode_requests(have, have, False, True)
+            del_requests = self.get_delete_ecmp_load_share_requests(have, have, False, True)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             have = []
 
         if not have and want:
             want_commands = want
-            want_requests = self.get_modify_loadshare_mode_requests(want_commands, have)
+            want_requests = self.get_modify_ecmp_load_share_requests(want_commands, have)
 
             if len(want_requests) > 0:
                 requests.extend(want_requests)
@@ -308,7 +308,7 @@ class Loadshare_mode(ConfigBase):
 
         return commands, requests
 
-    def get_modify_loadshare_mode_requests(self, command, have):
+    def get_modify_ecmp_load_share_requests(self, command, have):
         requests = []
         if not command:
             return requests
@@ -369,7 +369,7 @@ class Loadshare_mode(ConfigBase):
                 del_attr = True
         return del_attr
 
-    def get_delete_loadshare_mode_requests(self, command, have, ans_delete=False, is_delete_all=False):
+    def get_delete_ecmp_load_share_requests(self, command, have, ans_delete=False, is_delete_all=False):
         requests = []
         if not command or not have:
             return requests

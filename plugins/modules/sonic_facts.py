@@ -122,7 +122,7 @@ options:
       - mirroring
       - evpn_esi_multihome
       - ssh_server
-      - loadshare_mode
+      - ecmp_load_share
 """
 
 EXAMPLES = """

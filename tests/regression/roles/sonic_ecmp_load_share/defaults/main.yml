@@ -1,7 +1,7 @@
 ---
 ansible_connection: httpapi
 
-sonic_loadshare_mode_tests:
+sonic_ecmp_load_share_tests:
   - name: test_case_01
     description: Intial configuration of loadshare mode
     state: merged

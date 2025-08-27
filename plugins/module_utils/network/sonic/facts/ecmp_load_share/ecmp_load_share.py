@@ -1,10 +1,10 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
-The sonic IP ECMP load share mode fact class
+The sonic ECMP load share mode fact class
 It is in this file the configuration is collected from the device
 for a given resource, parsed, and the facts tree is populated
 based on the configuration.
@@ -21,7 +21,7 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common i
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     remove_empties
 )
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.loadshare_mode.loadshare_mode import Loadshare_modeArgs
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.ecmp_load_share.ecmp_load_share import Ecmp_load_shareArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
     edit_config
@@ -152,13 +152,13 @@ LOADSHARE_MODE_DICT_MAP = [
 ]
 
 
-class Loadshare_modeFacts(object):
-    """ The sonic loadshare_mode fact class
+class Ecmp_load_shareFacts(object):
+    """ The sonic ecmp_load_share fact class
     """
 
     def __init__(self, module, subspec='config', options='options'):
         self._module = module
-        self.argument_spec = Loadshare_modeArgs.argument_spec
+        self.argument_spec = Ecmp_load_shareArgs.argument_spec
         spec = deepcopy(self.argument_spec)
         if subspec:
             if options:
@@ -170,7 +170,7 @@ class Loadshare_modeFacts(object):
 
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
-    def get_loadshare_mode_config(self):
+    def get_ecmp_load_share_config(self):
         """Get all IP ECMP load share mode configuration in chassis"""
         request = [{'path': 'data/openconfig-loadshare-mode-ext:loadshare', 'method': GET}]
         try:
@@ -193,23 +193,23 @@ class Loadshare_modeFacts(object):
         :returns: facts
         """
         if not data:
-            data = self.get_loadshare_mode_config()
+            data = self.get_ecmp_load_share_config()
 
         if data:
-            loadshare_mode_facts = self.get_loadshare_mode_facts(data)
+            ecmp_load_share_facts = self.get_ecmp_load_share_facts(data)
         else:
-            loadshare_mode_facts = {}
+            ecmp_load_share_facts = {}
 
-        ansible_facts['ansible_network_resources'].pop('loadshare_mode', None)
+        ansible_facts['ansible_network_resources'].pop('ecmp_load_share', None)
         facts = {}
         if loadshare_mode_facts:
-            params = utils.validate_config(self.argument_spec, {'config': loadshare_mode_facts})
-            facts['loadshare_mode'] = remove_empties(params['config'])
+            params = utils.validate_config(self.argument_spec, {'config': ecmp_load_share_facts})
+            facts['ecmp_load_share'] = remove_empties(params['config'])
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def get_loadshare_mode_facts(self, config):
+    def get_ecmp_load_share_facts(self, config):
         lsm_facts = {}
 
         for amap in LOADSHARE_MODE_ATTR_MAP:
@@ -234,5 +234,5 @@ class Loadshare_modeFacts(object):
                                                    .get(cfg_subattr))
             lsm_facts[ans_attr] = lsm_subfacts
 
-        loadshare_mode_facts = remove_empties(lsm_facts)
-        return loadshare_mode_facts
+        ecmp_load_share_facts = remove_empties(lsm_facts)
+        return ecmp_load_share_facts

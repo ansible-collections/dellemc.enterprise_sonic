@@ -4,4 +4,4 @@
 
 - name: "Test started ..."
   ansible.builtin.include_tasks: tasks_template.yaml
-  loop: "{{ sonic_loadshare_mode_tests }}"
+  loop: "{{ sonic_ecmp_load_share_tests }}"

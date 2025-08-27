@@ -90,7 +90,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'br_l2pt',
         'evpn_esi_multihome',
         'ssh_server',
-        'loadshare_mode'
+        'ecmp_load_share'
     ]
 
     argument_spec = {

@@ -5,7 +5,7 @@
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 """
-The module file for sonic_loadshare_mode
+The module file for sonic_ecmp_load_share
 """
 
 from __future__ import absolute_import, division, print_function
@@ -13,7 +13,7 @@ __metaclass__ = type
 
 DOCUMENTATION = """
 ---
-module: sonic_loadshare_mode
+module: sonic_ecmp_load_share
 version_added: 3.1.0
 author: M. Zhang (@mingjunzhang2019)
 notes:
@@ -44,7 +44,7 @@ options:
           - JENKINS_HASH_HI
       hash_ingress_port:
         description:
-          - Load share hash ingress port.
+          - Include the ingress port in the load share hash calculation.
         type: bool
       hash_offset:
         description:
@@ -59,10 +59,11 @@ options:
           flow_based:
             description:
               - Enable flow-based IP ECMP hashing.
+              - If this option is set to true, the configured 'offset' value is ignored.
             type: bool
       hash_roce_qpn:
         description:
-          - Load share ROCE Queue-Pair Number.
+          - Include the ROCE Queue-Pair Number in the load share hash calculation.
         type: bool
       hash_seed:
         description:
@@ -76,19 +77,19 @@ options:
         suboptions:
           ipv4_dst_ip:
             description:
-              - IPv4 destination IP address.
+              - Include the IPv4 destination IP address in the load share hash calculation.
             type: bool
           ipv4_src_ip:
             description:
-              - IPv4 source IP address.
+              - Include the IPv4 source IP address in the load share hash calculation.
             type: bool
           ipv4_ip_proto:
             description:
-              - IPv4 protocol.
+              - Include the IPv4 protocol value in the load share hash calculation.
             type: bool
           ipv4_l4_dst_port:
             description:
-              - IPv4 L4 destination port.
+              - Include the IPv4 L4 source port in the load share hash calculation.
             type: bool
           ipv4_l4_src_port:
             description:
@@ -105,23 +106,24 @@ options:
         suboptions:
           ipv6_dst_ip:
             description:
-              - IPv6 destination IP address.
+              - Include the IPv6 destination IP address in the load share hash calculation.
             type: bool
           ipv6_src_ip:
             description:
-              - IPv6 source IP address.
+              - Include the IPv6 source IP address in the load share hash calculation.
             type: bool
           ipv6_next_hdr:
             description:
-              - IPv6 protocol.
+              - Include the IPv6 "next header" value (usually the Transport Layer protocol type) in the
+              - load share hash calculation.
             type: bool
           ipv6_l4_dst_port:
             description:
-              - IPv6 L4 destination port.
+              - Include the IPv6 L4 destination port in the load share hash calculation.
             type: bool
           ipv6_l4_src_port:
             description:
-              - IPv6 L4 source port.
+              - Include the IPv6 L4 source port in the load share hash calculation.
             type: bool
           ipv6_symmetric:
             description:

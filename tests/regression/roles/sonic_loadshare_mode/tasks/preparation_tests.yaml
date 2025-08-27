@@ -1,6 +1,0 @@
----
-- name: Delete existing loadshare mode configuration
-  sonic_loadshare_mode:
-    config: {}
-    state: deleted
-  failed_when: false

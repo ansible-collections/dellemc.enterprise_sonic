@@ -15,7 +15,7 @@ merged_01:
         ipv4_l4_dst_port: true
         ipv4_l4_src_port: true
         ipv4_symmetric: false
-  existing_loadshare_mode_config:
+  existing_ecmp_load_share_config:
     - path: "data/openconfig-loadshare-mode-ext:loadshare"
       response:
         code: 200
@@ -64,7 +64,7 @@ deleted_01:
   module_args:
     state: deleted
     config:
-  existing_loadshare_mode_config:
+  existing_ecmp_load_share_config:
     - path: "data/openconfig-loadshare-mode-ext:loadshare"
       response:
         code: 200
@@ -93,7 +93,7 @@ deleted_02:
       hash_roce_qpn: true
       ipv4:
         ipv4_src_ip: false
-  existing_loadshare_mode_config:
+  existing_ecmp_load_share_config:
     - path: "data/openconfig-loadshare-mode-ext:loadshare"
       response:
         code: 200
@@ -148,7 +148,7 @@ replaced_01:
         ipv4_src_ip: false
         ipv4_dst_ip: false
         ipv4_symmetric: true
-  existing_loadshare_mode_config:
+  existing_ecmp_load_share_config:
     - path: "data/openconfig-loadshare-mode-ext:loadshare"
       response:
         code: 200
@@ -242,7 +242,7 @@ overridden_01:
         ipv4_src_ip: false
         ipv4_dst_ip: false
         ipv4_ip_proto: false
-  existing_loadshare_mode_config:
+  existing_ecmp_load_share_config:
     - path: "data/openconfig-loadshare-mode-ext:loadshare"
       response:
         code: 200

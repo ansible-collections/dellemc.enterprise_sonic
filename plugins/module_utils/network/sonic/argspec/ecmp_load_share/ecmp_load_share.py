@@ -5,16 +5,16 @@
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 """
-The arg spec for the sonic_loadshare_mode module
+The arg spec for the sonic_ecmp_load_share module
 """
 
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
 
-class Loadshare_modeArgs(object):  # pylint: disable=R0903
+class Ecmp_load_shareArgs(object):  # pylint: disable=R0903
 
-    """The arg spec for the sonic_loadshare_mode module
+    """The arg spec for the sonic_ecmp_load_share module
     """
 
     def __init__(self, **kwargs):
