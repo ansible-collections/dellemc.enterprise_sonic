@@ -69,11 +69,10 @@ class VlansFacts(object):
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-
     def get_vlans(self):
         """
         Gather all the vlan configuration from the device
-        
+
         Returns: List of dictionaries with each item being a vlan config
         """
         request = [{"path": "data/sonic-vlan:sonic-vlan", "method": GET}]

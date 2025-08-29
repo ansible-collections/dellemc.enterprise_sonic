@@ -169,10 +169,11 @@ class Vlans(ConfigBase):
         """
         commands = []
         requests = []
-        # Add default values to want so it'll be properly comparable to have and gather replaced config
-        replaced_config = get_replaced_config(self.deal_with_default_entries(want, method="add"), have, TEST_KEYS)
-        # Re-generate diff with the default values accounted for in want
-        diff = get_diff(want, have, TEST_KEYS)
+        # Add default values to want so it'll be properly comparable to have and re-generate diff.
+        diff = get_diff(self.deal_with_default_entries(want, method="add"), have, TEST_KEYS)
+        # Want and have now match and I can proceed with replaced state
+        replaced_config = get_replaced_config(want, have, TEST_KEYS)
+
         replaced_vlans = []
         for config in replaced_config:
             # This is for creation of a new vlan vs replacing an existing vlan
@@ -186,8 +187,6 @@ class Vlans(ConfigBase):
                 requests.extend(del_requests)
                 commands.extend(update_states(replaced_config, "deleted"))
 
-            # Want is modified by deal_with_default_entries so re-generating diff
-            #diff = self.deal_with_default_entries(diff, method="remove")
             rep_requests = self.get_create_vlans_requests(diff, have)
             if len(rep_requests) > 0:
                 requests.extend(rep_requests)
