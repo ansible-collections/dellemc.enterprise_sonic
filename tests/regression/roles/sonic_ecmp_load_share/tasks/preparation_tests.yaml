@@ -1,0 +1,6 @@
+---
+- name: Delete existing ECMP load share configuration
+  sonic_ecmp_load_share:
+    config: {}
+    state: deleted
+  failed_when: false

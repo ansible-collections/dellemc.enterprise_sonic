@@ -130,6 +130,7 @@ options:
       - drop_counter
       - evpn_esi_multihome
       - ssh_server
+      - ecmp_load_share
 """
 
 EXAMPLES = """
