@@ -66,13 +66,12 @@ def get_del_ip_op(key_set, command, exist_conf, ip):
         return True, {}
 
     new_conf = exist_conf
-    if command.get(ip):
-        attr_map = next((amap for amap in LOADSHARE_MODE_DICT_MAP if amap['ans_attr'] == ip), None)
-        for amap_subattr in attr_map['map_subattrs']:
-            ans_subattr = amap_subattr['ans_attr']
-            attr_dft_value = amap_subattr['dft_value']
-            if command[ip].get(ans_subattr) is not None:
-                new_conf[ans_subattr] = attr_dft_value
+    attr_map = next((amap for amap in LOADSHARE_MODE_DICT_MAP if amap['ans_attr'] == ip), None)
+    for amap_subattr in attr_map['map_subattrs']:
+        ans_subattr = amap_subattr['ans_attr']
+        attr_dft_value = amap_subattr['dft_value']
+        if command.get(ans_subattr) is not None:
+            new_conf[ans_subattr] = attr_dft_value
     return True, new_conf
 
 

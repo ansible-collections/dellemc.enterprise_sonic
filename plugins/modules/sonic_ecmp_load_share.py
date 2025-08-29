@@ -148,6 +148,7 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration | grep load-share
+# ip load-share hash offset flow-based
 # ip load-share hash seed 8888
 # ip load-share hash ipv4 ipv4-dst-ip
 # ip load-share hash ipv4 ipv4-src-ip
@@ -162,7 +163,6 @@ EXAMPLES = """
     config:
       hash_algorithm: CRC
       hash_offset:
-        offset: 12
         flow_based: true
       hash_roce_qpn: true
       hash_seed: 8888
@@ -189,7 +189,6 @@ EXAMPLES = """
 # sonic# show running-configuration | grep load-share
 # ip load-share hash seed 8888
 # ip load-share hash ipv4 ipv4-dst-ip
-# ip load-share hash ipv4 ipv4-src-ip
 # ip load-share hash algorithm CRC
 
 - name: Merge some configuration
@@ -239,16 +238,13 @@ EXAMPLES = """
 - name: Replace some configuration
   sonic_loadshare_mode:
     config:
-      hash_algorithm: CRC
+      hash_algorithm: XOR
       hash_ingress_port: true
       hash_offset:
         flow_based: true
-      hash_seed: 8888
+      hash_seed: 7777
       ipv4:
         ipv4_src_ip: true
-        ipv4_ip_proto: true
-        ipv4_l4_dst_port: true
-        ipv4_l4_src_port: true
     state: replaced
 
 # After state:
@@ -256,12 +252,9 @@ EXAMPLES = """
 #
 # sonic# show running-configuration | grep load-share
 # ip load-share hash offset flow-based
-# ip load-share hash seed 8888
+# ip load-share hash seed 7777
 # ip load-share hash ipv4 ipv4-src-ip
-# ip load-share hash ipv4 ipv4-ip-proto
-# ip load-share hash ipv4 ipv4-l4-src-port
-# ip load-share hash ipv4 ipv4-l4-dst-port
-# ip load-share hash algorithm CRC
+# ip load-share hash algorithm XOR
 # ip load-share hash ingress-port
 
 
@@ -271,10 +264,14 @@ EXAMPLES = """
 # -------------
 #
 # sonic# show running-configuration | grep load-share
-# ip load-share hash seed 8888
-# ip load-share hash ipv4 ipv4-dst-ip
+# ip load-share hash offset flow-based
+# ip load-share hash seed 9999
 # ip load-share hash ipv4 ipv4-src-ip
-# ip load-share hash algorithm CRC
+# ip load-share hash ipv4 ipv4-ip-proto
+# ip load-share hash ipv4 ipv4-l4-src-port
+# ip load-share hash ipv4 ipv4-l4-dst-port
+# ip load-share hash algorithm XOR
+# ip load-share hash ingress-port
 
 - name: Override some configuration
   sonic_loadshare_mode:
@@ -283,10 +280,8 @@ EXAMPLES = """
       hash_ingress_port: true
       hash_offset:
         flow_based: true
-      hash_seed: 9999
+      hash_seed: 1234
       ipv4:
-        ipv4_src_ip: true
-        ipv4_ip_proto: true
         ipv4_l4_dst_port: true
         ipv4_l4_src_port: true
     state: overridden
@@ -296,9 +291,7 @@ EXAMPLES = """
 #
 # sonic# show running-configuration | grep load-share
 # ip load-share hash offset flow-based
-# ip load-share hash seed 9999
-# ip load-share hash ipv4 ipv4-src-ip
-# ip load-share hash ipv4 ipv4-ip-proto
+# ip load-share hash seed 1234
 # ip load-share hash ipv4 ipv4-l4-src-port
 # ip load-share hash ipv4 ipv4-l4-dst-port
 # ip load-share hash algorithm CRC_32LO
