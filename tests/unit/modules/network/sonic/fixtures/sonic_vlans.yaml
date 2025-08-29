@@ -24,12 +24,10 @@ merged_01:
             - name: Vlan10
               config:
                 name: Vlan10
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "patch"
       data:
-        openconfig-interfaces:config:
-          name: Vlan10
-          description: Internal
+        sonic-vlan:description: "Internal"
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
       method: "patch"
       data:
@@ -43,15 +41,6 @@ merged_02:
         autostate: true
       - vlan_id: 20
   existing_vlans_config:
-    - path: "data/openconfig-interfaces:interfaces"
-      response:
-        code: 200
-        value:
-          openconfig-interfaces:interfaces:
-            interface:
-              - config:
-                  name: Vlan10
-                  description: Descr1
     - path: "data/sonic-vlan:sonic-vlan"
       response:
         code: 200
@@ -62,15 +51,8 @@ merged_02:
                 - name: Vlan10
                   vlanid: 10 
                   autostate: "disable"
+                  description: "Descr1"
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces"
-      method: "patch"
-      data:
-        openconfig-interfaces:interfaces:
-          interface:
-            - name: Vlan10
-              config:
-                name: Vlan10
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
       data:
@@ -79,12 +61,10 @@ merged_02:
             - name: Vlan20
               config:
                 name: Vlan20
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "patch"
       data:
-        openconfig-interfaces:config:
-          name: Vlan10
-          description: Descr2
+        sonic-vlan:description: "Descr2"
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
       method: "patch"
       data:
@@ -99,15 +79,6 @@ deleted_01_vlan_descr:
         description: "Internal"
         autostate: true
   existing_vlans_config:
-    - path: "data/openconfig-interfaces:interfaces"
-      response:
-        code: 200
-        value:
-          openconfig-interfaces:interfaces:
-            interface:
-              - config:
-                  name: Vlan10
-                  description: Internal
     - path: "data/sonic-vlan:sonic-vlan"
       response:
         code: 200
@@ -118,8 +89,9 @@ deleted_01_vlan_descr:
                 - name: Vlan10
                   vlanid: 10 
                   autostate: "enable"
+                  description: Internal
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config/description"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "delete"
       data:
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
@@ -150,7 +122,7 @@ deleted_02_vlan:
                   vlanid: 10 
                   autostate: "enable"
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10"
       method: "delete"
       data:
 
@@ -159,7 +131,7 @@ replaced_01:
     state: replaced
     config:
       - vlan_id: 10
-        description: "Desc2"
+        description: "Descr2"
         autostate: true
       - vlan_id: 30
         autostate: false
@@ -172,7 +144,6 @@ replaced_01:
             interface:
               - config:
                   name: Vlan10
-                  description: Descr1
     - path: "data/sonic-vlan:sonic-vlan"
       response:
         code: 200
@@ -183,23 +154,19 @@ replaced_01:
                 - name: Vlan10
                   vlanid: 10 
                   autostate: "disable"
+                  description: "Descr1"
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "delete"
-    - path: "data/openconfig-interfaces:interfaces"
+      data:
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
       method: "patch"
       data:
-        openconfig-interfaces:interfaces:
-          interface:
-            - name: Vlan10
-              config:
-                name: Vlan10
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config"
+        sonic-vlan:autostate: "disable"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "patch"
       data:
-        openconfig-interfaces:config:
-          name: Vlan10
-          description: Desc2
+        sonic-vlan:description: "Descr2"
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
       method: "patch"
       data:
@@ -237,10 +204,8 @@ overridden_01:
             interface:
               - config:
                   name: Vlan10
-                  description: Descr1
               - config:
                   name: Vlan20
-                  description: Descr20
     - path: "data/sonic-vlan:sonic-vlan"
       response:
         code: 200
@@ -251,24 +216,16 @@ overridden_01:
                 - name: Vlan10
                   vlanid: 10 
                   autostate: "disable"
+                  description: "Descr1"
                 - name: Vlan20
                   vlanid: 20 
                   autostate: "disable"
+                  description: "Descr20"
   expected_config_requests:
-    - path: "data/openconfig-interfaces:interfaces"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "patch"
       data:
-        openconfig-interfaces:interfaces:
-          interface:
-            - name: Vlan10
-              config:
-                name: Vlan10
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan10/config"
-      method: "patch"
-      data:
-        openconfig-interfaces:config:
-          name: Vlan10
-          description: Descr3
+        sonic-vlan:description: "Descr3"
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
       data:
@@ -281,7 +238,7 @@ overridden_01:
       method: "patch"
       data:
         sonic-vlan:autostate: "enable"
-    - path: "data/openconfig-interfaces:interfaces/interface=Vlan20/config/description"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan20/description"
       method: "delete"
       data:
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan40/autostate"

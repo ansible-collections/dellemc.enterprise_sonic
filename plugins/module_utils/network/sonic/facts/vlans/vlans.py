@@ -57,106 +57,48 @@ class VlansFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        if connection:  # just for linting purposes, remove
-            pass
-
         if not data:
             vlans = self.get_vlans()
-        objs = []
-        for vlan_id, vlan_config in vlans.items():
-            obj = self.render_config(self.generated_spec, vlan_config)
-            if obj:
-                objs.append(obj)
-        ansible_facts['ansible_network_resources'].pop('vlans', None)
+        else:
+            vlans = data
+
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+        if vlans:
+            params = utils.validate_config(self.argument_spec, {'config': vlans})
             facts['vlans'] = remove_empties_from_list(params.get("config"))
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        config = deepcopy(spec)
-        try:
-            if conf.get('vlan_id') is not None:
-                config['vlan_id'] = int(conf.get('vlan_id'))
-            config['description'] = conf.get('description')
-            config['autostate'] = conf.get('autostate')
-        except TypeError:
-            config['vlan_id'] = None
-            config['description'] = None
-            config['autostate'] = None
-        return utils.remove_empties(config)
 
     def get_vlans(self):
-        """Get all the l2_interfaces available in chassis"""
-        # Grab description data from the openconfig-interfaces endpoint
-        request = [{"path": "data/openconfig-interfaces:interfaces", "method": GET}]
-        try:
-            response = edit_config(self._module, to_request(self._module, request))
-        except ConnectionError as exc:
-            self._module.fail_json(msg=str(exc), code=exc.code)
-
-        interfaces = {}
-        if "openconfig-interfaces:interfaces" in response[0][1]:
-            interfaces = response[0][1].get("openconfig-interfaces:interfaces", {})
-            if interfaces.get("interface"):
-                interfaces = interfaces['interface']
-
-        ret_vlan_configs = {}
-
-        for interface in interfaces:
-            if interface.get("config") is None:
-                continue
-            interface_name = interface["config"].get("name")
-            description = interface["config"].get("description", "")
-            if "Vlan" in interface_name:
-                vlan_id = interface_name.split("Vlan")[1]
-                vlan_configs = {"vlan_id": vlan_id,
-                                "name": interface_name,
-                                "description": description
-                                }
-                ret_vlan_configs.update({vlan_id: vlan_configs})
-
-        # Grabbing autostate data from the sonic-vlan endpoint
+        """
+        Gather all the vlan configuration from the device
+        
+        Returns: List of dictionaries with each item being a vlan config
+        """
         request = [{"path": "data/sonic-vlan:sonic-vlan", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
-        interface_dict = {}
-        # Need to check for response
-        if response:
-            if len(response) >= 1:
-                if len(response[0]) >= 1:
-                    if "sonic-vlan:sonic-vlan" in response[0][1]:
-                        interfaces = response[0][1].get("sonic-vlan:sonic-vlan", {})
-                        if interfaces:
-                            if interfaces.get("VLAN"):
-                                if interfaces.get("VLAN").get("VLAN_LIST"):
-                                    interface_dict = interfaces['VLAN']["VLAN_LIST"]
+        vlans_list = []
+        if len(response[0]) >= 1:
+            if "sonic-vlan:sonic-vlan" in response[0][1]:
+                vlans = response[0][1].get("sonic-vlan:sonic-vlan", {})
+                if vlans:
+                    if vlans.get("VLAN"):
+                        if vlans.get("VLAN").get("VLAN_LIST"):
+                            vlans_list = vlans['VLAN']["VLAN_LIST"]
 
-                    for interface in interface_dict:
-                        vlan_name = interface.get("name")
-                        autostate = bool(interface.get("autostate", None) == "enable")
-                        vlan_id = str(interface.get("vlanid"))
-                        vlan_configs = {"vlan_id": vlan_id,
-                                        "name": vlan_name,
-                                        "autostate": autostate
-                                        }
-                        if vlan_id in ret_vlan_configs:
-                            ret_vlan_configs[vlan_id]["autostate"] = autostate
-                        else:
-                            ret_vlan_configs.update({vlan_id: vlan_configs})
-
-            return ret_vlan_configs
+        ret_vlan_configs = []
+        for vlan_config_dict in vlans_list:
+            autostate = vlan_config_dict.get("autostate") == "enable"
+            description = vlan_config_dict.get("description", "")
+            vlan_id = vlan_config_dict.get("vlanid")
+            vlan_configs = {"vlan_id": vlan_id,
+                            "autostate": autostate,
+                            "description": description
+                            }
+            ret_vlan_configs.append(vlan_configs)
+        return ret_vlan_configs
