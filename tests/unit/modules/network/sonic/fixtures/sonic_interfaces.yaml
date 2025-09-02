@@ -169,6 +169,7 @@ deleted_02:
         fec: FEC_DISABLED
         auto_negotiate: true
         speed: SPEED_100GB
+        autoneg_mode: AUTONEG_MODE_MSA
         advertised_speed:
           - 100000
       - name: 'Loopback123'
@@ -188,6 +189,7 @@ deleted_02:
                     port-speed: openconfig-if-ethernet:SPEED_40GB
                     openconfig-if-ethernet-ext2:port-fec: FEC_FC
                     openconfig-if-ethernet-ext2:advertised-speed: '100000,40000'
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
               - name: 'Loopback123'
                 config:
                   enabled: false
@@ -223,6 +225,8 @@ deleted_02:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:advertised-speed: '40000'
     - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
+      method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/openconfig-if-ethernet-ext2:autoneg-mode"
       method: "delete"
 
 deleted_03:
