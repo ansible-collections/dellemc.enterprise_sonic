@@ -102,6 +102,8 @@ options:
         description:
         - BAM/MSA configuration for autonegotiation
         - Applicable only for Ethernet interfaces.
+        - auto_negotiate should be set to true to configure autoneg_mode
+        - with auto_negotiate set to true , autoneg_mode defaults to BAM
         version_added: '4.0.0'
         type: str
         choices:
