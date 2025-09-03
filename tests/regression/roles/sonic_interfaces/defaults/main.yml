@@ -13,7 +13,7 @@ sonic_interfaces_tests:
         unreliable_los: UNRELIABLE_LOS_MODE_AUTO
         # Use only on platform that support this.
         #auto_negotiate: true
-        #autoneg_mode: AUTONEG_MODE_MSA
+        #autoneg_mode: AUTONEG_MODE_BAM
   - name: test_case_02
     description: Update interface parameters
     state: merged
@@ -25,7 +25,7 @@ sonic_interfaces_tests:
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
         # Use only on platform that support this.
         #auto_negotiate: true
-        #autoneg_mode: AUTONEG_MODE_BAM
+        #autoneg_mode: AUTONEG_MODE_MSA
       - name: "{{ interface8 }}"
         description: Ansible interface8
         mtu: 6000
