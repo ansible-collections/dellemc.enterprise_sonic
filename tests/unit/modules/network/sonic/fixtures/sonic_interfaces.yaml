@@ -288,6 +288,7 @@ replaced_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
               - name: 'Eth1/2'
                 config:
                   mtu: 6767
@@ -351,6 +352,8 @@ replaced_01:
       data:
         openconfig-if-ethernet:config:
           port-speed: "openconfig-if-ethernet:SPEED_40GB"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/openconfig-if-ethernet-ext2:autoneg-mode"
+      method: "delete"
 
 replaced_02:
   module_args:
@@ -439,6 +442,7 @@ overridden_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
               - name: 'Eth1/2'
                 config:
                   mtu: 2000
@@ -512,6 +516,8 @@ overridden_01:
       data:
         openconfig-if-ethernet:config:
           auto-negotiate: false
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/openconfig-if-ethernet-ext2:autoneg-mode"
+      method: "delete"
 
 overridden_02:
   module_args:
