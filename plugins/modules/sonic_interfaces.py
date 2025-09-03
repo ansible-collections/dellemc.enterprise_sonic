@@ -463,7 +463,7 @@ EXAMPLES = """
     config:
       - name: Ethernet32
         autoneg_mode: AUTONEG_MODE_MSA
-    state: merged 
+    state: merged
 #
 # After state:
 # -------------
@@ -675,7 +675,7 @@ EXAMPLES = """
 #  fec RS
 #  unreliable-los auto
 #  shutdown
-# 
+#
 # show running-configuration interface Ethernet 8
 # !
 # interface Ethernet8
