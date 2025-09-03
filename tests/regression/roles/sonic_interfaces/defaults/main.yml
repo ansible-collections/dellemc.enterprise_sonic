@@ -259,6 +259,3 @@ sonic_interfaces_tests:
         #autoneg_mode: AUTONEG_MODE_BAM
       - name: Loopback101
         description: Ansible Loopback101
-        # Use only on platform that support this.
-        #auto_negotiate: true
-        #autoneg_mode: AUTONEG_MODE_BAM
