@@ -499,15 +499,15 @@ EXAMPLES = """
 # Ethernet8           Ethernet8                     down        admin-down       on        -              9100           Eth1/2
 # Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
 #
-#show running-configuration interface Ethernet 8
-#!
-#interface Ethernet8
-# description Ethernet8
-# mtu 9100
-# speed auto MSA
-# fec RS
-# unreliable-los auto
-# shutdown
+# show running-configuration interface Ethernet 8
+# !
+# interface Ethernet8
+#  description Ethernet8
+#  mtu 9100
+#  speed auto MSA
+#  fec RS
+#  unreliable-los auto
+#  shutdown
 #
 - name: configure interface
   sonic_interfaces:
@@ -519,13 +519,13 @@ EXAMPLES = """
 # After state:
 # -------------
 #
-#show interface status
-#--------------------------------------------------------------------------------------------------------------------------------------
-#Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-#--------------------------------------------------------------------------------------------------------------------------------------
-#Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-#Ethernet8           Ethernet eight                down        admin-down       off       800000         9100           Eth1/2
-#Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
+# show interface status
+# --------------------------------------------------------------------------------------------------------------------------------------
+# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
+# --------------------------------------------------------------------------------------------------------------------------------------
+# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
+# Ethernet8           Ethernet eight                down        admin-down       off       800000         9100           Eth1/2
+# Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
 #
 # show running-configuration interface Ethernet 8
 # !
