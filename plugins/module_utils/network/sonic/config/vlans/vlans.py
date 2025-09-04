@@ -171,7 +171,6 @@ class Vlans(ConfigBase):
         requests = []
         # Add default values to want so it'll be properly comparable to have and re-generate diff.
         diff = get_diff(self.deal_with_default_entries(want, method="add"), have, TEST_KEYS)
-        # Want and have now match and I can proceed with replaced state
         replaced_config = get_replaced_config(want, have, TEST_KEYS)
 
         replaced_vlans = []
