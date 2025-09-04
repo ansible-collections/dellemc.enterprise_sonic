@@ -213,7 +213,7 @@ class Vlans(ConfigBase):
         del_vlans = []
         del_vlans_attributes = []
 
-        # Find VLANS to delete or modify using reverse_diff and two lists to seperate complete deletion and modification
+        # Find VLANS to delete or modify using reverse_diff and two lists to separate complete deletion and modification
         for config in reverse_diff:
             want_vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
             have_vlan_obj = search_obj_in_list(config['vlan_id'], have, 'vlan_id')
