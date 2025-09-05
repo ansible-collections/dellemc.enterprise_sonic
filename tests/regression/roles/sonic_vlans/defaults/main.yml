@@ -43,6 +43,8 @@ tests:
       - vlan_id: 500
         description: "modified vlan500 description"
       - vlan_id: 501
+        autostate: true
+      - vlan_id: 502
       - vlan_id: 503
       # Odd case where delete sets things to default true
         autostate: true
