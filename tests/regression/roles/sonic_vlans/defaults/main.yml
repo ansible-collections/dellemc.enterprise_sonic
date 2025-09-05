@@ -31,6 +31,8 @@ tests:
       - vlan_id: 500
         description: "modified vlan500 description"
         autostate: false
+      - vlan_id: 501
+        autostate: true
       - vlan_id: 502
         autostate: false
       - vlan_id: 503
