@@ -17,6 +17,7 @@ import sys
 from copy import copy
 from itertools import (count, groupby)
 if sys.version_info >= (3, 13):
+    import six
     from six import iteritems
 else:
     from ansible.module_utils.six import iteritems

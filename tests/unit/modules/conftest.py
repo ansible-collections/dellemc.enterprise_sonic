@@ -7,8 +7,10 @@ __metaclass__ = type
 import json
 
 import pytest
+import sys
 
 if sys.version_info >= (3, 13):
+    import six
     from six import string_types
 else:
     from ansible.module_utils.six import string_types
