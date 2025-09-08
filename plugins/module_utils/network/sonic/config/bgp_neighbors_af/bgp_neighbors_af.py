@@ -452,7 +452,7 @@ class Bgp_neighbors_af(ConfigBase):
                             mat_allowas_in = mat_nei_addr_fam.get('allowas_in', None)
         return mat_allowas_in
 
-    def get_single_neighbors_af_modify_request(self, match, vrf_name, as_val, conf_neighbor_val, conf_neighbor, want):  
+    def get_single_neighbors_af_modify_request(self, match, vrf_name, as_val, conf_neighbor_val, conf_neighbor, want): 
         requests = []
         conf_nei_addr_fams = conf_neighbor.get('address_family', [])
         conf_nbr_val = conf_neighbor_val.replace('/', '%2f')

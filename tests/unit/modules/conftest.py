@@ -8,7 +8,10 @@ import json
 
 import pytest
 
-from ansible.module_utils.six import string_types
+if sys.version_info >= (3, 13):
+    from six import string_types
+else:
+    from ansible.module_utils.six import string_types
 from ansible.module_utils._text import to_bytes
 from ansible.module_utils.common._collections_compat import MutableMapping
 

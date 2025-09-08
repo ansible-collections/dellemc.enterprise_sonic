@@ -13,9 +13,13 @@ __metaclass__ = type
 import re
 import json
 import ast
+import sys
 from copy import copy
 from itertools import (count, groupby)
-from ansible.module_utils.six import iteritems
+if sys.version_info >= (3, 13):
+    from six import iteritems
+else:
+    from ansible.module_utils.six import iteritems
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     remove_empties
 )
