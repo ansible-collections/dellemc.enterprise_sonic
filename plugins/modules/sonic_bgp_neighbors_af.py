@@ -83,7 +83,7 @@ options:
               allowas_in:
                 description:
                   - Criterion for accepting received advertisements containing this BGP router
-                  - instance's AS number in the AS-PATH of received advertisements:
+                  - instance's AS number in the AS-PATH of received advertisements.
                   - O(origin) can not be set to V(true) when a O(value) is set.
                 type: dict
                 suboptions:
