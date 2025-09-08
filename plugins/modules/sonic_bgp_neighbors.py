@@ -251,9 +251,9 @@ options:
                     type: bool
                   allowas_in:
                     description:
-                      - Criterion for accepting received advertisements containing this BGP router
-                      - instance's AS number in the AS-PATH of received advertisements:
-                      - O(origin) can not be set to V(true) when a O(value) is set.
+                      - Criterion for accepting received advertisements containing the AS number
+                      - of this BGP router intance in the AS PATH of received advertisements:
+                      - The 'origin' option can not be set to true when a 'value' is set.
                     type: dict
                     suboptions:
                       origin:
