@@ -251,17 +251,20 @@ options:
                     type: bool
                   allowas_in:
                     description:
-                      - Holds AS value.
-                      - The origin and value are mutually exclusive.
+                      - Criterion for accepting received advertisements containing this BGP router
+                      - instance's AS number in the AS-PATH of received advertisements:
+                      - O(origin) can not be set to V(true) when a O(value) is set.
                     type: dict
                     suboptions:
                       origin:
                         description:
-                          - Set AS as the origin.
+                          - Accept this BGP router instance's set AS as the origin.
                         type: bool
                       value:
                         description:
-                          - Holds AS number in the range 1-10.
+                          - Accept up to this number of occurrences of this BGP router's
+                          - set AS in the AS-PATH of received advertisements.
+                          - (Specify a number in the range 1-10.)
                         type: int
                   ip_afi:
                     description:
