@@ -1308,8 +1308,8 @@ deleted_02:
                   safi: unicast
                   activate: true
                   allowas_in:
-                    value: 8
                     origin: false
+                    value: 8
                   ip_afi:
                     send_default_route: true
                 - afi: ipv6
@@ -1455,8 +1455,8 @@ deleted_02:
                     - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
                       allow-own-as:
                         config:
-                          as-count: 8
                           origin: false
+                          as-count: 8
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
                       ipv4-unicast:
@@ -1573,10 +1573,10 @@ deleted_02:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/origin"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/origin"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/config/send-default-route"
