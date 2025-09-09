@@ -114,9 +114,9 @@ merged_01:
                     discard-extra: false
               allow-own-as:
                 config:
-                  origin: false
                   as-count: 55
                   enabled: true
+                  origin: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=2.2.2.2/afi-safis"
       method: "patch"
       data:
@@ -729,7 +729,7 @@ deleted_04:
                       allow-own-as:
                         config:
                           origin: false
-                          value: 3
+                          as-count: 3
                           enabled: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors"
       response:
@@ -759,7 +759,7 @@ deleted_04:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/origin"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/value"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/enabled"
