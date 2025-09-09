@@ -36,8 +36,8 @@ merged_01:
               - afi: ipv6
                 safi: unicast
                 allowas_in:
-                  value: 55
                   origin: false
+                  value: 55
                 ip_afi:
                   default_policy_name: rmap_reg2
                   send_default_route: true

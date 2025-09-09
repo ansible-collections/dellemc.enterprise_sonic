@@ -751,11 +751,11 @@ class Bgp_neighbors_af(ConfigBase):
                     if origin is not None:
                         if self.append_delete_request(requests, origin, mat_allowas_in, 'origin', url, self.allowas_origin_path):
                             if mat_allowas_in_list.get('origin') is not None:
-                                del(mat_allowas_in_list['origin'])
+                                del (mat_allowas_in_list['origin'])
                     if value is not None:
                         if self.append_delete_request(requests, value, mat_allowas_in, 'value', url, self.allowas_value_path):
                             if mat_allowas_in_list.get('value') is not None:
-                                del(mat_allowas_in_list['value'])
+                                del (mat_allowas_in_list['value'])
                     if not mat_allowas_in_list:
                         self.append_delete_request(requests, True, {'enabled': True}, 'enabled', url, self.allowas_enabled_path)
 
