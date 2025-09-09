@@ -740,23 +740,23 @@ class Bgp_neighbors_af(ConfigBase):
                 if conf_allowas_in is not None and mat_allowas_in:
                     origin = conf_allowas_in.get('origin', None)
                     value = conf_allowas_in.get('value', None)
-                    mat_allowas_in_list = []
+                    mat_allowas_in_options = {}
                     mat_origin = mat_allowas_in.get('origin', None)
                     if mat_origin is not None:
-                        mat_allowas_in_list.append({'origin': mat_origin})
+                        mat_allowas_in_options.update({'origin': mat_origin})
                     mat_value = mat_allowas_in.get('value', None)
                     if mat_value is not None:
-                        mat_allowas_in_list.append({'value': mat_value})
+                        mat_allowas_in_options.update({'value': mat_value})
 
                     if origin is not None:
                         if self.append_delete_request(requests, origin, mat_allowas_in, 'origin', url, self.allowas_origin_path):
-                            if mat_allowas_in_list.get('origin') is not None:
-                                del (mat_allowas_in_list['origin'])
+                            if mat_allowas_in_options.get('origin') is not None:
+                                del (mat_allowas_in_options['origin'])
                     if value is not None:
                         if self.append_delete_request(requests, value, mat_allowas_in, 'value', url, self.allowas_value_path):
-                            if mat_allowas_in_list.get('value') is not None:
-                                del (mat_allowas_in_list['value'])
-                    if not mat_allowas_in_list:
+                            if mat_allowas_in_options.get('value') is not None:
+                                del (mat_allowas_in_options['value'])
+                    if not mat_allowas_in_options:
                         self.append_delete_request(requests, True, {'enabled': True}, 'enabled', url, self.allowas_enabled_path)
 
                 mat_ip_afi = mat_nei_addr_fam.get('ip_afi', None)
