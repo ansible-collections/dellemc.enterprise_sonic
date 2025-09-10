@@ -358,7 +358,7 @@ class Bgp_neighbors(ConfigBase):
                 requests.extend(del_requests)
                 commands.extend(update_states(del_cmd, "deleted"))
         if add_config:
-            mod_requests = self.get_modify_bgp_requests(add_config, have)
+            mod_requests = self.get_modify_bgp_requests(add_config, have, new_want)
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
                 commands.extend(update_states(add_config, self._module.params['state']))
@@ -403,7 +403,7 @@ class Bgp_neighbors(ConfigBase):
                 for pg in peergroup:
                     if pg.get('passive') is None:
                         pg['passive'] = False
-        requests = self.get_modify_bgp_requests(commands, have)
+        requests = self.get_modify_bgp_requests(commands, have, want)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -558,7 +558,7 @@ class Bgp_neighbors(ConfigBase):
 
         return commands, requests
 
-    def build_bgp_peer_groups_payload(self, cmd, have, bgp_as, vrf_name):
+    def build_bgp_peer_groups_payload(self, cmd, have, want, bgp_as, vrf_name):
         requests = []
         bgp_peer_group_list = []
         for peer_group in cmd:
@@ -654,12 +654,23 @@ class Bgp_neighbors(ConfigBase):
                             if each.get('activate') is not None:
                                 samp['config'] = {'enabled': each['activate']}
                             if each.get('allowas_in'):
-                                have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
                                 origin = each['allowas_in'].get('origin')
                                 value = each['allowas_in'].get('value')
+
+                                # Check for a conflict between input allowas_in 'origin' configuration and input allowas_in 'value' configuration.
+                                want_pg_af = self.find_af(want, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
+                                want_origin = want_pg_af['allowas_in'].get('origin')
+                                want_value = want_pg_af['allowas_in'].get('value')
+                                if want_origin is True and want_value is not None:
+                                    self._module.fail_json(msg="No allowas_in 'value' can be configured when setting allowas_in 'origin' to 'true'.")
+
+                                # Remove any existing configuration that conflicts with the input 'allowas_in' configuration before applying
+                                # the new requested 'allowas_in' configuration.
+                                have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
+
                                 if origin is not None:
                                     if have_pg_af is not None:
-                                        if have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('value') is not None:
+                                        if origin is True and have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('value') is not None:
                                             del_nei = {
                                                 'name': peer_group['name'],
                                                 'address_family': {
@@ -672,9 +683,10 @@ class Bgp_neighbors(ConfigBase):
                                             }
                                             requests.extend(self.get_delete_specific_peergroup_param_requests(vrf_name, del_nei))
                                     samp.update({'allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
+
                                 if value is not None:
                                     if have_pg_af is not None:
-                                        if have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('origin') is not None:
+                                        if have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('origin') is True:
                                             del_nei = {
                                                 'name': peer_group['name'],
                                                 'address_family': {
@@ -686,7 +698,10 @@ class Bgp_neighbors(ConfigBase):
                                                 }
                                             }
                                             requests.extend(self.get_delete_specific_peergroup_param_requests(vrf_name, del_nei))
-                                    samp['allow-own-as'] = {'config': {'as-count': value, "enabled": bool("true")}}
+                                    if samp.get('allow-own-as'):
+                                        samp['allow-own-as']['config'].update({'as-count': value})
+                                    else:
+                                        samp.update({'allow-own-as': {'config': {'as-count': value, "enabled": bool("true")}}})
                             if each.get('prefix_list_in'):
                                 pfx_lst_cfg['import-policy'] = each['prefix_list_in']
                             if each.get('prefix_list_out'):
@@ -805,7 +820,7 @@ class Bgp_neighbors(ConfigBase):
         payload = {'openconfig-network-instance:neighbors': {'neighbor': bgp_neighbor_list}}
         return payload, requests
 
-    def get_modify_bgp_requests(self, commands, have):
+    def get_modify_bgp_requests(self, commands, have, want):
         requests = []
         if not commands:
             return requests
@@ -813,7 +828,7 @@ class Bgp_neighbors(ConfigBase):
         for cmd in commands:
             edit_path = '{0}={1}/{2}'.format(self.network_instance_path, cmd['vrf_name'], self.protocol_bgp_path)
             if 'peer_group' in cmd and cmd['peer_group']:
-                edit_peer_groups_payload, edit_requests = self.build_bgp_peer_groups_payload(cmd['peer_group'], have, cmd['bgp_as'], cmd['vrf_name'])
+                edit_peer_groups_payload, edit_requests = self.build_bgp_peer_groups_payload(cmd['peer_group'], have, want, cmd['bgp_as'], cmd['vrf_name'])
                 edit_peer_groups_path = edit_path + '/peer-groups'
                 requests.extend(edit_requests)
                 requests.append({'path': edit_peer_groups_path, 'method': PATCH, 'data': edit_peer_groups_payload})
@@ -957,7 +972,7 @@ class Bgp_neighbors(ConfigBase):
                             delete_path = delete_static_path + '/afi-safis/afi-safi=%s/config/enabled' % (afi_safi_name)
                             requests.append({'path': delete_path, 'method': DELETE})
                         if allowas_in:
-                            if allowas_in.get('origin'):
+                            if allowas_in.get('origin') is not None:
                                 delete_path = delete_static_path + '/afi-safis/afi-safi=%s/allow-own-as/config/origin' % (afi_safi_name)
                                 requests.append({'path': delete_path, 'method': DELETE})
                             if allowas_in.get('value'):
