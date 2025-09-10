@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -137,6 +137,8 @@ class Lldp_interfacesFacts(object):
                         lldp_interface_data['mode'] = config.get('openconfig-lldp-ext:mode').lower()
                     if 'enabled' in config:
                         lldp_interface_data['enable'] = config.get('enabled')
+                    if 'openconfig-lldp-ext:network-policy' in config:
+                        lldp_interface_data['network_policy'] = config.get('openconfig-lldp-ext:network-policy')
                     if 'openconfig-lldp-ext:suppress-tlv-advertisement' in config:
                         if 'openconfig-lldp-ext:MED_NETWORK_POLICY' in config['openconfig-lldp-ext:suppress-tlv-advertisement']:
                             lldp_interface_data['med_tlv_select']['network_policy'] = False

@@ -1,3 +1,6 @@
+---
+- name: "Report combined action facts"
+  ansible.builtin.include_tasks: all_tasks_log_template.yaml
 - set_fact:
     time: "{{ lookup('pipe', 'date +%H-%M-%S') }}"
     date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"

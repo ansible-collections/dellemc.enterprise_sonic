@@ -1,6 +1,6 @@
 ---
-- name: Delete LLDP Interface configurations
-  dellemc.enterprise_sonic.sonic_lldp_interfaces:
+- name: Delete network policies
+  dellemc.enterprise_sonic.sonic_network_policy:
     config:
     state: deleted
   failed_when: false
