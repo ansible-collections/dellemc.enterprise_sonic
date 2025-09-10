@@ -156,6 +156,7 @@ deleted_tests:
                   safi: unicast
                   allowas_in:
                     origin: false
+                    value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
@@ -730,6 +731,13 @@ merged_tests:
           - name: SPINE
             remote_as:
               peer_type: internal
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  allowas_in:
+                    origin: false
+                    value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
@@ -751,6 +759,7 @@ merged_tests:
                 - afi: l2vpn
                   safi: evpn
                   allowas_in:
+                    origin: false
                     value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"

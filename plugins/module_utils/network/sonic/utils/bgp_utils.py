@@ -345,9 +345,9 @@ def get_peergroups(module, vrf_name):
                         if 'allow-own-as' in each and 'config' in each['allow-own-as']:
                             allowas_in = {}
                             allowas_conf = each['allow-own-as']['config']
-                            if 'origin' in allowas_conf and allowas_conf['origin']:
+                            if 'origin' in allowas_conf and allowas_conf['origin'] is not None:
                                 allowas_in.update({'origin': allowas_conf['origin']})
-                            elif 'as-count' in allowas_conf and allowas_conf['as-count']:
+                            if 'as-count' in allowas_conf and allowas_conf['as-count']:
                                 allowas_in.update({'value': allowas_conf['as-count']})
                             if allowas_in:
                                 samp.update({'allowas_in': allowas_in})

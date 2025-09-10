@@ -875,6 +875,7 @@ merged_03:
                   activate: true
                   allowas_in:
                     value: 5
+                    origin: false
         neighbors:
           - neighbor: Eth1/3
             remote_as:
@@ -1065,6 +1066,7 @@ merged_03:
                       enabled: True
                     allow-own-as:
                       config:
+                        origin: False
                         as-count: 5
                         enabled: True
               config:
@@ -1316,6 +1318,7 @@ deleted_02:
                   safi: unicast
                   activate: true
                   allowas_in:
+                    origin: false
                     value: 8
                   ip_afi:
                     send_default_route: true
@@ -1464,6 +1467,7 @@ deleted_02:
                     - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
                       allow-own-as:
                         config:
+                          origin: false
                           as-count: 8
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
@@ -1579,6 +1583,9 @@ deleted_02:
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/origin"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
