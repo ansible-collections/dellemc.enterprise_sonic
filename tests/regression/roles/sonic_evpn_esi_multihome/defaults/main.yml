@@ -1,0 +1,57 @@
+---
+ansible_connection: httpapi
+module_name: sonic_evpn_esi_multihome
+
+tests:
+  - name: test_case_01
+    description: Add es_activation_delay and df_election_time options
+    state: merged
+    input:
+      es_activation_delay: 300
+      df_election_time: 1080
+
+  - name: test_case_02
+    description: Add mac_holdtime, neigh_holdtime and startup_delay options
+    state: merged
+    input:
+      mac_holdtime: 1080
+      startup_delay: 300
+      neigh_holdtime: 1080
+
+  - name: test_case_03
+    description: Replace df_election_time option value with a new one
+    state: replaced
+    input:
+      df_election_time: 3000
+
+  - name: test_case_04
+    description: Override the value of a few options
+    state: overridden
+    input:
+      es_activation_delay: 3000
+      df_election_time: 1080
+      mac_holdtime: 3000
+      startup_delay: 3000
+      neigh_holdtime: 500
+
+  - name: test_case_05
+    description: Delete each option individually
+    state: deleted
+    input:
+      df_election_time: 1080
+      es_activation_delay: 3000
+      mac_holdtime: 3000
+      startup_delay: 3000
+      neigh_holdtime: 500
+
+  - name: test_case_06
+    description: Merge mac_holdtime and startup_delay options
+    state: merged
+    input:
+      mac_holdtime: 1080
+      startup_delay: 500
+
+  - name: test_case_07
+    description: Delete all EVPN esi multihome configuration
+    state: deleted
+    input: {}

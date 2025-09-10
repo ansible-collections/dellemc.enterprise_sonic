@@ -345,9 +345,9 @@ def get_peergroups(module, vrf_name):
                         if 'allow-own-as' in each and 'config' in each['allow-own-as']:
                             allowas_in = {}
                             allowas_conf = each['allow-own-as']['config']
-                            if 'origin' in allowas_conf and allowas_conf['origin']:
+                            if 'origin' in allowas_conf and allowas_conf['origin'] is not None:
                                 allowas_in.update({'origin': allowas_conf['origin']})
-                            elif 'as-count' in allowas_conf and allowas_conf['as-count']:
+                            if 'as-count' in allowas_conf and allowas_conf['as-count']:
                                 allowas_in.update({'value': allowas_conf['as-count']})
                             if allowas_in:
                                 samp.update({'allowas_in': allowas_in})
@@ -424,6 +424,8 @@ def update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf):
         prefix_limit.update({'warning_threshold': pfx_lmt_conf['warning-threshold-pct']})
     if 'restart-timer' in pfx_lmt_conf and pfx_lmt_conf['restart-timer']:
         prefix_limit.update({'restart_timer': pfx_lmt_conf['restart-timer']})
+    if 'openconfig-bgp-ext:discard-extra' in pfx_lmt_conf and pfx_lmt_conf['openconfig-bgp-ext:discard-extra']:
+        prefix_limit.update({'discard_extra': pfx_lmt_conf['openconfig-bgp-ext:discard-extra']})
 
     return prefix_limit
 
@@ -456,6 +458,9 @@ def get_prefix_limit_payload(prefix_limit):
     if prefix_limit.get('restart_timer', None) is not None:
         restart_timer = prefix_limit['restart_timer']
         pfx_lmt_cfg.update({'restart-timer': restart_timer})
+    if prefix_limit.get('discard_extra', None) is not None:
+        discard_extra = prefix_limit['discard_extra']
+        pfx_lmt_cfg.update({'discard-extra': discard_extra})
 
     return pfx_lmt_cfg
 

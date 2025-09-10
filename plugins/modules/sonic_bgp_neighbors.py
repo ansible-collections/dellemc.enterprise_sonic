@@ -251,17 +251,20 @@ options:
                     type: bool
                   allowas_in:
                     description:
-                      - Holds AS value.
-                      - The origin and value are mutually exclusive.
+                      - Criterion for accepting received advertisements containing the AS number
+                      - of this BGP router intance in the AS PATH of received advertisements.
+                      - The 'origin' option can not be set to true when a 'value' is set.
                     type: dict
                     suboptions:
                       origin:
                         description:
-                          - Set AS as the origin.
+                          - Accept this BGP router instance's set AS as the origin.
                         type: bool
                       value:
                         description:
-                          - Holds AS number in the range 1-10.
+                          - Accept up to this number of occurrences of this BGP router's
+                          - set AS in the AS-PATH of received advertisements.
+                          - (Specify a number in the range 1-10.)
                         type: int
                   ip_afi:
                     description:
@@ -300,6 +303,11 @@ options:
                         description:
                           - Time interval in seconds after which the BGP session is re-established after being torn down.
                         type: int
+                      discard_extra:
+                        description:
+                          - Enable or disable discard extra of BGP session when maximum prefix limit is exceeded.
+                        type: bool
+                        default: False
                   prefix_list_in:
                     description:
                       - Inbound route filtering policy for a peer.
@@ -1046,6 +1054,52 @@ EXAMPLES = """
 #   prefix-list p2 out
 #   send-community both
 #   maximum-prefix 1 80 warning-only
+#
+
+# Using "merged" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration bgp peer-group vrf default
+# (No bgp peer-group configuration present)
+
+- name: "Configure BGP peer-group prefix-list attributes"
+  dellemc.enterprise_sonic.sonic_bgp_neighbors:
+    config:
+      - bgp_as: 51
+        peer_group:
+          - name: SPINE
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg1
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 2
+                    discard_extra: true
+                    warning_threshold: 86
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+    state: merged
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration bgp peer-group vrf default
+# !
+# peer-group SPINE
+#  timers connect 30
+#  advertisement-interval 0
+#  !
+#  address-family ipv4 unicast
+#   default-originate route-map rmap_reg1
+#   prefix-list p1 in
+#   prefix-list p2 out
+#   send-community both
+#   maximum-prefix 2 86 discard-extra
 #
 
 # Using "deleted" state

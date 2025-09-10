@@ -73,7 +73,7 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
                encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
@@ -120,6 +120,7 @@ deleted_tests:
                   prefix_limit:
                     max_prefixes: 2
                     prevent_teardown: false
+                    discard_extra: false
                     warning_threshold: 88
                     restart_timer: 5
                   prefix_list_in: p2
@@ -155,6 +156,7 @@ deleted_tests:
                   safi: unicast
                   allowas_in:
                     origin: false
+                    value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
@@ -267,7 +269,7 @@ deleted_tests:
         peer_group:
           - name: SPINE
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
                encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
@@ -720,6 +722,13 @@ merged_tests:
           - name: SPINE
             remote_as:
               peer_type: internal
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  allowas_in:
+                    origin: false
+                    value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
@@ -741,6 +750,7 @@ merged_tests:
                 - afi: l2vpn
                   safi: evpn
                   allowas_in:
+                    origin: false
                     value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"
@@ -900,6 +910,9 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         peer_group:
           - name: SPINE
+            auth_pwd:
+               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
+               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
@@ -922,6 +935,9 @@ merged_tests:
             ttl_security: 8
         neighbors:
           - neighbor: "{{ interface1 }}"
+            auth_pwd:
+               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
+               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
@@ -966,6 +982,7 @@ merged_tests:
                   prefix_limit:
                     max_prefixes: 1
                     prevent_teardown: true
+                    discard_extra: false
                     warning_threshold: 80
                   prefix_list_in: p1
                   prefix_list_out: p2
@@ -985,6 +1002,41 @@ merged_tests:
                   prefix_list_in: p1
                   prefix_list_out: p2
   - name: test_case_09
+    description: Configure BGP peer-group prefix-limit attributes
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg1
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 1
+                    discard_extra: true
+                    warning_threshold: 80
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+                - afi: ipv6
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: true
+                  prefix_limit:
+                    max_prefixes: 2
+                    warning_threshold: 70
+                    restart_timer: 5
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+                - afi: l2vpn
+                  safi: evpn
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+  - name: test_case_10
     description: Modify BGP peer-group prefix-list attributes
     state: merged
     input:
@@ -1001,6 +1053,7 @@ merged_tests:
                   prefix_limit:
                     max_prefixes: 2
                     prevent_teardown: false
+                    discard_extra: false
                     warning_threshold: 88
                     restart_timer: 5
                   prefix_list_in: p2
@@ -1112,6 +1165,42 @@ replaced_tasks:
               dynamic: true
             remote_as:
               peer_as: 112
+  - name: test_case_replace_03
+    description: Replace BGP peer-group prefix-limit attributes
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
+                  prefix_limit:
+                    max_prefixes: 2
+                    prevent_teardown: false
+                    discard_extra: true
+                    warning_threshold: 88
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+                - afi: ipv6
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg1
+                    send_default_route: false
+                  prefix_limit:
+                    max_prefixes: 3
+                    warning_threshold: 77
+                    restart_timer: 10
+                  prefix_list_in: p1
+                  prefix_list_out: p2
+                - afi: l2vpn
+                  safi: evpn
+                  prefix_list_in: p2
+                  prefix_list_out: p1
 
 overridden_tasks:
   - name: test_case_over_01
@@ -1163,5 +1252,28 @@ overridden_tasks:
                   ip_afi:
                     default_policy_name: rmap_reg2
                     send_default_route: false
+                  prefix_list_in: p2
+                  prefix_list_out: p1
+  - name: test_case_over_03
+    description: Override BGP Neighbors prefix-limit properties
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{vrf_2}}"
+        peer_group:
+          - name: SPINE3
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  ip_afi:
+                    default_policy_name: rmap_reg2
+                    send_default_route: false
+                  prefix_limit:
+                    max_prefixes: 5
+                    prevent_teardown: false
+                    discard_extra: false
+                    warning_threshold: 90
+                    restart_timer: 10
                   prefix_list_in: p2
                   prefix_list_out: p1

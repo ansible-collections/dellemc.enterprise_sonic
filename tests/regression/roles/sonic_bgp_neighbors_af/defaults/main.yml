@@ -329,6 +329,7 @@ tests:
                 safi: unicast
                 allowas_in:
                   value: 7
+                  origin: false
                 route_map:
                   - name: rmap_reg1
                     direction: out
@@ -367,6 +368,7 @@ tests:
                 prefix_limit:
                   max_prefixes: 1
                   prevent_teardown: true
+                  discard_extra: false
                   warning_threshold: 80
                 prefix_list_in: p1
                 prefix_list_out: p2
@@ -386,6 +388,41 @@ tests:
                 prefix_list_in: p1
                 prefix_list_out: p2
   - name: test_case_06
+    description: Configure BGP neighbor prefix-limit attributes
+    state: merged
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 15.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 1
+                  prevent_teardown: false
+                  discard_extra: true
+                  warning_threshold: 80
+                prefix_list_in: p1
+                prefix_list_out: p2
+              - afi: ipv6
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg2
+                  send_default_route: true
+                prefix_limit:
+                  max_prefixes: 2
+                  warning_threshold: 70
+                  restart_timer: 6
+                prefix_list_in: p2
+                prefix_list_out: p1
+              - afi: l2vpn
+                safi: evpn
+                prefix_list_in: p1
+                prefix_list_out: p2
+  - name: test_case_07
     description: Modify BGP neighbor prefix-list attributes
     state: merged
     input:
@@ -401,6 +438,7 @@ tests:
                 prefix_limit:
                   max_prefixes: 2
                   prevent_teardown: false
+                  discard_extra: false
                   warning_threshold: 88
                   restart_timer: 5
                 prefix_list_in: p2
@@ -421,7 +459,7 @@ tests:
                 prefix_list_in: p2
                 prefix_list_out: p1
   - name: test_case_del_01
-    description: Delete BGP neighbor prefix-list attributes
+    description: Delete prefix-list and other selected BGP neighbor attributes
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -436,6 +474,7 @@ tests:
                 prefix_limit:
                   max_prefixes: 2
                   prevent_teardown: false
+                  discard_extra: false
                   warning_threshold: 88
                   restart_timer: 5
                 prefix_list_in: p2
@@ -455,6 +494,13 @@ tests:
                 safi: evpn
                 prefix_list_in: p2
                 prefix_list_out: p1
+          - neighbor: 12.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 7
+                  origin: false
   - name: test_case_del_02
     description: Delete entire neighbor address family with attributes
     state: deleted
@@ -509,6 +555,35 @@ tests:
               - afi: ipv4
                 safi: unicast
                 activate: true
+  - name: test_case_replace_03
+    description: Replace prefix-limit attributes in BGP neighbor
+    state: replaced
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{ vrf_1 }}"
+        neighbors:
+          - neighbor: "{{ interface4 }}"
+            address_family:
+              - afi: ipv6
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: false
+                prefix_limit:
+                  max_prefixes: 3
+                  prevent_teardown: false
+                  discard_extra: true
+                  warning_threshold: 77
+                prefix_list_in: p1
+                prefix_list_out: p2
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "default"
+        neighbors:
+          - neighbor: "14.1.1.1"
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                activate: true
   - name: test_case_override_01
     description: Override BGP neighbor with attributes
     state: overridden
@@ -554,3 +629,39 @@ tests:
               - afi: ipv4
                 safi: unicast
                 activate: true
+  - name: test_case_override_03
+    description: Override BGP neighbor with prefix-limit attributes
+    state: overridden
+    input:
+      - bgp_as: "{{bgp_as_1}}"
+        neighbors:
+          - neighbor: 13.1.1.1
+            address_family:
+              - afi: l2vpn
+                safi: evpn
+                prefix_list_in: p2
+                prefix_list_out: p1
+                fabric_external: true
+          - neighbor: "{{ interface3 }}"
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                activate: true
+      - bgp_as: "{{bgp_as_1}}"
+        vrf_name: "{{ vrf_1 }}"
+        neighbors:
+          - neighbor: "24.1.1.1"
+            address_family:
+              - afi: ipv6
+                safi: unicast
+                ip_afi:
+                  default_policy_name: rmap_reg1
+                  send_default_route: false
+                prefix_limit:
+                  max_prefixes: 4
+                  prevent_teardown: false
+                  discard_extra: false
+                  warning_threshold: 78
+                  restart_timer: 12
+                prefix_list_in: p1
+                prefix_list_out: p2
