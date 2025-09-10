@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -58,7 +58,7 @@ TEST_KEYS = [
     {'config': {'vrf_name': '', 'bgp_as': ''}},
     {'neighbors': {'neighbor': ''}},
     {'peer_group': {'name': ''}},
-    {'afis': {'afi': '', 'safi': ''}},
+    {'afis': {'afi': '', 'safi': ''}}
 ]
 
 DEFAULT_ENTRIES = [
@@ -150,11 +150,6 @@ DEFAULT_ENTRIES = [
     [
         {'name': 'neighbors'},
         {'name': 'advertisement_interval', 'default': 0}
-    ],
-    [
-        {'name': 'neighbors'},
-        {'name': 'auth_pwd'},
-        {'name': 'encrypted', 'default': False}
     ],
     [
         {'name': 'neighbors'},
@@ -257,7 +252,6 @@ class Bgp_neighbors(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
         existing_bgp_facts = self.get_bgp_neighbors_facts()
         commands, requests = self.set_config(existing_bgp_facts)
         if commands and len(requests) > 0:
@@ -295,7 +289,6 @@ class Bgp_neighbors(ConfigBase):
                                                        new_config,
                                                        self._module._verbosity)
         result['commands'] = commands
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_bgp_facts):
@@ -365,7 +358,7 @@ class Bgp_neighbors(ConfigBase):
                 requests.extend(del_requests)
                 commands.extend(update_states(del_cmd, "deleted"))
         if add_config:
-            mod_requests = self.get_modify_bgp_requests(add_config, have)
+            mod_requests = self.get_modify_bgp_requests(add_config, have, new_want)
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
                 commands.extend(update_states(add_config, self._module.params['state']))
@@ -381,7 +374,7 @@ class Bgp_neighbors(ConfigBase):
                   the current configuration
         """
         requests = []
-        commands = get_diff(want, have, TEST_KEYS)
+        commands = self.get_diff_bgp_nbr(want, have)
         validate_bgps(self._module, commands, have)
         for cmd in commands:
             neighbors = cmd.get('neighbors', [])
@@ -410,7 +403,7 @@ class Bgp_neighbors(ConfigBase):
                 for pg in peergroup:
                     if pg.get('passive') is None:
                         pg['passive'] = False
-        requests = self.get_modify_bgp_requests(commands, have)
+        requests = self.get_modify_bgp_requests(commands, have, want)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -449,16 +442,45 @@ class Bgp_neighbors(ConfigBase):
 
         return commands, requests
 
+    def get_diff_bgp_nbr(self, base_data, compare_data):
+        """Special diff method is needed to handle the case of pwd and encrypted needing to be configured together for auth_pwd"""
+        diff = get_diff(base_data, compare_data, TEST_KEYS)
+
+        for cfg in diff:
+            neighbors = cfg.get('neighbors')
+            peer_group = cfg.get('peer_group')
+
+            if neighbors:
+                for nbr in neighbors:
+                    auth_pwd = nbr.get('auth_pwd')
+                    if auth_pwd:
+                        match_nbr = self.find_nei(base_data, cfg['bgp_as'], cfg['vrf_name'], nbr)
+                        if auth_pwd.get('pwd') and auth_pwd.get('encrypted') is None:
+                            auth_pwd['encrypted'] = match_nbr['auth_pwd']['encrypted']
+                        if auth_pwd.get('encrypted') and not auth_pwd.get('pwd'):
+                            auth_pwd['pwd'] = match_nbr['auth_pwd']['pwd']
+
+            if peer_group:
+                for pg in peer_group:
+                    auth_pwd = pg.get('auth_pwd')
+                    if auth_pwd:
+                        match_pg = self.find_pg(base_data, cfg['bgp_as'], cfg['vrf_name'], pg)
+                        if auth_pwd.get('pwd') and auth_pwd.get('encrypted') is None:
+                            auth_pwd['encrypted'] = match_pg['auth_pwd']['encrypted']
+                        if auth_pwd.get('encrypted') and not auth_pwd.get('pwd'):
+                            auth_pwd['pwd'] = match_pg['auth_pwd']['pwd']
+        return diff
+
     def _get_replaced_overridden_config(self, want, have, want_skeleton):
         add_config, del_config = [], []
 
-        diff1 = get_diff(want, have, TEST_KEYS)
+        diff1 = self.get_diff_bgp_nbr(want, have)
         for default_entry in DEFAULT_ENTRIES:
             remove_matching_defaults(have, default_entry)
             remove_matching_defaults(want, default_entry)
         want = remove_empties_from_list(want)
         have = remove_empties_from_list(have)
-        diff2 = get_diff(have, want, TEST_KEYS)
+        diff2 = self.get_diff_bgp_nbr(have, want)
         state = self._module.params['state']
 
         add_config = diff1
@@ -536,13 +558,13 @@ class Bgp_neighbors(ConfigBase):
 
         return commands, requests
 
-    def build_bgp_peer_groups_payload(self, cmd, have, bgp_as, vrf_name):
+    def build_bgp_peer_groups_payload(self, cmd, have, want, bgp_as, vrf_name):
         requests = []
         bgp_peer_group_list = []
         for peer_group in cmd:
             if peer_group:
                 bgp_peer_group, peer_group_cfg = {}, {}
-                tmp_bfd, tmp_ebgp, tmp_capability = {}, {}, {}
+                tmp_bfd, tmp_auth, tmp_ebgp, tmp_capability = {}, {}, {}, {}
                 tmp_transport, tmp_timers, tmp_remote = {}, {}, {}
                 afi = []
 
@@ -555,9 +577,8 @@ class Bgp_neighbors(ConfigBase):
                     self.update_dict(peer_group['bfd'], tmp_bfd, 'profile', 'bfd-profile')
 
                 if peer_group.get('auth_pwd') is not None:
-                    if (peer_group['auth_pwd'].get('pwd') is not None and peer_group['auth_pwd'].get('encrypted') is not None):
-                        bgp_peer_group.update({'auth-password': {'config': {'password': peer_group['auth_pwd']['pwd'],
-                                                                            'encrypted': peer_group['auth_pwd']['encrypted']}}})
+                    self.update_dict(peer_group['auth_pwd'], tmp_auth, 'pwd', 'password')
+                    self.update_dict(peer_group['auth_pwd'], tmp_auth, 'encrypted', 'encrypted')
 
                 if peer_group.get('ebgp_multihop') is not None:
                     self.update_dict(peer_group['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
@@ -633,12 +654,23 @@ class Bgp_neighbors(ConfigBase):
                             if each.get('activate') is not None:
                                 samp['config'] = {'enabled': each['activate']}
                             if each.get('allowas_in'):
-                                have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
                                 origin = each['allowas_in'].get('origin')
                                 value = each['allowas_in'].get('value')
+
+                                # Check for a conflict between input allowas_in 'origin' configuration and input allowas_in 'value' configuration.
+                                want_pg_af = self.find_af(want, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
+                                want_origin = want_pg_af['allowas_in'].get('origin')
+                                want_value = want_pg_af['allowas_in'].get('value')
+                                if want_origin is True and want_value is not None:
+                                    self._module.fail_json(msg="No allowas_in 'value' can be configured when setting allowas_in 'origin' to 'true'.")
+
+                                # Remove any existing configuration that conflicts with the input 'allowas_in' configuration before applying
+                                # the new requested 'allowas_in' configuration.
+                                have_pg_af = self.find_af(have, bgp_as, vrf_name, peer_group, each['afi'], each['safi'])
+
                                 if origin is not None:
                                     if have_pg_af is not None:
-                                        if have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('value') is not None:
+                                        if origin is True and have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('value') is not None:
                                             del_nei = {
                                                 'name': peer_group['name'],
                                                 'address_family': {
@@ -651,9 +683,10 @@ class Bgp_neighbors(ConfigBase):
                                             }
                                             requests.extend(self.get_delete_specific_peergroup_param_requests(vrf_name, del_nei))
                                     samp.update({'allow-own-as': {'config': {'origin': origin, "enabled": bool("true")}}})
+
                                 if value is not None:
                                     if have_pg_af is not None:
-                                        if have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('origin') is not None:
+                                        if have_pg_af.get('allowas_in') is not None and have_pg_af['allowas_in'].get('origin') is True:
                                             del_nei = {
                                                 'name': peer_group['name'],
                                                 'address_family': {
@@ -665,7 +698,10 @@ class Bgp_neighbors(ConfigBase):
                                                 }
                                             }
                                             requests.extend(self.get_delete_specific_peergroup_param_requests(vrf_name, del_nei))
-                                    samp['allow-own-as'] = {'config': {'as-count': value, "enabled": bool("true")}}
+                                    if samp.get('allow-own-as'):
+                                        samp['allow-own-as']['config'].update({'as-count': value})
+                                    else:
+                                        samp.update({'allow-own-as': {'config': {'as-count': value, "enabled": bool("true")}}})
                             if each.get('prefix_list_in'):
                                 pfx_lst_cfg['import-policy'] = each['prefix_list_in']
                             if each.get('prefix_list_out'):
@@ -677,6 +713,7 @@ class Bgp_neighbors(ConfigBase):
 
                 self.update_dict(tmp_timers, bgp_peer_group, '', '', {'timers': {'config': tmp_timers}})
                 self.update_dict(tmp_bfd, bgp_peer_group, '', '', {'enable-bfd': {'config': tmp_bfd}})
+                self.update_dict(tmp_auth, bgp_peer_group, '', '', {'auth-password': {'config': tmp_auth}})
                 self.update_dict(tmp_ebgp, bgp_peer_group, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
                 self.update_dict(tmp_capability, peer_group_cfg, '', '', tmp_capability)
                 self.update_dict(tmp_transport, bgp_peer_group, '', '', {'transport': {'config': tmp_transport}})
@@ -695,7 +732,7 @@ class Bgp_neighbors(ConfigBase):
         for neighbor in cmd:
             if neighbor:
                 bgp_neighbor, neighbor_cfg = {}, {}
-                tmp_bfd, tmp_ebgp, tmp_capability = {}, {}, {}
+                tmp_bfd, tmp_auth, tmp_ebgp, tmp_capability = {}, {}, {}, {}
                 tmp_transport, tmp_timers, tmp_remote = {}, {}, {}
 
                 self.update_dict(neighbor, bgp_neighbor, 'neighbor', 'neighbor-address')
@@ -707,8 +744,8 @@ class Bgp_neighbors(ConfigBase):
                     self.update_dict(neighbor['bfd'], tmp_bfd, 'profile', 'bfd-profile')
 
                 if neighbor.get('auth_pwd') is not None:
-                    if (neighbor['auth_pwd'].get('pwd') is not None and neighbor['auth_pwd'].get('encrypted') is not None):
-                        bgp_neighbor['auth-password'] = {'config': {'password': neighbor['auth_pwd']['pwd'], 'encrypted': neighbor['auth_pwd']['encrypted']}}
+                    self.update_dict(neighbor['auth_pwd'], tmp_auth, 'pwd', 'password')
+                    self.update_dict(neighbor['auth_pwd'], tmp_auth, 'encrypted', 'encrypted')
 
                 if neighbor.get('ebgp_multihop') is not None:
                     self.update_dict(neighbor['ebgp_multihop'], tmp_ebgp, 'enabled', 'enabled')
@@ -771,6 +808,7 @@ class Bgp_neighbors(ConfigBase):
 
                 self.update_dict(tmp_timers, bgp_neighbor, '', '', {'timers': {'config': tmp_timers}})
                 self.update_dict(tmp_bfd, bgp_neighbor, '', '', {'enable-bfd': {'config': tmp_bfd}})
+                self.update_dict(tmp_auth, bgp_neighbor, '', '', {'auth-password': {'config': tmp_auth}})
                 self.update_dict(tmp_ebgp, bgp_neighbor, '', '', {'ebgp-multihop': {'config': tmp_ebgp}})
                 self.update_dict(tmp_capability, neighbor_cfg, '', '', tmp_capability)
                 self.update_dict(tmp_transport, bgp_neighbor, '', '', {'transport': {'config': tmp_transport}})
@@ -782,7 +820,7 @@ class Bgp_neighbors(ConfigBase):
         payload = {'openconfig-network-instance:neighbors': {'neighbor': bgp_neighbor_list}}
         return payload, requests
 
-    def get_modify_bgp_requests(self, commands, have):
+    def get_modify_bgp_requests(self, commands, have, want):
         requests = []
         if not commands:
             return requests
@@ -790,7 +828,7 @@ class Bgp_neighbors(ConfigBase):
         for cmd in commands:
             edit_path = '{0}={1}/{2}'.format(self.network_instance_path, cmd['vrf_name'], self.protocol_bgp_path)
             if 'peer_group' in cmd and cmd['peer_group']:
-                edit_peer_groups_payload, edit_requests = self.build_bgp_peer_groups_payload(cmd['peer_group'], have, cmd['bgp_as'], cmd['vrf_name'])
+                edit_peer_groups_payload, edit_requests = self.build_bgp_peer_groups_payload(cmd['peer_group'], have, want, cmd['bgp_as'], cmd['vrf_name'])
                 edit_peer_groups_path = edit_path + '/peer-groups'
                 requests.extend(edit_requests)
                 requests.append({'path': edit_peer_groups_path, 'method': PATCH, 'data': edit_peer_groups_payload})
@@ -934,7 +972,7 @@ class Bgp_neighbors(ConfigBase):
                             delete_path = delete_static_path + '/afi-safis/afi-safi=%s/config/enabled' % (afi_safi_name)
                             requests.append({'path': delete_path, 'method': DELETE})
                         if allowas_in:
-                            if allowas_in.get('origin'):
+                            if allowas_in.get('origin') is not None:
                                 delete_path = delete_static_path + '/afi-safis/afi-safi=%s/allow-own-as/config/origin' % (afi_safi_name)
                                 requests.append({'path': delete_path, 'method': DELETE})
                             if allowas_in.get('value'):

@@ -41,6 +41,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 
 
+POST = 'post'
 PATCH = 'patch'
 DELETE = 'delete'
 TEST_KEYS = [
@@ -326,14 +327,14 @@ class Stp(ConfigBase):
         if not commands:
             return requests
 
-        global_request = self.get_modify_stp_global_request(commands, have)
+        global_requests = self.get_modify_stp_global_requests(commands, have)
         interfaces_request = self.get_modify_stp_interfaces_request(commands)
         mstp_requests = self.get_modify_stp_mstp_request(commands, have)
         pvst_request = self.get_modify_stp_pvst_request(commands)
         rapid_pvst_request = self.get_modify_stp_rapid_pvst_request(commands)
 
-        if global_request:
-            requests.append(global_request)
+        if global_requests:
+            requests.extend(global_requests)
         if interfaces_request:
             requests.append(interfaces_request)
         if mstp_requests:
@@ -345,11 +346,11 @@ class Stp(ConfigBase):
 
         return requests
 
-    def get_modify_stp_global_request(self, commands, have):
-        request = None
+    def get_modify_stp_global_requests(self, commands, have):
+        requests = []
 
         if not commands:
-            return request
+            return requests
 
         stp_global = commands.get('global')
         if stp_global:
@@ -367,7 +368,9 @@ class Stp(ConfigBase):
             bridge_priority = stp_global.get('bridge_priority')
 
             if enabled_protocol:
-                config_dict['enabled-protocol'] = [stp_map[enabled_protocol]]
+                url = '%s/global' % (STP_PATH)
+                payload = {'openconfig-spanning-tree:config': {'enabled-protocol': [stp_map[enabled_protocol]]}}
+                requests.append({'path': url, 'method': POST, 'data': payload})
             if loop_guard is not None:
                 config_dict['loop-guard'] = loop_guard
             if bpdu_filter is not None:
@@ -406,9 +409,9 @@ class Stp(ConfigBase):
                 global_dict['config'] = config_dict
                 url = '%s/global' % (STP_PATH)
                 payload = {'openconfig-spanning-tree:global': global_dict}
-                request = {'path': url, 'method': PATCH, 'data': payload}
+                requests.append({'path': url, 'method': PATCH, 'data': payload})
 
-        return request
+        return requests
 
     def get_modify_stp_interfaces_request(self, commands):
         request = None

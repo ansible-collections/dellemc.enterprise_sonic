@@ -8,3 +8,4 @@
         'commands': single_run_task_output.commands | default('Not defined'),
         'configs': item.input | default('Not defined'),
         }}}, recursive=True) }}"
+  no_log: true
