@@ -11,7 +11,7 @@
     state: deleted
   failed_when: false
 
-- name: Delete test lag interfaces
+- name: Delete test LAG interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config: "{{ sonic_ip_neighbor_interfaces_task_input.lag_interfaces }}"
     state: deleted

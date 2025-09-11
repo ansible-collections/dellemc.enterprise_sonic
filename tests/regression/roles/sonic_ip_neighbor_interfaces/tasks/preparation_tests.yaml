@@ -12,7 +12,7 @@
     commands: "{{ default_interface_cli }}"
   failed_when: false
 
-- name: Create lag interfaces
+- name: Create LAG interfaces
   dellemc.enterprise_sonic.sonic_lag_interfaces:
     config: "{{ sonic_ip_neighbor_interfaces_task_input.lag_interfaces }}"
     state: merged

@@ -94,7 +94,6 @@ class Ip_neighbor_interfaces(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
 
         existing_ip_neighbor_interfaces_facts = self.get_ip_neighbor_interfaces_facts()
         commands, requests = self.set_config(existing_ip_neighbor_interfaces_facts)
@@ -124,7 +123,6 @@ class Ip_neighbor_interfaces(ConfigBase):
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
         result['commands'] = commands
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_ip_neighbor_interfaces_facts):

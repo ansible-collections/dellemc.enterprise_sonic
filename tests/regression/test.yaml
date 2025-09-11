@@ -47,6 +47,7 @@
     - sonic_ntp
     - sonic_logging
     - sonic_ip_neighbor
+    - sonic_ip_neighbor_interfaces
     - sonic_ipv6_router_advertisement
     - sonic_port_group
     - sonic_dhcp_relay
