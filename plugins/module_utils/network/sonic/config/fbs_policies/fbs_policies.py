@@ -476,6 +476,9 @@ class Fbs_policies(ConfigBase):
                                 if vrf:
                                     hop_dict['network-instance'] = vrf
                                     hop_dict['config']['network-instance'] = vrf
+                                    # Special value for unspecified VRF should be hidden from the user
+                                    if vrf == 'openconfig-fbs-ext:INTERFACE_NETWORK_INSTANCE':
+                                        hop.pop('vrf')
                                 if priority:
                                     hop_dict['config']['priority'] = priority
                                 if hop_dict:
@@ -644,6 +647,9 @@ class Fbs_policies(ConfigBase):
                                     attr_path = '/sections/section=%s/forwarding/next-hops/next-hop=%s,%s'\
                                                 % (classifier, address, vrf)
                                     requests.append(self.get_delete_policies_request(policy_name, attr_path))
+                                # Special value for unspecified VRF should be hidden from the user
+                                if vrf == 'openconfig-fbs-ext:INTERFACE_NETWORK_INSTANCE':
+                                    hop.pop('vrf')
                                 if priority:
                                     self._module.fail_json(msg='Deletion of next hop priority not supported')
                         if next_hop_groups:
