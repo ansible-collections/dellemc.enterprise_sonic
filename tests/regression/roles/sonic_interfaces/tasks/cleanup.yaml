@@ -1,0 +1,24 @@
+---
+- name: Delete VLANs
+  sonic_vlans:
+    config:
+      - vlan_id: 500
+      - vlan_id: 501
+    state: deleted
+  failed_when: false
+
+- name: Delete PortChannels
+  sonic_lag_interfaces:
+    config:
+      - name: PortChannel50
+      - name: PortChannel51
+    state: deleted
+  failed_when: false
+
+- name: Delete loopback interfaces"
+  sonic_interfaces:
+    config:
+      - name: Loopback100
+      - name: Loopback101
+    state: deleted
+  failed_when: false

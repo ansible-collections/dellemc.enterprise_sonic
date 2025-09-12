@@ -47,12 +47,16 @@ merged_01:
         code: 200
   expected_config_requests:
     - path: "data/openconfig-spanning-tree:stp/global"
+      method: "post"
+      data:
+        openconfig-spanning-tree:config:
+          enabled-protocol:
+            - 'MSTP'
+    - path: "data/openconfig-spanning-tree:stp/global"
       method: "patch"
       data:
         openconfig-spanning-tree:global:
           config:
-            enabled-protocol:
-              - 'MSTP'
             loop-guard: true
             bpdu-filter: true
             openconfig-spanning-tree-ext:disabled-vlans:
@@ -161,11 +165,15 @@ merged_03:
         code: 200
   expected_config_requests:
     - path: "data/openconfig-spanning-tree:stp/global"
+      method: "post"
+      data:
+        openconfig-spanning-tree:config:
+          enabled-protocol: ['PVST']
+    - path: "data/openconfig-spanning-tree:stp/global"
       method: "patch"
       data:
         openconfig-spanning-tree:global:
           config:
-            enabled-protocol: ['PVST']
             bpdu-filter: true
             openconfig-spanning-tree-ext:rootguard-timeout: 25
             openconfig-spanning-tree-ext:portfast: true
@@ -220,11 +228,15 @@ merged_04:
         code: 200
   expected_config_requests:
     - path: "data/openconfig-spanning-tree:stp/global"
+      method: "post"
+      data:
+        openconfig-spanning-tree:config:
+          enabled-protocol: ['RAPID_PVST']
+    - path: "data/openconfig-spanning-tree:stp/global"
       method: "patch"
       data:
         openconfig-spanning-tree:global:
           config:
-            enabled-protocol: ['RAPID_PVST']
             bpdu-filter: true
             openconfig-spanning-tree-ext:rootguard-timeout: 25
             openconfig-spanning-tree-ext:hello-time: 5
@@ -599,12 +611,16 @@ replaced_06:
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/global"
+      method: "post"
+      data:
+        openconfig-spanning-tree:config:
+          enabled-protocol:
+              - 'MSTP'
+    - path: "data/openconfig-spanning-tree:stp/global"
       method: "patch"
       data:
         openconfig-spanning-tree:global:
           config:
-            enabled-protocol:
-              - 'MSTP'
             loop-guard: true
             bpdu-filter: true
             openconfig-spanning-tree-ext:disabled-vlans:
@@ -751,12 +767,16 @@ overridden_01:
       method: "delete"
       data:
     - path: "data/openconfig-spanning-tree:stp/global"
+      method: "post"
+      data:
+        openconfig-spanning-tree:config:
+          enabled-protocol:
+            - 'MSTP'
+    - path: "data/openconfig-spanning-tree:stp/global"
       method: "patch"
       data:
         openconfig-spanning-tree:global:
           config:
-            enabled-protocol:
-              - 'MSTP'
             loop-guard: true
             bpdu-filter: true
             openconfig-spanning-tree-ext:disabled-vlans:
