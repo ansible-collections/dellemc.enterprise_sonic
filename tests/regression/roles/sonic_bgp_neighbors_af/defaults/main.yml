@@ -329,6 +329,7 @@ tests:
                 safi: unicast
                 allowas_in:
                   value: 7
+                  origin: false
                 route_map:
                   - name: rmap_reg1
                     direction: out
@@ -458,7 +459,7 @@ tests:
                 prefix_list_in: p2
                 prefix_list_out: p1
   - name: test_case_del_01
-    description: Delete BGP neighbor prefix-list attributes
+    description: Delete prefix-list and other selected BGP neighbor attributes
     state: deleted
     input:
       - bgp_as: "{{bgp_as_1}}"
@@ -493,6 +494,13 @@ tests:
                 safi: evpn
                 prefix_list_in: p2
                 prefix_list_out: p1
+          - neighbor: 12.1.1.1
+            address_family:
+              - afi: ipv4
+                safi: unicast
+                allowas_in:
+                  value: 7
+                  origin: false
   - name: test_case_del_02
     description: Delete entire neighbor address family with attributes
     state: deleted

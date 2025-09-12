@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -20,9 +20,6 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     remove_empties,
     to_list,
-)
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
@@ -75,6 +72,8 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
             new_conf['password_complexity']['min_length'] = 8
     if 'concurrent_session_limit' in command:
         new_conf['concurrent_session_limit'] = None
+    if 'switching_mode' in command:
+        new_conf['switching_mode'] = 'STORE_AND_FORWARD'
     if 'adjust_txrx_clock_freq' in command:
         new_conf['adjust_txrx_clock_freq'] = False
 
@@ -217,8 +216,9 @@ class System(ConfigBase):
         """
         commands = []
         requests = []
-        want = utils.remove_empties(want)
         new_have = self.remove_default_entries(have)
+        want = remove_empties(want)
+
         if not want:
             if have:
                 requests = self.get_delete_all_system_request(new_have)
@@ -259,6 +259,7 @@ class System(ConfigBase):
                 'ipv6': True
             },
             'auto_breakout': 'DISABLE',
+            'switching_mode': 'STORE_AND_FORWARD',
             'adjust_txrx_clock_freq': False,
             'password_complexity': {
                 'min_length': 8
@@ -268,6 +269,7 @@ class System(ConfigBase):
             'hostname': self.get_hostname_delete_request,
             'interface_naming': self.get_intfname_delete_request,
             'auto_breakout': self.get_auto_breakout_delete_request,
+            'switching_mode': self.get_switching_mode_delete_request,
             'load_share_hash_algo': self.get_load_share_hash_algo_delete_request,
             'audit_rules': self.get_audit_rules_delete_request,
             'concurrent_session_limit': self.get_session_limit_delete_request,
@@ -278,7 +280,8 @@ class System(ConfigBase):
         new_want = remove_empties(want)
 
         options = ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo',
-                   'audit_rules', 'concurrent_session_limit', 'adjust_txrx_clock_freq')
+                   'audit_rules', 'concurrent_session_limit', 'adjust_txrx_clock_freq',
+                   'switching_mode')
         for option in options:
             if option in new_want:
                 if new_want[option] != new_have.get(option):
@@ -362,6 +365,11 @@ class System(ConfigBase):
         if auto_breakout_payload:
             request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
             requests.append(request)
+        switching_mode_path = "data/openconfig-system:system/config/switching-mode"
+        switching_mode_payload = self.build_create_switching_mode_payload(commands)
+        if switching_mode_payload:
+            request = {'path': switching_mode_path, 'method': method, 'data': switching_mode_payload}
+            requests.append(request)
         adjust_txrx_clock_freq_path = 'data/openconfig-system:system/config/adjust-txrx-clock-freq'
         adjust_txrx_clock_freq_payload = self.build_create_adjust_txrx_clock_freq_payload(commands)
         if adjust_txrx_clock_freq_payload:
@@ -431,6 +439,12 @@ class System(ConfigBase):
         payload = {}
         if "auto_breakout" in commands and commands["auto_breakout"]:
             payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
+        return payload
+
+    def build_create_switching_mode_payload(self, commands):
+        payload = {}
+        if "switching_mode" in commands and commands["switching_mode"]:
+            payload.update({'openconfig-system:switching-mode': commands["switching_mode"]})
         return payload
 
     def build_create_password_complexity_payload(self, commands):
@@ -521,6 +535,9 @@ class System(ConfigBase):
             auto_breakout_mode = data.get('auto_breakout', None)
             if auto_breakout_mode != "DISABLE":
                 new_data["auto_breakout"] = auto_breakout_mode
+            switching_mode = data.get('switching_mode', None)
+            if switching_mode != "STORE_AND_FORWARD":
+                new_data["switching_mode"] = switching_mode
             load_share_hash_algo = data.get('load_share_hash_algo', None)
             if load_share_hash_algo is not None:
                 new_data["load_share_hash_algo"] = load_share_hash_algo
@@ -551,6 +568,9 @@ class System(ConfigBase):
             requests.extend(request)
         if "auto_breakout" in have:
             request = self.get_auto_breakout_delete_request()
+            requests.append(request)
+        if "switching_mode" in have:
+            request = self.get_switching_mode_delete_request()
             requests.append(request)
         if "load_share_hash_algo" in have:
             request = self.get_load_share_hash_algo_delete_request()
@@ -595,6 +615,12 @@ class System(ConfigBase):
 
     def get_intfname_delete_request(self):
         path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_switching_mode_delete_request(self):
+        path = 'data/openconfig-system:system/config/switching-mode'
         method = DELETE
         request = {'path': path, 'method': method}
         return request
