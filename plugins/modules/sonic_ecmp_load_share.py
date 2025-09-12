@@ -157,9 +157,10 @@ EXAMPLES = """
 # ip load-share hash ipv4 ipv4-l4-dst-port
 # ip load-share hash algorithm CRC
 # ip load-share hash ingress-port
+# ip load-share hash roce qpn
 
 - name: Delete some configuration
-  sonic_loadshare_mode:
+  sonic_ecmp_load_share:
     config:
       hash_algorithm: CRC
       hash_offset:
@@ -192,7 +193,7 @@ EXAMPLES = """
 # ip load-share hash algorithm CRC
 
 - name: Merge some configuration
-  sonic_loadshare_mode:
+  sonic_ecmp_load_share:
     config:
       hash_algorithm: CRC_32LO
       hash_ingress_port: true
@@ -236,7 +237,7 @@ EXAMPLES = """
 # ip load-share hash ingress-port
 
 - name: Replace some configuration
-  sonic_loadshare_mode:
+  sonic_ecmp_load_share:
     config:
       hash_algorithm: XOR
       hash_ingress_port: true
@@ -274,7 +275,7 @@ EXAMPLES = """
 # ip load-share hash ingress-port
 
 - name: Override some configuration
-  sonic_loadshare_mode:
+  sonic_ecmp_load_share:
     config:
       hash_algorithm: CRC_32LO
       hash_ingress_port: true
