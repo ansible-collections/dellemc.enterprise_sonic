@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -57,6 +57,7 @@ options:
       - interfaces
       - l2_interfaces
       - l3_interfaces
+      - ipv6_router_advertisement
       - lag_interfaces
       - bgp
       - bgp_af
@@ -77,6 +78,7 @@ options:
       - users
       - system
       - port_breakout
+      - pms
       - aaa
       - ldap
       - tacacs_server
@@ -92,6 +94,7 @@ options:
       - l2_acls
       - l3_acls
       - lldp_global
+      - ptp_default_ds
       - mac
       - bfd
       - copp
@@ -116,7 +119,14 @@ options:
       - ospf_area
       - ssh
       - lst
+      - ptp_port_ds
       - fbs_classifiers
+      - br_l2pt
+      - dcbx
+      - mirroring
+      - drop_counter
+      - evpn_esi_multihome
+      - ssh_server
 """
 
 EXAMPLES = """

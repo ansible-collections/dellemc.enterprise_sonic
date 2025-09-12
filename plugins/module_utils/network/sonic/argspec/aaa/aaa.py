@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
@@ -43,12 +43,17 @@ class AaaArgs(object):  # pylint: disable=R0903
                 'authentication': {
                     'options': {
                         'auth_method': {
-                            'choices': ['ldap', 'local', 'radius', 'tacacs+'],
+                            'choices': ['ldap', 'local', 'radius', 'tacacs+', 'cac-piv'],
                             'elements': 'str',
                             'type': 'list'
                         },
                         'console_auth_local': {'type': 'bool'},
                         'failthrough': {'type': 'bool'},
+                        'mfa_auth_method': {
+                            'choices': ['rsa-securid'],
+                            'type': 'str'
+                        },
+                        'login_mfa_console': {'type': 'bool'}
                     },
                     'type': 'dict'
                 },

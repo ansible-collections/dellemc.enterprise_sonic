@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: aaa
 
-tests:
+sonic_aaa_tests:
   - name: test_case_01
     description: Initial AAA configuration
     state: merged
@@ -11,10 +10,9 @@ tests:
         auth_method:
           - local
           - ldap
-          - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
+        mfa_auth_method: 'rsa-securid'
       authorization:
         commands_auth_method:
           - local
@@ -50,10 +48,9 @@ tests:
         auth_method:
           - local
           - tacacs+
-          - ldap
-          - radius
-        console_auth_local: False
-        failthrough: False
+        console_auth_local: false
+        failthrough: false
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - tacacs+
@@ -81,14 +78,16 @@ tests:
     state: replaced
     input:
       authentication:
-        console_auth_local: True
+        auth_method:
+          - cac-piv
+          - local
+        console_auth_local: true
       authorization:
         login_auth_method:
           - local
       name_service:
         group:
           - login
-
 
   - name: test_case_04
     description: Override AAA configuration
@@ -97,11 +96,11 @@ tests:
       authentication:
         auth_method:
           - local
-          - ldap
           - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -136,11 +135,11 @@ tests:
       authentication:
         auth_method:
           - local
-          - ldap
           - radius
-          - tacacs+
-        console_auth_local: True
-        failthrough: True
+        console_auth_local: true
+        failthrough: true
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - local
@@ -170,16 +169,16 @@ tests:
 
   - name: test_case_06
     description: Add AAA configuration for delete all
-    state: merged 
+    state: merged
     input:
       authentication:
         auth_method:
           - local
           - tacacs+
-          - ldap
-          - radius
-        console_auth_local: False
-        failthrough: False
+        console_auth_local: false
+        failthrough: false
+        mfa_auth_method: 'rsa-securid'
+        login_mfa_console: true
       authorization:
         commands_auth_method:
           - tacacs+
@@ -208,6 +207,6 @@ tests:
           - local
 
   - name: test_case_07
-    description: Delete all AAA configuratiom
+    description: Delete all AAA configuration
     state: deleted
     input: {}
