@@ -8,6 +8,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_acl_interfaces
     api:
       redirect: dellemc.enterprise_sonic.sonic_api
+    ars:
+      redirect: dellemc.enterprise_sonic.sonic_ars
     bfd:
       redirect: dellemc.enterprise_sonic.sonic_bfd
     bgp:
@@ -38,6 +40,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_relay
     dhcp_snooping:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
+    drop_counter:
+      redirect: dellemc.enterprise_sonic.sonic_drop_counter
     evpn_esi_multihome:
       redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
     facts:
@@ -86,14 +90,20 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_mgmt_servers
     mirroring:
       redirect: dellemc.enterprise_sonic.sonic_mirroring
+    network_policy:
+      redirect: dellemc.enterprise_sonic.sonic_network_policy
     ntp:
       redirect: dellemc.enterprise_sonic.sonic_ntp
     ospf_area:
       redirect: dellemc.enterprise_sonic.sonic_ospf_area
     ospfv2:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2
+    ospfv3:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3
     ospfv2_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2_interfaces
+    ospfv3_interfaces:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3_interfaces
     pim_global:
       redirect: dellemc.enterprise_sonic.sonic_pim_global
     pim_interfaces:

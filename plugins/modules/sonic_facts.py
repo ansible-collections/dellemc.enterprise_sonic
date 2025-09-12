@@ -68,6 +68,8 @@ options:
       - bgp_ext_communities
       - ospfv2_interfaces
       - ospfv2
+      - ospfv3
+      - ospfv3_interfaces
       - mclag
       - prefix_lists
       - vlan_mapping
@@ -121,9 +123,12 @@ options:
       - lst
       - ptp_port_ds
       - fbs_classifiers
+      - ars
+      - network_policy
       - br_l2pt
       - dcbx
       - mirroring
+      - drop_counter
       - evpn_esi_multihome
       - ssh_server
 """

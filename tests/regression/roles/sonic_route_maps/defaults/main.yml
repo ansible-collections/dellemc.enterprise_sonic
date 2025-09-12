@@ -1,10 +1,9 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_route_maps
 
 preparation_tests:
   init_vrfs:
-    - 'ip vrf Vrf1'      
+    - 'ip vrf Vrf1'
   init_prefix_lists:
     - 'ip prefix-list ip_pfx_list1 seq 40 permit 1.2.3.0/24'
     - 'ip prefix-list ip_pfx_list2 seq 50 permit 5.6.7.0/24'
@@ -28,7 +27,7 @@ preparation_tests:
 
 cleanup_tests:
   delete_vrfs:
-    - 'no ip vrf Vrf1'      
+    - 'no ip vrf Vrf1'
   delete_prefix_lists:
     - 'no ip prefix-list ip_pfx_list1 seq 40 permit 1.2.3.0/24'
     - 'no ip prefix-list ip_pfx_list2 seq 50 permit 5.6.7.0/24'
@@ -50,7 +49,7 @@ cleanup_tests:
     - 'no interface Vlan7'
     - 'no interface PortChannel 14'
 
-tests:
+sonic_route_maps_tests:
   - name: test_case_01_merged_base_rm1_80_match
     description: Add initial route map match configuration for map rm1 80
     state: merged
@@ -65,7 +64,7 @@ tests:
             default_route: true
             vni: 735
           ext_comm: bgp_ext_comm1
-          interface: "{{interface2}}"
+          interface: "{{ interface2 }}"
           ip:
             address: ip_pfx_list1
           ipv6:
@@ -87,6 +86,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj1
           as_path_prepend: 200,315,7135
           comm_list_delete: bgp_comm_list2
           community:
@@ -105,7 +105,7 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
             native: true
           ipv6_next_hop:
@@ -122,6 +122,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj2
           as_path_prepend: 0.200,1000.315,7135
           extcommunity:
             rt:
@@ -140,7 +141,7 @@ tests:
             route_type: multicast
           origin: incomplete
           peer:
-            interface: "{{interface4}}"
+            interface: "{{ interface4 }}"
           source_protocol: ospf
         set:
           community:
@@ -204,6 +205,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj3
           as_path_prepend: 188,257
           community:
             community_number:
@@ -216,6 +218,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj4
           as_path_prepend: 0.188,257
           extcommunity:
             rt:
@@ -243,12 +246,13 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: "{{interface4}}"
+          interface: "{{ interface4 }}"
           source_protocol: ospf
           origin: incomplete
           peer:
             ip: 5.6.7.8
         set:
+          # ars_object: obj1
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -269,8 +273,8 @@ tests:
         action: permit
         sequence_num: 80
         match:
-          as_path:  bgp_as2
-          community:  bgp_comm_list3
+          as_path: bgp_as2
+          community: bgp_comm_list3
           evpn:
             default_route: true
             route_type: prefix
@@ -290,6 +294,7 @@ tests:
           source_vrf: Vrf1
           tag: 7284
         set:
+          # ars_object: obj3
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -362,6 +367,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj4
           as_path_prepend: 188,257
           extcommunity:
             rt:
@@ -403,6 +409,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj1
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -422,7 +429,7 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
             native: true
           ipv6_next_hop:
@@ -431,7 +438,7 @@ tests:
             native: true
           local_preference: 635
           metric:
-              rtt_action: add
+            rtt_action: add
           origin: egp
           weight: 93471
           tag: 83540
@@ -439,6 +446,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj2
           as_path_prepend: 188,257
           extcommunity:
             rt:
@@ -457,7 +465,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: "{{interface4}}"
+            interface: "{{ interface4 }}"
           source_protocol: connected
         set:
           community:
@@ -471,12 +479,13 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: "{{interface4}}"
+          interface: "{{ interface4 }}"
           origin: incomplete
           peer:
             ip: 5.6.7.8
           source_protocol: ospf
         set:
+          # ars_object: obj3
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -526,9 +535,9 @@ tests:
             address: ip_pfx_list1
         set:
           community:
-            community_attributes:     
+            community_attributes:
               - no_advertise
-            community_number:     
+            community_number:
               - "25:25"
           extcommunity:
             rt:
@@ -549,6 +558,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj4
           as_path_prepend: 1.188,0.257
           extcommunity:
             rt:
@@ -592,6 +602,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj1
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -611,7 +622,7 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
             native: true
           ipv6_next_hop:
@@ -620,7 +631,7 @@ tests:
             native: true
           local_preference: 635
           metric:
-              rtt_action: add
+            rtt_action: add
           origin: egp
           weight: 93471
           tag: 83540
@@ -632,6 +643,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj2
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -661,7 +673,7 @@ tests:
         action: deny
         sequence_num: 3047
         match:
-          interface: "{{interface2}}"
+          interface: "{{ interface2 }}"
           ipv6:
             address: ipv6_pfx_list1
           origin: egp
@@ -669,12 +681,13 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj3
           as_path_prepend: 375,94
       - map_name: rm3
         action: deny
         sequence_num: 285
         match:
-           local_preference: 14783
+          local_preference: 14783
         set:
           comm_list_delete: bgp_comm_list1
   - name: test_case_17_deleted_route_map_statement
@@ -699,7 +712,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: "{{interface4}}"
+            interface: "{{ interface4 }}"
           source_protocol: connected
         set:
           community:
@@ -713,12 +726,13 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: "{{interface4}}"
+          interface: "{{ interface4 }}"
           origin: incomplete
           peer:
             ip: 5.6.7.8
           source_protocol: ospf
         set:
+          # ars_object: obj3
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -768,6 +782,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj4
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -787,7 +802,7 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
             native: true
           ipv6_next_hop:
@@ -796,7 +811,7 @@ tests:
             native: true
           local_preference: 635
           metric:
-              rtt_action: add
+            rtt_action: add
           origin: egp
           weight: 93471
           tag: 83540
@@ -814,7 +829,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: "{{interface4}}"
+            interface: "{{ interface4 }}"
           source_protocol: connected
         set:
           community:
@@ -890,6 +905,7 @@ tests:
         action: permit
         sequence_num: 80
         set:
+          # ars_object: obj1
           as_path_prepend: 188,257
           comm_list_delete: bgp_comm_list2
           community:
@@ -909,16 +925,16 @@ tests:
               - "30:40"
             soo:
               - "10.73.14.9:78"
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
             native: true
           ipv6_next_hop:
-              global_addr: 30::30
-              prefer_global: false
-              native: true
+            global_addr: 30::30
+            prefer_global: false
+            native: true
           local_preference: 635
           metric:
-              rtt_action: add
+            rtt_action: add
           origin: egp
           weight: 93471
           tag: 83540
@@ -936,10 +952,10 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: "{{interface4}}"
+            interface: "{{ interface4 }}"
           source_protocol: connected
         set:
-          ip_next_hop: 
+          ip_next_hop:
             address: 10.48.16.18
             native: true
           ipv6_next_hop:
@@ -986,6 +1002,7 @@ tests:
         action: permit
         sequence_num: 100
         set:
+          # ars_object: obj2
           as_path_prepend: 1.188,0.257
           extcommunity:
             rt:
@@ -1006,7 +1023,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: "{{interface4}}"
+            interface: "{{ interface4 }}"
           source_protocol: connected
         set:
           community:
@@ -1020,12 +1037,13 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: "{{interface4}}"
+          interface: "{{ interface4 }}"
           origin: incomplete
           peer:
             ip: 5.6.7.8
           source_protocol: ospf
         set:
+          # ars_object: obj4
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58
@@ -1069,8 +1087,9 @@ tests:
         action: permit
         sequence_num: 250
         match:
-          interface: "{{interface6}}"
+          interface: "{{ interface6 }}"
         set:
+          # ars_object: obj2
           as_path_prepend: 150,275
           metric:
             value: 7249
@@ -1088,7 +1107,7 @@ tests:
           ext_comm: bgp_ext_comm2
           origin: igp
           peer:
-            interface: "{{interface4}}"
+            interface: "{{ interface4 }}"
           source_protocol: connected
         set:
           community:
@@ -1102,12 +1121,13 @@ tests:
         action: permit
         sequence_num: 100
         match:
-          interface: "{{interface4}}"
+          interface: "{{ interface4 }}"
           origin: incomplete
           peer:
             ip: 5.6.7.8
           source_protocol: ospf
         set:
+          # ars_object: obj1
           as_path_prepend: 200,300,400
           ipv6_next_hop:
             global_addr: 37::58

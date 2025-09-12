@@ -73,7 +73,7 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
                encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
@@ -156,6 +156,7 @@ deleted_tests:
                   safi: unicast
                   allowas_in:
                     origin: false
+                    value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
@@ -268,7 +269,7 @@ deleted_tests:
         peer_group:
           - name: SPINE
             auth_pwd:
-               pwd: "U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios="
+               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
                encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
@@ -721,6 +722,13 @@ merged_tests:
           - name: SPINE
             remote_as:
               peer_type: internal
+            address_family:
+              afis:
+                - afi: ipv4
+                  safi: unicast
+                  allowas_in:
+                    origin: false
+                    value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
@@ -742,6 +750,7 @@ merged_tests:
                 - afi: l2vpn
                   safi: evpn
                   allowas_in:
+                    origin: false
                     value: 4
         neighbors:
           - neighbor: "{{ interface1 }}"
@@ -901,6 +910,9 @@ merged_tests:
       - bgp_as: "{{bgp_as_1}}"
         peer_group:
           - name: SPINE
+            auth_pwd:
+               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
+               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
@@ -923,6 +935,9 @@ merged_tests:
             ttl_security: 8
         neighbors:
           - neighbor: "{{ interface1 }}"
+            auth_pwd:
+               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
+               encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
                enabled: false
