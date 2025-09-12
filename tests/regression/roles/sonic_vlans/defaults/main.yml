@@ -37,6 +37,8 @@ tests:
         autostate: false
       - vlan_id: 503
         autostate: false
+      - vlan_id: 504
+        autostate: false
   # delete test cases started
   - name: test_case_03
     description: Delete Access VLAN
@@ -44,12 +46,16 @@ tests:
     input:
       - vlan_id: 500
         description: "modified vlan500 description"
+      # No-op case so no delete should occur
       - vlan_id: 501
         autostate: true
       - vlan_id: 502
+      # No deletion should occur due to want mismatch
       - vlan_id: 503
-      # Odd case where delete sets things to default true
         autostate: true
+      # Deletion should occur due to want match
+      - vlan_id: 503
+        autostate: false
   # replace test cases started
   - name: test_case_04
     description: Replace VLANs
@@ -57,6 +63,7 @@ tests:
     input:
       - vlan_id: 500
         autostate: true
+      - vlan_id: 503
       - vlan_id: 502
         description: "modified vlan502 description"
       - vlan_id: 506
@@ -97,6 +104,8 @@ tests:
     state: replaced
     input:
       - vlan_id: 510
+      - vlan_id: 512
+        autostate: false
   # more overridden test cases started
   - name: test_case_09
     description: Override VLANs configuration

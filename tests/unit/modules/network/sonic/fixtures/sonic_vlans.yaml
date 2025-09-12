@@ -77,7 +77,7 @@ deleted_01_vlan_descr:
     config:
       - vlan_id: 10
         description: "Internal"
-        autostate: true
+        autostate: false
   existing_vlans_config:
     - path: "data/sonic-vlan:sonic-vlan"
       response:
@@ -88,16 +88,14 @@ deleted_01_vlan_descr:
               VLAN_LIST:
                 - name: Vlan10
                   vlanid: 10 
-                  autostate: "enable"
+                  autostate: "disable"
                   description: Internal
   expected_config_requests:
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "delete"
       data:
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
-      method: "patch"
-      data:
-        sonic-vlan:autostate: "disable"
+      method: "delete"
 
 deleted_02_vlan:
   module_args:
@@ -160,9 +158,8 @@ replaced_01:
       method: "delete"
       data:
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
-      method: "patch"
+      method: "delete"
       data:
-        sonic-vlan:autostate: "disable"
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "patch"
       data:
@@ -222,6 +219,9 @@ overridden_01:
                   autostate: "disable"
                   description: "Descr20"
   expected_config_requests:
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/autostate"
+      method: "delete"
+      data:
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10/description"
       method: "patch"
       data:
