@@ -22,3 +22,10 @@
     config: []
     state: deleted
   failed_when: false
+
+- name: "Delete prefix list"
+  dellemc.enterprise_sonic.sonic_prefix_lists:
+    config:
+      - name: pf1
+    state: deleted
+  failed_when: false
