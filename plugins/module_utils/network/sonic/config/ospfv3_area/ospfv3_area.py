@@ -358,7 +358,6 @@ class Ospfv3_area(ConfigBase):
                         commands.append(range_cmd)
         return commands
 
-
     def _get_replaced_overridden_config(self, want, have, state):
         add_config, del_config = [], []
 
@@ -764,7 +763,6 @@ class Ospfv3_area(ConfigBase):
 
         return ranges if ranges else None
 
-
     def __derive_ospfv3_area_delete_op(self, key_set, command, exist_conf):
         new_conf = exist_conf
         if command:
@@ -828,14 +826,11 @@ class Ospfv3_area(ConfigBase):
                 new_ranges.append(range_item)
         return new_ranges
 
-
     def get_new_config(self, commands, have):
         """Returns generated configuration based on commands and
         existing configuration"""
         key_set = [
-            {'config': {'vrf_name': '', 'area_id': '',
-                        '__delete_op': self.__derive_ospfv3_area_delete_op},
-            }
+            {'config': {'vrf_name': '', 'area_id': '', '__delete_op': self.__derive_ospfv3_area_delete_op}, }
         ]
 
         new_config = remove_empties_from_list(get_new_config(commands, have, key_set))

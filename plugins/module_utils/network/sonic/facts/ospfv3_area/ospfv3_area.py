@@ -125,8 +125,9 @@ class Ospfv3_areaFacts(object):
                     # Process ranges inside nssa
                     for range_entry in area[ospf_key_ext + "nssa"].get("ranges", {}).get("range", []):
                         if "address-prefix" not in range_entry:
+                            message = f"Range in area {area.get('identifier', 'unknown')} for VRF {vrf} retrieved is missing address-prefix identifier"
                             self._module.fail_json(
-                                msg=f"Range in area {area.get('identifier', 'unknown')} for VRF {vrf} retrieved from device is missing address-prefix identifier"
+                                msg=message
                             )
                         formatted_range = {
                             "prefix": range_entry["address-prefix"]

@@ -63,7 +63,7 @@ class Ospfv3_areaArgs(object):  # pylint: disable=R0903
                 },
                 'stub': {
                     'options': {
-                        'enabled': {'required': True,'type': 'bool'},
+                        'enabled': {'required': True, 'type': 'bool'},
                         'no_summary': {'type': 'bool'}
                     },
                     'type': 'dict'
