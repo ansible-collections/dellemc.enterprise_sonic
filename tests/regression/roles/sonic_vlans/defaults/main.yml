@@ -54,7 +54,7 @@ tests:
       - vlan_id: 503
         autostate: true
       # Deletion should occur due to want match
-      - vlan_id: 503
+      - vlan_id: 504
         autostate: false
   # replace test cases started
   - name: test_case_04
