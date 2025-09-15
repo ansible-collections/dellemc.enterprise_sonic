@@ -22,8 +22,8 @@ sonic_ospfv3_area_preparations_tests:
     - "router ospfv3"
     - "router ospfv3 vrf {{sonic_ospfv3_area_test_vars.vrf1}}"
     - "router ospfv3 vrf {{sonic_ospfv3_area_test_vars.vrf2}}"
-    - "ipv6 prefix-list pf1 seq 10 permit 1::2/24 ge 26 le 30"
-    - "ipv6 prefix-list pf2 seq 10 permit 1::2/24 ge 26 le 30"
+    - "ipv6 prefix-list pf1 seq 10 permit 1::2/64"
+    - "ipv6 prefix-list pf2 seq 10 permit 1::2/64"
 
 sonic_ospfv3_area_tests:
 - name: test_case_01
@@ -42,14 +42,14 @@ sonic_ospfv3_area_tests:
       filter_list_in: pf1
       filter_list_out: pf2
       ranges:
-      - prefix: 1::1/24
-        advertise: true
-        cost: 4
-      - prefix: 1::2/24
-        advertise: false
-      - prefix: 1::3/24
-        advertise: true
-        cost: 10
+        - prefix: 1::1/64
+          advertise: true
+          cost: 4
+        - prefix: 2::2/64
+          advertise: false
+        - prefix: 3::3/64
+          advertise: true
+          cost: 10
     - area_id: 4
       vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
       nssa:
@@ -73,24 +73,24 @@ sonic_ospfv3_area_tests:
       filter_list_in: pf1
       filter_list_out: pf2
       ranges:
-      - prefix: 1::1/24
-        advertise: true
-        cost: 4
-      - prefix: 1::2/24
-        advertise: false
-      - prefix: 1::3/24
-        advertise: true
-        cost: 10
+        - prefix: 1::1/64
+          advertise: true
+          cost: 4
+        - prefix: 2::2/64
+          advertise: false
+        - prefix: 3::3/64
+          advertise: true
+          cost: 10
     - area_id: 3
       vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
       filter_list_in: pf1
       filter_list_out: pf2
       ranges:
-      - prefix: 1::1/24
-        advertise: true
-        cost: 4
-      - prefix: 1::2/24
-        advertise: false
+        - prefix: 1::1/64
+          advertise: true
+          cost: 4
+        - prefix: 2::2/64
+          advertise: false
     - area_id: 4
       vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
       nssa:
@@ -104,6 +104,11 @@ sonic_ospfv3_area_tests:
       nssa:
         enabled: true
         no_summary: false
+    - area_id: 5
+      vrf_name: "default"
+      stub:
+        enabled: true
+        no_summary: true
 
 - name: test_case_03
   description: Create more ospfv3 areas.
@@ -125,6 +130,7 @@ sonic_ospfv3_area_tests:
         default_originate:
           enabled: true
           metric_type: 1
+          metric: 10
 
 - name: test_case_del_01
   description: delete subsections of ospfv3 area config
@@ -137,10 +143,15 @@ sonic_ospfv3_area_tests:
     - area_id: 1
       vrf_name: "default"
       ranges:
-        - prefix: 1::1/24
+        - prefix: 1::1/64
     - area_id: 3
       vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
       ranges: []
+    - area_id: 5
+      vrf_name: "default"
+      stub:
+        enabled: true
+        no_summary: true
 
 - name: test_case_del_02
   description: delete entire area sections of ospfv3 area config
@@ -198,11 +209,11 @@ sonic_ospfv3_area_tests:
       filter_list_in: pf1
       filter_list_out: pf2
       ranges:
-      - prefix: 1::2/24
-        advertise: true
-      - prefix: 1::3/24
-        advertise: true
-        cost: 10
+        - prefix: 2::2/64
+          advertise: true
+        - prefix: 3::3/64
+          advertise: true
+          cost: 10
 
 - name: test_case_replace_02
   description: Replace same area but different nssa type and additional subsections
@@ -218,10 +229,10 @@ sonic_ospfv3_area_tests:
       nssa:
         enabled: true
         ranges:
-          - prefix: 1::1/24
-          - prefix: 1::2/24
+          - prefix: 1::1/64
+          - prefix: 2::2/64
             advertise: true
-          - prefix: 1::3/24
+          - prefix: 3::3/64
             advertise: true
             cost: 10
 
@@ -254,10 +265,10 @@ sonic_ospfv3_area_tests:
       nssa:
         enabled: true
         ranges:
-          - prefix: 1::1/24
-          - prefix: 1::2/24
+          - prefix: 1::1/64
+          - prefix: 2::2/64
             advertise: true
-          - prefix: 1::3/24
+          - prefix: 3::3/64
             advertise: true
             cost: 10
     - vrf_name: "default"
@@ -276,10 +287,10 @@ sonic_ospfv3_area_tests:
       nssa:
         enabled: true
         ranges:
-          - prefix: 1::1/24
-          - prefix: 1::2/24
+          - prefix: 1::1/64
+          - prefix: 2::2/64
             advertise: true
-          - prefix: 1::3/24
+          - prefix: 3::3/64
             advertise: true
             cost: 10
     - area_id: 10
