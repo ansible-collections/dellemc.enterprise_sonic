@@ -38,7 +38,7 @@ tests:
       - vlan_id: 503
         autostate: false
       - vlan_id: 504
-        autostate: false
+        autostate: true
   # delete test cases started
   - name: test_case_03
     description: Delete Access VLAN
@@ -66,6 +66,8 @@ tests:
       - vlan_id: 503
       - vlan_id: 502
         description: "modified vlan502 description"
+      - vlan_id: 504
+        autostate: false
       - vlan_id: 506
   # overridden test cases started
   - name: test_case_05
