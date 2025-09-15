@@ -184,8 +184,7 @@ class Ecmp_load_share(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        commands = []
-        requests = []
+        commands, requests = [], []
 
         if state == 'overridden':
             commands, requests = self._state_overridden(want, have)
@@ -201,17 +200,17 @@ class Ecmp_load_share(ConfigBase):
         """ The command generator when state is merged
 
         :param want: the additive configuration as a dictionary
-        :param obj_in_have: the current configuration as a dictionary
+        :param have: the current configuration as a dictionary
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = []
         diff = get_diff(want, have)
-        command = diff
-        requests = self.get_modify_ecmp_load_share_requests(command, have)
-        if command and len(requests) > 0:
-            commands = update_states([command], 'merged')
+        commands = diff
+        requests = self.get_modify_ecmp_load_share_requests(commands)
+
+        if commands and len(requests) > 0:
+            commands = update_states(commands, 'merged')
         else:
             commands = []
 
@@ -221,24 +220,27 @@ class Ecmp_load_share(ConfigBase):
         """ The command generator when state is deleted
 
         :param want: the objects from which the configuration should be removed
-        :param obj_in_have: the current configuration as a dictionary
+        :param have: the current configuration as a dictionary
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        commands = []
         global delete_all
         delete_all = False
+
         if not want:
-            command = have
+            commands = have
             delete_all = True
         else:
-            command = want
+            diff = get_diff(want, have)
+            commands = get_diff(want, diff)
 
-        requests = self.get_delete_ecmp_load_share_requests(command, have, True, delete_all)
+        requests = self.get_delete_ecmp_load_share_requests(commands, have, True, delete_all)
 
-        if command and len(requests) > 0:
-            commands = update_states([command], 'deleted')
+        if commands and len(requests) > 0:
+            commands = update_states(commands, 'deleted')
+        else:
+            commands = []
 
         return commands, requests
 
@@ -247,17 +249,14 @@ class Ecmp_load_share(ConfigBase):
 
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
-        :param diff: the difference between want and have
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests, add_commands = [], [], []
         self.preprocess_want(want, have)
         diff = get_diff(want, have)
         replaced_config = get_replaced_config(want, have)
-        add_commands = []
 
         if replaced_config:
             del_requests = self.get_delete_ecmp_load_share_requests(replaced_config, have)
@@ -268,7 +267,7 @@ class Ecmp_load_share(ConfigBase):
             add_commands = diff
 
         if add_commands:
-            add_requests = self.get_modify_ecmp_load_share_requests(add_commands, have)
+            add_requests = self.get_modify_ecmp_load_share_requests(add_commands)
             if len(add_requests) > 0:
                 requests.extend(add_requests)
                 commands.extend(update_states(add_commands, 'replaced'))
@@ -280,13 +279,11 @@ class Ecmp_load_share(ConfigBase):
 
         :param want: the desired configuration as a dictionary
         :param have: the current configuration as a dictionary
-        :param diff: the difference between want and have
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
 
         self.preprocess_want(want, have)
         diff = get_diff(want, have)
@@ -299,7 +296,7 @@ class Ecmp_load_share(ConfigBase):
 
         if not have and want:
             want_commands = want
-            want_requests = self.get_modify_ecmp_load_share_requests(want_commands, have)
+            want_requests = self.get_modify_ecmp_load_share_requests(want_commands)
 
             if len(want_requests) > 0:
                 requests.extend(want_requests)
@@ -307,7 +304,7 @@ class Ecmp_load_share(ConfigBase):
 
         return commands, requests
 
-    def get_modify_ecmp_load_share_requests(self, command, have):
+    def get_modify_ecmp_load_share_requests(self, command):
         requests = []
         if not command:
             return requests
@@ -350,23 +347,9 @@ class Ecmp_load_share(ConfigBase):
         if lsm_payload:
             path = URL
             payload = {'openconfig-loadshare-mode-ext:loadshare': lsm_payload}
-            request = {'path': path, 'method': PATCH, 'data': payload}
-            requests.append(request)
+            requests.append({'path': path, 'method': PATCH, 'data': payload})
 
         return requests
-
-    def check_delete(self, cmd_attr, have_attr, ans_delete):
-        # cmd_attr must not be None.
-        del_attr = False
-        if ans_delete:
-            if isinstance(cmd_attr, bool):
-                del_attr = cmd_attr == have_attr
-            elif isinstance(cmd_attr, int) or isinstance(cmd_attr, str):
-                del_attr = cmd_attr == have_attr
-        else:
-            if have_attr is not None:
-                del_attr = True
-        return del_attr
 
     def get_delete_ecmp_load_share_requests(self, command, have, ans_delete=False, is_delete_all=False):
         requests = []
@@ -375,8 +358,7 @@ class Ecmp_load_share(ConfigBase):
 
         if is_delete_all:
             path = URL
-            request = {'path': path, 'method': DELETE}
-            requests.append(request)
+            requests.append({'path': path, 'method': DELETE})
 
             if not ans_delete:
                 request = self.get_patch_config_with_defaults_request(have)
@@ -388,16 +370,11 @@ class Ecmp_load_share(ConfigBase):
         for amap in LOADSHARE_MODE_ATTR_MAP:
             ans_attr = amap['ans_attr']
             cfg_attr = amap['cfg_attr']
-
             cmd_attr = command.get(ans_attr)
-            have_attr = have.get(ans_attr)
 
             if cmd_attr is not None:
-                del_attr = self.check_delete(cmd_attr, have_attr, ans_delete)
-                if del_attr:
-                    path = URL + '/' + cfg_attr
-                    request = {'path': path, 'method': DELETE}
-                    requests.append(request)
+                path = URL + '/' + cfg_attr
+                requests.append({'path': path, 'method': DELETE})
 
         lsm_payload = {}
         for amap in LOADSHARE_MODE_DICT_MAP:
@@ -407,25 +384,20 @@ class Ecmp_load_share(ConfigBase):
             del_op = amap['delete_op']
 
             cmd_attrs = command.get(ans_attr, {})
-            have_attrs = have.get(ans_attr, {})
             if cmd_attrs:
                 amap_subattrs = amap['map_subattrs']
                 config = {}
                 for amap_subattr in amap_subattrs:
                     ans_subattr = amap_subattr['ans_attr']
                     cfg_subattr = amap_subattr['cfg_attr']
-                    attr_dft_value = amap_subattr['dft_value']
+                    attr_dft_value = amap_subattr.get('dft_value')
                     cmd_subattr = cmd_attrs.get(ans_subattr)
-                    have_subattr = have_attrs.get(ans_subattr)
                     if cmd_subattr is not None:
-                        del_attr = self.check_delete(cmd_subattr, have_subattr, ans_delete)
-                        if del_attr:
-                            if del_op == 'DELETE':
-                                path = URL + '/' + cfg_attr + '/config/' + cfg_subattr
-                                request = {'path': path, 'method': DELETE}
-                                requests.append(request)
-                            else:
-                                config.update({cfg_subattr: attr_dft_value})
+                        if del_op == 'DELETE':
+                            path = URL + '/' + cfg_attr + '/config/' + cfg_subattr
+                            requests.append({'path': path, 'method': DELETE})
+                        elif attr_dft_value is not None:
+                            config.update({cfg_subattr: attr_dft_value})
 
                 if config:
                     lsm_payload[cfg_attr] = {'config': config}
@@ -435,14 +407,12 @@ class Ecmp_load_share(ConfigBase):
         if lsm_payload:
             path = URL
             payload = {'openconfig-loadshare-mode-ext:loadshare': lsm_payload}
-            request = {'path': path, 'method': PATCH, 'data': payload}
-            requests.append(request)
+            requests.append({'path': path, 'method': PATCH, 'data': payload})
 
         return requests
 
     def get_patch_config_with_defaults_request(self, have):
-        request = {}
-        lsm_payload = {}
+        request, lsm_payload = {}, {}
 
         for attr in ['ipv4', 'ipv6']:
             have_attr = have.get(attr)
