@@ -185,6 +185,7 @@ class Vlans(ConfigBase):
             del_requests = self.get_delete_vlans_requests(replaced_vlans)
             requests.extend(del_requests)
             commands.extend(update_states(replaced_config, "deleted"))
+            diff = want
 
         if diff:
             rep_requests = self.get_create_vlans_requests(diff, have)
