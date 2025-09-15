@@ -226,6 +226,9 @@ overridden_01:
       method: "patch"
       data:
         sonic-vlan:description: "Descr3"
+    - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan20/autostate"
+      method: "delete"
+      data:
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
       data:
@@ -245,3 +248,4 @@ overridden_01:
       method: "patch"
       data:
         sonic-vlan:autostate: "disable"
+
