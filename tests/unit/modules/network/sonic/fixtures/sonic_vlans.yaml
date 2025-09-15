@@ -248,4 +248,3 @@ overridden_01:
       method: "patch"
       data:
         sonic-vlan:autostate: "disable"
-

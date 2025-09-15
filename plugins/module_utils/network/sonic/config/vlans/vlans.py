@@ -75,7 +75,7 @@ class Vlans(ConfigBase):
         :returns: The current configuration as a dictionary
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
-        vlans_facts = facts['ansible_network_resources'].get('vlans', None)
+        vlans_facts = facts['ansible_network_resources'].get('vlans')
         if not vlans_facts:
             return []
         return vlans_facts
@@ -108,7 +108,7 @@ class Vlans(ConfigBase):
 
         new_config = changed_vlans_facts
         if self._module.check_mode:
-            result.pop('after', None)
+            result.pop('after')
             new_config = get_new_config(commands, existing_vlans_facts,
                                         TEST_KEYS_formatted_diff)
             # This is for diff/check mode
@@ -215,11 +215,10 @@ class Vlans(ConfigBase):
         for config in reverse_diff:
             want_vlan_obj = search_obj_in_list(config['vlan_id'], want, 'vlan_id')
             if want_vlan_obj:
-                if want_vlan_obj.get('description', None) is None and config.get('description', None) is not None:
+                if want_vlan_obj.get('description') is None and config.get('description') is not None:
                     del_commands.append({"vlan_id": config.get("vlan_id"), "description": config.get("description")})
-                if ((want_vlan_obj.get('autostate', None) is True or
-                     want_vlan_obj.get('autostate', None) is None) and
-                    config.get('autostate', None) is False):
+                if ((want_vlan_obj.get('autostate') is True or want_vlan_obj.get('autostate') is None) and
+                    config.get('autostate') is False):
                         del_commands.append({"vlan_id": config.get("vlan_id"), "autostate": False})
             elif not want_vlan_obj:
                 del_commands.append({"vlan_id": config.get("vlan_id")})
@@ -276,7 +275,7 @@ class Vlans(ConfigBase):
         method = "DELETE"
         for vlan in configs[:]:
             request = {}
-            vlan_id = vlan.get("vlan_id", None)
+            vlan_id = vlan.get("vlan_id")
             if vlan_id and vlan.get("description") is None and vlan.get("autostate") is None:
                 path = "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan{}".format(vlan_id)
                 request = {"path": path, "method": method}
@@ -303,7 +302,7 @@ class Vlans(ConfigBase):
         if not configs:
             return requests
         for vlan in configs:
-            vlan_id = vlan.get("vlan_id", None)
+            vlan_id = vlan.get("vlan_id")
             interface_name = "Vlan" + str(vlan_id)
 
             if have:
@@ -319,11 +318,11 @@ class Vlans(ConfigBase):
                 request = build_interfaces_create_request(interface_name=interface_name)
                 requests.append(request)
 
-            description = vlan.get("description", None)
+            description = vlan.get("description")
             if description is not None:
                 requests.append(self.get_modify_vlan_config_attr(interface_name, 'description', description))
 
-            autostate = vlan.get("autostate", None)
+            autostate = vlan.get("autostate")
             if autostate is not None:
                 requests.append(self.get_modify_vlan_config_attr(interface_name, 'autostate', autostate))
 
