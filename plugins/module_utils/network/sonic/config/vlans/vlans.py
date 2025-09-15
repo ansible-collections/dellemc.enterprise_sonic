@@ -217,7 +217,9 @@ class Vlans(ConfigBase):
             if want_vlan_obj:
                 if want_vlan_obj.get('description', None) is None and config.get('description', None) is not None:
                     del_commands.append({"vlan_id": config.get("vlan_id"), "description": config.get("description")})
-                if want_vlan_obj.get('autostate', None) is True and config.get('autostate', None) is False:
+                if ((want_vlan_obj.get('autostate', None) is True or
+                     want_vlan_obj.get('autostate', None) is None) and
+                    config.get('autostate', None) is False):
                     del_commands.append({"vlan_id": config.get("vlan_id"), "autostate": False})
             elif not want_vlan_obj:
                 del_commands.append({"vlan_id": config.get("vlan_id")})
