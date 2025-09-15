@@ -42,6 +42,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
     drop_counter:
       redirect: dellemc.enterprise_sonic.sonic_drop_counter
+    ecmp_load_share:
+      redirect: dellemc.enterprise_sonic.sonic_ecmp_load_share
     evpn_esi_multihome:
       redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
     facts:
@@ -144,6 +146,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_sflow
     ssh:
       redirect: dellemc.enterprise_sonic.sonic_ssh
+    ssh_server:
+      redirect: dellemc.enterprise_sonic.sonic_ssh_server
     static_routes:
       redirect: dellemc.enterprise_sonic.sonic_static_routes
     stp:
@@ -164,5 +168,3 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_vrrp
     vxlans:
       redirect: dellemc.enterprise_sonic.sonic_vxlans
-    ssh_server:
-      redirect: dellemc.enterprise_sonic.sonic_ssh_server
