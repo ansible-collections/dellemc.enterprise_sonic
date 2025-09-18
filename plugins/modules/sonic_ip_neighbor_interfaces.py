@@ -38,6 +38,7 @@ options:
       ipv4_neighbors:
         description:
           - Specifies the static IPv4 neighbors.
+          - I(ip) & I(mac) are required for adding a new neighbor.
         type: list
         elements: dict
         suboptions:
@@ -53,6 +54,7 @@ options:
       ipv6_neighbors:
         description:
           - Specifies the static IPv6 neighbors.
+          - I(ip) & I(mac) are required for adding a new neighbor.
         type: list
         elements: dict
         suboptions:

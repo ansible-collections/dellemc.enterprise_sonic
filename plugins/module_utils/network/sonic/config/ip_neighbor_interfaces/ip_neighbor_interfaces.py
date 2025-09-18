@@ -14,6 +14,7 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+from ansible.module_utils.common.validation import check_required_arguments
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -356,6 +357,19 @@ class Ip_neighbor_interfaces(ConfigBase):
         else:
             updated_want = remove_empties_from_list(want)
             normalize_interface_name(updated_want, self._module)
+            if state != 'deleted':
+                spec = {'mac': {'required': True}}
+                for conf in updated_want:
+                    for option in ('ipv4_neighbors', 'ipv6_neighbors'):
+                        if option not in conf:
+                            continue
+
+                        for neighbor in conf[option]:
+                            try:
+                                check_required_arguments(spec, neighbor, ['config', option])
+                            except TypeError as exc:
+                                self._module.fail_json(msg=str(exc))
+
             return updated_want
 
     @staticmethod
