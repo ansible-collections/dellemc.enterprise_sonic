@@ -65,12 +65,12 @@ options:
           proxy_arp:
             description:
               - Configurations parameters for ipv4 proxy ARP
+            version_added: 3.1.0
             type: dict
             suboptions:
               mode:
                 description:
                   - Modes for proxy_arp
-                version_added: 3.1.0
                 type: str
                 choices:
                   - DISABLE
@@ -124,12 +124,12 @@ options:
           nd_proxy:
             description:
               - Configurations parameters for ipv6 ND-proxy
+            version_added: 3.1.0
             type: dict
             suboptions:
               mode:
                 description:
                   - Modes for nd_proxy
-                version_added: 3.1.0
                 type: str
                 choices:
                   - DISABLE
@@ -137,8 +137,8 @@ options:
                   - ALL
               nd_proxy_rules:
                 description:
-                  - List of nd_proxy rules can be added.
-                version_added: 3.1.0
+                  - List of ipv6 prefixes (subnets) for which this interface is
+                    to serve as an nd proxy
                 type: list
                 elements: str
   state:
@@ -200,7 +200,7 @@ EXAMPLES = """
       - name: Ethernet20
         ipv4:
           proxy_arp:
-            - mode: REMOTE_ONLY
+            mode: REMOTE_ONLY
           addresses:
             - address: 83.1.1.1/16
             - address: 84.1.1.1/16
@@ -352,7 +352,7 @@ EXAMPLES = """
             - address: 84.1.1.1/16
               secondary: true
           proxy_arp:
-            - mode: REMOTE_ONLY
+            mode: REMOTE_ONLY
         ipv6:
           enabled: true
           dad: ENABLE
@@ -373,9 +373,9 @@ EXAMPLES = """
             - address: 92::1/16
             - address: 93::1/16
           nd_proxy:
-            - mode: REMOTE_ONLY
-            - rule:
-                prefix: 6001::/24
+            mode: REMOTE_ONLY
+            nd_proxy_rules:
+              - 6001::/24
       - name: Vlan501
         ipv4:
           anycast_addresses:
@@ -458,7 +458,7 @@ EXAMPLES = """
         ipv4:
           - address: 81.1.1.1/16
         proxy_arp:
-          - mode: ALL
+          mode: ALL
     state: replaced
 
 # After state:
@@ -582,7 +582,7 @@ EXAMPLES = """
         ipv4:
           - address: 81.1.1.1/16
         proxy_arp:
-          - mode: ALL
+          mode: ALL
       - name: Vlan100
         ipv4:
           anycast_addresses:
@@ -593,9 +593,9 @@ EXAMPLES = """
             - 83::1/24
             - 85::1/24
           nd_proxy:
-            - mode: REMOTE_ONLY
-            - rule:
-                prefix: 6001::/24
+            mode: REMOTE_ONLY
+            nd_proxy_rules:
+              - 6001::/24
     state: overridden
 
 # After state:
