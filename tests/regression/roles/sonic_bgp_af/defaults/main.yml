@@ -18,12 +18,21 @@ sonic_bgp_af_preparation_task_input:
     - map_name: "{{ sonic_bgp_af_test_vars.rmap_1 }}"
       action: permit
       sequence_num: 11
+      match:
+        ip:
+          address: pf1
     - map_name: "{{ sonic_bgp_af_test_vars.rmap_2 }}"
       action: permit
       sequence_num: 11
+      match:
+        ip:
+          address: pf1
     - map_name: "{{ sonic_bgp_af_test_vars.rmap_3 }}"
       action: permit
       sequence_num: 11
+      match:
+        ip:
+          address: pf1
   vrf:
     - name: "{{ sonic_bgp_af_test_vars.vrf_1 }}"
     - name: "{{ sonic_bgp_af_test_vars.vrf_2 }}"

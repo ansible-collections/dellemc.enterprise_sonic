@@ -1,0 +1,144 @@
+---
+ansible_connection: httpapi
+
+sonic_pms_test_vars:
+  po1: "PortChannel100"
+  po2: "PortChannel101"
+  vlan_id_1: 100
+  vlan_id_2: 101
+
+sonic_pms_preparation_task_input:
+  lag_interfaces:
+    - name: '{{ sonic_pms_test_vars.po1 }}'
+    - name: '{{ sonic_pms_test_vars.po2 }}'
+  vlans:
+    - vlan_id: '{{ sonic_pms_test_vars.vlan_id_1 }}'
+    - vlan_id: '{{ sonic_pms_test_vars.vlan_id_2 }}'
+  l2_interfaces:
+    - name: '{{ interface1 }}'
+      access:
+        vlan: '{{ sonic_pms_test_vars.vlan_id_1 }}'
+    - name: '{{ interface2 }}'
+      access:
+        vlan: '{{ sonic_pms_test_vars.vlan_id_1 }}'
+    - name: '{{ interface3 }}'
+      trunk:
+        allowed_vlans:
+          - vlan: '{{ sonic_pms_test_vars.vlan_id_2 }}'
+    - name: '{{ interface4 }}'
+      trunk:
+        allowed_vlans:
+          - vlan: '{{ sonic_pms_test_vars.vlan_id_2 }}'
+    - name: '{{ sonic_pms_test_vars.po1 }}'
+      access:
+        vlan: '{{ sonic_pms_test_vars.vlan_id_1 }}'
+    - name: '{{ sonic_pms_test_vars.po2 }}'
+      access:
+        vlan: '{{ sonic_pms_test_vars.vlan_id_2 }}'
+
+sonic_pms_tests:
+  - name: test_case_01
+    description: 'Add PMS configurations for interfaces with no prior configs'
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        max_allowed_macs: 20
+        sticky_mac: true
+        port_security_enable: true
+      - name: '{{ interface2 }}'
+        max_allowed_macs: 10
+        port_security_enable: true
+      - name: '{{ sonic_pms_test_vars.po1 }}'
+        violation: 'SHUTDOWN'
+        port_security_enable: true
+      - name: '{{ sonic_pms_test_vars.po2 }}'
+        max_allowed_macs: 20
+        port_security_enable: true
+
+  - name: test_case_02
+    description: 'Add PMS configurations for existing PMS configured interfaces'
+    state: merged
+    input:
+      - name: '{{ interface2 }}'
+        port_security_enable: true
+        violation: 'PROTECT'
+      - name: '{{ sonic_pms_test_vars.po1 }}'
+        port_security_enable: false
+      - name: '{{ interface3 }}'
+        port_security_enable: true
+        sticky_mac: true
+        violation: 'SHUTDOWN'
+
+  - name: test_case_del_03
+    description: 'Delete PMS configurations attributes for interfaces'
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+        port_security_enable: true
+        sticky_mac: true
+      - name: '{{ interface2 }}'
+        port_security_enable: true
+        max_allowed_macs: 10
+        violation: 'PROTECT'
+      - name: '{{ sonic_pms_test_vars.po2 }}'
+        port_security_enable: true
+        max_allowed_macs: 20
+        violation: 'PROTECT'
+
+  - name: test_case_replace_04
+    description: 'Replace PMS configurations at attributes level'
+    state: replaced
+    input:
+      - name: '{{ interface2 }}'
+        port_security_enable: true
+        max_allowed_macs: 12
+        sticky_mac: true
+        violation: 'SHUTDOWN'
+      - name: '{{ sonic_pms_test_vars.po2 }}'
+        port_security_enable: true
+        max_allowed_macs: 20
+        violation: 'PROTECT'
+      - name: '{{ interface3 }}'
+        port_security_enable: true
+
+  - name: test_case_replace_05
+    description: 'Remove PMS configuration using replaced'
+    state: replaced
+    input:
+      - name: '{{ sonic_pms_test_vars.po2 }}'
+        port_security_enable: false
+
+  - name: test_case_override_06
+    description: 'Override PMS configurations at attributes level'
+    state: overridden
+    input:
+      - name: '{{ sonic_pms_test_vars.po2 }}'
+        port_security_enable: true
+        sticky_mac: true
+        violation: 'SHUTDOWN'
+      - name: '{{ interface3 }}'
+        port_security_enable: true
+      - name: '{{ interface2 }}'
+        port_security_enable: true
+        max_allowed_macs: 12
+        sticky_mac: true
+        violation: 'SHUTDOWN'
+
+  - name: test_case_override_07
+    description: 'Remove PMS configuration using overridden'
+    state: overridden
+    input:
+      - name: '{{ sonic_pms_test_vars.po2 }}'
+        port_security_enable: false
+      - name: '{{ interface3 }}'
+        port_security_enable: true
+      - name: '{{ interface2 }}'
+        port_security_enable: true
+        max_allowed_macs: 12
+        sticky_mac: true
+        violation: 'SHUTDOWN'
+
+  - name: test_case_delete_all_08
+    description: 'Delete all PMS configurations'
+    state: deleted
+    input: []
