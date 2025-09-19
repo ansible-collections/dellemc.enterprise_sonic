@@ -53,6 +53,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.logging.logging import LoggingFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pki.pki import PkiFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor.ip_neighbor import Ip_neighborFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor_interfaces.ip_neighbor_interfaces import (
+    Ip_neighbor_interfacesFacts
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ipv6_router_advertisement.ipv6_router_advertisement import (
     Ipv6_router_advertisementFacts
 )
@@ -138,6 +141,7 @@ FACT_RESOURCE_SUBSETS = dict(
     logging=LoggingFacts,
     pki=PkiFacts,
     ip_neighbor=Ip_neighborFacts,
+    ip_neighbor_interfaces=Ip_neighbor_interfacesFacts,
     ipv6_router_advertisement=Ipv6_router_advertisementFacts,
     port_group=Port_groupFacts,
     dhcp_relay=Dhcp_relayFacts,
