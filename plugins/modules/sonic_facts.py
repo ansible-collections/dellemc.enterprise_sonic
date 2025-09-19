@@ -89,6 +89,7 @@ options:
       - logging
       - pki
       - ip_neighbor
+      - ip_neighbor_interfaces
       - port_group
       - dhcp_relay
       - acl_interfaces
@@ -130,6 +131,7 @@ options:
       - drop_counter
       - evpn_esi_multihome
       - ssh_server
+      - ecmp_load_share
 """
 
 EXAMPLES = """

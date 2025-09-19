@@ -49,6 +49,7 @@
     - sonic_ntp
     - sonic_logging
     - sonic_ip_neighbor
+    - sonic_ip_neighbor_interfaces
     - sonic_ipv6_router_advertisement
     - sonic_port_group
     - sonic_dhcp_relay
@@ -88,4 +89,5 @@
     - sonic_ptp_port_ds
     - sonic_evpn_esi_multihome
     - sonic_ssh_server
+    - sonic_ecmp_load_share
     - test_reports
