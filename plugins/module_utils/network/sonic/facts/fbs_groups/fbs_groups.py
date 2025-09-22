@@ -30,6 +30,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 enum_dict = {
     'openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4': 'ipv4',
     'openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV6': 'ipv6',
+    'openconfig-fbs-ext:NEXT_HOP_GROUP_THRESHOLD_COUNT': 'count',
+    'openconfig-fbs-ext:NEXT_HOP_GROUP_THRESHOLD_PERCENTAGE': 'percentage',
     'openconfig-fbs-ext:NEXT_HOP_TYPE_NON_RECURSIVE': 'non_recursive',
     'openconfig-fbs-ext:NEXT_HOP_TYPE_OVERLAY': 'overlay',
     'openconfig-fbs-ext:NEXT_HOP_TYPE_RECURSIVE': 'recursive',
@@ -68,7 +70,7 @@ class Fbs_groupsFacts(object):
 
         if not data:
             cfg = self.get_config(self._module)
-            data = self.update_fbs_groups(cfg)
+            data = self.render_config(cfg)
         objs = data
         facts = {}
         if objs:
@@ -91,75 +93,78 @@ class Fbs_groupsFacts(object):
 
         return cfg
 
-    def update_fbs_groups(self, cfg):
+    def render_config(self, cfg):
+        """This method parses the OC FBS groups data and returns the parsed data in argspec format"""
         config_dict = {}
 
         if cfg:
-            if 'next-hop-groups' in cfg and 'next-hop-group' in cfg['next-hop-groups']:
-                next_hop_group = cfg['next-hop-groups']['next-hop-group']
-                next_hop_groups_list = self.get_groups_list(next_hop_group)
+            for list_name in ('next-hop-group', 'replication-group'):
+                dict_name = list_name + 's'
+                if dict_name in cfg and list_name in cfg[dict_name]:
+                    groups_list = []
+                    for group in cfg[dict_name][list_name]:
+                        group_dict = {}
+                        group_name = group.get('group-name')
+                        config = group.get('config')
+                        next_hops = group.get('next-hops')
 
-                if next_hop_groups_list:
-                    config_dict['next_hop_groups'] = next_hop_groups_list
+                        if group_name:
+                            group_dict['group_name'] = group_name
+                        if config:
+                            group_description = config.get('description')
+                            group_type = config.get('group-type')
 
-            if 'replication-groups' in cfg and 'replication-group' in cfg['replication-groups']:
-                replication_group = cfg['replication-groups']['replication-group']
-                replication_groups_list = self.get_groups_list(replication_group, True)
+                            if group_description:
+                                group_dict['group_description'] = group_description
+                            if group_type:
+                                group_dict['group_type'] = enum_dict[group_type]
+                            if list_name == 'next-hop-group':
+                                threshold_type = config.get('threshold-type')
+                                threshold_up = config.get('threshold-up')
+                                threshold_down = config.get('threshold-down')
 
-                if replication_groups_list:
-                    config_dict['replication_groups'] = replication_groups_list
+                                if threshold_type:
+                                    group_dict['threshold_type'] = enum_dict[threshold_type]
+                                if threshold_up is not None:
+                                    group_dict['threshold_up'] = threshold_up
+                                if threshold_down is not None:
+                                    group_dict['threshold_down'] = threshold_down
+                        if next_hops:
+                            next_hop = next_hops.get('next-hop')
+                            if next_hop:
+                                next_hops_list = []
+                                for hop in next_hop:
+                                    hop_dict = {}
+                                    entry_id = hop.get('entry-id')
+                                    config = hop.get('config')
+
+                                    if entry_id:
+                                        hop_dict['entry_id'] = entry_id
+                                    if config:
+                                        ip_address = config.get('ip-address')
+                                        vrf = config.get('network-instance')
+                                        next_hop_type = config.get('next-hop-type')
+
+                                        if ip_address:
+                                            hop_dict['ip_address'] = ip_address
+                                        if vrf:
+                                            hop_dict['vrf'] = vrf
+                                        if next_hop_type:
+                                            hop_dict['next_hop_type'] = enum_dict[next_hop_type]
+                                        if list_name == 'replication-group':
+                                            # Set false as functional default for single_copy
+                                            single_copy = config.get('single-copy', False)
+
+                                            if single_copy is not None:
+                                                hop_dict['single_copy'] = single_copy
+                                    if hop_dict:
+                                        next_hops_list.append(hop_dict)
+                                if next_hops_list:
+                                    group_dict['next_hops'] = next_hops_list
+                        if group_dict:
+                            groups_list.append(group_dict)
+                    if groups_list:
+                        name = list_name.replace('-', '_') + 's'
+                        config_dict[name] = groups_list
 
         return config_dict
-
-    def get_groups_list(self, group_cfg, is_replication=False):
-        groups_list = []
-
-        for group in group_cfg:
-            group_dict = {}
-            group_name = group.get('group-name')
-            config = group.get('config')
-            next_hops = group.get('next-hops')
-
-            if group_name:
-                group_dict['group_name'] = group_name
-            if config:
-                group_description = config.get('description')
-                group_type = config.get('group-type')
-
-                if group_description:
-                    group_dict['group_description'] = group_description
-                if group_type:
-                    group_dict['group_type'] = enum_dict[group_type]
-            if next_hops:
-                next_hop = next_hops.get('next-hop')
-                if next_hop:
-                    next_hops_list = []
-                    for hop in next_hop:
-                        hop_dict = {}
-                        entry_id = hop.get('entry-id')
-                        config = hop.get('config')
-
-                        if entry_id:
-                            hop_dict['entry_id'] = entry_id
-                        if config:
-                            ip_address = config.get('ip-address')
-                            network_instance = config.get('network-instance')
-                            next_hop_type = config.get('next-hop-type')
-                            single_copy = config.get('single-copy')
-
-                            if ip_address:
-                                hop_dict['ip_address'] = ip_address
-                            if network_instance:
-                                hop_dict['network_instance'] = network_instance
-                            if next_hop_type:
-                                hop_dict['next_hop_type'] = enum_dict[next_hop_type]
-                            if single_copy:
-                                hop_dict['single_copy'] = single_copy
-                        if hop_dict:
-                            next_hops_list.append(hop_dict)
-                    if next_hops_list:
-                        group_dict['next_hops'] = next_hops_list
-            if group_dict:
-                groups_list.append(group_dict)
-
-        return groups_list

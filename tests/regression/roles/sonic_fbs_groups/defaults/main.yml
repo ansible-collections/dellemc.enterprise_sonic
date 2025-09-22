@@ -10,10 +10,13 @@ sonic_fbs_groups_tests:
         - group_name: hop1
           group_description: abc
           group_type: ipv4
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
           next_hops:
             - entry_id: 1
               ip_address: 1.1.1.1
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: non_recursive
       replication_groups:
         - group_name: rep1
@@ -22,7 +25,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 2
               ip_address: 1::1
-              network_instance: VrfReg2
+              vrf: VrfReg2
               next_hop_type: overlay
               single_copy: true
 
@@ -34,14 +37,17 @@ sonic_fbs_groups_tests:
         - group_name: hop1
           group_description: abc123
           group_type: ipv4
+          threshold_type: percentage
+          threshold_up: 20
+          threshold_down: 10
           next_hops:
             - entry_id: 1
               ip_address: 3.3.3.3
-              network_instance: VrfReg2
+              vrf: VrfReg2
               next_hop_type: recursive
             - entry_id: 3
               ip_address: 5.5.5.5
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: overlay
         - group_name: hop2
           group_description: abc
@@ -49,7 +55,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 5
               ip_address: 3::3
-              network_instance: default
+              vrf: default
               next_hop_type: non_recursive
       replication_groups:
         - group_name: rep1
@@ -58,11 +64,12 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 2
               ip_address: 2::2
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: recursive
+              single_copy: false
             - entry_id: 4
               ip_address: 4::4
-              network_instance: default
+              vrf: default
               next_hop_type: overlay
               single_copy: true
         - group_name: rep2
@@ -71,7 +78,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 1
               ip_address: 2.2.2.2
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: non_recursive
               single_copy: true
 
@@ -92,7 +99,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 9
               ip_address: 1.2.3.4
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: recursive
       replication_groups:
         - group_name: rep2
@@ -101,7 +108,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 7
               ip_address: 9::9
-              network_instance: default
+              vrf: default
               next_hop_type: recursive
         - group_name: rep3
           group_description: 'rep3 group'
@@ -109,7 +116,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 2
               ip_address: 2.2.2.2
-              network_instance: VrfReg2
+              vrf: VrfReg2
               next_hop_type: non_recursive
 
   - name: test_case_04
@@ -123,7 +130,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 2
               ip_address: 1::1
-              network_instance: VrfReg2
+              vrf: VrfReg2
               next_hop_type: overlay
               single_copy: true
 
@@ -135,14 +142,17 @@ sonic_fbs_groups_tests:
         - group_name: hop1
           group_description: abc
           group_type: ipv4
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
           next_hops:
             - entry_id: 1
               ip_address: 3.3.3.3
-              network_instance: VrfReg2
+              vrf: VrfReg2
               next_hop_type: recursive
             - entry_id: 3
               ip_address: 5.5.5.5
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: overlay
         - group_name: hop2
           group_description: abc123
@@ -150,7 +160,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 5
               ip_address: 3::3
-              network_instance: default
+              vrf: default
               next_hop_type: non_recursive
       replication_groups:
         - group_name: rep1
@@ -159,7 +169,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 4
               ip_address: 4::4
-              network_instance: default
+              vrf: default
               next_hop_type: overlay
               single_copy: true
         - group_name: rep2
@@ -168,9 +178,9 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 1
               ip_address: 2.2.2.2
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: non_recursive
-              single_copy: true
+              single_copy: false
 
   - name: test_case_06
     description: Delete FBS groups configuration
@@ -179,10 +189,13 @@ sonic_fbs_groups_tests:
       next_hop_groups:
         - group_name: hop1
           group_description: abc
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
           next_hops:
             - entry_id: 1
             - entry_id: 3
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: overlay
         - group_name: hop2
       replication_groups:
@@ -191,7 +204,7 @@ sonic_fbs_groups_tests:
           next_hops:
             - entry_id: 2
             - entry_id: 4
-              network_instance: default
+              vrf: default
               next_hop_type: overlay
               single_copy: true
         - group_name: rep2

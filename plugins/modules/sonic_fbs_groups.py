@@ -30,13 +30,13 @@ options:
     suboptions:
       next_hop_groups:
         description:
-          - Next hop groups configuration
+          - Next-hop groups configuration
         type: list
         elements: dict
         suboptions:
           group_name:
             description:
-              - Name of next hop group
+              - Name of next-hop group
             type: str
             required: true
           group_description:
@@ -45,13 +45,30 @@ options:
             type: str
           group_type:
             description:
-              - Type of next hop group
+              - Type of next-hop group
               - The group type is required for merged, replaced, and overridden states.
             type: str
             choices: ['ipv4', 'ipv6']
+          threshold_type:
+            description:
+              - Type of threshold
+            type: str
+            choices: ['count', 'percentage']
+          threshold_up:
+            description:
+              - Specifies the minimum threshold value for a next-hop group to be considered forwardable
+              - Range 1-128
+              - I(threshold_type) must be configured
+            type: int
+          threshold_down:
+            description:
+              - Specifies the threshold value equal to or below for a next-hop to not be considered forwardable
+              - Range 0-127
+              - I(threshold_type) must be configured
+            type: int
           next_hops:
             description:
-              - Next hops configuration for forwarding
+              - Next-hops configuration for forwarding
             type: list
             elements: dict
             suboptions:
@@ -65,13 +82,13 @@ options:
                   - Forwarding IP address
                   - The IP address is required for merged, replaced, and overridden states.
                 type: str
-              network_instance:
+              vrf:
                 description:
                   - Forwarding network instance
                 type: str
               next_hop_type:
                 description:
-                  - Type of next hop
+                  - Type of next-hop
                 type: str
                 choices: ['non_recursive', 'overlay', 'recursive']
       replication_groups:
@@ -97,7 +114,7 @@ options:
             choices: ['ipv4', 'ipv6']
           next_hops:
             description:
-              - Next hops configuration for forwarding
+              - Next-hops configuration for forwarding
             type: list
             elements: dict
             suboptions:
@@ -111,20 +128,19 @@ options:
                   - Forwarding IP address
                   - The IP address is required for merged, replaced, and overridden states.
                 type: str
-              network_instance:
+              vrf:
                 description:
                   - Forwarding network instance
                 type: str
               next_hop_type:
                 description:
-                  - Type of next hop
+                  - Type of next-hop
                 type: str
                 choices: ['non_recursive', 'overlay', 'recursive']
               single_copy:
                 description:
                   - Enable/disable single path to create copy
                 type: bool
-                choices: [true]
   state:
     description:
       - The state of the configuration after module completion
@@ -151,10 +167,13 @@ EXAMPLES = """
         - group_name: hop1
           group_description: abc
           group_type: ipv4
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
           next_hops:
             - entry_id: 1
               ip_address: 1.1.1.1
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: non_recursive
       replication_groups:
         - group_name: rep1
@@ -163,7 +182,7 @@ EXAMPLES = """
           next_hops:
             - entry_id: 2
               ip_address: 1::1
-              network_instance: VrfReg2
+              vrf: VrfReg2
               next_hop_type: overlay
               single_copy: true
     state: merged
@@ -175,6 +194,7 @@ EXAMPLES = """
 # !
 # pbf next-hop-group hop1 type ip
 #   description abc
+#   threshold type count up 15 down 5
 #   entry 1 next-hop 1.1.1.1 vrf VrfReg1 non-recursive
 # !
 # sonic# show running-configuration pbf replication-group
@@ -194,6 +214,7 @@ EXAMPLES = """
 # !
 # pbf next-hop-group hop1 type ip
 #   description abc
+#   threshold type count up 15 down 5
 #   entry 1 next-hop 1.1.1.1 vrf VrfReg1 non-recursive
 # !
 # pbf next-hop-group hop2 type ipv6
@@ -217,7 +238,7 @@ EXAMPLES = """
           next_hops:
             - entry_id: 1
               ip_address: 1.1.1.1
-              network_instance: VrfReg1
+              vrf: VrfReg1
               next_hop_type: recursive
     state: replaced
 
@@ -228,6 +249,7 @@ EXAMPLES = """
 # !
 # pbf next-hop-group hop1 type ip
 #   description abc
+#   threshold type count up 15 down 5
 #   entry 1 next-hop 1.1.1.1 vrf VrfReg1 non-recursive
 # !
 # pbf next-hop-group hop2 type ipv4

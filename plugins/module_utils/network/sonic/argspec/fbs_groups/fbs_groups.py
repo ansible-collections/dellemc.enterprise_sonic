@@ -32,14 +32,17 @@ class Fbs_groupsArgs(object):  # pylint: disable=R0903
                             'options': {
                                 'entry_id': {'required': True, 'type': 'int'},
                                 'ip_address': {'type': 'str'},
-                                'network_instance': {'type': 'str'},
+                                'vrf': {'type': 'str'},
                                 'next_hop_type': {
                                     'choices': ['non_recursive', 'overlay', 'recursive'],
                                     'type': 'str'
                                 }
                             },
                             'type': 'list'
-                        }
+                        },
+                        'threshold_down': {'type': 'int'},
+                        'threshold_type': {'choices': ['count', 'percentage'], 'type': 'str'},
+                        'threshold_up': {'type': 'int'}
                     },
                     'type': 'list'
                 },
@@ -54,12 +57,12 @@ class Fbs_groupsArgs(object):  # pylint: disable=R0903
                             'options': {
                                 'entry_id': {'required': True, 'type': 'int'},
                                 'ip_address': {'type': 'str'},
-                                'network_instance': {'type': 'str'},
+                                'vrf': {'type': 'str'},
                                 'next_hop_type': {
                                     'choices': ['non_recursive', 'overlay', 'recursive'],
                                     'type': 'str'
                                 },
-                                'single_copy': {'choices': [True], 'type': 'bool'}
+                                'single_copy': {'type': 'bool'}
                             },
                             'type': 'list'
                         }
