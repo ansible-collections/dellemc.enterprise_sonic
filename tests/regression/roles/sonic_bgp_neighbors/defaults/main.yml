@@ -72,8 +72,8 @@ deleted_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
-               encrypted: true
+              pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
+              encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
               enabled: false
@@ -255,8 +255,8 @@ deleted_tests:
               check_failure: false
               profile: "profile 4"
             timers:
-              keepalive: 55
-              holdtime: 44
+              keepalive: 44
+              holdtime: 55
               connect_retry: 33
           - neighbor: 3::3
             peer_group: SPINE
@@ -379,8 +379,8 @@ merged_tests:
             peer_group: SPINE
             advertisement_interval: 20
             timers:
-              keepalive: 30
-              holdtime: 20
+              keepalive: 20
+              holdtime: 30
               connect_retry: 10
             capability:
               dynamic: true
@@ -390,8 +390,8 @@ merged_tests:
             peer_group: SPINE
             advertisement_interval: 20
             timers:
-              keepalive: 30
-              holdtime: 20
+              keepalive: 20
+              holdtime: 30
               connect_retry: 10
             capability:
               dynamic: true
@@ -408,8 +408,8 @@ merged_tests:
               profile: "profile 1"
             advertisement_interval: 15
             timers:
-              keepalive: 50
-              holdtime: 40
+              keepalive: 40
+              holdtime: 50
               connect_retry: 60
             capability:
               dynamic: true
@@ -444,8 +444,8 @@ merged_tests:
             peer_group: SPINE
             advertisement_interval: 20
             timers:
-              keepalive: 30
-              holdtime: 20
+              keepalive: 20
+              holdtime: 30
               connect_retry: 10
             capability:
               dynamic: true
@@ -456,20 +456,20 @@ merged_tests:
             remote_as:
               peer_as: "{{ peer_as_5_dot }}"
             local_as:
-               as: "{{ local_as_5_dot }}"
+              as: "{{ local_as_5_dot }}"
         neighbors:
           - neighbor: 192.168.5.5
             remote_as:
               peer_as: "{{ peer_as_5_dot }}"
             local_as:
-               as: "{{ local_as_5_dot }}"
+              as: "{{ local_as_5_dot }}"
             peer_group: SPINE
           - neighbor: 192.168.5.6
             peer_group: SPINE
             remote_as:
               peer_as: "{{ peer_as_5_dot }}"
             local_as:
-               as: "{{ local_as_5_dot }}"
+              as: "{{ local_as_5_dot }}"
       - bgp_as: "{{ bgp_as_6 }}"
         vrf_name: "{{ vrf_6 }}"
         peer_group:
@@ -477,20 +477,20 @@ merged_tests:
             remote_as:
               peer_as: "{{ peer_as_6 }}"
             local_as:
-               as: "{{ local_as_6 }}"
+              as: "{{ local_as_6 }}"
         neighbors:
           - neighbor: 192.168.6.6
             remote_as:
               peer_as: "{{ peer_as_6 }}"
             local_as:
-               as: "{{ local_as_6 }}"
+              as: "{{ local_as_6 }}"
             peer_group: SPINE
           - neighbor: 192.168.6.7
             peer_group: SPINE
             remote_as:
               peer_as: "{{ peer_as_6 }}"
             local_as:
-               as: "{{ local_as_6 }}"
+              as: "{{ local_as_6 }}"
 
   - name: test_case_02
     description: Update BGP NEIGHBORS properties
@@ -587,8 +587,8 @@ merged_tests:
               peer_as: 212
             advertisement_interval: 44
             timers:
-              keepalive: 55
-              holdtime: 44
+              keepalive: 44
+              holdtime: 55
               connect_retry: 33
             bfd:
               enabled: false
@@ -614,8 +614,8 @@ merged_tests:
             peer_group: SPINE
             advertisement_interval: 20
             timers:
-              keepalive: 30
-              holdtime: 20
+              keepalive: 20
+              holdtime: 30
               connect_retry: 10
             capability:
               dynamic: true
@@ -626,20 +626,20 @@ merged_tests:
             remote_as:
               peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{ local_as_5 }}"
+              as: "{{ local_as_5 }}"
         neighbors:
           - neighbor: 192.168.5.5
             remote_as:
               peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{ local_as_5 }}"
+              as: "{{ local_as_5 }}"
             peer_group: SPINE
           - neighbor: 192.168.5.6
             peer_group: SPINE
             remote_as:
               peer_as: "{{ peer_as_5 }}"
             local_as:
-               as: "{{ local_as_5 }}"
+              as: "{{ local_as_5 }}"
       - bgp_as: "{{ bgp_as_6 }}"
         vrf_name: "{{ vrf_6 }}"
         peer_group:
@@ -647,20 +647,20 @@ merged_tests:
             remote_as:
               peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{ local_as_6_dot }}"
+              as: "{{ local_as_6_dot }}"
         neighbors:
           - neighbor: 192.168.6.6
             remote_as:
               peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{ local_as_6_dot }}"
+              as: "{{ local_as_6_dot }}"
             peer_group: SPINE
           - neighbor: 192.168.6.7
             peer_group: SPINE
             remote_as:
               peer_as: "{{ peer_as_6_dot }}"
             local_as:
-               as: "{{ local_as_6_dot }}"
+              as: "{{ local_as_6_dot }}"
 
   - name: test_case_03
     description: BGP NEIGHBORS ipv6 properties
@@ -680,8 +680,8 @@ merged_tests:
             peer_group: SPINE
             advertisement_interval: 20
             timers:
-              keepalive: 30
-              holdtime: 20
+              keepalive: 20
+              holdtime: 30
               connect_retry: 10
             capability:
               dynamic: true
@@ -691,8 +691,8 @@ merged_tests:
             peer_group: SPINE
             advertisement_interval: 20
             timers:
-              keepalive: 30
-              holdtime: 20
+              keepalive: 20
+              holdtime: 30
               connect_retry: 10
             capability:
               dynamic: true
@@ -716,8 +716,8 @@ merged_tests:
             peer_group: SPINE
             advertisement_interval: 20
             timers:
-              keepalive: 30
-              holdtime: 20
+              keepalive: 20
+              holdtime: 30
               connect_retry: 10
             capability:
               dynamic: true
@@ -767,7 +767,7 @@ merged_tests:
               peer_as: 1234
           - neighbor: 11::11
             remote_as:
-               peer_as: 4332
+              peer_as: 4332
           - neighbor: 67.1.1.1
             remote_as:
               peer_type: external
@@ -948,8 +948,8 @@ merged_tests:
         neighbors:
           - neighbor: "{{ interface1 }}"
             auth_pwd:
-               pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
-               encrypted: true
+              pwd: "U2FsdGVkX19h6vVGBA/E9MGtVCwUbZe1hVlXmUkegXE="
+              encrypted: true
             dont_negotiate_capability: false
             ebgp_multihop:
               enabled: false
@@ -1117,8 +1117,8 @@ replaced_tasks:
             remote_as:
               peer_as: 15
             timers:
-              keepalive: 20
-              holdtime: 15
+              keepalive: 15
+              holdtime: 20
               connect_retry: 60
       - bgp_as: "{{ bgp_as_1 }}"
         vrf_name: "{{ vrf_1 }}"
@@ -1315,8 +1315,8 @@ overridden_tasks:
     description: Override BGP Neighbors properties
     state: overridden
     input:
-      - bgp_as: "{{bgp_as_1}}"
-        vrf_name: "{{vrf_2}}"
+      - bgp_as: "{{ bgp_as_1 }}"
+        vrf_name: "{{ vrf_2 }}"
         peer_group:
           - name: SPINE3
             address_family:
@@ -1384,4 +1384,3 @@ overridden_tasks:
           - neighbor: "{{ interface1 }}"
             remote_as:
               peer_as: 1234
- 
