@@ -31,7 +31,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     Bgp_ext_communitiesFacts,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv2_interfaces.ospfv2_interfaces import Ospfv2_interfacesFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv3_interfaces.ospfv3_interfaces import Ospfv3_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv2.ospfv2 import Ospfv2Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv3.ospfv3 import Ospfv3Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mclag.mclag import MclagFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.prefix_lists.prefix_lists import Prefix_listsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.vlan_mapping.vlan_mapping import Vlan_mappingFacts
@@ -87,6 +89,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lst.lst import LstFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_classifiers.fbs_classifiers import Fbs_classifiersFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_groups.fbs_groups import Fbs_groupsFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ars.ars import ArsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.network_policy.network_policy import Network_policyFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.br_l2pt.br_l2pt import Br_l2ptFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mirroring.mirroring import MirroringFacts
@@ -112,7 +115,9 @@ FACT_RESOURCE_SUBSETS = dict(
     bgp_communities=Bgp_communitiesFacts,
     bgp_ext_communities=Bgp_ext_communitiesFacts,
     ospfv2_interfaces=Ospfv2_interfacesFacts,
+    ospfv3_interfaces=Ospfv3_interfacesFacts,
     ospfv2=Ospfv2Facts,
+    ospfv3=Ospfv3Facts,
     mclag=MclagFacts,
     prefix_lists=Prefix_listsFacts,
     vlan_mapping=Vlan_mappingFacts,
@@ -166,6 +171,7 @@ FACT_RESOURCE_SUBSETS = dict(
     lst=LstFacts,
     fbs_classifiers=Fbs_classifiersFacts,
     fbs_groups=Fbs_groupsFacts,
+    ars=ArsFacts,
     network_policy=Network_policyFacts,
     mirroring=MirroringFacts,
     drop_counter=Drop_counterFacts,

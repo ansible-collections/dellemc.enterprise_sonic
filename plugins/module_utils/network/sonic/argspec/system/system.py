@@ -65,6 +65,10 @@ class SystemArgs(object):  # pylint: disable=R0903
                     'choices': ['CRC', 'XOR', 'CRC_32LO', 'CRC_32HI', 'CRC_CCITT', 'CRC_XOR', 'JENKINS_HASH_LO', 'JENKINS_HASH_HI'],
                     'type': 'str'
                 },
+                'switching_mode': {
+                    'choices': ['CUT_THROUGH', 'STORE_AND_FORWARD'],
+                    'type': 'str'
+                },
                 'password_complexity': {
                     'options': {
                         'min_length': {'type': 'int'},
