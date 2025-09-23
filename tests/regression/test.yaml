@@ -81,6 +81,7 @@
     - sonic_ssh
     - sonic_lst
     - sonic_fbs_classifiers
+    - sonic_fbs_policies
     - sonic_ars
     - sonic_network_policy
     - sonic_ptp_default_ds
