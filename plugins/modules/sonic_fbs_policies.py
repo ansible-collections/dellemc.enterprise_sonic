@@ -65,6 +65,8 @@ options:
           acl_copp:
             description:
               - ACL CoPP configuration
+              - I(policy_type) must be configured to C(acl-copp) for user-assigned policy names
+              - or C(copp) for I(policy_name = copp-system-policy)
             type: dict
             suboptions:
               cpu_queue_index:
@@ -95,6 +97,7 @@ options:
           qos:
             description:
               - QoS action configuration
+              - I(policy_type) must be configured to C(qos)
             type: dict
             suboptions:
               output_queue_index:
@@ -138,6 +141,7 @@ options:
           mirror_sessions:
             description:
               - Mirroring sessions configuration
+              - I(policy_type) must be configured to C(monitoring)
             type: list
             elements: dict
             suboptions:
@@ -149,6 +153,7 @@ options:
           forwarding:
             description:
               - Forwarding actions configuration
+              - I(policy_type) must be configured to C(forwarding)
             type: dict
             suboptions:
               ars_disable:
