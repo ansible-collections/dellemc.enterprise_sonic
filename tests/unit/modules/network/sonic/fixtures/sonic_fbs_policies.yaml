@@ -1,0 +1,773 @@
+---
+merged_01:
+  module_args:
+    config:
+      - policy_name: policy1
+        policy_description: abc
+        policy_type: forwarding
+        sections:
+          - class: class1
+            forwarding:
+              ars_disable: false
+              egress_interfaces:
+                - intf_name: Ethernet20
+                  priority: 1
+            priority: 0
+            section_description: xyz
+      - policy_name: copp-system-policy
+        policy_description: qwerty
+        policy_type: copp
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 0
+              policer:
+                cbs: 80
+                cir: 75
+                pbs: 95
+                pir: 96
+            priority: 0
+      - policy_name: policy3
+        policy_description: 'this is policy 3'
+        policy_type: qos
+        sections:
+          - class: class1
+            qos:
+              output_queue_index: 0
+              policer:
+                cbs: 15
+                cir: 20
+                pbs: 21
+                pir: 24
+              remark:
+                set_dot1p: 0
+                set_dscp: 0
+            priority: 0
+      - policy_name: policy4
+        policy_description: 'this is policy 4'
+        policy_type: monitoring
+        sections:
+          - class: class1
+            mirror_sessions:
+              - session_name: mirror1
+            priority: 0
+      - policy_name: policy5
+        policy_description: abc
+        policy_type: forwarding
+        sections:
+          - class: class1
+            forwarding:
+              ars_disable: true
+              next_hops:
+                - address: 1.1.1.1
+                  vrf: default
+                  priority: 1
+                - address: 2.2.2.2
+                  priority: 2
+              next_hop_groups:
+                - group_name: hop1
+                  group_type: ipv4
+                  priority: 1
+              replication_groups:
+                - group_name: rep1
+                  group_type: ipv4
+                  priority: 1
+            priority: 0
+            section_description: 'section for class1'
+  existing_fbs_policies_config:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:policies:
+            policy:
+              - policy-name: policy1
+                config:
+                  name: policy1
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                      forwarding:
+                        ars:
+                          config:
+                            disable: true
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy1/sections/section=class1/forwarding/ars/config/disable'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:policies:
+          policy:
+            - policy-name: policy1
+              config:
+                description: abc
+                name: policy1
+                type: POLICY_FORWARDING
+              sections:
+                section:
+                  - class: class1
+                    config:
+                      description: xyz
+                      name: class1
+                      priority: 0
+                    forwarding:
+                      egress-interfaces:
+                        egress-interface:
+                          - intf-name: Ethernet20
+                            config:
+                              intf-name: Ethernet20
+                              priority: 1
+            - policy-name: copp-system-policy
+              config:
+                description: qwerty
+                name: copp-system-policy
+                type: POLICY_COPP
+              sections:
+                section:
+                  - class: class1
+                    config:
+                      name: class1
+                      priority: 0
+                    copp:
+                      config:
+                        cpu-queue-index: 0
+                      policer:
+                        config:
+                          cbs: '80'
+                          cir: '75'
+                          pbs: '95'
+                          pir: '96'
+            - policy-name: policy3
+              config:
+                description: 'this is policy 3'
+                name: policy3
+                type: POLICY_QOS
+              sections:
+                section:
+                  - class: class1
+                    config:
+                      name: class1
+                      priority: 0
+                    qos:
+                      policer:
+                        config:
+                          cbs: '15'
+                          cir: '20'
+                          pbs: '21'
+                          pir: '24'
+                      queuing:
+                        config:
+                          output-queue-index: 0
+                      remark:
+                        config:
+                          set-dot1p: 0
+                          set-dscp: 0
+            - policy-name: policy4
+              config:
+                description: 'this is policy 4'
+                name: policy4
+                type: POLICY_MONITORING
+              sections:
+                section:
+                  - class: class1
+                    config:
+                      name: class1
+                      priority: 0
+                    monitoring:
+                      mirror-sessions:
+                        mirror-session:
+                          - session-name: mirror1
+                            config:
+                              session-name: mirror1
+            - policy-name: policy5
+              config:
+                description: abc
+                name: policy5
+                type: POLICY_FORWARDING
+              sections:
+                section:
+                  - class: class1
+                    config:
+                      description: section for class1
+                      name: class1
+                      priority: 0
+                    forwarding:
+                      ars:
+                        config:
+                          disable: true
+                      config:
+                      next-hop-groups:
+                        next-hop-group:
+                          - group-name: hop1
+                            config:
+                              group-name: hop1
+                              group-type: NEXT_HOP_GROUP_TYPE_IPV4
+                              priority: 1
+                      next-hops:
+                        next-hop:
+                          - ip-address: 1.1.1.1
+                            network-instance: default
+                            config:
+                              ip-address: 1.1.1.1
+                              network-instance: default
+                              priority: 1
+                          - ip-address: 2.2.2.2
+                            network-instance: openconfig-fbs-ext:INTERFACE_NETWORK_INSTANCE
+                            config:
+                              ip-address: 2.2.2.2
+                              network-instance: openconfig-fbs-ext:INTERFACE_NETWORK_INSTANCE
+                              priority: 2
+                      replication-groups:
+                        replication-group:
+                          - group-name: rep1
+                            config:
+                              group-name: rep1
+                              group-type: REPLICATION_GROUP_TYPE_IPV4
+                              priority: 1
+
+replaced_01:
+  module_args:
+    config:
+      - policy_name: policy3
+        policy_description: 'xyz'
+        policy_type: forwarding
+    state: replaced
+  existing_fbs_policies_config:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:policies:
+            policy:
+              - policy-name: policy3
+                config:
+                  description: 'this is policy 3'
+                  name: policy3
+                  type: openconfig-fbs-ext:POLICY_QOS
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                        priority: 0
+                      qos:
+                        policer:
+                          config:
+                            cbs: '15'
+                            cir: '20'
+                            pbs: '21'
+                            pir: '24'
+                        queuing:
+                          config:
+                            output-queue-index: 0
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:policies:
+          policy:
+            - policy-name: policy3
+              config:
+                description: xyz
+                name: policy3
+                type: POLICY_FORWARDING
+
+overridden_01:
+  module_args:
+    config:
+      - policy_name: policy3
+        policy_description: 'this is policy 3'
+        policy_type: qos
+        sections:
+          - class: class1
+            qos:
+              output_queue_index: 0
+              policer:
+                cbs: 15
+                cir: 20
+                pbs: 21
+                pir: 24
+              remark:
+                set_dot1p: 0
+                set_dscp: 0
+            priority: 0
+    state: overridden
+  existing_fbs_policies_config:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:policies:
+            policy:
+              - policy-name: policy3
+                config:
+                  description: 'this is policy 3'
+                  name: policy3
+                  type: openconfig-fbs-ext:POLICY_QOS
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                        priority: 0
+                      qos:
+                        policer:
+                          config:
+                            cbs: '15'
+                            cir: '20'
+                            pbs: '21'
+                            pir: '24'
+                        queuing:
+                          config:
+                            output-queue-index: 0
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:policies:
+          policy:
+            - policy-name: policy3
+              config:
+                name: policy3
+              sections:
+                section:
+                  - class: class1
+                    config:
+                      name: class1
+                    qos:
+                      remark:
+                        config:
+                          set-dot1p: 0
+                          set-dscp: 0
+
+overridden_02:
+  module_args:
+    config:
+      - policy_name: policy1
+        policy_description: abc
+        policy_type: forwarding
+        sections:
+          - class: class1
+            forwarding:
+              ars_disable: true
+              egress_interfaces:
+                - intf_name: Ethernet20
+                  priority: 1
+            priority: 0
+            section_description: xyz
+    state: overridden
+  existing_fbs_policies_config:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:policies:
+            policy:
+              - policy-name: policy3
+                config:
+                  description: 'this is policy 3'
+                  name: policy3
+                  type: openconfig-fbs-ext:POLICY_QOS
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                        priority: 0
+                      qos:
+                        policer:
+                          config:
+                            cbs: '15'
+                            cir: '20'
+                            pbs: '21'
+                            pir: '24'
+                        queuing:
+                          config:
+                            output-queue-index: 0
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:policies:
+          policy:
+            - policy-name: policy1
+              config:
+                description: abc
+                name: policy1
+                type: POLICY_FORWARDING
+              sections:
+                section:
+                  - class: class1
+                    config:
+                      description: xyz
+                      name: class1
+                      priority: 0
+                    forwarding:
+                      ars:
+                        config:
+                          disable: true
+                      egress-interfaces:
+                        egress-interface:
+                          - intf-name: Ethernet20
+                            config:
+                              intf-name: Ethernet20
+                              priority: 1
+
+deleted_01:
+  module_args:
+    config:
+      - policy_name: policy1
+        policy_description: abc
+        sections:
+          - class: class1
+            forwarding:
+              ars_disable: true
+              egress_interfaces:
+                - intf_name: 'Ethernet20'
+            section_description: xyz
+          - class: class2
+      - policy_name: policy2
+        policy_description: qwerty
+        sections:
+          - class: class1
+            acl_copp:
+              cpu_queue_index: 0
+              policer:
+                cbs: 80
+                cir: 75
+                pbs: 95
+                pir: 96
+      - policy_name: policy3
+        policy_description: 'this is policy 3'
+        sections:
+          - class: class1
+            qos:
+              output_queue_index: 0
+              policer:
+                cbs: 15
+                cir: 20
+                pbs: 21
+                pir: 24
+              remark:
+                set_dot1p: 0
+                set_dscp: 0
+      - policy_name: policy4
+        policy_description: 'this is policy 4'
+        sections:
+          - class: class1
+            mirror_sessions:
+              - session_name: mirror1
+      - policy_name: policy5
+        policy_description: abc
+        sections:
+          - class: class1
+            forwarding:
+              next_hops:
+                - address: 2::2
+                  vrf: VrfReg1
+              next_hop_groups:
+                - group_name: hop1
+                  group_type: ipv6
+                  priority: 1
+                - group_name: hop2
+              replication_groups:
+                - group_name: rep1
+                  group_type: ipv6
+                  priority: 1
+                - group_name: rep2
+            section_description: 'section for class1'
+      - policy_name: policy6
+    state: deleted
+  existing_fbs_policies_config:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:policies:
+            policy:
+              - policy-name: policy1
+                config:
+                  description: abc
+                  name: policy1
+                  type: openconfig-fbs-ext:POLICY_FORWARDING
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        description: xyz
+                        name: class1
+                        priority: 0
+                      forwarding:
+                        ars:
+                          config:
+                            disable: true
+                        egress-interfaces:
+                          egress-interface:
+                            - intf-name: Ethernet20
+                              config:
+                                intf-name: Ethernet20
+                                priority: 1
+                    - class: class2
+                      config:
+                        name: class2
+                        priority: 3
+              - policy-name: policy2
+                config:
+                  description: qwerty
+                  name: policy2
+                  type: openconfig-fbs-ext:POLICY_COPP
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                        priority: 0
+                      copp:
+                        config:
+                          cpu-queue-index: 0
+                        policer:
+                          config:
+                            cbs: '80'
+                            cir: '75'
+                            pbs: '95'
+                            pir: '96'
+              - policy-name: policy3
+                config:
+                  description: 'this is policy 3'
+                  name: policy3
+                  type: openconfig-fbs-ext:POLICY_QOS
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                        priority: 0
+                      qos:
+                        policer:
+                          config:
+                            cbs: '15'
+                            cir: '20'
+                            pbs: '21'
+                            pir: '24'
+                        queuing:
+                          config:
+                            output-queue-index: 0
+                        remark:
+                          config:
+                            set-dot1p: 0
+                            set-dscp: 0
+              - policy-name: policy4
+                config:
+                  description: 'this is policy 4'
+                  name: policy4
+                  type: openconfig-fbs-ext:POLICY_MONITORING
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                        priority: 0
+                      monitoring:
+                        mirror-sessions:
+                          mirror-session:
+                            - session-name: mirror1
+                              config:
+                                session-name: mirror1
+              - policy-name: policy5
+                config:
+                  description: abc
+                  name: policy5
+                  type: openconfig-fbs-ext:POLICY_FORWARDING
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        description: section for class1
+                        name: class1
+                        priority: 0
+                      forwarding:
+                        config:
+                        next-hop-groups:
+                          next-hop-group:
+                            - group-name: hop1
+                              config:
+                                group-name: hop1
+                                group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV6
+                                priority: 1
+                            - group-name: hop2
+                              config:
+                                group-name: hop2
+                                group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV6
+                                priority: 34
+                        next-hops:
+                          next-hop:
+                            - ip-address: 1::1
+                              network-instance: default
+                              config:
+                                ip-address: 1::1
+                                network-instance: default
+                                priority: 1
+                            - ip-address: 2::2
+                              network-instance: VrfReg1
+                              config:
+                                ip-address: 2::2
+                                network-instance: VrfReg1
+                                priority: 9
+                        replication-groups:
+                          replication-group:
+                            - group-name: rep1
+                              config:
+                                group-name: rep1
+                                group-type: openconfig-fbs-ext:REPLICATION_GROUP_TYPE_IPV6
+                                priority: 1
+                            - group-name: rep2
+                              config:
+                                group-name: rep2
+                                group-type: openconfig-fbs-ext:REPLICATION_GROUP_TYPE_IPV6
+                                priority: 39
+              - policy-name: policy6
+                config:
+                  description: abc
+                  name: policy6
+                  type: openconfig-fbs-ext:POLICY_FORWARDING
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy1/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy1/sections/section=class1/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy1/sections/section=class1/forwarding/ars/config/disable'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy1/sections/section=class1/forwarding/egress-interfaces/egress-interface=Ethernet20'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy1/sections/section=class2'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy2/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy2/sections/section=class1/copp/config/cpu-queue-index'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy2/sections/section=class1/copp/policer/config/cbs'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy2/sections/section=class1/copp/policer/config/cir'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy2/sections/section=class1/copp/policer/config/pbs'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy2/sections/section=class1/copp/policer/config/pir'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3/sections/section=class1/qos/policer/config/cbs'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3/sections/section=class1/qos/policer/config/cir'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3/sections/section=class1/qos/policer/config/pbs'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3/sections/section=class1/qos/policer/config/pir'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3/sections/section=class1/qos/queuing/config/output-queue-index'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3/sections/section=class1/qos/remark/config/set-dot1p'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy3/sections/section=class1/qos/remark/config/set-dscp'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy4/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy4/sections/section=class1/monitoring/mirror-sessions'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/next-hop-groups/next-hop-group=hop1/config/group-type'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/next-hop-groups/next-hop-group=hop1/config/priority'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/next-hop-groups/next-hop-group=hop2'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/next-hops/next-hop=2::2,VrfReg1'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/replication-groups/replication-group=rep1/config/group-type'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/replication-groups/replication-group=rep1/config/priority'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy5/sections/section=class1/forwarding/replication-groups/replication-group=rep2'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/policies/policy=policy6'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_fbs_policies_config:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:policies:
+            policy:
+              - policy-name: policy3
+                config:
+                  description: 'this is policy 3'
+                  name: policy3
+                  type: openconfig-fbs-ext:POLICY_QOS
+                sections:
+                  section:
+                    - class: class1
+                      config:
+                        name: class1
+                        priority: 0
+                      qos:
+                        policer:
+                          config:
+                            cbs: '15'
+                            cir: '20'
+                            pbs: '21'
+                            pir: '24'
+                        queuing:
+                          config:
+                            output-queue-index: 0
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/policies'
+      method: 'delete'
+      data:
