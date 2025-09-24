@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -63,12 +63,10 @@ class VxlansFacts(object):
             # using mock data instead
             data = self.get_all_vxlans()
 
-        objs = list()
+        objs = []
         for conf in data:
             if conf:
-                obj = self.render_config(self.generated_spec, conf)
-                if obj:
-                    objs.append(obj)
+                objs.append(conf)
 
         ansible_facts['ansible_network_resources'].pop('vxlans', None)
         facts = {}
@@ -80,18 +78,6 @@ class VxlansFacts(object):
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def get_all_vxlans(self):
         vxlans = []
