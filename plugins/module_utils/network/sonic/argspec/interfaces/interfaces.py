@@ -58,7 +58,8 @@ class InterfacesArgs(object):  # pylint: disable=R0903
                                       "SPEED_50GB",
                                       "SPEED_100GB",
                                       "SPEED_200GB",
-                                      "SPEED_400GB"]},
+                                      "SPEED_400GB",
+                                      "SPEED_800GB"]},
                 "auto_negotiate": {"type": "bool"},
                 "advertised_speed": {"type": "list", "elements": "str"},
                 "fec": {"type": "str",
@@ -70,7 +71,10 @@ class InterfacesArgs(object):  # pylint: disable=R0903
                 "unreliable_los": {"type": "str",
                                    "choices": ["UNRELIABLE_LOS_MODE_ON",
                                                "UNRELIABLE_LOS_MODE_OFF",
-                                               "UNRELIABLE_LOS_MODE_AUTO"]}
+                                               "UNRELIABLE_LOS_MODE_AUTO"]},
+                "autoneg_mode": {"type": "str",
+                                 "choices": ["AUTONEG_MODE_BAM",
+                                             "AUTONEG_MODE_MSA"]}
             },
             "type": "list"
         },
