@@ -72,6 +72,41 @@ class AaaArgs(object):  # pylint: disable=R0903
                     },
                     'type': 'dict'
                 },
+                'accounting': {
+                    'options': {
+                        'commands_accounting': {
+                            'options': {
+                                'accounting_method': {
+                                    'choices': ['tacacs+', 'logging'],
+                                    'elements': 'str',
+                                    'type': 'list'
+                                },
+                                'accounting_record_type': {
+                                    'choices': ['start-stop', 'stop-only'],
+                                    'type': 'str'
+                                },
+                                'accounting_console_exempt': {'type': 'bool'}
+                            },
+                            'type': 'dict'
+                        },
+                        'session_accounting': {
+                            'options': {
+                                'accounting_method': {
+                                    'choices': ['tacacs+', 'logging'],
+                                    'elements': 'str',
+                                    'type': 'list'
+                                },
+                                'accounting_record_type': {
+                                    'choices': ['start-stop', 'stop-only'],
+                                    'type': 'str'
+                                },
+                                'accounting_console_exempt': {'type': 'bool'}
+                            },
+                            'type': 'dict'
+                        }
+                    },
+                    'type': 'dict'
+                },
                 'name_service': {
                     'options': {
                         'group': {
