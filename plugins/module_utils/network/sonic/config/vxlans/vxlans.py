@@ -176,6 +176,7 @@ class Vxlans(ConfigBase):
             is_delete_all = replaced_config == have
             if is_delete_all:
                 del_requests = self.get_delete_all_vxlan_request(have)
+                have = []
             else:
                 del_requests = self.get_delete_vxlan_request(replaced_config, have)
 
@@ -207,6 +208,7 @@ class Vxlans(ConfigBase):
             del_requests = self.get_delete_all_vxlan_request(have)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
+            have = []
             mod_commands = want
             mod_requests = self.get_create_vxlans_request(mod_commands, have)
         elif diff:
