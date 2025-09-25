@@ -154,7 +154,7 @@ class VxlansFacts(object):
 
     def fill_tunnel_source_ip(self, vxlans, vxlan_tunnels, vxlans_evpn_nvo_list):
         for each_tunnel in vxlan_tunnels:
-            vxlan = dict()
+            vxlan = {}
             vxlan['name'] = each_tunnel['name']
             vxlan['source_ip'] = each_tunnel.get('src_ip', None)
             vxlan['primary_ip'] = each_tunnel.get('primary_ip', None)
@@ -174,9 +174,9 @@ class VxlansFacts(object):
                 vlan = int(each_vlan_map['vlan'][4:])
                 vlan_map = matched_vtep.get('vlan_map')
                 if vlan_map:
-                    vlan_map.append(dict({'vni': vni, 'vlan': vlan}))
+                    vlan_map.append({'vni': vni, 'vlan': vlan})
                 else:
-                    matched_vtep['vlan_map'] = [dict({'vni': vni, 'vlan': vlan})]
+                    matched_vtep['vlan_map'] = [{'vni': vni, 'vlan': vlan}]
 
     def fill_vrf_map(self, vxlans, vxlan_vrf_list):
         for each_vrf in vxlan_vrf_list:
@@ -194,12 +194,12 @@ class VxlansFacts(object):
                 vrf = each_vrf['vrf_name']
                 vrf_map = matched_vtep.get('vrf_map')
                 if vrf_map:
-                    vrf_map.append(dict({'vni': vni, 'vrf': vrf}))
+                    vrf_map.append({'vni': vni, 'vrf': vrf})
                 else:
-                    matched_vtep['vrf_map'] = [dict({'vni': vni, 'vrf': vrf})]
+                    matched_vtep['vrf_map'] = [{'vni': vni, 'vrf': vrf}]
 
     def fill_suppress_vlan_neigh(self, vxlans, suppress_vlans):
-        suppress_vlan_neigh = dict()
+        suppress_vlan_neigh = {}
         suppress_vlan_neigh_list = []
         for each_suppress_vlan_neigh in suppress_vlans:
             name = each_suppress_vlan_neigh.get('name', None)
@@ -212,6 +212,6 @@ class VxlansFacts(object):
             if matched_suppress_vn:
                 suppress_vlan_neigh = matched_suppress_vn.get('suppress_vlan_neigh')
                 if suppress_vlan_neigh:
-                    suppress_vlan_neigh.append(dict({'vlan_name': name}))
+                    suppress_vlan_neigh.append({'vlan_name': name})
                 else:
-                    matched_suppress_vn['suppress_vlan_neigh'] = [dict({'vlan_name': name})]
+                    matched_suppress_vn['suppress_vlan_neigh'] = [{'vlan_name': name}]
