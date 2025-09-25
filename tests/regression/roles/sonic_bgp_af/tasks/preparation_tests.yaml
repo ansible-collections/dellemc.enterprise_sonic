@@ -1,4 +1,16 @@
 ---
+- name: "Initialize prefix list"
+  dellemc.enterprise_sonic.sonic_prefix_lists:
+    config:
+      - afi: ipv4
+        name: pf1
+        prefixes:
+          - action: permit
+            sequence: 40
+            prefix: 1.2.3.0/24
+    state: merged
+  failed_when: false
+
 - name: "Initialize route maps"
   dellemc.enterprise_sonic.sonic_route_maps:
     config: "{{ sonic_bgp_af_preparation_task_input.route_map }}"

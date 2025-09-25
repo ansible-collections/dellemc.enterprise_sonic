@@ -53,6 +53,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.logging.logging import LoggingFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.pki.pki import PkiFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor.ip_neighbor import Ip_neighborFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ip_neighbor_interfaces.ip_neighbor_interfaces import (
+    Ip_neighbor_interfacesFacts
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ipv6_router_advertisement.ipv6_router_advertisement import (
     Ipv6_router_advertisementFacts
 )
@@ -89,6 +92,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.lst.lst import LstFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_classifiers.fbs_classifiers import Fbs_classifiersFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_groups.fbs_groups import Fbs_groupsFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_policies.fbs_policies import Fbs_policiesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ars.ars import ArsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.network_policy.network_policy import Network_policyFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.br_l2pt.br_l2pt import Br_l2ptFacts
@@ -99,6 +103,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ptp_port_ds.ptp_port_ds import Ptp_port_dsFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx.dcbx import DcbxFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ssh_server.ssh_server import Ssh_serverFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ecmp_load_share.ecmp_load_share import Ecmp_load_shareFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -138,6 +143,7 @@ FACT_RESOURCE_SUBSETS = dict(
     logging=LoggingFacts,
     pki=PkiFacts,
     ip_neighbor=Ip_neighborFacts,
+    ip_neighbor_interfaces=Ip_neighbor_interfacesFacts,
     ipv6_router_advertisement=Ipv6_router_advertisementFacts,
     port_group=Port_groupFacts,
     dhcp_relay=Dhcp_relayFacts,
@@ -171,6 +177,7 @@ FACT_RESOURCE_SUBSETS = dict(
     lst=LstFacts,
     fbs_classifiers=Fbs_classifiersFacts,
     fbs_groups=Fbs_groupsFacts,
+    fbs_policies=Fbs_policiesFacts,
     ars=ArsFacts,
     network_policy=Network_policyFacts,
     mirroring=MirroringFacts,
@@ -179,7 +186,8 @@ FACT_RESOURCE_SUBSETS = dict(
     ptp_port_ds=Ptp_port_dsFacts,
     dcbx=DcbxFacts,
     evpn_esi_multihome=Evpn_esi_multihomeFacts,
-    ssh_server=Ssh_serverFacts
+    ssh_server=Ssh_serverFacts,
+    ecmp_load_share=Ecmp_load_shareFacts,
 )
 
 

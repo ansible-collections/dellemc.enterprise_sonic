@@ -1,0 +1,30 @@
+---
+- name: Delete FBS policies configuration
+  sonic_fbs_policies:
+    config: []
+    state: deleted
+
+- name: Create FBS classifiers
+  sonic_fbs_classifiers:
+    config:
+      - class_name: class1
+        class_description: abc
+        match_type: fields
+      - class_name: class2
+        class_description: xyz
+        match_type: fields
+
+- name: Create mirror sessions
+  sonic_mirroring:
+    config:
+      span:
+        - name: session1
+          dst_port: "{{ interface9 }}"
+        - name: session2
+          dst_port: "{{ interface10 }}"
+
+- name: Create VRFs
+  sonic_vrfs:
+    config:
+      - name: VrfReg1
+      - name: VrfReg2
