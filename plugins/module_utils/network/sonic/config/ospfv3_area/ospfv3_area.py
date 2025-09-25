@@ -112,7 +112,6 @@ class Ospfv3_area(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
         existing_ospfv3_area_facts = self.get_ospfv3_area_facts()
         commands, requests = self.set_config(existing_ospfv3_area_facts)
@@ -141,7 +140,6 @@ class Ospfv3_area(ConfigBase):
             result['config_diff'] = get_formatted_config_diff(existing_ospfv3_area_facts,
                                                               new_config,
                                                               self._module._verbosity)
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_ospfv3_area_facts):

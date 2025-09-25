@@ -17,9 +17,9 @@ DOCUMENTATION = """
 module: sonic_ospfv3_area
 version_added: "3.1.0"
 notes:
-- Supports C(check_mode).
-- Tested against Enterprise SONiC Distribution by Dell Technologies.
-short_description: configure OSPFv3 area settings on SONiC
+  - Supports C(check_mode).
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+short_description: Configure OSPFv3 area settings on SONiC.
 description:
   - This module provides configuration for the area settings of OSPFv3 running on SONiC switches.
   - Configure global/VRF OSPFv3 instance before configuring OSPFv3 areas.
@@ -54,76 +54,94 @@ options:
       nssa:
         type: dict
         description:
-          - Configuration for nssa type area
+          - Configuration for NSSA type area.
           - I(default_originate) and I(no_summary) are mutually exclusive.
         suboptions:
           default_originate:
             type: dict
-            description: advertise default route for the nssa area
+            description:
+              - Advertise default route for the NSSA area
             suboptions:
               enabled:
                 type: bool
-                description: enable to advertise the default route for the nssa area
+                description:
+                  - Enable to advertise the default route for the NSSA area
                 required: true
               metric:
                 type: int
-                description: configure metric for the redistributed route
+                description:
+                  - Configure metric for the redistributed route (0 to 16777214).
               metric_type:
                 type: int
-                description: configure metric type for the redistributed route
+                description:
+                  - Configure metric type for the redistributed route
                 choices: [1, 2]
           enabled:
             type: bool
-            description: configure area as nssa type area
+            description:
+              - Configure area as NSSA type area.
             required: true
           no_summary:
             type: bool
-            description: disable inter-area route injection into the nssa
+            description:
+              - Disable inter-area route injection into the NSSA
           ranges:
             type: list
             elements: dict
-            description: Configure address range summarization on border routers
+            description:
+              - Configure address range summarization on border routers
             suboptions:
               prefix:
                 type: str
                 required: true
-                description: address range prefix
+                description:
+                  - Configure address range prefix
               advertise:
                 type: bool
-                description: enable address range advertising
+                description:
+                  - Enable address range advertising
               cost:
                 type: int
-                description: configure cost of address range
+                description:
+                  - Configure cost of address range (0 to 16777215).
       ranges:
         type: list
         elements: dict
-        description: Configure address range summarization on border routers
+        description:
+          - Configure address range summarization on border routers
         suboptions:
           prefix:
             type: str
             required: true
-            description: address range prefix
+            description:
+              - Configure address range prefix
           advertise:
             type: bool
-            description: enable address range advertising
+            description:
+              - Enable address range advertising
           cost:
             type: int
-            description: configure cost of address range
+            description:
+              - Configure cost of address range (0 to 16777215).
       stub:
         type: dict
-        description: configuration for stub type area
+        description:
+          - Configuration for stub type area
         suboptions:
           enabled:
             type: bool
-            description: configure area as stub type area
+            description:
+              - Configure area as stub type area
             required: true
           no_summary:
             type: bool
-            description: disable inter-area route injection into the stub
+            description:
+              - Disable inter-area route injection into the stub
       vrf_name:
         type: str
         required: true
-        description: name of the vrf this area belongs to.
+        description:
+          - Name of the vrf this area belongs to.
   state:
     description:
       - Specifies the type of configuration update to be performed on the device.
@@ -135,9 +153,10 @@ options:
       - deleted
     default: merged
 """
+
 EXAMPLES = """
-# using "deleted" to remove ospfv3 settings
-# deleting all settings for areas
+# Using "deleted" state
+#
 # Before state:
 # -------------
 # sonic(config-router-ospfv3)# show configuration
@@ -177,7 +196,7 @@ EXAMPLES = """
 # sonic(config-router-ospfv3)#
 
 
-# clearing subsections of config
+# Using "deleted" state
 # Before state:
 # -------------
 # sonic(config-router-ospfv3)# show configuration
@@ -220,7 +239,7 @@ EXAMPLES = """
 # sonic(config-router-ospfv3)#
 
 
-# deleting individual attributes
+# Using "deleted" state
 # Before state:
 # -------------
 # sonic# show running-configuration ospfv3
@@ -303,8 +322,7 @@ EXAMPLES = """
 # sonic#
 
 
-# using 'merged' to add or change ospfv3_area settings
-# merging all settings for an area
+# Using "merged" state
 # Before state:
 # -------------
 # sonic# show running-configuration ospfv3
@@ -364,7 +382,7 @@ EXAMPLES = """
 # sonic#
 
 
-# minimums to add config using 'merged'
+# Using "merged" state
 # Before state:
 # -------------
 # sonic(config-router-ospfv3)# show configuration
@@ -403,8 +421,6 @@ EXAMPLES = """
         filter_list_in: pf1
         filter_list_out: pf2
 
-# note areas only show up in ansible facts return if there's other settings to prevent errors
-
 # After state
 # -------------
 # sonic(config-router-ospfv3)# show configuration
@@ -424,7 +440,7 @@ EXAMPLES = """
 # sonic(config-router-ospfv3)#
 
 
-# Using 'merged' making changes to attributes
+# Using "merged" state
 # Before state:
 # -------------
 # sonic(config-router-ospfv3)# show configuration
@@ -468,8 +484,7 @@ EXAMPLES = """
 # sonic(config-router-ospfv3)#
 
 
-# Using 'replaced'
-# replace listed areas
+# Using "replaced" state
 # Before state:
 # -------------
 # sonic# show running-configuration ospfv3
@@ -547,8 +562,7 @@ EXAMPLES = """
 # sonic#
 
 
-# Using 'overridden'
-# override listed areas
+# Using "overridden" state
 # Before state:
 # -------------
 # sonic# show running-configuration ospfv3
@@ -614,6 +628,7 @@ EXAMPLES = """
 # router ospfv3
 # sonic#
 """
+
 RETURN = """
 before:
   description: The configuration prior to the module invocation.

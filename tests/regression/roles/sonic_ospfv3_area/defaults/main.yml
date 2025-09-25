@@ -27,7 +27,7 @@ sonic_ospfv3_area_preparations_tests:
 
 sonic_ospfv3_area_tests:
 - name: test_case_01
-  description: create ospfv3 area
+  description: Create ospfv3 area
   state: merged
   input:
     - area_id: 1
@@ -133,7 +133,7 @@ sonic_ospfv3_area_tests:
           metric: 10
 
 - name: test_case_del_01
-  description: delete subsections of ospfv3 area config
+  description: Delete subsections of ospfv3 area config
   state: deleted
   input:
     - area_id: 4
@@ -154,7 +154,7 @@ sonic_ospfv3_area_tests:
         no_summary: true
 
 - name: test_case_del_02
-  description: delete entire area sections of ospfv3 area config
+  description: Delete entire area sections of ospfv3 area config
   state: deleted
   input:
     - area_id: 1
@@ -279,7 +279,7 @@ sonic_ospfv3_area_tests:
           cost: 15
 
 - name: test_case_overridden_02
-  description: Override with non existant ospfv3 areas
+  description: Override with non existent ospfv3 areas
   state: overridden
   input:
     - area_id: 21
@@ -297,6 +297,6 @@ sonic_ospfv3_area_tests:
       vrf_name: default
 
 - name: test_case_del_everything_01
-  description: delete all ospfv3 areas
+  description: Delete all ospfv3 areas
   state: deleted
   input: []
