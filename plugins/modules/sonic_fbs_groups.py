@@ -41,7 +41,7 @@ options:
             required: true
           group_description:
             description:
-              - Description of group
+              - Description of next-hop group
             type: str
           group_type:
             description:
@@ -52,19 +52,20 @@ options:
           threshold_type:
             description:
               - Type of threshold
+              - Deletion of I(threshold_type) will delete I(threshold_up) and I(threshold_down).
             type: str
             choices: ['count', 'percentage']
           threshold_up:
             description:
               - Specifies the minimum threshold value for a next-hop group to be considered forwardable
               - Range 1-128
-              - I(threshold_type) must be configured
+              - I(threshold_type) must be configured.
             type: int
           threshold_down:
             description:
               - Specifies the threshold value equal to or below for a next-hop to not be considered forwardable
               - Range 0-127
-              - I(threshold_type) must be configured
+              - I(threshold_type) must be configured.
             type: int
           next_hops:
             description:
@@ -104,7 +105,7 @@ options:
             required: true
           group_description:
             description:
-              - Description of group
+              - Description of replication group
             type: str
           group_type:
             description:

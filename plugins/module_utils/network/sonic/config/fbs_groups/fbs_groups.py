@@ -68,6 +68,14 @@ def __derive_fbs_groups_delete_op(key_set, command, exist_conf):
     if delete_all or replaced:
         new_conf = []
         return True, new_conf
+
+    # Deletion of threshold_type will delete threshold_up and threshold_down
+    if command.get('threshold_type'):
+        if command.get('threshold_up') is None and exist_conf.get('threshold_up') is not None:
+            command['threshold_up'] = exist_conf['threshold_up']
+        if command.get('threshold_down') is None and exist_conf.get('threshold_down') is not None:
+            command['threshold_down'] = exist_conf['threshold_down']
+
     done, new_conf = __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, exist_conf)
     return done, new_conf
 
@@ -258,8 +266,7 @@ class Fbs_groups(ConfigBase):
             replaced = True
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
-            new_config = remove_empties(get_new_config(commands, tmp_have, TEST_KEYS_generate_config))
-            tmp_have = new_config
+            tmp_have = remove_empties(get_new_config(commands, tmp_have, TEST_KEYS_generate_config))
         else:
             mod_commands = diff
 
@@ -292,8 +299,7 @@ class Fbs_groups(ConfigBase):
             del_requests = self.get_delete_fbs_groups_requests(del_commands, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
-            new_config = remove_empties(get_new_config(commands, tmp_have, TEST_KEYS_generate_config))
-            tmp_have = new_config
+            tmp_have = remove_empties(get_new_config(commands, tmp_have, TEST_KEYS_generate_config))
             mod_commands = want
             mod_requests = self.get_modify_fbs_groups_requests(mod_commands, tmp_have)
         elif diff:
