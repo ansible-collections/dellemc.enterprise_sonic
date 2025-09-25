@@ -66,6 +66,7 @@ options:
         - SPEED_100GB
         - SPEED_200GB
         - SPEED_400GB
+        - SPEED_800GB
       auto_negotiate:
         description:
         - auto-negotiate transmission parameters with peer interface.
@@ -76,7 +77,7 @@ options:
         - Advertised speeds of the interface.
         - Applicable only for Ethernet interfaces.
         - Supported speeds are dependent on the type of switch.
-        - Speeds may be 10, 100, 1000, 2500, 5000, 10000, 20000, 25000, 40000, 50000, 100000 or 400000.
+        - Speeds may be 10, 100, 1000, 2500, 5000, 10000, 20000, 25000, 40000, 50000, 100000, 400000 or 800000.
         type: list
         elements: str
       fec:
