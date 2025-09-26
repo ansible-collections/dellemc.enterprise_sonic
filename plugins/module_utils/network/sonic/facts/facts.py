@@ -33,6 +33,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv2_interfaces.ospfv2_interfaces import Ospfv2_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv3_interfaces.ospfv3_interfaces import Ospfv3_interfacesFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv2.ospfv2 import Ospfv2Facts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv3_area.ospfv3_area import Ospfv3_areaFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ospfv3.ospfv3 import Ospfv3Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.mclag.mclag import MclagFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.prefix_lists.prefix_lists import Prefix_listsFacts
@@ -122,6 +123,7 @@ FACT_RESOURCE_SUBSETS = dict(
     ospfv2_interfaces=Ospfv2_interfacesFacts,
     ospfv3_interfaces=Ospfv3_interfacesFacts,
     ospfv2=Ospfv2Facts,
+    ospfv3_area=Ospfv3_areaFacts,
     ospfv3=Ospfv3Facts,
     mclag=MclagFacts,
     prefix_lists=Prefix_listsFacts,

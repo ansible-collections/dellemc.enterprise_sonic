@@ -1,0 +1,1144 @@
+---
+merged_01:
+  module_args:
+    config:
+      - area_id: '0.0.0.1'
+        vrf_name: 'VrfReg1'
+      - area_id: '0.0.0.2'
+        vrf_name: 'VrfReg1'
+        stub:
+          enabled: true
+          no_summary: true
+      - area_id: '0.0.0.3'
+        vrf_name: 'VrfReg1'
+        filter_list_in: pf1
+        filter_list_out: pf2
+        ranges:
+          - prefix: 1::1/24
+            advertise: true
+            cost: 4
+          - prefix: 1::2/24
+            advertise: false
+          - prefix: 1::3/24
+            advertise: true
+            cost: 10
+      - area_id: '0.0.0.4'
+        vrf_name: 'VrfReg2'
+        nssa:
+          enabled: true
+          default_originate:
+            enabled: true
+            metric: 10
+            metric_type: 1
+      - area_id: '0.0.0.5'
+        vrf_name: 'VrfReg2'
+        nssa:
+          enabled: true
+          no_summary: true
+    state: merged
+  existing_ospfv3_area_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.1'
+                identifier: '0.0.0.1'
+              - config:
+                  identifier: '0.0.0.2'
+                identifier: '0.0.0.2'
+                openconfig-ospfv3-ext:stub:
+                  config:
+                    enable: true
+                    no-summary: true
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.3'
+                  src-area: '0.0.0.3'
+                  filter-list-in:
+                    config:
+                      name: 'pf1'
+                  filter-list-out:
+                    config:
+                      name: 'pf2'
+                  ranges:
+                    range:
+                      - address-prefix: '1::1/24'
+                        config:
+                          address-prefix: '1::1/24'
+                          advertise: true
+                          metric: 4
+                      - address-prefix: '1::2/24'
+                        config:
+                          address-prefix: '1::2/24'
+                          advertise: false
+                      - address-prefix: '1::3/24'
+                        config:
+                          address-prefix: '1::3/24'
+                          advertise: true
+                          metric: 10
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.4'
+                identifier: '0.0.0.4'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    default-route-originate: true
+                    default-route-metric: 10
+                    default-route-metric-type: 'TYPE_1'
+              - config:
+                  identifier: '0.0.0.5'
+                identifier: '0.0.0.5'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    no-summary: true
+
+merged_02:
+  module_args:
+    config:
+      - area_id: '0.0.0.1'
+        vrf_name: 'default'
+        filter_list_in: pf1
+        filter_list_out: pf2
+        ranges:
+          - prefix: 1::1/24
+            advertise: true
+            cost: 4
+          - prefix: 1::2/24
+            advertise: false
+          - prefix: 1::3/24
+            advertise: true
+            cost: 10
+      - area_id: '0.0.0.3'
+        vrf_name: VrfReg1
+        filter_list_in: pf1
+        filter_list_out: pf2
+        ranges:
+          - prefix: 1::1/24
+            advertise: true
+            cost: 4
+          - prefix: 1::2/24
+            advertise: false
+      - area_id: '0.0.0.4'
+        vrf_name: VrfReg2
+        nssa:
+          enabled: true
+          default_originate:
+            enabled: true
+            metric: 15
+            metric_type: 2
+      - area_id: '0.0.0.5'
+        vrf_name: VrfReg2
+        nssa:
+          enabled: true
+          no_summary: false
+    state: merged
+  existing_ospfv3_area_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.1'
+                  identifier: '0.0.0.1'
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                      no-summary: true
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.4'
+                  identifier: '0.0.0.4'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.3'
+                  src-area: '0.0.0.3'
+                  filter-list-in:
+                    config:
+                      name: 'pf1'
+                  filter-list-out:
+                    config:
+                      name: 'pf2'
+                  ranges:
+                    range:
+                      - address-prefix: '1::1/24'
+                        config:
+                          address-prefix: '1::1/24'
+                          advertise: true
+                          metric: 4
+                      - address-prefix: '1::2/24'
+                        config:
+                          address-prefix: '1::2/24'
+                          advertise: false
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.4'
+                identifier: '0.0.0.4'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    default-route-originate: true
+                    default-route-metric: 15
+                    default-route-metric-type: 'TYPE_2'
+              - config:
+                  identifier: '0.0.0.5'
+                identifier: '0.0.0.5'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    no-summary: false
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.1'
+                  src-area: '0.0.0.1'
+                  filter-list-in:
+                    config:
+                      name: 'pf1'
+                  filter-list-out:
+                    config:
+                      name: 'pf2'
+                  ranges:
+                    range:
+                      - address-prefix: '1::1/24'
+                        config:
+                          address-prefix: '1::1/24'
+                          advertise: true
+                          metric: 4
+                      - address-prefix: '1::2/24'
+                        config:
+                          address-prefix: '1::2/24'
+                          advertise: false
+                      - address-prefix: '1::3/24'
+                        config:
+                          address-prefix: '1::3/24'
+                          advertise: true
+                          metric: 10
+
+deleted_01:
+  module_args:
+    config:
+    state: deleted
+  existing_ospfv3_area_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.1'
+                  identifier: '0.0.0.1'
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+                    ranges:
+                      range:
+                        - address-prefix: '1::1/24'
+                          config:
+                            address-prefix: '1::1/24'
+                            advertise: true
+                            cost: 4
+            global:
+              openconfig-ospfv3-ext:inter-area-propagation-policies:
+                inter-area-policy:
+                  - config:
+                      src-area: '0.0.0.3'
+                    src-area: '0.0.0.3'
+                    filter-list-in:
+                      config:
+                        name: 'pf1'
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                      no-summary: true
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.4'
+                  identifier: '0.0.0.4'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.4'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.1'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3'
+      method: 'delete'
+
+deleted_02:
+  module_args:
+    config:
+      - area_id: '1'
+        vrf_name: 'default'
+      - area_id: '0.0.0.3'
+        vrf_name: 'VrfReg1'
+        stub:
+          enabled: true
+          no_summary: true
+      - area_id: '0.0.0.3'
+        vrf_name: 'VrfReg2'
+        nssa:
+          enabled: true
+          default_originate:
+            enabled: true
+          ranges:
+            - prefix: '1::1/24'
+              cost: 4
+        ranges:
+          - prefix: '1::1/24'
+            cost: 4
+          - prefix: '1::2/24'
+    state: deleted
+  existing_ospfv3_area_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.1'
+                  identifier: '0.0.0.1'
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                      no-summary: true
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.4'
+                  identifier: '0.0.0.4'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+                      default-route-metric-type: 'TYPE_2'
+                    ranges:
+                      range:
+                        - address-prefix: '1::1/24'
+                          config:
+                            address-prefix: '1::1/24'
+                            advertise: true
+                            cost: 4
+            global:
+              openconfig-ospfv3-ext:inter-area-propagation-policies:
+                inter-area-policy:
+                  - config:
+                      src-area: '0.0.0.3'
+                    src-area: '0.0.0.3'
+                    filter-list-in:
+                      config:
+                        name: 'pf1'
+                    filter-list-out:
+                      config:
+                        name: 'pf2'
+                    ranges:
+                      range:
+                        - address-prefix: '1::1/24'
+                          config:
+                            address-prefix: '1::1/24'
+                            advertise: true
+                            metric: 4
+                        - address-prefix: '1::2/24'
+                          config:
+                            address-prefix: '1::2/24'
+                            advertise: false
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.3/openconfig-ospfv3-ext:stub'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.3/openconfig-ospfv3-ext:nssa'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3/ranges/range=1::1%2F24/config/metric'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3/ranges/range=1::2%2F24'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.1'
+      method: 'delete'
+
+replaced_01:
+  module_args:
+    config:
+      - area_id: '0.0.0.3'
+        vrf_name: 'default'
+        nssa:
+          default_originate:
+            enabled: true
+            metric: 10
+          enabled: true
+      - area_id: '0.0.0.5'
+        vrf_name: 'default'
+      - area_id: '0.0.0.10'
+        vrf_name: 'default'
+        stub:
+          enabled: true
+          no_summary: true
+        ranges:
+          - prefix: 1::1/24
+            advertise: true
+            cost: 4
+          - prefix: 1::2/24
+            advertise: false
+          - prefix: 1::3/24
+            cost: 10
+      - area_id: '0.0.0.4'
+        vrf_name: 'default'
+        stub:
+          enabled: true
+          no_summary: true
+      - area_id: '0.0.0.3'
+        vrf_name: 'VrfReg1'
+        filter_list_in: pf1
+        filter_list_out: pf2
+        nssa:
+          default_originate:
+            enabled: true
+            metric: 10
+          enabled: true
+          ranges:
+            - prefix: 1::1/24
+              cost: 4
+            - prefix: 1::3/24
+              advertise: true
+              cost: 10
+      - area_id: '0.0.0.4'
+        vrf_name: 'VrfReg1'
+        nssa:
+          default_originate:
+            enabled: true
+            metric: 10
+          enabled: true
+      - area_id: '0.0.0.5'
+        vrf_name: 'VrfReg1'
+        nssa:
+          no_summary: true
+          enabled: true
+      - area_id: '0.0.0.4'
+        vrf_name: 'VrfReg2'
+        filter_list_in: 'pf3'
+        filter_list_out: 'pf4'
+        nssa:
+          default_originate:
+            enabled: true
+            metric: 10
+          enabled: true
+      - area_id: 3
+        vrf_name: 'VrfReg2'
+        stub:
+          enabled: true
+          no_summary: true
+    state: replaced
+  existing_ospfv3_area_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.1'
+                  identifier: '0.0.0.1'
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+                - config:
+                    identifier: '0.0.0.4'
+                  identifier: '0.0.0.4'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                - config:
+                    identifier: '0.0.0.5'
+                  identifier: '0.0.0.5'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                      no-summary: true
+                - config:
+                    identifier: '0.0.0.4'
+                  identifier: '0.0.0.4'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      no-summary: true
+                - config:
+                    identifier: '0.0.0.5'
+                  identifier: '0.0.0.5'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.4'
+                  identifier: '0.0.0.4'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+                      default-route-metric-type: 'TYPE_2'
+            global:
+              openconfig-ospfv3-ext:inter-area-propagation-policies:
+                inter-area-policy:
+                  - config:
+                      src-area: '0.0.0.3'
+                    src-area: '0.0.0.3'
+                    filter-list-in:
+                      config:
+                        name: 'pf1'
+                    filter-list-out:
+                      config:
+                        name: 'pf3'
+                    ranges:
+                      range:
+                        - address-prefix: '1::1/24'
+                          config:
+                            address-prefix: '1::1/24'
+                            advertise: true
+                            metric: 4
+                        - address-prefix: '1::2/24'
+                          config:
+                            address-prefix: '1::2/24'
+                            advertise: false
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.5/openconfig-ospfv3-ext:stub'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.3/openconfig-ospfv3-ext:stub'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.4/openconfig-ospfv3-ext:nssa'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.5/openconfig-ospfv3-ext:nssa'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.4/openconfig-ospfv3-ext:stub'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.3/openconfig-ospfv3-ext:nssa'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3/filter-list-in/config/name'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3/filter-list-out/config/name'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3/ranges/range=1::1%2F24'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3/ranges/range=1::2%2F24'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.5'
+                identifier: '0.0.0.5'
+              - config:
+                  identifier: '0.0.0.10'
+                identifier: '0.0.0.10'
+                openconfig-ospfv3-ext:stub:
+                  config:
+                    enable: true
+                    no-summary: true
+              - config:
+                  identifier: '0.0.0.4'
+                identifier: '0.0.0.4'
+                openconfig-ospfv3-ext:stub:
+                  config:
+                    enable: true
+                    no-summary: true
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.10'
+                  src-area: '0.0.0.10'
+                  ranges:
+                    range:
+                      - address-prefix: '1::1/24'
+                        config:
+                          address-prefix: '1::1/24'
+                          advertise: true
+                          metric: 4
+                      - address-prefix: '1::2/24'
+                        config:
+                          address-prefix: '1::2/24'
+                          advertise: false
+                      - address-prefix: '1::3/24'
+                        config:
+                          address-prefix: '1::3/24'
+                          advertise: true
+                          metric: 10
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.3'
+                identifier: '0.0.0.3'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    default-route-originate: true
+                    default-route-metric: 10
+                  ranges:
+                    range:
+                      - address-prefix: '1::1/24'
+                        config:
+                          address-prefix: '1::1/24'
+                          advertise: true
+                          cost: 4
+                      - address-prefix: '1::3/24'
+                        config:
+                          address-prefix: '1::3/24'
+                          advertise: true
+                          cost: 10
+              - config:
+                  identifier: '0.0.0.4'
+                identifier: '0.0.0.4'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    default-route-originate: true
+                    default-route-metric: 10
+              - config:
+                  identifier: '0.0.0.5'
+                identifier: '0.0.0.5'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    no-summary: true
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.3'
+                  src-area: '0.0.0.3'
+                  filter-list-in:
+                    config:
+                      name: 'pf1'
+                  filter-list-out:
+                    config:
+                      name: 'pf2'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.4'
+                identifier: '0.0.0.4'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    default-route-originate: true
+                    default-route-metric: 10
+              - config:
+                  identifier: '0.0.0.3'
+                identifier: '0.0.0.3'
+                openconfig-ospfv3-ext:stub:
+                  config:
+                    enable: true
+                    no-summary: true
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.4'
+                  src-area: '0.0.0.4'
+                  filter-list-in:
+                    config:
+                      name: 'pf3'
+                  filter-list-out:
+                    config:
+                      name: 'pf4'
+
+overridden_01:
+  module_args:
+    config:
+      - area_id: '0.0.0.3'
+        vrf_name: 'default'
+        nssa:
+          default_originate:
+            enabled: true
+            metric: 10
+          enabled: true
+      - area_id: '10'
+        vrf_name: 'default'
+        stub:
+          enabled: true
+          no_summary: true
+        ranges:
+          - prefix: 1::1/24
+            advertise: true
+            cost: 4
+          - prefix: 1::2/24
+            advertise: false
+          - prefix: 1::3/24
+            advertise: true
+            cost: 10
+      - area_id: '0.0.0.3'
+        vrf_name: 'VrfReg1'
+        filter_list_in: pf1
+        filter_list_out: pf2
+        nssa:
+          default_originate:
+            enabled: true
+            metric: 10
+          enabled: true
+          ranges:
+            - prefix: 1::1/24
+              advertise: true
+              cost: 10
+            - prefix: 1::2/24
+              advertise: false
+            - prefix: 1::3/24
+              advertise: true
+              cost: 10
+            - prefix: 1::4/24
+              advertise: true
+        ranges:
+          - prefix: 1::1/24
+            advertise: true
+            cost: 4
+          - prefix: 1::2/24
+            advertise: false
+          - prefix: 1::3/24
+            advertise: false
+      - area_id: '0.0.0.4'
+        vrf_name: 'VrfReg2'
+        filter_list_in: 'pf3'
+        filter_list_out: 'pf4'
+        nssa:
+          default_originate:
+            enabled: true
+            metric: 10
+          enabled: true
+    state: overridden
+  existing_ospfv3_area_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          sonic-vrf:VRF_LIST:
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.1'
+                  identifier: '0.0.0.1'
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                      no-summary: true
+            global:
+              openconfig-ospfv3-ext:inter-area-propagation-policies:
+                inter-area-policy:
+                  - config:
+                      src-area: '0.0.0.3'
+                    src-area: '0.0.0.3'
+                    ranges:
+                      range:
+                        - address-prefix: 1::1/24
+                          config:
+                            address-prefix: 1::1/24
+                            advertise: true
+    - path: '/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:ospfv3:
+            areas:
+              area:
+                - config:
+                    identifier: '0.0.0.4'
+                  identifier: '0.0.0.4'
+                  openconfig-ospfv3-ext:stub:
+                    config:
+                      enable: true
+                - config:
+                    identifier: '0.0.0.3'
+                  identifier: '0.0.0.3'
+                  openconfig-ospfv3-ext:nssa:
+                    config:
+                      enable: true
+                      default-route-originate: true
+                      default-route-metric: 10
+                      default-route-metric-type: 'TYPE_2'
+            global:
+              openconfig-ospfv3-ext:inter-area-propagation-policies:
+                inter-area-policy:
+                  - config:
+                      src-area: '0.0.0.3'
+                    src-area: '0.0.0.3'
+                    filter-list-in:
+                      config:
+                        name: 'pf1'
+                    filter-list-out:
+                      config:
+                        name: 'pf2'
+                    ranges:
+                      range:
+                        - address-prefix: '1::1/24'
+                          config:
+                            address-prefix: '1::1/24'
+                            advertise: true
+                            cost: 4
+                        - address-prefix: '1::2/24'
+                          config:
+                            address-prefix: '1::2/24'
+                            advertise: false
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.3/openconfig-ospfv3-ext:stub'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/areas/area=0.0.0.4/openconfig-ospfv3-ext:stub'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.3'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:inter-area-propagation-policies/inter-area-policy=0.0.0.1'
+      method: 'delete'
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.10'
+                identifier: '0.0.0.10'
+                openconfig-ospfv3-ext:stub:
+                  config:
+                    enable: true
+                    no-summary: true
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.10'
+                  src-area: '0.0.0.10'
+                  ranges:
+                    range:
+                      - address-prefix: '1::1/24'
+                        config:
+                          address-prefix: '1::1/24'
+                          advertise: true
+                          metric: 4
+                      - address-prefix: '1::2/24'
+                        config:
+                          address-prefix: '1::2/24'
+                          advertise: false
+                      - address-prefix: '1::3/24'
+                        config:
+                          address-prefix: '1::3/24'
+                          advertise: true
+                          metric: 10
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.3'
+                identifier: '0.0.0.3'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    default-route-originate: true
+                    default-route-metric: 10
+                  ranges:
+                    range:
+                      - address-prefix: '1::1/24'
+                        config:
+                          address-prefix: '1::1/24'
+                          advertise: true
+                          cost: 10
+                      - address-prefix: '1::2/24'
+                        config:
+                          address-prefix: '1::2/24'
+                          advertise: false
+                      - address-prefix: '1::3/24'
+                        config:
+                          address-prefix: '1::3/24'
+                          advertise: true
+                          cost: 10
+                      - address-prefix: '1::4/24'
+                        config:
+                          address-prefix: '1::4/24'
+                          advertise: true
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.3'
+                  src-area: '0.0.0.3'
+                  filter-list-in:
+                    config:
+                      name: 'pf1'
+                  filter-list-out:
+                    config:
+                      name: 'pf2'
+                  ranges:
+                    range:
+                      - address-prefix: '1::1/24'
+                        config:
+                          address-prefix: '1::1/24'
+                          advertise: true
+                          metric: 4
+                      - address-prefix: '1::2/24'
+                        config:
+                          address-prefix: '1::2/24'
+                          advertise: false
+                      - address-prefix: '1::3/24'
+                        config:
+                          address-prefix: '1::3/24'
+                          advertise: false
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3'
+      method: 'patch'
+      data:
+        openconfig-network-instance:ospfv3:
+          areas:
+            area:
+              - config:
+                  identifier: '0.0.0.4'
+                identifier: '0.0.0.4'
+                openconfig-ospfv3-ext:nssa:
+                  config:
+                    enable: true
+                    default-route-originate: true
+                    default-route-metric: 10
+          global:
+            openconfig-ospfv3-ext:inter-area-propagation-policies:
+              inter-area-policy:
+                - config:
+                    src-area: '0.0.0.4'
+                  src-area: '0.0.0.4'
+                  filter-list-in:
+                    config:
+                      name: 'pf3'
+                  filter-list-out:
+                    config:
+                      name: 'pf4'

@@ -76,6 +76,7 @@
     - sonic_pim_interfaces
     - sonic_login_lockout
     - sonic_ospf_area
+    - sonic_ospfv3_area
     - sonic_poe
     - sonic_mgmt_servers
     - sonic_ssh
