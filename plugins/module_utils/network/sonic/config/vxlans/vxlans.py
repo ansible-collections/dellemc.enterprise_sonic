@@ -366,17 +366,11 @@ class Vxlans(ConfigBase):
                 suppress_vlan_neigh_list = matched.get("suppress_vlan_neigh", [])
 
             if suppress_vlan_neigh_list:
-                temp_suppress_vlan_neigh_requests = self.get_delete_suppress_vlan_neigh_request(matched, suppress_vlan_neigh_list)
-                if temp_suppress_vlan_neigh_requests:
-                    requests.extend(temp_suppress_vlan_neigh_requests)
+                requests.extend(self.get_delete_suppress_vlan_neigh_request(matched, suppress_vlan_neigh_list))
             if vrf_map_list:
-                temp_vrf_map_requests = self.get_delete_vrf_map_request(matched, vrf_map_list)
-                if temp_vrf_map_requests:
-                    requests.extend(temp_vrf_map_requests)
+                requests.extend(self.get_delete_vrf_map_request(matched, vrf_map_list))
             if vlan_map_list:
-                temp_vlan_map_requests = self.get_delete_vlan_map_request(matched, name, vlan_map_list)
-                if temp_vlan_map_requests:
-                    requests.extend(temp_vlan_map_requests)
+                requests.extend(self.get_delete_vlan_map_request(matched, name, vlan_map_list))
             if src_ip:
                 requests.extend(self.get_delete_src_ip_request(matched, name, src_ip))
             if evpn_nvo:
