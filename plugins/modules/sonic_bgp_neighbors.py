@@ -455,7 +455,7 @@ options:
           extended_link_bandwidth:
             version_added: 3.1.0
             description:
-              - Configure Extended Link Bandwidth for BGP neighbors.
+              - Configure the Link Bandwidth extended community for a BGP neighbor.
             type: bool
           local_address:
             description:
