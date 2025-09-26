@@ -77,6 +77,7 @@ merged_02:
   module_args:
     config:
       - name: vteptest1
+        source_ip: 1.1.1.1
         suppress_vlan_neigh:
           - vlan_name: Vlan5
           - vlan_name: Vlan6
@@ -100,6 +101,13 @@ merged_02:
         sonic-vxlan:VXLAN_TUNNEL:
           VXLAN_TUNNEL_LIST:
             - name: vteptest1
+              src_ip: 1.1.1.1
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+      method: "patch"
+      data:
+        sonic-vxlan:EVPN_NVO_LIST:
+          - name: nvo1
+            source_vtep: vteptest1
     - path: "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
       method: "patch"
       data:
@@ -511,6 +519,33 @@ replaced_02:
                   vni: 102
                   vlan: Vlan12
   expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/primary_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/src_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12"
+      method: "delete"
+      data:
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck3/vni"
       method: "patch"
       data:
@@ -601,6 +636,33 @@ replaced_03:
                   vni: 102
                   vlan: Vlan12
   expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/primary_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/src_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12"
+      method: "delete"
+      data:
     - path: "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
       method: "patch"
       data:
@@ -676,6 +738,33 @@ overridden_02:
                   vni: 102
                   vlan: Vlan12
   expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/primary_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/src_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12"
+      method: "delete"
+      data:
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck3/vni"
       method: "patch"
       data:
@@ -768,6 +857,33 @@ overridden_03:
                   vni: 102
                   vlan: Vlan12
   expected_config_requests:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/primary_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/src_ip"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11"
+      method: "delete"
+      data:
+    - path: "data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12"
+      method: "delete"
+      data:
     - path: "data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH"
       method: "patch"
       data:
