@@ -367,7 +367,7 @@ class Bgp(ConfigBase):
 
         match_bandwidth = match_bestpath.get('bandwidth', None)
         bandwidth = bestpath.get('bandwidth', None)
-        if bandwidth and match_bandwidth:
+        if bandwidth and match_bandwidth and bandwidth == match_bandwidth:
             requests.append({'path': route_selection_del_path + "compare-linkbw", 'method': DELETE})
 
         match_med = match_bestpath.get('med', None)
