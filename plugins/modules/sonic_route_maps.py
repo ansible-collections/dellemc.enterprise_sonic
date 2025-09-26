@@ -309,7 +309,11 @@ options:
                     type: str
                   transitive_value:
                     description:
-                      - True for transitive, false for non-transitive
+                      - True for transitive, false for non-transitive. If true, include the
+                      - link bandwidth extcommunity in route advertisements sent to
+                      - neighbors across AS boundaries (eBGP neighbors). If false,
+                      - drop the link bandwidth extcommunity from route advertisements
+                      - sent across AS boundaries.
                     type: bool
           ip_next_hop:
             description:
