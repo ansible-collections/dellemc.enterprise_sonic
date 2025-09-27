@@ -304,7 +304,7 @@ sonic_bgp_tests:
           restart_time: 500
 
   - name: test_case_09
-    description: Deletes entire BGP property
+    description: Delete entire BGP routing instance
     state: deleted
     input:
       - bgp_as: "{{ bgp_as_2 }}"
