@@ -360,7 +360,7 @@ class Route_mapsFacts(object):
                             parsed_rmap_stmt_set_extcomm['soo'].append(soo_val)
                         else:
                             parsed_rmap_stmt_set_extcomm['soo'] = [soo_val]
-                    elif 'bandwidth:' in set_extcommunity_config_item:
+                    elif 'link-bandwidth:' in set_extcommunity_config_item:
                         if not parsed_rmap_stmt_set_extcomm.get('bandwidth'):
                             parsed_rmap_stmt_set_extcomm['bandwidth'] = {}
                         bandwidth_val = set_extcommunity_config_item.split(":")[1]
