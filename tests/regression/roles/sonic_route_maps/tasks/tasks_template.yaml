@@ -1,3 +1,4 @@
+---
 - name: "{{ item.name ~ ' , ' ~ item.description }}"
   sonic_route_maps:
     config: "{{ item.input }}"
