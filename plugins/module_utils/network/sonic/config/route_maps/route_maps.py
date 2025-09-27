@@ -225,7 +225,7 @@ class Route_maps(ConfigBase):
         # Apply the commands from the playbook
         diff = get_diff(want, modify_have, TEST_KEYS)
         merged_commands = diff
-        replaced_requests = self.get_modify_route_maps_requests(merged_commands, want, modify_have)
+        replaced_requests = self.get_modify_route_maps_requests(merged_commands, want, have)
         requests.extend(replaced_requests)
         if merged_commands and len(replaced_requests) > 0:
             merged_commands = update_states(merged_commands, "replaced")
