@@ -136,7 +136,7 @@ class Route_mapsArgs(object):  # pylint: disable=R0903
                                 },
                                 'bandwidth': {
                                     "options": {
-                                        "bandwidth_value": {"type": "str"},
+                                        "bandwidth_value": {"type": "str", "required": True},
                                         "transitive_value": {"type": "bool"},
                                     },
                                     'type': 'dict'
