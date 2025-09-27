@@ -133,9 +133,16 @@ class Route_mapsArgs(object):  # pylint: disable=R0903
                                 'soo': {
                                     'elements': 'str',
                                     'type': 'list'
-                                }
+                                },
+                                'bandwidth': {
+                                    "options": {
+                                        "bandwidth_value": {"type": "str", "required": True},
+                                        "transitive_value": {"type": "bool"},
+                                    },
+                                    'type': 'dict'
+                                },
                             },
-                            'required_one_of': [['rt', 'soo']],
+                            'required_one_of': [['rt', 'soo', 'bandwidth']],
                             'type': 'dict'
                         },
                         'ip_next_hop': {

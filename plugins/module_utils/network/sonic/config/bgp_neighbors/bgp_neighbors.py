@@ -598,6 +598,7 @@ class Bgp_neighbors(ConfigBase):
                 self.update_dict(peer_group, peer_group_cfg, 'dont_negotiate_capability', 'dont-negotiate-capability')
                 self.update_dict(peer_group, peer_group_cfg, 'enforce_first_as', 'enforce-first-as')
                 self.update_dict(peer_group, peer_group_cfg, 'enforce_multihop', 'enforce-multihop')
+                self.update_dict(peer_group, peer_group_cfg, 'extended_link_bandwidth', 'extended-link-bandwidth')
                 self.update_dict(peer_group, peer_group_cfg, 'override_capability', 'override-capability')
                 self.update_dict(peer_group, peer_group_cfg, 'shutdown_msg', 'shutdown-message')
                 self.update_dict(peer_group, peer_group_cfg, 'solo', 'solo-peer')
@@ -766,6 +767,7 @@ class Bgp_neighbors(ConfigBase):
                 self.update_dict(neighbor, neighbor_cfg, 'dont_negotiate_capability', 'dont-negotiate-capability')
                 self.update_dict(neighbor, neighbor_cfg, 'enforce_first_as', 'enforce-first-as')
                 self.update_dict(neighbor, neighbor_cfg, 'enforce_multihop', 'enforce-multihop')
+                self.update_dict(neighbor, neighbor_cfg, 'extended_link_bandwidth', 'extended-link-bandwidth')
                 self.update_dict(neighbor, neighbor_cfg, 'override_capability', 'override-capability')
                 self.update_dict(neighbor, neighbor_cfg, 'shutdown_msg', 'shutdown-message')
                 self.update_dict(neighbor, neighbor_cfg, 'solo', 'solo-peer')
@@ -906,6 +908,7 @@ class Bgp_neighbors(ConfigBase):
             'dont_negotiate_capability': '/config/dont-negotiate-capability',
             'enforce_first_as': '/config/enforce-first-as',
             'enforce_multihop': '/config/enforce-multihop',
+            'extended_link_bandwidth': '/config/extended-link-bandwidth',
             'override_capability': '/config/override-capability',
             'shutdown_msg': '/config/shutdown-message',
             'solo': '/config/solo-peer',
@@ -1022,6 +1025,7 @@ class Bgp_neighbors(ConfigBase):
             'dont_negotiate_capability': '/config/dont-negotiate-capability',
             'enforce_first_as': '/config/enforce-first-as',
             'enforce_multihop': '/config/enforce-multihop',
+            'extended_link_bandwidth': '/config/extended-link-bandwidth',
             'override_capability': '/config/override-capability',
             'shutdown_msg': '/config/shutdown-message',
             'solo': '/config/solo-peer',

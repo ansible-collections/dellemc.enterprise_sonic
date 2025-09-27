@@ -52,6 +52,10 @@ class BgpArgs(object):  # pylint: disable=R0903
                             },
                             'type': 'dict'
                         },
+                        'bandwidth': {
+                            'choices': ['default_weight', 'ignore_weight', 'skip_missing'],
+                            'type': 'str',
+                        },
                         'compare_routerid': {'type': 'bool'},
                         'med': {
                             'options': {
