@@ -170,6 +170,11 @@ options:
             description:
               - Enforces EBGP multihop performance for peer.
             type: bool
+          extended_link_bandwidth:
+            version_added: 3.1.0
+            description:
+              - Configure the Link Bandwidth extended community for a BGP peer.
+            type: bool
           local_address:
             description:
               - Set the local IP address to use for the session when sending BGP update messages.

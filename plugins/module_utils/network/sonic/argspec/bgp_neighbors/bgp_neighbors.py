@@ -222,6 +222,7 @@ class Bgp_neighborsArgs(object):  # pylint: disable=R0903
                         },
                         'enforce_first_as': {'type': 'bool'},
                         'enforce_multihop': {'type': 'bool'},
+                        'extended_link_bandwidth': {'type': 'bool'},
                         'local_address': {'type': 'str'},
                         'local_as': {
                             'options': {
