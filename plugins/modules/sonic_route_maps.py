@@ -307,6 +307,7 @@ options:
                       - "<1..4294967295>  Cumulative bandwidth of all multipaths (outbound-only)"
                       - "num-multipaths   Internally computed bandwidth based on number of multipaths (outbound-only)"
                     type: str
+                    required: true
                   transitive_value:
                     description:
                       - True for transitive, false for non-transitive. If true, include the
