@@ -1,0 +1,3 @@
+---
+breaking_changes:
+  - sonic_qos_wred - Add support for yellow and red colors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/574).
