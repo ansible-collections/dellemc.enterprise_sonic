@@ -30,6 +30,16 @@ merged_01:
       - name: PortChannel40
         fallback: true
         fast_rate: true
+      - name: PortChannel90
+        speed: 40000
+        members:
+          interfaces:
+            - member: Eth1/49
+      - name: PortChannel100
+        adv_speed: 100000
+        members:
+          interfaces:
+            - member: Eth1/50
   existing_lag_interfaces_config:
     - path: "data/sonic-portchannel:sonic-portchannel"
       response:
@@ -69,6 +79,22 @@ merged_01:
             - name: PortChannel40
               config:
                 name: PortChannel40
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: PortChannel90
+              config:
+                name: PortChannel90
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: PortChannel100
+              config:
+                name: PortChannel100
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f11/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "patch"
       data:
@@ -85,6 +111,14 @@ merged_01:
       method: "patch"
       data:
         openconfig-if-aggregate:aggregate-id: PortChannel20
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f49/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:aggregate-id: PortChannel90
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f50/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:aggregate-id: PortChannel100
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel10/openconfig-if-aggregate:aggregation/config"
       method: "patch"
       data:
@@ -124,6 +158,16 @@ merged_01:
         openconfig-if-aggregate:config:
           fallback: true
           fast-rate: true
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel90/openconfig-if-aggregate:aggregation/config"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:config:
+          openconfig-interfaces-ext:speed: SPEED_40GB
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/openconfig-if-aggregate:aggregation/config"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:config:
+          openconfig-interfaces-ext:adv-speed: "100000"
 
 deleted_01:
   module_args:

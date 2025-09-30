@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -114,6 +114,10 @@ class Lag_interfacesFacts(object):
                 for option in ('fallback', 'fast_rate', 'min_links', 'system_mac'):
                     if po.get(option) is not None:
                         po_data[po['name']][option] = po[option]
+                if po.get('speed'):
+                    po_data[po['name']]['speed'] = int(po['speed'])
+                if po.get('adv_speeds'):
+                    po_data[po['name']]['adv_speed'] = int(po['adv_speeds'])
 
         if 'PORTCHANNEL_MEMBER' in conf and conf['PORTCHANNEL_MEMBER'].get('PORTCHANNEL_MEMBER_LIST'):
             for po_member in conf['PORTCHANNEL_MEMBER']['PORTCHANNEL_MEMBER_LIST']:
