@@ -1491,8 +1491,6 @@ class Route_maps(ConfigBase):
                                 if extcomm_number in cfg_set_top['extcommunity'][extcomm_type]:
                                     set_extcommunity_delete_attrs.append(
                                         self.set_extcomm_rest_names[extcomm_type] + extcomm_number)
-                                else:
-                                    ext_comm_number_remove_list.append(extcomm_number)
 
                         # Delete ineligible entries from the command list.
                         for extcomm_number in ext_comm_number_remove_list:
