@@ -334,3 +334,9 @@ replaced_overridden_tests:
         portchannels:
           - lag: Po10
           - lag: Po12
+
+  - name: test_case_11
+    description: Replace MCLAG properties with only a domain ID
+    state: replaced
+    input:
+      domain_id: 12
