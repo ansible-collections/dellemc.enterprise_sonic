@@ -170,6 +170,11 @@ options:
             description:
               - Enforces EBGP multihop performance for peer.
             type: bool
+          extended_link_bandwidth:
+            version_added: 3.1.0
+            description:
+              - Configure the Link Bandwidth extended community for a BGP peer.
+            type: bool
           local_address:
             description:
               - Set the local IP address to use for the session when sending BGP update messages.
@@ -452,6 +457,11 @@ options:
             description:
               - Enforces EBGP multihop performance for neighbor.
             type: bool
+          extended_link_bandwidth:
+            version_added: 3.1.0
+            description:
+              - Configure the Link Bandwidth extended community for a BGP neighbor.
+            type: bool
           local_address:
             description:
               - Set the local IP address to use for the session when sending BGP update messages.
@@ -645,6 +655,7 @@ EXAMPLES = """
               multihop_ttl: 1
             enforce_first_as: true
             enforce_multihop: true
+            extended_link_bandwidth: true
             local_address: 'Ethernet4'
             local_as:
               as: 2
@@ -683,6 +694,7 @@ EXAMPLES = """
               peer_as: 10
             peer_group: SPINE
             advertisement_interval: 15
+            extended_link_bandwidth: true
             timers:
               keepalive: 30
               holdtime: 15
@@ -737,6 +749,7 @@ EXAMPLES = """
 #  dont-capability-negotiate
 #  enforce-first-as
 #  enforce-multihop
+#  extended-link-bandwidth
 #  local-as 2 no-prepend replace-as
 #  override-capability
 #  passive
@@ -762,6 +775,7 @@ EXAMPLES = """
 #  advertisement-interval 15
 #  capability extended-nexthop
 #  capability dynamic
+#  extended-link-bandwidth
 #  v6only
 #  password U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg= encrypted
 #  strict-capability-match
@@ -888,6 +902,7 @@ EXAMPLES = """
 #  bfd
 #  capability extended-nexthop
 #  capability dynamic
+#  extended-link-bandwidth
 # !
 # neighbor 192.168.1.4
 # !
@@ -981,6 +996,7 @@ EXAMPLES = """
             auth_pwd:
               pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
               encrypted: true
+            extended_link_bandwidth: true
             nbr_description: 'description 2'
             strict_capability_match: true
             v6only: true
@@ -1277,6 +1293,7 @@ EXAMPLES = """
 #  remote-as 4
 #  timers connect 30
 #  advertisement-interval 0
+#  extended-link-bandwidth
 # !
 # neighbor 192.168.1.1
 #  peer-group SPINE
@@ -1330,6 +1347,7 @@ EXAMPLES = """
 #  remote-as 4
 #  timers connect 30
 #  advertisement-interval 0
+#  extended-link-bandwidth
 # !
 # neighbor 192.168.1.1
 #  bfd

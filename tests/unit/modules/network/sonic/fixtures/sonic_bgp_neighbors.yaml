@@ -14,6 +14,7 @@ merged_01:
               multihop_ttl: 1
             enforce_first_as: true
             enforce_multihop: true
+            extended_link_bandwidth: true
             local_address: 'Ethernet4'
             local_as:
               as: 2
@@ -26,6 +27,7 @@ merged_01:
             shutdown_msg: 'msg1'
             solo: true
           - neighbor: 1.1.1.1
+            extended_link_bandwidth: true
             disable_connected_check: true
             ttl_security: 5
       - bgp_as: 51
@@ -112,12 +114,14 @@ merged_01:
               peer_as: "10.4"
             local_as:
               as: "200.5"
+            extended_link_bandwidth: true
         neighbors:
           - neighbor: Eth1/3
             remote_as:
               peer_as: "20.4"
             local_as:
               as: "100.5"
+            extended_link_bandwidth: false
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
       response:
@@ -282,6 +286,7 @@ merged_01:
                   passive-mode: False
               config:
                 neighbor-address: Eth1/3
+                extended-link-bandwidth: false
                 peer-as: "20.4"
                 local-as: "100.5"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
@@ -297,6 +302,7 @@ merged_01:
                 peer-group-name: SPINE
                 peer-as: "10.4"
                 local-as: "200.5"
+                extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -321,6 +327,7 @@ merged_01:
                 dont-negotiate-capability: True
                 enforce-first-as: True
                 enforce-multihop: True
+                extended-link-bandwidth: true
                 override-capability: True
                 peer-port: 3
                 shutdown-message: msg1
@@ -333,6 +340,7 @@ merged_01:
                 config:
                   passive-mode: False
               config:
+                extended-link-bandwidth: true
                 neighbor-address: 1.1.1.1
                 disable-ebgp-connected-route-check: True
                 ttl-security-hops: 5
@@ -448,6 +456,7 @@ merged_02:
             remote_as:
               peer_as: 700
             peer_group: SPINE
+            extended_link_bandwidth: false
           - neighbor: 192.168.1.4
       - bgp_as: 51
         vrf_name: VrfReg2
@@ -457,6 +466,7 @@ merged_02:
               peer_as: "10.4"
             local_as:
               as: "200.5"
+            extended_link_bandwidth: false
           - name: SPINE2
             remote_as:
               peer_as: 655366
@@ -518,6 +528,7 @@ merged_02:
                   neighbor-address: Eth1/4
                   peer-group: SPINE
                   local-as: 51
+                  extended-link-bandwidth: true
                   peer-type: INTERNAL
                 transport:
                   config:
@@ -630,6 +641,7 @@ merged_02:
               config:
                 neighbor-address: Eth1/4
                 peer-as: 700
+                extended-link-bandwidth: false
             - neighbor-address: 192.168.1.4
               transport:
                 config:
@@ -740,6 +752,7 @@ merged_02:
                 peer-group-name: SPINE
                 peer-as: "10.4"
                 local-as: "200.5"
+                extended-link-bandwidth: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1169,6 +1182,7 @@ deleted_01:
                     password: U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg=
                     encrypted: True
                 neighbor-address: Eth1/3
+                extended-link-bandwidth: false
                 enable-bfd:
                   config:
                     enabled: True
@@ -1338,12 +1352,14 @@ deleted_02:
               peer_as: "10.4"
             local_as:
               as: "200.5"
+            extended_link_bandwidth: true
         neighbors:
           - neighbor: Eth1/3
             remote_as:
               peer_as: 1310724
             local_as:
               as: "100.5"
+            extended_link_bandwidth: true
     state: deleted
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
@@ -1379,6 +1395,7 @@ deleted_02:
                     neighbor-address: Eth1/3
                     peer-as: "20.4"
                     local-as: 101
+                    extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
@@ -1395,6 +1412,7 @@ deleted_02:
                     peer-group-name: SPINE
                     peer-as: "0.102"
                     local-as: 13107205
+                    extended-link-bandwidth: true
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -1690,6 +1708,9 @@ deleted_02:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/peer-as"
       method: "delete"
       data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/extended-link-bandwidth"
+      method: "delete"
+      data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as"
       method: "delete"
       data:
@@ -1697,6 +1718,9 @@ deleted_02:
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-replace-as"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/extended-link-bandwidth"
       method: "delete"
       data:
 
@@ -1778,6 +1802,7 @@ deleted_03:
               peer_as: "10.4"
             local_as:
               as: "200.5"
+            extended_link_bandwidth: true
         neighbors:
           - neighbor: Eth1/3
             remote_as:
@@ -1835,6 +1860,7 @@ deleted_03:
                     peer-group-name: SPINE
                     peer-as: "0.102"
                     local-as: 13107205
+                    extended-link-bandwidth: true
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -2134,6 +2160,9 @@ deleted_03:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-replace-as"
       method: "delete"
       data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/extended-link-bandwidth"
+      method: "delete"
+      data:
 
 replaced_01:
   module_args:
@@ -2144,6 +2173,7 @@ replaced_01:
             advertisement_interval: 10
             remote_as:
               peer_as: 15
+            extended_link_bandwidth: true
           - neighbor: "1.1.1.1"
             ttl_security: 5
             advertisement_interval: 20
@@ -2158,6 +2188,7 @@ replaced_01:
                     origin: true
                   safi: "unicast"
             advertisement_interval: 20
+            extended_link_bandwidth: true
       - bgp_as: 51
         vrf_name: "VrfReg1"
         neighbors:
@@ -2168,6 +2199,7 @@ replaced_01:
               check_failure: true
               enabled: true
               profile: "profile 2"
+            extended_link_bandwidth: false
     state: replaced
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
@@ -2177,6 +2209,7 @@ replaced_01:
           openconfig-network-instance:config:
             as: 51
             router-id: "10.2.2.4"
+            extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/config"
       response:
         code: 200
@@ -2303,6 +2336,7 @@ replaced_01:
                   local-as-no-prepend: True
                   local-as-replace-as: True
                   capability-extended-nexthop: True
+                  extended-link-bandwidth: false
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
@@ -2312,12 +2346,17 @@ replaced_01:
                   disable-ebgp-connected-route-check: True
                   ttl-security-hops: 5
                   capability-extended-nexthop: True
+                  extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
       method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/extended-link-bandwidth"
+      method: "delete"
+      data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       method: "patch"
       data:
@@ -2334,6 +2373,7 @@ replaced_01:
                       afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
               config:
                 peer-group-name: SPINE1
+                extended-link-bandwidth: true
               peer-group-name: SPINE1
               timers:
                 config:
@@ -2349,6 +2389,7 @@ replaced_01:
             - config:
                 neighbor-address: Eth1/3
                 peer-as: 15
+                extended-link-bandwidth: true
               neighbor-address: Eth1/3
               timers:
                 config:
@@ -2370,6 +2411,7 @@ replaced_01:
             - config:
                 capability-dynamic: true
                 neighbor-address: Eth1/1
+                extended-link-bandwidth: false
               enable-bfd:
                 config:
                   bfd-profile: "profile 2"
@@ -2453,6 +2495,7 @@ replaced_02:
                   dont-negotiate-capability: true
                   enforce-first-as: true
                   enforce-multihop: true
+                  expected_config_requests: false
                   local-as: 65299
                   shutdown-message: pg_shutdown_msg
                   local-as-no-prepend: true
@@ -2636,6 +2679,7 @@ overridden_01:
             advertisement_interval: 10
             remote_as:
               peer_as: 15
+            extended_link_bandwidth: false
           - neighbor: "1.1.1.1"
             ttl_security: 5
             advertisement_interval: 20
@@ -2650,6 +2694,7 @@ overridden_01:
                     origin: true
                   safi: "unicast"
             advertisement_interval: 20
+            extended_link_bandwidth: true
       - bgp_as: 51
         vrf_name: "VrfReg2"
         neighbors:
@@ -2829,6 +2874,7 @@ overridden_01:
                   disable-ebgp-connected-route-check: True
                   ttl-security-hops: 5
                   capability-extended-nexthop: True
+                  extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       response:
         code: 200
@@ -2871,11 +2917,15 @@ overridden_01:
                   disable-ebgp-connected-route-check: True
                   ttl-security-hops: 5
                   capability-extended-nexthop: True
+                  extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
+      method: "delete"
+      data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/extended-link-bandwidth"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/"
@@ -2906,6 +2956,7 @@ overridden_01:
                       afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
               config:
                 peer-group-name: SPINE1
+                extended-link-bandwidth: true
               peer-group-name: SPINE1
               timers:
                 config:
@@ -2921,6 +2972,7 @@ overridden_01:
             - config:
                 neighbor-address: Eth1/3
                 peer-as: 15
+                extended-link-bandwidth: false
               neighbor-address: Eth1/3
               timers:
                 config:
@@ -3040,6 +3092,7 @@ overridden_02:
                   dont-negotiate-capability: true
                   enforce-first-as: true
                   enforce-multihop: true
+                  extended-link-bandwidth: true
                   local-as: 65299
                   shutdown-message: pg_shutdown_msg
                   local-as-no-prepend: true

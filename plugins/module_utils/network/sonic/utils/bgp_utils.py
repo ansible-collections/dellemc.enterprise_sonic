@@ -264,6 +264,8 @@ def get_peergroups(module, vrf_name):
                         pg.update({'enforce_first_as': peer_group['config']['enforce-first-as']})
                     if 'enforce-multihop' in peer_group['config']:
                         pg.update({'enforce_multihop': peer_group['config']['enforce-multihop']})
+                    if 'extended-link-bandwidth' in peer_group['config']:
+                        pg.update({'extended_link_bandwidth': peer_group['config']['extended-link-bandwidth']})
                     local_as = {}
                     if 'local-as' in peer_group['config']:
                         local_as.update({'as': peer_group['config']['local-as']})
@@ -663,6 +665,21 @@ def get_bgp_af_data(module, af_params_map):
 
 
 def get_bgp_as(module, vrf_name):
+    as_val = None
+    get_path = '%s=%s/%s/global/config' % (network_instance_path, vrf_name, protocol_bgp_path)
+    request = {"path": get_path, "method": GET}
+    try:
+        response = edit_config(module, to_request(module, request))
+    except ConnectionError as exc:
+        module.fail_json(msg=str(exc), code=exc.code)
+
+    resp = response[0][1]
+    if "openconfig-network-instance:config" in resp and 'as' in resp['openconfig-network-instance:config']:
+        as_val = resp['openconfig-network-instance:config']['as']
+    return as_val
+
+
+def get_bgp_bandwidth(module, vrf_name):
     as_val = None
     get_path = '%s=%s/%s/global/config' % (network_instance_path, vrf_name, protocol_bgp_path)
     request = {"path": get_path, "method": GET}
