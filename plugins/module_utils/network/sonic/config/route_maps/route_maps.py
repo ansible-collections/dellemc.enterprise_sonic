@@ -2236,25 +2236,19 @@ class Route_maps(ConfigBase):
                         cfg_extcommunity_list_set = set(cfg_set_top['extcommunity'][extcomm_type])
                         cmd_extcommunity_list_set = ([])
                         saved_cmd_set = []
-                        if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
-                            cmd_extcommunity_list_set = set(to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type]))
-                            saved_cmd_set = command['set']['extcommunity'].pop(extcomm_type)
-
                         if extcomm_type == "bandwidth":
-                            bandwidth_value_found = ""
-                            transitive_value_found = ""
-                            if "bandwidth_value" in cfg_set_top.get("extcommunity").get(extcomm_type):
-                                bandwidth_value_found = cfg_set_top.get('extcommunity').get(extcomm_type).get("bandwidth_value")
-                            if "transitive_value" in cfg_set_top.get("extcommunity").get(extcomm_type):
-                                if cfg_set_top.get('extcommunity').get(extcomm_type).get("transitive_value"):
-                                    transitive_value_found = "transitive"
-                                else:
-                                    transitive_value_found = "non-transitive"
-                                if bandwidth_value_found != "" and transitive_value_found != "":
-                                    bandwidth_string = self.set_extcomm_rest_names[extcomm_type] + bandwidth_value_found + ":" + transitive_value_found
-                                    if bandwidth_string not in set_extcommunity_delete_attrs:
-                                        set_extcommunity_delete_attrs.append(bandwidth_string)
+                            if "bandwidth_value" in cfg_set_top.get("extcommunity", {}).get("bandwidth"):
+                                if 'bandwidth' not in cmd_set_top.get('extcommunity', {}):   
+                                    bandwidth_value = cfg_set_top['extcommunity']['bandwidth']['bandwidth_value']
+                                    transitive_value = "transitive" if cfg_set_top['extcommunity']['bandwidth']['transitive_value'] else "non-transitive"
+                                    bandwidth_string = (self.set_extcomm_rest_names['bandwidth'] +  bandwidth_value + ":" + transitive_value)
+                                    set_extcommunity_delete_attrs.append(bandwidth_string)
+                                    set_extcommunity_delete_attrs_type.append(cfg_set_top['extcommunity']['bandwidth']) 
                         else:
+                            if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
+                                cmd_extcommunity_list_set = set(to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type]))
+                                saved_cmd_set = command['set']['extcommunity'].pop(extcomm_type)
+
                             for extcomm_number in cfg_extcommunity_list_set.difference(cmd_extcommunity_list_set):
                                 if extcomm_number in saved_cmd_set:
                                     # ignore equivalent asn:nn with different as-notation format
