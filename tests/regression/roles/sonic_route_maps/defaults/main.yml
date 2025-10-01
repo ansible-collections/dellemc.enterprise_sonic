@@ -218,8 +218,8 @@ sonic_route_maps_tests:
               - 45:736
           extcommunity:
             bandwidth:
-              bandwidth_value: "num-multipaths"
-              transitive_value: true
+              bandwidth_value: "777"
+              transitive_value: false
           ipv6_next_hop:
             prefer_global: false
           metric:
@@ -322,6 +322,7 @@ sonic_route_maps_tests:
               - "30:40"
             soo:
               - 10.73.14.9:78
+            # Testing no-op if delete does not match.
             bandwidth:
               bandwidth_value: "40"
               transitive_value: false
@@ -594,9 +595,6 @@ sonic_route_maps_tests:
               - "13107230:40"
             soo:
               - "1000.149:78"
-            bandwidth:
-              bandwidth_value: "4200"
-              transitive_value: false
   - name: test_case_12_merged_restore_rm1_80_match
     description: Restore route map match configuration for map rm1 80
     state: merged
