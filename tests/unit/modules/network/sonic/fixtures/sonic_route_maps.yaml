@@ -1939,16 +1939,18 @@ replaced_01:
       data:
         openconfig-routing-policy:policy-definitions:
           policy-definition:
-          - config:
+          - name: rm1
+            config:
               name: rm1
-            name: rm1
             statements:
               statement:
-              - actions:
+              - name: "80"
+                config:
+                  name: "80"
+                actions:
                   config:
                     policy-result: ACCEPT_ROUTE
                   openconfig-bgp-policy:bgp-actions:
-                    config: {}
                     set-ext-community:
                       config:
                         method: INLINE
@@ -1957,9 +1959,6 @@ replaced_01:
                         config:
                           communities:
                           - link-bandwidth:num-multipaths:transitive
-                config:
-                  name: "80"
-                name: "80"
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions"
       method: "patch"
       data:
@@ -2099,6 +2098,7 @@ replaced_01:
               communities:
                 - route-target:655363:41
                 - route-origin:10.73.14.9:78
+                # Should this actually be removed?
                 - link-bandwidth:num-multipaths:transitive
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/\
              prefix-set"
