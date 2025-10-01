@@ -199,6 +199,7 @@ EXAMPLES = """
 #  bestpath as-path ignore
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth default-weight
 # !
 # router bgp 4
 #  router-id 10.2.2.4
@@ -228,6 +229,7 @@ EXAMPLES = """
             ignore: true
             multipath_relax: false
             multipath_relax_as_set: true
+          bandwidth: default_weight
           compare_routerid: true
           med:
             confed: true
@@ -287,6 +289,7 @@ EXAMPLES = """
 #  bestpath as-path ignore
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth ignore-weight
 # !
 # router bgp 4
 #  router-id 10.2.2.4
@@ -338,6 +341,7 @@ EXAMPLES = """
             ignore: true
             multipath_relax: false
             multipath_relax_as_set: true
+          bandwidth: ignore-weight
           compare_routerid: true
           med:
             confed: true
@@ -391,6 +395,7 @@ EXAMPLES = """
 #  bestpath as-path confed
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth ignore-weight
 #  always-compare-med
 #  max-med on-startup 667 7878
 #  timers 20 30
@@ -416,6 +421,7 @@ EXAMPLES = """
 #  bestpath as-path confed
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth default-weight
 #  timers 20 30
 # !
 #
@@ -429,6 +435,7 @@ EXAMPLES = """
         bestpath:
           as_path:
             confed: true
+          bandwidth skip_missing
           compare_routerid: true
       - bgp_as: 11
         vrf_name: 'VrfCheck2'
@@ -468,6 +475,7 @@ EXAMPLES = """
 #  log-neighbor-changes
 #  bestpath as-path confed
 #  bestpath compare-routerid
+#  bestpath bandwidth skip_missing
 #  timers 60 180
 # !
 
@@ -490,6 +498,7 @@ EXAMPLES = """
 #  bestpath as-path confed
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth default-weight
 #  timers 20 30
 # !
 #
