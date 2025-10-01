@@ -114,6 +114,7 @@ merged_01:
               peer_as: "10.4"
             local_as:
               as: "200.5"
+            extended_link_bandwidth: true
         neighbors:
           - neighbor: Eth1/3
             remote_as:
@@ -301,6 +302,7 @@ merged_01:
                 peer-group-name: SPINE
                 peer-as: "10.4"
                 local-as: "200.5"
+                extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -464,6 +466,7 @@ merged_02:
               peer_as: "10.4"
             local_as:
               as: "200.5"
+            extended_link_bandwidth: false
           - name: SPINE2
             remote_as:
               peer_as: 655366
@@ -749,6 +752,7 @@ merged_02:
                 peer-group-name: SPINE
                 peer-as: "10.4"
                 local-as: "200.5"
+                extended-link-bandwidth: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
       data:
@@ -1348,6 +1352,7 @@ deleted_02:
               peer_as: "10.4"
             local_as:
               as: "200.5"
+            extended_link_bandwidth: true
         neighbors:
           - neighbor: Eth1/3
             remote_as:
@@ -1407,6 +1412,7 @@ deleted_02:
                     peer-group-name: SPINE
                     peer-as: "0.102"
                     local-as: 13107205
+                    extended-link-bandwidth: true
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -1714,6 +1720,9 @@ deleted_02:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-replace-as"
       method: "delete"
       data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/extended-link-bandwidth"
+      method: "delete"
+      data:
 
 deleted_03:
   module_args:
@@ -1793,6 +1802,7 @@ deleted_03:
               peer_as: "10.4"
             local_as:
               as: "200.5"
+            extended_link_bandwidth: true
         neighbors:
           - neighbor: Eth1/3
             remote_as:
@@ -1850,6 +1860,7 @@ deleted_03:
                     peer-group-name: SPINE
                     peer-as: "0.102"
                     local-as: 13107205
+                    extended-link-bandwidth: true
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -2149,6 +2160,9 @@ deleted_03:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-replace-as"
       method: "delete"
       data:
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/extended-link-bandwidth"
+      method: "delete"
+      data:
 
 replaced_01:
   module_args:
@@ -2174,6 +2188,7 @@ replaced_01:
                     origin: true
                   safi: "unicast"
             advertisement_interval: 20
+            extended_link_bandwidth: true
       - bgp_as: 51
         vrf_name: "VrfReg1"
         neighbors:
@@ -2358,6 +2373,7 @@ replaced_01:
                       afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
               config:
                 peer-group-name: SPINE1
+                extended-link-bandwidth: true
               peer-group-name: SPINE1
               timers:
                 config:
@@ -2479,6 +2495,7 @@ replaced_02:
                   dont-negotiate-capability: true
                   enforce-first-as: true
                   enforce-multihop: true
+                  expected_config_requests: false
                   local-as: 65299
                   shutdown-message: pg_shutdown_msg
                   local-as-no-prepend: true
@@ -2677,6 +2694,7 @@ overridden_01:
                     origin: true
                   safi: "unicast"
             advertisement_interval: 20
+            extended_link_bandwidth: true
       - bgp_as: 51
         vrf_name: "VrfReg2"
         neighbors:
@@ -2938,6 +2956,7 @@ overridden_01:
                       afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
               config:
                 peer-group-name: SPINE1
+                extended-link-bandwidth: true
               peer-group-name: SPINE1
               timers:
                 config:
@@ -3073,6 +3092,7 @@ overridden_02:
                   dont-negotiate-capability: true
                   enforce-first-as: true
                   enforce-multihop: true
+                  extended-link-bandwidth: true
                   local-as: 65299
                   shutdown-message: pg_shutdown_msg
                   local-as-no-prepend: true
