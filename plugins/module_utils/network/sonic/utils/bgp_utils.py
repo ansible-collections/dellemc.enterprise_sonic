@@ -264,6 +264,8 @@ def get_peergroups(module, vrf_name):
                         pg.update({'enforce_first_as': peer_group['config']['enforce-first-as']})
                     if 'enforce-multihop' in peer_group['config']:
                         pg.update({'enforce_multihop': peer_group['config']['enforce-multihop']})
+                    if 'extended-link-bandwidth' in peer_group['config']:
+                        pg.update({'extended_link_bandwidth': peer_group['config']['extended-link-bandwidth']})
                     local_as = {}
                     if 'local-as' in peer_group['config']:
                         local_as.update({'as': peer_group['config']['local-as']})
