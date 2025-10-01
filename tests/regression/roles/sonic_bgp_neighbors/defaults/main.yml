@@ -176,6 +176,7 @@ deleted_tests:
             capability:
               dynamic: true
               extended_nexthop: true
+            extended_link_bandwidth: false
         neighbors:
           - neighbor: "{{ interface1 }}"
             remote_as:
@@ -330,6 +331,7 @@ merged_tests:
       - bgp_as: "{{ bgp_as_1 }}"
         peer_group:
           - name: SPINE
+            extended_link_bandwidth: true
             remote_as:
               peer_as: 12
             bfd:
@@ -491,7 +493,6 @@ merged_tests:
               peer_as: "{{ peer_as_6 }}"
             local_as:
               as: "{{ local_as_6 }}"
-
   - name: test_case_02
     description: Update BGP NEIGHBORS properties
     state: merged
@@ -503,6 +504,7 @@ merged_tests:
               enabled: true
               check_failure: false
               profile: "profile 2"
+            extended_link_bandwidth: false
           - name: SPINE1
             remote_as:
               peer_type: external
@@ -1133,6 +1135,7 @@ replaced_tasks:
                   safi: unicast
                   allowas_in:
                     origin: true
+            extended_link_bandwidth: true
 
   - name: test_case_replace_02
     description: Replace BGP neighbor
@@ -1252,6 +1255,7 @@ overridden_tasks:
         vrf_name: "{{ vrf_1 }}"
         peer_group:
           - name: SPINE
+            extended_link_bandwidth: true
 
   - name: test_case_over_02
     description: Override BGP Neighbors properties
@@ -1311,7 +1315,7 @@ overridden_tasks:
         peer_group:
           - name: SPINE
 
-  - name: test_case_over_02
+  - name: test_case_over_04
     description: Override BGP Neighbors properties
     state: overridden
     input:
@@ -1334,7 +1338,7 @@ overridden_tasks:
             remote_as:
               peer_as: 1234
 
-  - name: test_case_over_03
+  - name: test_case_over_05
     description: Override BGP Neighbors prefix-limit properties
     state: overridden
     input:
@@ -1363,7 +1367,7 @@ overridden_tasks:
             remote_as:
               peer_as: 1234
 
-  - name: test_case_over_03
+  - name: test_case_over_06
     description: Override BGP Neighbors properties
     state: overridden
     input:
