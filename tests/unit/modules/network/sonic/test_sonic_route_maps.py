@@ -105,9 +105,7 @@ class TestSonicRouteMapsModule(TestSonicModule):
         set_module_args(self.fixture_data['replaced_01']['module_args'])
         self.initialize_facts_get_requests(self.fixture_data['replaced_01']['existing_route_maps_config'])
         self.initialize_config_requests(self.fixture_data['replaced_01']['expected_config_requests'])
-        #raise Exception(self.config_requests_valid)
         result = self.execute_module(changed=True)
-        #raise Exception(self.config_requests_sent)
         self.validate_config_requests()
 
     def test_sonic_route_maps_replaced_02(self):

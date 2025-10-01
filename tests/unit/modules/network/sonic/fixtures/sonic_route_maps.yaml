@@ -2098,7 +2098,6 @@ replaced_01:
               communities:
                 - route-target:655363:41
                 - route-origin:10.73.14.9:78
-                # Should this actually be removed?
                 - link-bandwidth:num-multipaths:transitive
     - path: "data/openconfig-routing-policy:routing-policy/policy-definitions/policy-definition=rm1/statements/statement=80/conditions/match-prefix-set/config/\
              prefix-set"
