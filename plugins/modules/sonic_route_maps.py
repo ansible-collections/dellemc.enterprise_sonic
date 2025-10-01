@@ -310,6 +310,7 @@ options:
                     required: true
                   transitive_value:
                     description:
+                      - The operational default is false if this option is not specified. 
                       - True for transitive, false for non-transitive. If true, include the
                       - link bandwidth extcommunity in route advertisements sent to
                       - neighbors across AS boundaries (eBGP neighbors). If false,
