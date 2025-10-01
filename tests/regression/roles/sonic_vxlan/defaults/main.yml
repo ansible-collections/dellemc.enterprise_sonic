@@ -78,7 +78,6 @@ tests:
     state: merged
     input:
       - name: vtep1
-        evpn_nvo: nvo5
         vlan_map:
           - vni: 101
             vlan: "{{vlan1}}"
@@ -100,7 +99,6 @@ tests:
       - name: vtep1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
-        evpn_nvo: nvo5
         vlan_map:
           - vni: 102
             vlan: "{{vlan2}}"

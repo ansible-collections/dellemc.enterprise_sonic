@@ -123,6 +123,7 @@ options:
       - lst
       - ptp_port_ds
       - fbs_classifiers
+      - fbs_groups
       - fbs_policies
       - ars
       - network_policy
