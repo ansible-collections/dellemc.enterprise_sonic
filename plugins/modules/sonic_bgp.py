@@ -435,7 +435,7 @@ EXAMPLES = """
         bestpath:
           as_path:
             confed: true
-          bandwidth skip_missing
+          bandwidth: skip_missing
           compare_routerid: true
       - bgp_as: 11
         vrf_name: 'VrfCheck2'
