@@ -633,8 +633,8 @@ class Mclag(ConfigBase):
             temp['backup-keepalive-session-vrf'] = commands['backup_keepalive_session_vrf']
         mclag_dict = {}
         # Create payload if the above attributes are present in commands or
-        # if only domain ID is specified in commands or if domain ID doesn't exist
-        if temp or len(commands) == 1 or (commands.get('domain_id') is not None and commands['domain_id'] != have.get('domain_id')):
+        # if domain ID doesn't exist
+        if temp or (commands.get('domain_id') is not None and commands['domain_id'] != have.get('domain_id')):
             temp['domain-id'] = commands['domain_id']
             domain_id = {"domain-id": want["domain_id"]}
             mclag_dict.update(domain_id)
