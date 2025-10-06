@@ -39,11 +39,12 @@ merged_01:
               name: PortChannel10
               mclag-domain-id: 1
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain"
-      method: "patch"
+      method: "put"
       data:
         openconfig-mclag:mclag-domain:
           - domain-id: 1
             config:
+              domain-id: 1
               session-timeout: 3
               keepalive-interval: 1
               source-address: 2.2.2.2
@@ -699,11 +700,12 @@ replaced_02:
     - path: "data/openconfig-mclag:mclag/mclag-domains"
       method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain"
-      method: "patch"
+      method: "put"
       data:
         openconfig-mclag:mclag-domain:
           - domain-id: 10
             config:
+              domain-id: 10
               session-timeout: 60
               openconfig-mclag:mclag-system-mac: 00:00:00:02:02:02
     - path: "data/openconfig-mclag:mclag/interfaces/interface"
@@ -1035,6 +1037,7 @@ overridden_01:
         openconfig-mclag:mclag-domain:
           - domain-id: 10
             config:
+              domain-id: 10
               session-timeout: 60
               openconfig-mclag:mclag-system-mac: 00:00:00:02:02:02
     - path: "data/openconfig-mclag:mclag/interfaces/interface"
