@@ -1488,6 +1488,8 @@ class Route_maps(ConfigBase):
                                 set_extcommunity_delete_attrs.append(self.set_extcomm_rest_names[extcomm_type] + bandwidth_value + ":" + transitive_string)
                             else:
                                 cmd_set_top['extcommunity'].pop('bandwidth')
+                                if not cmd_set_top['extcommunity']:
+                                    cmd_set_top.pop('extcommunity')
                         else:
                             for extcomm_number in cmd_set_top['extcommunity'][extcomm_type]:
                                 if extcomm_number in cfg_set_top['extcommunity'][extcomm_type]:
@@ -1496,11 +1498,11 @@ class Route_maps(ConfigBase):
                                 else:
                                     ext_comm_number_remove_list.append(extcomm_number)
 
-                        # Delete ineligible entries from the command list.
-                        for extcomm_number in ext_comm_number_remove_list:
-                            cmd_set_top['extcommunity'][extcomm_type].remove(extcomm_number)
-                        if not cmd_set_top['extcommunity'][extcomm_type]:
-                            cmd_set_top['extcommunity'].pop(extcomm_type)
+                            # Delete ineligible entries from the command list.
+                            for extcomm_number in ext_comm_number_remove_list:
+                                cmd_set_top['extcommunity'][extcomm_type].remove(extcomm_number)
+                            if not cmd_set_top['extcommunity'][extcomm_type]:
+                                cmd_set_top['extcommunity'].pop(extcomm_type)
                     else:
                         # If no extcommunity entries of this type are configured,
                         # pop the entire extcommunity command sub-dict for this type.
