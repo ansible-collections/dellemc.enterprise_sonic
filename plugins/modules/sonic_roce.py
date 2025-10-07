@@ -21,7 +21,7 @@ notes:
 short_description: Manage RoCE QoS configuration on SONiC
 description:
   - This module provides configuration management of RoCE(v2) QoS for devices running SONiC
-author: "Shade Talabi (@stalabi1)"
+author: "S. Talabi (@stalabi1)"
 options:
   config:
     description:
