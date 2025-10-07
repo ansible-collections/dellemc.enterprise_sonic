@@ -27,10 +27,10 @@ merged_01:
             timer: 667
             med_val: 7878
         graceful_restart:
-            enabled: true
-            restart_time: 100
-            stale_routes_time: 1000
-            preserve_fw_state: true
+          enabled: true
+          restart_time: 100
+          stale_routes_time: 1000
+          preserve_fw_state: true
       - bgp_as: 10.5
         router_id: 10.2.2.5
         as_notation: "asdot"
@@ -142,8 +142,8 @@ deleted_01:
             timer: 667
             med_val: 7878
         graceful_restart:
-           stale_routes_time: 1000
-           preserve_fw_state: true
+          stale_routes_time: 1000
+          preserve_fw_state: true
     state: deleted
   existing_bgp_config:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
@@ -212,21 +212,26 @@ deleted_01:
         route-selection-options:
           config:
             external-compare-router-id: false
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/always-compare-med"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             always-compare-med"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/compare-confed-as-path"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             compare-confed-as-path"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/compare-linkbw"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             ignore-as-path-length"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/ignore-as-path-length"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             med-confed"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-confed"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             med-missing-as-worst"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-missing-as-worst"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/\
+             stale-routes-time"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/stale-routes-time"
-      method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/preserve-fw-state"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/\
+             preserve-fw-state"
       method: "delete"
 
 deleted_02:
@@ -360,7 +365,8 @@ replaced_01:
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med/config/time"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/logging-options/config/log-neighbor-state-changes"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/logging-options/config/\
+             log-neighbor-state-changes"
       method: "patch"
       data:
         log-neighbor-state-changes: true
@@ -376,19 +382,26 @@ replaced_01:
         route-selection-options:
           config:
             compare-linkbw: "IGNORE_LB"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/always-compare-med"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             always-compare-med"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/compare-confed-as-path"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             compare-confed-as-path"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/ignore-as-path-length"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             ignore-as-path-length"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-confed"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             med-confed"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/med-missing-as-worst"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             med-missing-as-worst"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/restart-time"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/\
+             restart-time"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/stale-routes-time"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/\
+             stale-routes-time"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/config"
       method: "patch"
@@ -536,9 +549,11 @@ overridden_01:
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/max-med/config/time"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/always-compare-med"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             always-compare-med"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/graceful-restart/config/\
+             enabled"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp"
       method: "delete"
@@ -573,7 +588,8 @@ overridden_01:
           router-id: "10.2.2.6"
           route-map-process-delay: 10
           as: 5.0
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/logging-options/config/log-neighbor-state-changes"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/logging-options/config/\
+             log-neighbor-state-changes"
       method: "patch"
       data:
         log-neighbor-state-changes: true

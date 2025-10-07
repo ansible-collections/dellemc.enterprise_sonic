@@ -100,8 +100,8 @@ merged_01:
               dynamic: true
               extended_nexthop: true
             auth_pwd:
-                pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
-                encrypted: true
+              pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
+              encrypted: true
             nbr_description: 'description 2'
             strict_capability_match: true
             v6only: true
@@ -176,12 +176,12 @@ merged_01:
             - auth-password:
                 config:
                   password: U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg=
-                  encrypted: True
+                  encrypted: true
               neighbor-address: Eth1/3
               enable-bfd:
                 config:
-                  enabled: True
-                  check-control-plane-failure: True
+                  enabled: true
+                  check-control-plane-failure: true
                   bfd-profile: 'profile 1'
               timers:
                 config:
@@ -191,20 +191,20 @@ merged_01:
                   minimum-advertisement-interval: 15
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: Eth1/3
                 peer-group: SPINE
                 description: 'description 2'
-                strict-capability-match: True
-                openconfig-bgp-ext:v6only: True
-                capability-dynamic: True
-                capability-extended-nexthop: True
+                strict-capability-match: true
+                openconfig-bgp-ext:v6only: true
+                capability-dynamic: true
+                capability-extended-nexthop: true
                 peer-type: INTERNAL
             - neighbor-address: 192.168.1.4
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: 192.168.1.4
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
@@ -216,33 +216,33 @@ merged_01:
               auth-password:
                 config:
                   password: U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M=
-                  encrypted: True
+                  encrypted: true
               enable-bfd:
                 config:
-                  enabled: True
-                  check-control-plane-failure: True
+                  enabled: true
+                  check-control-plane-failure: true
                   bfd-profile: 'profile 1'
               ebgp-multihop:
                 config:
-                  enabled: True
+                  enabled: true
                   multihop-ttl: 1
               transport:
                 config:
                   local-address: Ethernet4
-                  passive-mode: True
+                  passive-mode: true
               config:
                 peer-group-name: SPINE
                 description: 'description 1'
-                dont-negotiate-capability: True
-                enforce-first-as: True
-                enforce-multihop: True
-                override-capability: True
-                solo-peer: True
+                dont-negotiate-capability: true
+                enforce-first-as: true
+                enforce-multihop: true
+                override-capability: true
+                solo-peer: true
                 local-as: 2
-                local-as-no-prepend: True
-                local-as-replace-as: True
-                capability-dynamic: True
-                capability-extended-nexthop: True
+                local-as-no-prepend: true
+                local-as-replace-as: true
+                capability-dynamic: true
+                capability-extended-nexthop: true
                 peer-as: 4
             - peer-group-name: SPINE1
               timers:
@@ -252,28 +252,28 @@ merged_01:
                   connect-retry: 25
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               afi-safis:
                 afi-safi:
                   - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
                     config:
-                      enabled: True
+                      enabled: true
                     allow-own-as:
                       config:
-                        origin: True
-                        enabled: True
+                        origin: true
+                        enabled: true
                   - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                     config:
-                      enabled: True
+                      enabled: true
                     allow-own-as:
                       config:
                         as-count: 5
-                        enabled: True
+                        enabled: true
               config:
                 peer-group-name: SPINE1
-                disable-ebgp-connected-route-check: True
+                disable-ebgp-connected-route-check: true
                 shutdown-message: msg1
-                strict-capability-match: True
+                strict-capability-match: true
                 ttl-security-hops: 5
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
@@ -283,7 +283,7 @@ merged_01:
             - neighbor-address: Eth1/3
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: Eth1/3
                 extended-link-bandwidth: false
@@ -297,7 +297,7 @@ merged_01:
             - peer-group-name: SPINE
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 peer-group-name: SPINE
                 peer-as: "10.4"
@@ -311,38 +311,38 @@ merged_01:
             - auth-password:
                 config:
                   password: pw123
-                  encrypted: False
+                  encrypted: false
               neighbor-address: Eth1/2
               ebgp-multihop:
                 config:
-                  enabled: True
+                  enabled: true
                   multihop-ttl: 1
               transport:
                 config:
                   local-address: Ethernet4
-                  passive-mode: True
+                  passive-mode: true
               config:
                 neighbor-address: Eth1/2
                 description: 'description 1'
-                dont-negotiate-capability: True
-                enforce-first-as: True
-                enforce-multihop: True
+                dont-negotiate-capability: true
+                enforce-first-as: true
+                enforce-multihop: true
+                override-capability: true
                 extended-link-bandwidth: true
-                override-capability: True
                 peer-port: 3
                 shutdown-message: msg1
-                solo-peer: True
+                solo-peer: true
                 local-as: 2
-                local-as-no-prepend: True
-                local-as-replace-as: True
+                local-as-no-prepend: true
+                local-as-replace-as: true
             - neighbor-address: 1.1.1.1
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 extended-link-bandwidth: true
                 neighbor-address: 1.1.1.1
-                disable-ebgp-connected-route-check: True
+                disable-ebgp-connected-route-check: true
                 ttl-security-hops: 5
 
 merged_02:
@@ -447,8 +447,8 @@ merged_02:
               dynamic: true
               extended_nexthop: true
             auth_pwd:
-                pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
-                encrypted: true
+              pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
+              encrypted: true
             nbr_description: 'description 2'
             strict_capability_match: true
             v6only: true
@@ -522,7 +522,7 @@ merged_02:
                   peer-as: 65399
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
               - neighbor-address: Eth1/4
                 config:
                   neighbor-address: Eth1/4
@@ -532,7 +532,7 @@ merged_02:
                   peer-type: INTERNAL
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
@@ -544,7 +544,7 @@ merged_02:
                   peer-type: INTERNAL
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 timers:
                   config:
                     connect-retry: 30
@@ -554,7 +554,7 @@ merged_02:
                   peer-as: 55
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 timers:
                   config:
                     connect-retry: 40
@@ -616,12 +616,12 @@ merged_02:
             - auth-password:
                 config:
                   password: U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg=
-                  encrypted: True
+                  encrypted: true
               neighbor-address: Eth1/3
               enable-bfd:
                 config:
-                  enabled: True
-                  check-control-plane-failure: True
+                  enabled: true
+                  check-control-plane-failure: true
                   bfd-profile: 'profile 1'
               timers:
                 config:
@@ -632,10 +632,10 @@ merged_02:
               config:
                 neighbor-address: Eth1/3
                 description: 'description 2'
-                strict-capability-match: True
-                openconfig-bgp-ext:v6only: True
-                capability-dynamic: True
-                capability-extended-nexthop: True
+                strict-capability-match: true
+                openconfig-bgp-ext:v6only: true
+                capability-dynamic: true
+                capability-extended-nexthop: true
                 peer-type: INTERNAL
             - neighbor-address: Eth1/4
               config:
@@ -645,13 +645,15 @@ merged_02:
             - neighbor-address: 192.168.1.4
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: 192.168.1.4
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/peer-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/\
+             peer-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f4/config/peer-type"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f4/config/\
+             peer-type"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
@@ -663,33 +665,33 @@ merged_02:
               auth-password:
                 config:
                   password: U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M=
-                  encrypted: True
+                  encrypted: true
               enable-bfd:
                 config:
-                  enabled: True
-                  check-control-plane-failure: True
+                  enabled: true
+                  check-control-plane-failure: true
                   bfd-profile: 'profile 1'
               ebgp-multihop:
                 config:
-                  enabled: True
+                  enabled: true
                   multihop-ttl: 1
               transport:
                 config:
                   local-address: Ethernet4
-                  passive-mode: True
+                  passive-mode: true
               config:
                 peer-group-name: SPINE
                 description: 'description 1'
-                dont-negotiate-capability: True
-                enforce-first-as: True
-                enforce-multihop: True
-                override-capability: True
-                solo-peer: True
+                dont-negotiate-capability: true
+                enforce-first-as: true
+                enforce-multihop: true
+                override-capability: true
+                solo-peer: true
                 local-as: 2
-                local-as-no-prepend: True
-                local-as-replace-as: True
-                capability-dynamic: True
-                capability-extended-nexthop: True
+                local-as-no-prepend: true
+                local-as-replace-as: true
+                capability-dynamic: true
+                capability-extended-nexthop: true
                 peer-as: 4
             - peer-group-name: SPINE1
               timers:
@@ -699,37 +701,39 @@ merged_02:
                   connect-retry: 25
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               afi-safis:
                 afi-safi:
                   - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
                     config:
-                      enabled: True
+                      enabled: true
                     allow-own-as:
                       config:
-                        origin: True
-                        enabled: True
+                        origin: true
+                        enabled: true
                   - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                     config:
-                      enabled: True
+                      enabled: true
                     allow-own-as:
                       config:
                         as-count: 5
-                        enabled: True
+                        enabled: true
               config:
                 peer-group-name: SPINE1
-                disable-ebgp-connected-route-check: True
+                disable-ebgp-connected-route-check: true
                 shutdown-message: msg1
-                strict-capability-match: True
+                strict-capability-match: true
                 ttl-security-hops: 5
             - peer-group-name: SPINE5
               config:
                 peer-group-name: SPINE5
                 peer-type: INTERNAL
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/peer-type"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/\
+             peer-type"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE5/config/peer-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE5/config/\
+             peer-as"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
@@ -761,36 +765,36 @@ merged_02:
             - auth-password:
                 config:
                   password: pw123
-                  encrypted: False
+                  encrypted: false
               neighbor-address: Eth1/2
               ebgp-multihop:
                 config:
-                  enabled: True
+                  enabled: true
                   multihop-ttl: 1
               transport:
                 config:
                   local-address: Ethernet4
-                  passive-mode: True
+                  passive-mode: true
               config:
                 neighbor-address: Eth1/2
                 description: 'description 1'
-                dont-negotiate-capability: True
-                enforce-first-as: True
-                enforce-multihop: True
-                override-capability: True
+                dont-negotiate-capability: true
+                enforce-first-as: true
+                enforce-multihop: true
+                override-capability: true
                 peer-port: 3
                 shutdown-message: msg1
-                solo-peer: True
+                solo-peer: true
                 local-as: 2
-                local-as-no-prepend: True
-                local-as-replace-as: True
+                local-as-no-prepend: true
+                local-as-replace-as: true
             - neighbor-address: 1.1.1.1
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: 1.1.1.1
-                disable-ebgp-connected-route-check: True
+                disable-ebgp-connected-route-check: true
                 ttl-security-hops: 5
 
 merged_03:
@@ -898,8 +902,8 @@ merged_03:
               dynamic: true
               extended_nexthop: true
             auth_pwd:
-                pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
-                encrypted: true
+              pwd: 'U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg='
+              encrypted: true
             nbr_description: 'description 2'
             strict_capability_match: true
             v6only: true
@@ -972,12 +976,12 @@ merged_03:
             - auth-password:
                 config:
                   password: U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg=
-                  encrypted: True
+                  encrypted: true
               neighbor-address: Eth1/3
               enable-bfd:
                 config:
-                  enabled: True
-                  check-control-plane-failure: True
+                  enabled: true
+                  check-control-plane-failure: true
                   bfd-profile: 'profile 1'
               timers:
                 config:
@@ -987,20 +991,20 @@ merged_03:
                   minimum-advertisement-interval: 15
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: Eth1/3
                 peer-group: SPINE
                 description: 'description 2'
-                strict-capability-match: True
-                openconfig-bgp-ext:v6only: True
-                capability-dynamic: True
-                capability-extended-nexthop: True
+                strict-capability-match: true
+                openconfig-bgp-ext:v6only: true
+                capability-dynamic: true
+                capability-extended-nexthop: true
                 peer-type: INTERNAL
             - neighbor-address: 192.168.1.4
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: 192.168.1.4
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups"
@@ -1012,33 +1016,33 @@ merged_03:
               auth-password:
                 config:
                   password: U2FsdGVkX1/4sRsZ624wbAJfDmagPLq2LsGDOcW/47M=
-                  encrypted: True
+                  encrypted: true
               enable-bfd:
                 config:
-                  enabled: True
-                  check-control-plane-failure: True
+                  enabled: true
+                  check-control-plane-failure: true
                   bfd-profile: 'profile 1'
               ebgp-multihop:
                 config:
-                  enabled: True
+                  enabled: true
                   multihop-ttl: 1
               transport:
                 config:
                   local-address: Ethernet4
-                  passive-mode: True
+                  passive-mode: true
               config:
                 peer-group-name: SPINE
                 description: 'description 1'
-                dont-negotiate-capability: True
-                enforce-first-as: True
-                enforce-multihop: True
-                override-capability: True
-                solo-peer: True
+                dont-negotiate-capability: true
+                enforce-first-as: true
+                enforce-multihop: true
+                override-capability: true
+                solo-peer: true
                 local-as: 2
-                local-as-no-prepend: True
-                local-as-replace-as: True
-                capability-dynamic: True
-                capability-extended-nexthop: True
+                local-as-no-prepend: true
+                local-as-replace-as: true
+                capability-dynamic: true
+                capability-extended-nexthop: true
                 peer-as: 4
             - peer-group-name: SPINE1
               timers:
@@ -1048,12 +1052,12 @@ merged_03:
                   connect-retry: 25
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               afi-safis:
                 afi-safi:
                   - afi-safi-name: openconfig-bgp-types:IPV4_UNICAST
                     config:
-                      enabled: True
+                      enabled: true
                     ipv4-unicast:
                       prefix-limit:
                         config:
@@ -1063,21 +1067,21 @@ merged_03:
                           discard-extra: true
                     allow-own-as:
                       config:
-                        origin: True
-                        enabled: True
+                        origin: true
+                        enabled: true
                   - afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                     config:
-                      enabled: True
+                      enabled: true
                     allow-own-as:
                       config:
-                        origin: False
+                        origin: false
                         as-count: 5
-                        enabled: True
+                        enabled: true
               config:
                 peer-group-name: SPINE1
-                disable-ebgp-connected-route-check: True
+                disable-ebgp-connected-route-check: true
                 shutdown-message: msg1
-                strict-capability-match: True
+                strict-capability-match: true
                 ttl-security-hops: 5
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors"
       method: "patch"
@@ -1087,7 +1091,7 @@ merged_03:
             - neighbor-address: Eth1/3
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: Eth1/3
                 peer-as: "20.4"
@@ -1100,7 +1104,7 @@ merged_03:
             - peer-group-name: SPINE
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 peer-group-name: SPINE
                 peer-as: "10.4"
@@ -1113,36 +1117,36 @@ merged_03:
             - auth-password:
                 config:
                   password: pw123
-                  encrypted: False
+                  encrypted: false
               neighbor-address: Eth1/2
               ebgp-multihop:
                 config:
-                  enabled: True
+                  enabled: true
                   multihop-ttl: 1
               transport:
                 config:
                   local-address: Ethernet4
-                  passive-mode: True
+                  passive-mode: true
               config:
                 neighbor-address: Eth1/2
                 description: 'description 1'
-                dont-negotiate-capability: True
-                enforce-first-as: True
-                enforce-multihop: True
-                override-capability: True
+                dont-negotiate-capability: true
+                enforce-first-as: true
+                enforce-multihop: true
+                override-capability: true
                 peer-port: 3
                 shutdown-message: msg1
-                solo-peer: True
+                solo-peer: true
                 local-as: 2
-                local-as-no-prepend: True
-                local-as-replace-as: True
+                local-as-no-prepend: true
+                local-as-replace-as: true
             - neighbor-address: 1.1.1.1
               transport:
                 config:
-                  passive-mode: False
+                  passive-mode: false
               config:
                 neighbor-address: 1.1.1.1
-                disable-ebgp-connected-route-check: True
+                disable-ebgp-connected-route-check: true
                 ttl-security-hops: 5
 
 deleted_01:
@@ -1180,13 +1184,13 @@ deleted_01:
               - auth-password:
                   config:
                     password: U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg=
-                    encrypted: True
+                    encrypted: true
                 neighbor-address: Eth1/3
                 extended-link-bandwidth: false
                 enable-bfd:
                   config:
-                    enabled: True
-                    check-control-plane-failure: True
+                    enabled: true
+                    check-control-plane-failure: true
                     bfd-profile: 'profile 1'
                 timers:
                   config:
@@ -1196,20 +1200,20 @@ deleted_01:
                     minimum-advertisement-interval: 15
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/3
                   peer-group: SPINE
                   description: 'description 2'
-                  strict-capability-match: True
-                  openconfig-bgp-ext:v6only: True
-                  capability-dynamic: True
-                  capability-extended-nexthop: True
+                  strict-capability-match: true
+                  openconfig-bgp-ext:v6only: true
+                  capability-dynamic: true
+                  capability-extended-nexthop: true
                   peer-as: 10
               - neighbor-address: 192.168.1.4
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 192.168.1.4
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
@@ -1221,36 +1225,36 @@ deleted_01:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: True
+                    passive-mode: true
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
@@ -1387,32 +1391,32 @@ deleted_02:
       response:
         code: 200
         value:
-            openconfig-network-instance:neighbors:
-              neighbor:
-                - neighbor-address: Eth1/3
-                  config:
-                    description: "nbr_asdot_description"
-                    neighbor-address: Eth1/3
-                    peer-as: "20.4"
-                    local-as: 101
-                    extended-link-bandwidth: true
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: Eth1/3
+                config:
+                  description: "nbr_asdot_description"
+                  neighbor-address: Eth1/3
+                  peer-as: "20.4"
+                  local-as: 101
+                  extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
         value:
-            openconfig-network-instance:peer-groups:
-              peer-group:
-                - peer-group-name: SPINE
-                  timers:
-                    config:
-                      connect-retry: 30
-                      minimum-advertisement-interval: 0
+          openconfig-network-instance:peer-groups:
+            peer-group:
+              - peer-group-name: SPINE
+                timers:
                   config:
-                    description: "pg_asdot_description"
-                    peer-group-name: SPINE
-                    peer-as: "0.102"
-                    local-as: 13107205
-                    extended-link-bandwidth: true
+                    connect-retry: 30
+                    minimum-advertisement-interval: 0
+                config:
+                  description: "pg_asdot_description"
+                  peer-group-name: SPINE
+                  peer-as: "0.102"
+                  local-as: 13107205
+                  extended-link-bandwidth: true
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -1490,7 +1494,7 @@ deleted_02:
                             restart-time: 60
                       allow-own-as:
                         config:
-                          origin: True
+                          origin: true
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                         enabled: true
@@ -1510,12 +1514,12 @@ deleted_02:
               - auth-password:
                   config:
                     password: U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg=
-                    encrypted: True
+                    encrypted: true
                 neighbor-address: Eth1/3
                 enable-bfd:
                   config:
-                    enabled: True
-                    check-control-plane-failure: True
+                    enabled: true
+                    check-control-plane-failure: true
                     bfd-profile: 'profile 1'
                 timers:
                   config:
@@ -1525,20 +1529,20 @@ deleted_02:
                     minimum-advertisement-interval: 15
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/3
                   peer-group: SPINETEST1
                   description: 'description 2'
-                  strict-capability-match: True
-                  openconfig-bgp-ext:v6only: True
-                  capability-dynamic: True
-                  capability-extended-nexthop: True
+                  strict-capability-match: true
+                  openconfig-bgp-ext:v6only: true
+                  capability-dynamic: true
+                  capability-extended-nexthop: true
                   peer-as: 10
               - neighbor-address: 192.168.1.4
                 config:
                   neighbor-address: 192.168.1.4
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       response:
         code: 200
@@ -1548,39 +1552,39 @@ deleted_02:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
-                  capability-extended-nexthop: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
+                  capability-extended-nexthop: true
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
@@ -1591,112 +1595,148 @@ deleted_02:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/origin"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/origin"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/config/send-default-route"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/config/send-default-route"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/config/enabled"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/max-prefixes"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/max-prefixes"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/prevent-teardown"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/prevent-teardown"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/warning-threshold-pct"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/warning-threshold-pct"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN/prefix-list/config/export-policy"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN/prefix-list/config/export-policy"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN/prefix-list/config/import-policy"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN/prefix-list/config/import-policy"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/auth-password/config/encrypted"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             auth-password/config/encrypted"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/auth-password/config/password"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             auth-password/config/password"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/capability-dynamic"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/capability-dynamic"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/capability-extended-nexthop"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/capability-extended-nexthop"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/description"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/description"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/disable-ebgp-connected-route-check"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/disable-ebgp-connected-route-check"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/dont-negotiate-capability"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/dont-negotiate-capability"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/enforce-first-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/enforce-first-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/enforce-multihop"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/enforce-multihop"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/local-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/local-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/local-as-no-prepend"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/local-as-no-prepend"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/local-as-replace-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/local-as-replace-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/override-capability"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/override-capability"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/peer-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/peer-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/shutdown-message"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/shutdown-message"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/solo-peer"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/solo-peer"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/ebgp-multihop/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             ebgp-multihop/config/enabled"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/ebgp-multihop/config/multihop-ttl"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             ebgp-multihop/config/multihop-ttl"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/enable-bfd/config/bfd-profile"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             enable-bfd/config/bfd-profile"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/enable-bfd/config/check-control-plane-failure"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             enable-bfd/config/check-control-plane-failure"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/enable-bfd/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             enable-bfd/config/enabled"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/timers/config/connect-retry"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             timers/config/connect-retry"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/timers/config/hold-time"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             timers/config/hold-time"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/timers/config/keepalive-interval"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             timers/config/keepalive-interval"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/transport/config/local-address"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             transport/config/local-address"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/transport/config/passive-mode"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             transport/config/passive-mode"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/"
@@ -1705,19 +1745,23 @@ deleted_02:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/peer-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/\
+             peer-as"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/extended-link-bandwidth"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/\
+             local-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-no-prepend"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/\
+             local-as-no-prepend"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-replace-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/\
+             local-as-replace-as"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/extended-link-bandwidth"
@@ -1836,31 +1880,31 @@ deleted_03:
       response:
         code: 200
         value:
-            openconfig-network-instance:neighbors:
-              neighbor:
-                - neighbor-address: Eth1/3
-                  config:
-                    description: "nbr_asdot_description"
-                    neighbor-address: Eth1/3
-                    peer-as: "20.4"
-                    local-as: 101
+          openconfig-network-instance:neighbors:
+            neighbor:
+              - neighbor-address: Eth1/3
+                config:
+                  description: "nbr_asdot_description"
+                  neighbor-address: Eth1/3
+                  peer-as: "20.4"
+                  local-as: 101
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
         value:
-            openconfig-network-instance:peer-groups:
-              peer-group:
-                - peer-group-name: SPINE
-                  timers:
-                    config:
-                      connect-retry: 30
-                      minimum-advertisement-interval: 0
+          openconfig-network-instance:peer-groups:
+            peer-group:
+              - peer-group-name: SPINE
+                timers:
                   config:
-                    description: "pg_asdot_description"
-                    peer-group-name: SPINE
-                    peer-as: "0.102"
-                    local-as: 13107205
-                    extended-link-bandwidth: true
+                    connect-retry: 30
+                    minimum-advertisement-interval: 0
+                config:
+                  description: "pg_asdot_description"
+                  peer-group-name: SPINE
+                  peer-as: "0.102"
+                  local-as: 13107205
+                  extended-link-bandwidth: true
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
         code: 200
@@ -1932,11 +1976,11 @@ deleted_03:
                         prefix-limit:
                           config:
                             max-prefixes: 20
-                            openconfig-bgp-ext:discard-extra: True
+                            openconfig-bgp-ext:discard-extra: true
                             warning-threshold-pct: 40
                       allow-own-as:
                         config:
-                          origin: True
+                          origin: true
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                         enabled: true
@@ -1956,12 +2000,12 @@ deleted_03:
               - auth-password:
                   config:
                     password: U2FsdGVkX199MZ7YOPkOR9O6wEZmtGSgiDfnlcN9hBg=
-                    encrypted: True
+                    encrypted: true
                 neighbor-address: Eth1/3
                 enable-bfd:
                   config:
-                    enabled: True
-                    check-control-plane-failure: True
+                    enabled: true
+                    check-control-plane-failure: true
                     bfd-profile: 'profile 1'
                 timers:
                   config:
@@ -1971,20 +2015,20 @@ deleted_03:
                     minimum-advertisement-interval: 15
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/3
                   peer-group: SPINETEST1
                   description: 'description 2'
-                  strict-capability-match: True
-                  openconfig-bgp-ext:v6only: True
-                  capability-dynamic: True
-                  capability-extended-nexthop: True
+                  strict-capability-match: true
+                  openconfig-bgp-ext:v6only: true
+                  capability-dynamic: true
+                  capability-extended-nexthop: true
                   peer-as: 10
               - neighbor-address: 192.168.1.4
                 config:
                   neighbor-address: 192.168.1.4
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       response:
         code: 200
@@ -1994,39 +2038,39 @@ deleted_03:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
-                  capability-extended-nexthop: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
+                  capability-extended-nexthop: true
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
@@ -2037,109 +2081,144 @@ deleted_03:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/allow-own-as/config/as-count"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/config/send-default-route"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST/ipv4-unicast/config/send-default-route"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/allow-own-as/config/origin"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/config/enabled"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/max-prefixes"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/max-prefixes"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/warning-threshold-pct"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/warning-threshold-pct"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/openconfig-bgp-ext:discard-extra"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST/ipv6-unicast/prefix-limit/config/openconfig-bgp-ext:discard-extra"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN/prefix-list/config/export-policy"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN/prefix-list/config/export-policy"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN/prefix-list/config/import-policy"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN/prefix-list/config/import-policy"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/auth-password/config/encrypted"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             auth-password/config/encrypted"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/auth-password/config/password"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             auth-password/config/password"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/capability-dynamic"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/capability-dynamic"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/capability-extended-nexthop"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/capability-extended-nexthop"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/description"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/description"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/disable-ebgp-connected-route-check"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/disable-ebgp-connected-route-check"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/dont-negotiate-capability"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/dont-negotiate-capability"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/enforce-first-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/enforce-first-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/enforce-multihop"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/enforce-multihop"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/local-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/local-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/local-as-no-prepend"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/local-as-no-prepend"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/local-as-replace-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/local-as-replace-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/override-capability"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/override-capability"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/peer-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/peer-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/shutdown-message"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/shutdown-message"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/config/solo-peer"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             config/solo-peer"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/ebgp-multihop/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             ebgp-multihop/config/enabled"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/ebgp-multihop/config/multihop-ttl"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             ebgp-multihop/config/multihop-ttl"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/enable-bfd/config/bfd-profile"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             enable-bfd/config/bfd-profile"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/enable-bfd/config/check-control-plane-failure"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             enable-bfd/config/check-control-plane-failure"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/enable-bfd/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             enable-bfd/config/enabled"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/timers/config/connect-retry"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             timers/config/connect-retry"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/timers/config/hold-time"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             timers/config/hold-time"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/timers/config/keepalive-interval"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             timers/config/keepalive-interval"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/transport/config/local-address"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             transport/config/local-address"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/transport/config/passive-mode"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINETEST1/\
+             transport/config/passive-mode"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/"
@@ -2148,16 +2227,20 @@ deleted_03:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/peer-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f3/config/\
+             peer-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/\
+             local-as"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-no-prepend"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/\
+             local-as-no-prepend"
       method: "delete"
       data:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/local-as-replace-as"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/\
+             local-as-replace-as"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/peer-groups/peer-group=SPINE/config/extended-link-bandwidth"
@@ -2178,7 +2261,7 @@ replaced_01:
             ttl_security: 5
             advertisement_interval: 20
             disable_connected_check: true
-            passive: False
+            passive: false
         peer_group:
           - name: "SPINE1"
             address_family:
@@ -2289,7 +2372,7 @@ replaced_01:
                             restart-time: 60
                       allow-own-as:
                         config:
-                          origin: True
+                          origin: true
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                         enabled: true
@@ -2312,46 +2395,47 @@ replaced_01:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
-                  capability-extended-nexthop: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
+                  capability-extended-nexthop: true
                   extended-link-bandwidth: false
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
                   extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/\
+             capability-extended-nexthop"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/extended-link-bandwidth"
@@ -2436,7 +2520,7 @@ replaced_02:
             ttl_security: 5
             advertisement_interval: 20
             disable_connected_check: true
-            passive: False
+            passive: false
         peer_group:
           - name: "SPINE1"
             address_family:
@@ -2545,7 +2629,7 @@ replaced_02:
                             warning-threshold-pct: 40
                       allow-own-as:
                         config:
-                          origin: True
+                          origin: true
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                         enabled: true
@@ -2568,44 +2652,45 @@ replaced_02:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
-                  capability-extended-nexthop: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
+                  capability-extended-nexthop: true
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/\
+             capability-extended-nexthop"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       method: "patch"
@@ -2684,7 +2769,7 @@ overridden_01:
             ttl_security: 5
             advertisement_interval: 20
             disable_connected_check: true
-            passive: False
+            passive: false
         peer_group:
           - name: "SPINE1"
             address_family:
@@ -2809,7 +2894,7 @@ overridden_01:
                             restart-time: 60
                       allow-own-as:
                         config:
-                          origin: True
+                          origin: true
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                         enabled: true
@@ -2841,39 +2926,39 @@ overridden_01:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
-                  capability-extended-nexthop: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
+                  capability-extended-nexthop: true
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
                   extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       response:
@@ -2884,45 +2969,46 @@ overridden_01:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
-                  capability-extended-nexthop: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
+                  capability-extended-nexthop: true
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
                   extended-link-bandwidth: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/\
+             capability-extended-nexthop"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/extended-link-bandwidth"
@@ -3017,7 +3103,7 @@ overridden_02:
             ttl_security: 5
             advertisement_interval: 20
             disable_connected_check: true
-            passive: False
+            passive: false
         peer_group:
           - name: "SPINE1"
             address_family:
@@ -3142,7 +3228,7 @@ overridden_02:
                             warning-threshold-pct: 40
                       allow-own-as:
                         config:
-                          origin: True
+                          origin: true
                       config:
                         afi-safi-name: openconfig-bgp-types:IPV6_UNICAST
                         enabled: true
@@ -3174,39 +3260,39 @@ overridden_02:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
-                  capability-extended-nexthop: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
+                  capability-extended-nexthop: true
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors"
       response:
         code: 200
@@ -3216,44 +3302,45 @@ overridden_02:
               - auth-password:
                   config:
                     password: pw123
-                    encrypted: False
+                    encrypted: false
                 neighbor-address: Eth1/2
                 ebgp-multihop:
                   config:
-                    enabled: True
+                    enabled: true
                     multihop-ttl: 1
                 transport:
                   config:
                     local-address: Ethernet4
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: Eth1/2
                   description: 'description 1'
-                  dont-negotiate-capability: True
-                  enforce-first-as: True
-                  enforce-multihop: True
-                  override-capability: True
+                  dont-negotiate-capability: true
+                  enforce-first-as: true
+                  enforce-multihop: true
+                  override-capability: true
                   peer-port: 3
                   shutdown-message: msg1
-                  solo-peer: True
+                  solo-peer: true
                   local-as: 2
-                  local-as-no-prepend: True
-                  local-as-replace-as: True
-                  capability-extended-nexthop: True
+                  local-as-no-prepend: true
+                  local-as-replace-as: true
+                  capability-extended-nexthop: true
               - neighbor-address: 1.1.1.1
                 transport:
                   config:
-                    passive-mode: False
+                    passive-mode: false
                 config:
                   neighbor-address: 1.1.1.1
-                  disable-ebgp-connected-route-check: True
+                  disable-ebgp-connected-route-check: true
                   ttl-security-hops: 5
-                  capability-extended-nexthop: True
+                  capability-extended-nexthop: true
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/peer-groups"
       response:
         code: 200
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/capability-extended-nexthop"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=1.1.1.1/config/\
+             capability-extended-nexthop"
       method: "delete"
       data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/neighbors/neighbor=Eth1%2f2/"

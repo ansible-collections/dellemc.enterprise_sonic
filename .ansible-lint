@@ -2,7 +2,7 @@
 profile: production
 
 exclude_paths:
-  - tests/
+  - tests/regression/
 
 skip_list:
   - fqcn[keyword]

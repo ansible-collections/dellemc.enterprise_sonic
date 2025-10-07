@@ -167,7 +167,7 @@ replaced_01:
       dscp_maps:
         - name: dscp_map1
           entries:
-            - dscp: 1 
+            - dscp: 1
               fwd_group: 1
       dot1p_maps:
         - name: dot1p_map1

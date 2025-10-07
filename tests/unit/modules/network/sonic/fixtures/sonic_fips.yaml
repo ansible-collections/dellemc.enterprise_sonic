@@ -31,7 +31,7 @@ merged_02:
       method: "patch"
       data:
         openconfig-fips:fips-mode: true
-         
+
 deleted_01:
   module_args:
     state: deleted

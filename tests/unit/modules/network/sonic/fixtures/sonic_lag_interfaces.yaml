@@ -313,7 +313,8 @@ deleted_02:
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel10/openconfig-if-aggregate:aggregation/config/system-mac"
       method: "delete"
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel30/df-election/config/preference"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel30/df-election/\
+             config/preference"
       method: "delete"
     - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel50"
       method: "delete"
@@ -519,7 +520,8 @@ overridden_01:
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2f4/openconfig-if-ethernet:ethernet/config/openconfig-if-aggregate:aggregate-id"
       method: "delete"
-    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel10/df-election/config/preference"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments/ethernet-segment=PortChannel10/df-election/\
+             config/preference"
       method: "delete"
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel10/openconfig-if-aggregate:aggregation/config"
       method: "patch"

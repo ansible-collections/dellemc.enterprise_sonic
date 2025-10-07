@@ -2,8 +2,8 @@
 merged_01:
   module_args:
     config:
-      - name: 'Eth1/5'
-        area_id: '2.2.2.2'
+      - name: Eth1/5
+        area_id: 2.2.2.2
         cost: 20
         priority: 20
         hello_interval: 10
@@ -11,15 +11,15 @@ merged_01:
         mtu_ignore: true
         bfd:
           enable: true
-          bfd_profile: 'profile1'
+          bfd_profile: profile1
         network: broadcast
-      - name: 'PortChannel100'
-        area_id: '3.3.3.3'
+      - name: PortChannel100
+        area_id: 3.3.3.3
         bfd:
           enable: true
         network: point_to_point
-      - name: 'Vlan100'
-        area_id: '2.2.2.2'
+      - name: Vlan100
+        area_id: 2.2.2.2
         cost: 20
     state: merged
   existing_ospfv3_config:
@@ -27,81 +27,86 @@ merged_01:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-              - name: 'PortChannel100'
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan': null
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            area-id: '2.2.2.2'
+            area-id: 2.2.2.2
             dead-interval: 40
             hello-interval: 10
             metric: 20
             mtu-ignore: true
-            network-type: 'BROADCAST_NETWORK'
+            network-type: BROADCAST_NETWORK
             priority: 20
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
               enabled: true
-              bfd-profile: 'profile1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+              bfd-profile: profile1
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            area-id: '3.3.3.3'
-            network-type: 'POINT_TO_POINT_NETWORK'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+            area-id: 3.3.3.3
+            network-type: POINT_TO_POINT_NETWORK
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
               enabled: true
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            area-id: '2.2.2.2'
+            area-id: 2.2.2.2
             metric: 20
 merged_02:
   module_args:
     config:
-      - name: 'PortChannel100'
-        area_id: '2.2.2.2'
+      - name: PortChannel100
+        area_id: 2.2.2.2
         cost: 20
         priority: 15
         network: point_to_point
         bfd:
           enable: true
-          bfd_profile: 'profile2'
-      - name: 'Eth1/6'
-        area_id: '4.4.4.4'
+          bfd_profile: profile2
+      - name: Eth1/6
+        area_id: 4.4.4.4
         cost: 15
-      - name: 'Vlan100'
+      - name: Vlan100
         bfd:
           enable: true
-          bfd_profile: 'profile2'
+          bfd_profile: profile2
         network: broadcast
-      - name: 'Loopback100'
-        area_id: '2.2.2.2'
+      - name: Loopback100
+        area_id: 2.2.2.2
         cost: 20
         priority: 20
         hello_interval: 10
@@ -109,7 +114,7 @@ merged_02:
         mtu_ignore: true
         bfd:
           enable: true
-          bfd_profile: 'profile1'
+          bfd_profile: profile1
         network: point_to_point
     state: merged
   existing_ospfv3_config:
@@ -117,16 +122,16 @@ merged_02:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             dead-interval: 40
                             hello-interval: 10
                             metric: 20
@@ -135,119 +140,126 @@ merged_02:
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
-              - name: 'Eth1/6'
+                                bfd-profile: profile1
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-              - name: 'PortChannel100'
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv6:
-                    openconfig-ospfv3-ext:ospfv3:
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv6':
+                    'openconfig-ospfv3-ext:ospfv3':
                       config:
-                        area-id: '2.2.2.2'
+                        area-id: 2.2.2.2
                         metric: 20
-              - name: 'Loopback100'
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            area-id: '4.4.4.4'
+            area-id: 4.4.4.4
             metric: 15
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            network-type: 'POINT_TO_POINT_NETWORK'
-            area-id: '2.2.2.2'
+            network-type: POINT_TO_POINT_NETWORK
+            area-id: 2.2.2.2
             dead-interval: 40
             hello-interval: 10
             mtu-ignore: true
             metric: 20
             priority: 20
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
               enabled: true
-              bfd-profile: 'profile1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+              bfd-profile: profile1
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            area-id: '2.2.2.2'
+            area-id: 2.2.2.2
             metric: 20
             priority: 15
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
               enabled: true
-              bfd-profile: 'profile2'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+              bfd-profile: profile2
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            network-type: 'BROADCAST_NETWORK'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+            network-type: BROADCAST_NETWORK
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
-              bfd-profile: 'profile2'
+              bfd-profile: profile2
               enabled: true
 deleted_01:
   module_args:
     config:
-      - name: 'Eth1/5'
-      - name: 'Eth1/6'
-        area_id: '4.4.4.4'
+      - name: Eth1/5
+      - name: Eth1/6
+        area_id: 4.4.4.4
         cost: 15
-      - name: 'PortChannel100'
-      - name: 'Vlan100'
+      - name: PortChannel100
+      - name: Vlan100
         bfd:
           enable: true
-        network: 'broadcast'
+        network: broadcast
     state: deleted
   existing_ospfv3_config:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             dead-interval: 40
                             hello-interval: 10
                             metric: 20
@@ -256,90 +268,95 @@ deleted_01:
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
-              - name: 'Eth1/6'
+                                bfd-profile: profile1
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '4.4.4.4'
+                            area-id: 4.4.4.4
                             metric: 15
-              - name: 'PortChannel100'
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             metric: 20
                             priority: 20
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv6:
-                    openconfig-ospfv3-ext:ospfv3:
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv6':
+                    'openconfig-ospfv3-ext:ospfv3':
                       config:
-                        area-id: '2.2.2.2'
+                        area-id: 2.2.2.2
                         metric: 20
-                        network-type: 'BROADCAST_NETWORK'
+                        network-type: BROADCAST_NETWORK
                         enable-bfd:
                           config:
                             enabled: true
-                            bfd-profile: 'profile2'
-              - name: 'Loopback100'
+                            bfd-profile: profile2
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             metric: 20
                             priority: 20
                             hello-interval: 10
                             dead-interval: 40
                             mtu-ignore: true
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
+                                bfd-profile: profile1
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/network-type'
-      method: 'delete'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/network-type
+      method: delete
 deleted_02:
   module_args:
-    config:
+    config: null
     state: deleted
   existing_ospfv3_config:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             dead-interval: 40
                             hello-interval: 10
                             metric: 20
@@ -348,77 +365,82 @@ deleted_02:
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
-              - name: 'Eth1/6'
+                                bfd-profile: profile1
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '4.4.4.4'
+                            area-id: 4.4.4.4
                             metric: 15
-              - name: 'PortChannel100'
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             metric: 20
                             priority: 20
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv6:
-                    openconfig-ospfv3-ext:ospfv3:
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv6':
+                    'openconfig-ospfv3-ext:ospfv3':
                       config:
-                        area-id: '2.2.2.2'
+                        area-id: 2.2.2.2
                         metric: 20
-                        network-type: 'BROADCAST_NETWORK'
+                        network-type: BROADCAST_NETWORK
                         enable-bfd:
                           config:
                             enabled: true
-                            bfd-profile: 'profile2'
-              - name: 'Loopback100'
+                            bfd-profile: profile2
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             metric: 20
                             priority: 20
                             hello-interval: 10
                             dead-interval: 40
                             mtu-ignore: true
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
+                                bfd-profile: profile1
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
 replaced_01:
   module_args:
     config:
-      - name: 'Eth1/5'
+      - name: Eth1/5
         bfd:
-          bfd_profile: 'profile3'
+          bfd_profile: profile3
           enable: true
         area_id: '33686018'
         cost: 20
@@ -426,13 +448,13 @@ replaced_01:
         dead_interval: 40
         mtu_ignore: true
         priority: 20
-      - name: 'Loopback100'
+      - name: Loopback100
         network: broadcast
         bfd:
-          bfd_profile: 'profile1'
+          bfd_profile: profile1
           enable: true
-      - name: 'Vlan100'
-        area_id: '1.1.1.1'
+      - name: Vlan100
+        area_id: 1.1.1.1
         network: broadcast
     state: replaced
   existing_ospfv3_config:
@@ -440,16 +462,16 @@ replaced_01:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             dead-interval: 40
                             hello-interval: 10
                             metric: 20
@@ -458,115 +480,127 @@ replaced_01:
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
-              - name: 'Eth1/6'
+                                bfd-profile: profile1
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '4.4.4.4'
+                            area-id: 4.4.4.4
                             metric: 15
-              - name: 'PortChannel100'
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             metric: 20
                             priority: 20
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv6:
-                    openconfig-ospfv3-ext:ospfv3:
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv6':
+                    'openconfig-ospfv3-ext:ospfv3':
                       config:
-                        area-id: '2.2.2.2'
+                        area-id: 2.2.2.2
                         metric: 20
-                        network-type: 'BROADCAST_NETWORK'
+                        network-type: BROADCAST_NETWORK
                         enable-bfd:
                           config:
                             enabled: true
-                            bfd-profile: 'profile2'
-              - name: 'Loopback100'
+                            bfd-profile: profile2
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             metric: 20
                             priority: 20
                             hello-interval: 10
                             dead-interval: 40
                             mtu-ignore: true
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
+                                bfd-profile: profile1
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
             area-id: '33686018'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
               enabled: true
-              bfd-profile: 'profile3'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+              bfd-profile: profile3
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            network-type: 'BROADCAST_NETWORK'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+            network-type: BROADCAST_NETWORK
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
               enabled: true
-              bfd-profile: 'profile1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/dead-interval'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/hello-interval'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/mtu-ignore'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/priority'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+              bfd-profile: profile1
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/dead-interval
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/hello-interval
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/mtu-ignore
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/priority
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            area-id: '1.1.1.1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
-      method: 'delete'
+            area-id: 1.1.1.1
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric
+      method: delete
 overridden_01:
   module_args:
     config:
-      - name: 'Eth1/5'
+      - name: Eth1/5
         bfd:
-          bfd_profile: 'profile1'
+          bfd_profile: profile1
           enable: true
         area_id: '33686018'
         cost: 20
@@ -574,13 +608,13 @@ overridden_01:
         dead_interval: 40
         mtu_ignore: true
         priority: 20
-      - name: 'Loopback100'
+      - name: Loopback100
         network: broadcast
         bfd:
-          bfd_profile: 'profile3'
+          bfd_profile: profile3
           enable: true
-      - name: 'Vlan100'
-        area_id: '1.1.1.1'
+      - name: Vlan100
+        area_id: 1.1.1.1
         network: broadcast
     state: overridden
   existing_ospfv3_config:
@@ -588,16 +622,16 @@ overridden_01:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             dead-interval: 40
                             hello-interval: 10
                             metric: 20
@@ -606,110 +640,124 @@ overridden_01:
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
-              - name: 'Eth1/6'
+                                bfd-profile: profile1
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '4.4.4.4'
+                            area-id: 4.4.4.4
                             metric: 15
-              - name: 'PortChannel100'
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             metric: 20
                             priority: 20
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv6:
-                    openconfig-ospfv3-ext:ospfv3:
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv6':
+                    'openconfig-ospfv3-ext:ospfv3':
                       config:
-                        area-id: '2.2.2.2'
+                        area-id: 2.2.2.2
                         metric: 20
-                        network-type: 'BROADCAST_NETWORK'
+                        network-type: BROADCAST_NETWORK
                         enable-bfd:
                           config:
                             enabled: true
-                            bfd-profile: 'profile2'
-              - name: 'Loopback100'
+                            bfd-profile: profile2
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv6:
-                        openconfig-ospfv3-ext:ospfv3:
+                      'openconfig-if-ip:ipv6':
+                        'openconfig-ospfv3-ext:ospfv3':
                           config:
-                            area-id: '2.2.2.2'
+                            area-id: 2.2.2.2
                             metric: 20
                             priority: 20
                             hello-interval: 10
                             dead-interval: 40
                             mtu-ignore: true
-                            network-type: 'POINT_TO_POINT_NETWORK'
+                            network-type: POINT_TO_POINT_NETWORK
                             enable-bfd:
                               config:
                                 enabled: true
-                                bfd-profile: 'profile1'
+                                bfd-profile: profile1
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
             area-id: '33686018'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
               enabled: true
-              bfd-profile: 'profile1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+              bfd-profile: profile1
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            network-type: 'BROADCAST_NETWORK'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+            network-type: BROADCAST_NETWORK
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           enable-bfd:
             config:
               enabled: true
-              bfd-profile: 'profile3'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/dead-interval'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/hello-interval'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/mtu-ignore'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/priority'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3'
-      method: 'patch'
+              bfd-profile: profile3
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/dead-interval
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/hello-interval
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/mtu-ignore
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/priority
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3
+      method: patch
       data:
-        openconfig-ospfv3-ext:ospfv3:
+        'openconfig-ospfv3-ext:ospfv3':
           config:
-            area-id: '1.1.1.1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric'
-      method: 'delete'
+            area-id: 1.1.1.1
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv6/openconfig-ospfv3-ext:ospfv3/config/metric
+      method: delete

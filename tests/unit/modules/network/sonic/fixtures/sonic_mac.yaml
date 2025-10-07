@@ -40,44 +40,44 @@ merged_01:
         openconfig-network-instance:fdb:
           config:
             mac-aging-time: 50
-          mac-table: 
-            entries: 
-              entry: 
+          mac-table:
+            entries:
+              entry:
                 - mac-address: '00:00:5e:00:53:af'
-                  vlan: 1 
-                  config: 
-                    mac-address: '00:00:5e:00:53:af' 
+                  vlan: 1
+                  config:
+                    mac-address: '00:00:5e:00:53:af'
                     vlan: 1
-                  interface: 
-                    interface-ref: 
-                      config: 
+                  interface:
+                    interface-ref:
+                      config:
                         interface: 'Ethernet20'
-                        subinterface: 0 
+                        subinterface: 0
                 - mac-address: '00:33:33:33:33:33'
-                  vlan: 2 
-                  config: 
+                  vlan: 2
+                  config:
                     mac-address: '00:33:33:33:33:33'
-                    vlan: 2 
-                  interface: 
-                    interface-ref: 
-                      config: 
+                    vlan: 2
+                  interface:
+                    interface-ref:
+                      config:
                         interface: 'Ethernet24'
                         subinterface: 0
                 - mac-address: '00:00:4e:00:24:af'
                   vlan: 3
-                  config: 
+                  config:
                     mac-address: '00:00:4e:00:24:af'
                     vlan: 3
-                  interface: 
-                    interface-ref: 
-                      config: 
+                  interface:
+                    interface-ref:
+                      config:
                         interface: 'Ethernet28'
                         subinterface: 0
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/openconfig-mac-dampening:mac-dampening"
       method: "patch"
       data:
-        openconfig-mac-dampening:mac-dampening: 
-          config: 
+        openconfig-mac-dampening:mac-dampening:
+          config:
             interval: 20
             threshold: 30
 
@@ -112,7 +112,7 @@ replaced_01:
       response:
         code: 200
         value:
-          openconfig-mac-dampening:config: 
+          openconfig-mac-dampening:config:
             threshold: 30
             interval: 20
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/fdb/mac-table/entries"
@@ -131,7 +131,7 @@ replaced_01:
                     config:
                       interface: Ethernet28
               - mac-address: 00:00:5e:00:53:af
-                vlan: 1        
+                vlan: 1
                 config:
                   mac-address: 00:00:5e:00:53:af
                   vlan: 1
@@ -140,7 +140,7 @@ replaced_01:
                     config:
                       interface: Ethernet24
               - mac-address: '00:33:33:33:33:33'
-                vlan: 2        
+                vlan: 2
                 config:
                   mac-address: '00:33:33:33:33:33'
                   vlan: 2
@@ -152,30 +152,30 @@ replaced_01:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/fdb"
       method: "patch"
       data:
-        openconfig-network-instance:fdb: 
-          config: 
+        openconfig-network-instance:fdb:
+          config:
             mac-aging-time: 45
-          mac-table: 
-            entries: 
-              entry: 
+          mac-table:
+            entries:
+              entry:
                 - mac-address: '00:00:5e:00:53:af'
                   vlan: 1
-                  config: 
+                  config:
                     mac-address: '00:00:5e:00:53:af'
-                    vlan: 1 
-                  interface: 
-                    interface-ref: 
-                      config: 
+                    vlan: 1
+                  interface:
+                    interface-ref:
+                      config:
                         interface: 'Ethernet20'
                         subinterface: 0
-                - mac-address: '00:44:44:44:44:44' 
-                  vlan: 2 
-                  config: 
+                - mac-address: '00:44:44:44:44:44'
+                  vlan: 2
+                  config:
                     mac-address: '00:44:44:44:44:44'
-                    vlan: 2 
-                  interface: 
-                    interface-ref: 
-                      config: 
+                    vlan: 2
+                  interface:
+                    interface-ref:
+                      config:
                         interface: 'Ethernet28'
                         subinterface: 0
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/openconfig-mac-dampening:mac-dampening"
@@ -185,7 +185,7 @@ replaced_01:
           config:
             interval: 30
             threshold: 60
-            
+
 overridden_01:
   module_args:
     config:
@@ -239,7 +239,7 @@ overridden_01:
                   interface-ref:
                     config:
                       interface: 'Ethernet20'
-                      subinterface: 0 
+                      subinterface: 0
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/fdb"
       method: "delete"
@@ -297,7 +297,7 @@ overridden_01:
 deleted_01:
   module_args:
     config:
-      - vrf_name: 'default'      
+      - vrf_name: 'default'
         mac:
           aging_time: 10
           dampening_interval: 20
@@ -307,8 +307,8 @@ deleted_01:
               vlan_id: 1
               interface: 'Ethernet20'
             - mac_address: '00:00:33:33:33:33'
-              vlan_id: 3  
-    state: deleted  
+              vlan_id: 3
+    state: deleted
   existing_mac_config:
     - path: "data/sonic-vrf:sonic-vrf/VRF/VRF_LIST"
       response:
@@ -335,7 +335,7 @@ deleted_01:
           openconfig-network-instance:entries:
             entry:
               - mac-address: '00:00:33:33:33:33'
-                vlan: 3     
+                vlan: 3
                 config:
                   mac-address: '00:00:33:33:33:33'
                   vlan: 3
@@ -344,7 +344,7 @@ deleted_01:
                     config:
                       interface: Ethernet28
               - mac-address: '00:11:11:11:11:11'
-                vlan: 1       
+                vlan: 1
                 config:
                   mac-address: '00:11:11:11:11:11'
                   vlan: 1
@@ -353,7 +353,7 @@ deleted_01:
                     config:
                       interface: Ethernet20
               - mac-address: '00:22:22:22:22:22'
-                vlan: 2      
+                vlan: 2
                 config:
                   mac-address: '00:22:22:22:22:22'
                   vlan: 2
@@ -364,7 +364,7 @@ deleted_01:
   expected_config_requests:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/fdb/config/mac-aging-time"
       method: "delete"
-      data: 
+      data:
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/openconfig-mac-dampening:mac-dampening/config/interval"
       method: "delete"
       data:

@@ -4,18 +4,18 @@ merged_01_all_supported:
     config:
       interfaces:
         - name: Ethernet0
-          enabled: True
+          enabled: true
           detection: dot3bt
           priority: low
       global:
-        power_mgmt_model: 'class'
+        power_mgmt_model: class
     state: merged
   existing_config:
     - path: 'data/openconfig-poe:poe'
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config: {}
             cards:
@@ -24,57 +24,56 @@ merged_01_all_supported:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe: {}
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe': {}
   expected_config_requests:
-    - path: data/openconfig-poe:poe
+    - path: 'data/openconfig-poe:poe'
       method: patch
       data:
-        openconfig-poe:poe:
+        'openconfig-poe:poe':
           global:
             config:
               power-management-model: CLASS
-    - path: data/openconfig-interfaces:interfaces
+    - path: 'data/openconfig-interfaces:interfaces'
       method: patch
       data:
-        openconfig-interfaces:interfaces:
+        'openconfig-interfaces:interfaces':
           interface:
             - name: Ethernet0
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:detection-mode: DOT3BT
-                    openconfig-if-poe-ext:priority: LOW
-
+                    enabled: true
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT
+                    'openconfig-if-poe-ext:priority': LOW
 merged_01_all_settings:
   module_args:
     config:
       cards:
         - card_id: 0
           usage_threshold: 50
-          auto_reset: True
+          auto_reset: true
           power_mgmt_model: dynamic
       interfaces:
         - name: Ethernet0
-          enabled: True
+          enabled: true
           detection: legacy
           disconnect_type: dc
-          four_pair: True
-          high_power: True
+          four_pair: true
+          high_power: true
           power_classification: normal
           power_limit: 3000
           power_limit_type: user-defined
           power_pairs: spare
           power_up_mode: dot3at
           priority: low
-          use_spare_pair: True
+          use_spare_pair: true
       global:
-        auto_reset: True
-        power_mgmt_model: 'class'
+        auto_reset: true
+        power_mgmt_model: class
         usage_threshold: 70
     state: merged
   existing_config:
@@ -82,7 +81,7 @@ merged_01_all_settings:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config: {}
             cards:
@@ -91,64 +90,63 @@ merged_01_all_settings:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe: {}
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe': {}
   expected_config_requests:
-    - path: data/openconfig-poe:poe
+    - path: 'data/openconfig-poe:poe'
       method: patch
       data:
-        openconfig-poe:poe:
+        'openconfig-poe:poe':
           global:
             config:
               power-management-model: CLASS
               power-usage-threshold: 70
-              auto-reset-mode: True
+              auto-reset-mode: true
           cards:
             card:
               - card-id: 0
                 config:
                   card-id: 0
                   power-usage-threshold: 50
-                  auto-reset-mode: True
+                  auto-reset-mode: true
                   power-management-model: DYNAMIC
-    - path: data/openconfig-interfaces:interfaces
+    - path: 'data/openconfig-interfaces:interfaces'
       method: patch
       data:
-        openconfig-interfaces:interfaces:
+        'openconfig-interfaces:interfaces':
           interface:
             - name: Ethernet0
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:detection-mode: LEGACY
-                    openconfig-if-poe-ext:disconnect-type: DC
-                    openconfig-if-poe-ext:four-pair-mode: True
-                    openconfig-if-poe-ext:high-power-mode: True
-                    openconfig-if-poe-ext:power-classification-mode: NORMAL
-                    openconfig-if-poe-ext:power-limit: 3000
-                    openconfig-if-poe-ext:power-limit-type: USER
-                    openconfig-if-poe-ext:power-pairs: SPARE
-                    openconfig-if-poe-ext:powerup-mode: IEEE_8023AT
-                    openconfig-if-poe-ext:priority: LOW
-                    openconfig-if-poe-ext:use-spare-pair: True
-
+                    enabled: true
+                    'openconfig-if-poe-ext:detection-mode': LEGACY
+                    'openconfig-if-poe-ext:disconnect-type': DC
+                    'openconfig-if-poe-ext:four-pair-mode': true
+                    'openconfig-if-poe-ext:high-power-mode': true
+                    'openconfig-if-poe-ext:power-classification-mode': NORMAL
+                    'openconfig-if-poe-ext:power-limit': 3000
+                    'openconfig-if-poe-ext:power-limit-type': USER
+                    'openconfig-if-poe-ext:power-pairs': SPARE
+                    'openconfig-if-poe-ext:powerup-mode': IEEE_8023AT
+                    'openconfig-if-poe-ext:priority': LOW
+                    'openconfig-if-poe-ext:use-spare-pair': true
 merged_02_additions_supported:
   module_args:
     config:
       global:
-        power_mgmt_model: 'dynamic'
+        power_mgmt_model: dynamic
       interfaces:
         - name: Ethernet0
-          enabled: True
+          enabled: true
           detection: dot3bt+legacy
         - name: Ethernet1
-          enabled: True
+          enabled: true
         - name: Ethernet2
-          enabled: True
+          enabled: true
           priority: high
     state: merged
   existing_config:
@@ -156,7 +154,7 @@ merged_02_additions_supported:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
@@ -164,67 +162,66 @@ merged_02_additions_supported:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
+                      enabled: true
   expected_config_requests:
-    - path: data/openconfig-poe:poe
+    - path: 'data/openconfig-poe:poe'
       method: patch
       data:
-        openconfig-poe:poe:
+        'openconfig-poe:poe':
           global:
             config:
               power-management-model: DYNAMIC
-    - path: data/openconfig-interfaces:interfaces
+    - path: 'data/openconfig-interfaces:interfaces'
       method: patch
       data:
-        openconfig-interfaces:interfaces:
+        'openconfig-interfaces:interfaces':
           interface:
             - name: Ethernet0
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
             - name: Ethernet2
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:priority: HIGH
-
+                    enabled: true
+                    'openconfig-if-poe-ext:priority': HIGH
 merged_02_additions:
   module_args:
     config:
       global:
-        auto_reset: True
-        power_mgmt_model: 'class'
+        auto_reset: true
+        power_mgmt_model: class
         usage_threshold: 70
       cards:
         - card_id: 0
           usage_threshold: 50
-          auto_reset: True
+          auto_reset: true
         - card_id: 1
           usage_threshold: 39
-          power_mgmt_model: 'dynamic'
+          power_mgmt_model: dynamic
       interfaces:
         - name: Ethernet0
-          enabled: True
+          enabled: true
           detection: legacy
           disconnect_type: dc
         - name: Ethernet1
-          enabled: True
+          enabled: true
         - name: Ethernet2
-          enabled: True
+          enabled: true
           power_limit: 3000
     state: merged
   existing_config:
@@ -232,11 +229,11 @@ merged_02_additions:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: STATIC
-                auto-reset-mode: True
+                auto-reset-mode: true
             cards:
               card:
                 - card-id: 0
@@ -253,24 +250,24 @@ merged_02_additions:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
+                      enabled: true
   expected_config_requests:
-    - path: data/openconfig-poe:poe
+    - path: 'data/openconfig-poe:poe'
       method: patch
       data:
-        openconfig-poe:poe:
+        'openconfig-poe:poe':
           global:
             config:
               power-management-model: CLASS
@@ -281,29 +278,28 @@ merged_02_additions:
                 config:
                   card-id: 0
                   power-usage-threshold: 50
-                  auto-reset-mode: True
+                  auto-reset-mode: true
               - card-id: 1
                 config:
                   card-id: 1
                   power-usage-threshold: 39
-    - path: data/openconfig-interfaces:interfaces
+    - path: 'data/openconfig-interfaces:interfaces'
       method: patch
       data:
-        openconfig-interfaces:interfaces:
+        'openconfig-interfaces:interfaces':
           interface:
             - name: Ethernet0
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    openconfig-if-poe-ext:detection-mode: LEGACY
-                    openconfig-if-poe-ext:disconnect-type: DC
+                    'openconfig-if-poe-ext:detection-mode': LEGACY
+                    'openconfig-if-poe-ext:disconnect-type': DC
             - name: Ethernet2
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:power-limit: 3000
-
+                    enabled: true
+                    'openconfig-if-poe-ext:power-limit': 3000
 merged_03_empty:
   module_args:
     config: {}
@@ -313,7 +309,7 @@ merged_03_empty:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config: {}
             cards:
@@ -327,15 +323,14 @@ merged_03_empty:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
-
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
 deleted_01_clear_lists_supported:
   module_args:
     config:
@@ -346,7 +341,7 @@ deleted_01_clear_lists_supported:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config: {}
             cards:
@@ -363,26 +358,27 @@ deleted_01_clear_lists_supported:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: high
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': high
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: low
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': low
   expected_config_requests:
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-
 deleted_01_clear_lists:
   module_args:
     config:
@@ -394,7 +390,7 @@ deleted_01_clear_lists:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config: {}
             cards:
@@ -411,30 +407,31 @@ deleted_01_clear_lists:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: medium
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': medium
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: low
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': low
   expected_config_requests:
-    - path: data/openconfig-poe:poe/cards/card=0
+    - path: 'data/openconfig-poe:poe/cards/card=0'
       method: delete
-    - path: data/openconfig-poe:poe/cards/card=1
+    - path: 'data/openconfig-poe:poe/cards/card=1'
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-
 deleted_02_delete_some_items_supported:
   module_args:
     config:
@@ -443,22 +440,22 @@ deleted_02_delete_some_items_supported:
         - name: Ethernet1
           priority: low
         - name: Ethernet2
-          enabled: True
+          enabled: true
           priority: high
       global:
-        power_mgmt_model: 'class'
+        power_mgmt_model: class
     state: deleted
   existing_config:
     - path: 'data/openconfig-poe:poe'
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
-                power-management-model: 'class'
+                power-management-model: class
                 power-usage-threshold: 60
-                auto-reset-mode: True
+                auto-reset-mode: true
             cards:
               card:
                 - card-id: 0
@@ -479,37 +476,39 @@ deleted_02_delete_some_items_supported:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: medium
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': medium
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: low
-                      openconfig-if-poe-ext:high-power-mode: True
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': low
+                      'openconfig-if-poe-ext:high-power-mode': true
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: high
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': high
   expected_config_requests:
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/openconfig-if-poe-ext:priority
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/openconfig-if-poe-ext:priority
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-management-model
+    - path: 'data/openconfig-poe:poe/global/config/power-management-model'
       method: delete
-
 deleted_02_delete_some_items:
   module_args:
     config:
@@ -525,12 +524,12 @@ deleted_02_delete_some_items:
         - name: Ethernet1
           priority: low
         - name: Ethernet2
-          enabled: True
+          enabled: true
           priority: low
-          high_power: True
+          high_power: true
       global:
-        auto_reset: True
-        power_mgmt_model: 'class'
+        auto_reset: true
+        power_mgmt_model: class
         usage_threshold: 60
     state: deleted
   existing_config:
@@ -538,12 +537,12 @@ deleted_02_delete_some_items:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
-                power-management-model: 'class'
+                power-management-model: class
                 power-usage-threshold: 60
-                auto-reset-mode: True
+                auto-reset-mode: true
             cards:
               card:
                 - card-id: 0
@@ -564,48 +563,50 @@ deleted_02_delete_some_items:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: medium
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': medium
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: low
-                      openconfig-if-poe-ext:high-power-mode: True
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': low
+                      'openconfig-if-poe-ext:high-power-mode': true
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: low
-                      openconfig-if-poe-ext:high-power-mode: True
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': low
+                      'openconfig-if-poe-ext:high-power-mode': true
   expected_config_requests:
-    - path: data/openconfig-poe:poe/cards/card=0
+    - path: 'data/openconfig-poe:poe/cards/card=0'
       method: delete
-    - path: data/openconfig-poe:poe/cards/card=1/config/power-usage-threshold
+    - path: 'data/openconfig-poe:poe/cards/card=1/config/power-usage-threshold'
       method: delete
-    - path: data/openconfig-poe:poe/cards/card=2
+    - path: 'data/openconfig-poe:poe/cards/card=2'
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/openconfig-if-poe-ext:priority
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/openconfig-if-poe-ext:priority
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-poe:poe/global/config/auto-reset-mode
+    - path: 'data/openconfig-poe:poe/global/config/auto-reset-mode'
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-management-model
+    - path: 'data/openconfig-poe:poe/global/config/power-management-model'
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-usage-threshold
+    - path: 'data/openconfig-poe:poe/global/config/power-usage-threshold'
       method: delete
-
 deleted_03_mismatches_supported:
   module_args:
     config:
@@ -614,19 +615,19 @@ deleted_03_mismatches_supported:
         - name: Ethernet1
           priority: high
       global:
-        power_mgmt_model: 'dynamic'
+        power_mgmt_model: dynamic
     state: deleted
   existing_config:
     - path: 'data/openconfig-poe:poe'
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
                 power-usage-threshold: 73
-                auto_reset_mode: True
+                auto_reset_mode: true
             cards:
               card:
                 - card-id: 0
@@ -642,22 +643,21 @@ deleted_03_mismatches_supported:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: medium
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': medium
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: low
-                      openconfig-if-poe-ext:high-power-mode: True
-
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': low
+                      'openconfig-if-poe-ext:high-power-mode': true
 deleted_03_mismatches:
   module_args:
     config:
@@ -670,8 +670,8 @@ deleted_03_mismatches:
         - name: Ethernet1
           priority: high
       global:
-        auto_reset: False
-        power_mgmt_model: 'dynamic'
+        auto_reset: false
+        power_mgmt_model: dynamic
         usage_threshold: 23
     state: deleted
   existing_config:
@@ -679,12 +679,12 @@ deleted_03_mismatches:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
                 power-usage-threshold: 73
-                auto_reset_mode: True
+                auto_reset_mode: true
             cards:
               card:
                 - card-id: 0
@@ -700,22 +700,21 @@ deleted_03_mismatches:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: medium
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': medium
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: low
-                      openconfig-if-poe-ext:high-power-mode: True
-
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': low
+                      'openconfig-if-poe-ext:high-power-mode': true
 deleted_04_empty_config:
   module_args:
     config: {}
@@ -725,12 +724,12 @@ deleted_04_empty_config:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
                 power-usage-threshold: 73
-                auto-reset-mode: True
+                auto-reset-mode: true
             cards:
               card:
                 - card-id: 0
@@ -741,54 +740,55 @@ deleted_04_empty_config:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: medium
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': medium
               - name: Ethernet1
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:priority: low
+                      enabled: true
+                      'openconfig-if-poe-ext:priority': low
               - name: Ethernet2
   expected_config_requests:
-    - path: data/openconfig-poe:poe/global/config/auto-reset-mode
+    - path: 'data/openconfig-poe:poe/global/config/auto-reset-mode'
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-management-model
+    - path: 'data/openconfig-poe:poe/global/config/power-management-model'
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-usage-threshold
+    - path: 'data/openconfig-poe:poe/global/config/power-usage-threshold'
       method: delete
-    - path: data/openconfig-poe:poe/cards/card=0
+    - path: 'data/openconfig-poe:poe/cards/card=0'
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet1/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-
 overridden_01_lists_supported:
   module_args:
     config:
       interfaces:
         - name: Ethernet0
-          enabled: True
+          enabled: true
           detection: dot3bt
           priority: critical
         - name: Ethernet1
-          enabled: True
+          enabled: true
           priority: low
         - name: Ethernet3
-          enabled: True
+          enabled: true
           detection: dot3bt
         - name: Ethernet4
-          enabled: True
+          enabled: true
           detection: dot3bt+legacy
         - name: Ethernet5
-          enabled: True
+          enabled: true
           detection: dot3bt+legacy
     state: overridden
   existing_config:
@@ -796,86 +796,87 @@ overridden_01_lists_supported:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
                 power-usage-threshold: 300
-                auto-reset-mode: True
+                auto-reset-mode: true
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT
-                      openconfig-if-poe-ext:priority: CRITICAL
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT
+                      'openconfig-if-poe-ext:priority': CRITICAL
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet3
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet4
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
+                      enabled: true
               - name: Ethernet5
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      openconfig-if-poe-ext:priority: LOW
-                      enabled: True
+                      'openconfig-if-poe-ext:priority': LOW
+                      enabled: true
   expected_config_requests:
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-management-model
+    - path: 'data/openconfig-poe:poe/global/config/power-management-model'
       method: delete
-    - path: data/openconfig-poe:poe/global/config/auto-reset-mode
+    - path: 'data/openconfig-poe:poe/global/config/auto-reset-mode'
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-usage-threshold
+    - path: 'data/openconfig-poe:poe/global/config/power-usage-threshold'
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet5/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/openconfig-if-poe-ext:priority
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet5/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/openconfig-if-poe-ext:priority
       method: delete
-    - path: data/openconfig-interfaces:interfaces
+    - path: 'data/openconfig-interfaces:interfaces'
       method: patch
       data:
-        openconfig-interfaces:interfaces:
+        'openconfig-interfaces:interfaces':
           interface:
             - name: Ethernet1
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:priority: LOW
+                    enabled: true
+                    'openconfig-if-poe-ext:priority': LOW
             - name: Ethernet3
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    openconfig-if-poe-ext:detection-mode: DOT3BT
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT
             - name: Ethernet4
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
             - name: Ethernet5
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
-
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
 overridden_01_lists:
   module_args:
     config:
@@ -884,20 +885,20 @@ overridden_01_lists:
           usage_threshold: 39
       interfaces:
         - name: Ethernet0
-          enabled: True
+          enabled: true
           detection: legacy
           disconnect_type: ac
         - name: Ethernet1
-          enabled: True
+          enabled: true
           disconnect_type: ac
         - name: Ethernet3
-          enabled: True
+          enabled: true
           detection: legacy
         - name: Ethernet4
-          enabled: True
+          enabled: true
           detection: legacy
         - name: Ethernet5
-          enabled: True
+          enabled: true
           detection: dot3bt+legacy
     state: overridden
   existing_config:
@@ -905,12 +906,12 @@ overridden_01_lists:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
                 power-usage-threshold: 300
-                auto-reset-mode: True
+                auto-reset-mode: true
             cards:
               card:
                 - card-id: 0
@@ -925,90 +926,91 @@ overridden_01_lists:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: LEGACY
-                      openconfig-if-poe-ext:disconnect-type: AC
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': LEGACY
+                      'openconfig-if-poe-ext:disconnect-type': AC
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet3
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet4
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
+                      enabled: true
               - name: Ethernet5
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      openconfig-if-poe-ext:priority: LOW
-                      enabled: True
+                      'openconfig-if-poe-ext:priority': LOW
+                      enabled: true
   expected_config_requests:
-    - path: data/openconfig-poe:poe/cards/card=1
+    - path: 'data/openconfig-poe:poe/cards/card=1'
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-management-model
+    - path: 'data/openconfig-poe:poe/global/config/power-management-model'
       method: delete
-    - path: data/openconfig-poe:poe/global/config/auto-reset-mode
+    - path: 'data/openconfig-poe:poe/global/config/auto-reset-mode'
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-usage-threshold
+    - path: 'data/openconfig-poe:poe/global/config/power-usage-threshold'
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet5/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/openconfig-if-poe-ext:priority
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet5/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config/openconfig-if-poe-ext:priority
       method: delete
-    - path: data/openconfig-interfaces:interfaces
+    - path: 'data/openconfig-interfaces:interfaces'
       method: patch
       data:
-        openconfig-interfaces:interfaces:
+        'openconfig-interfaces:interfaces':
           interface:
             - name: Ethernet1
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:disconnect-type: AC
+                    enabled: true
+                    'openconfig-if-poe-ext:disconnect-type': AC
             - name: Ethernet3
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    openconfig-if-poe-ext:detection-mode: LEGACY
+                    'openconfig-if-poe-ext:detection-mode': LEGACY
             - name: Ethernet4
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    openconfig-if-poe-ext:detection-mode: LEGACY
+                    'openconfig-if-poe-ext:detection-mode': LEGACY
             - name: Ethernet5
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
-
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
 overridden_02_others:
   module_args:
     config:
       global:
-        power_mgmt_model: 'dynamic'
+        power_mgmt_model: dynamic
     state: overridden
   existing_config:
     - path: 'data/openconfig-poe:poe'
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
@@ -1027,37 +1029,38 @@ overridden_02_others:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
   expected_config_requests:
-    - path: data/openconfig-poe:poe/cards/card=1
+    - path: 'data/openconfig-poe:poe/cards/card=1'
       method: delete
-    - path: data/openconfig-poe:poe/cards/card=0
+    - path: 'data/openconfig-poe:poe/cards/card=0'
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-poe:poe/global/config/power-usage-threshold
+    - path: 'data/openconfig-poe:poe/global/config/power-usage-threshold'
       method: delete
-    - path: data/openconfig-poe:poe
+    - path: 'data/openconfig-poe:poe'
       method: patch
       data:
-        openconfig-poe:poe:
+        'openconfig-poe:poe':
           global:
             config:
               power-management-model: DYNAMIC
-
 overridden_03_clear_lists_supported:
   module_args:
     config:
@@ -1068,48 +1071,51 @@ overridden_03_clear_lists_supported:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global: {}
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
-                      openconfig-if-poe-ext:disconnect-type: AC
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
+                      'openconfig-if-poe-ext:disconnect-type': AC
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet3
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: LEGACY
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': LEGACY
               - name: Ethernet4
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
+                      enabled: true
   expected_config_requests:
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet3/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet3/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-
 overridden_03_clear_lists:
   module_args:
     config:
@@ -1121,7 +1127,7 @@ overridden_03_clear_lists:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global: {}
             cards:
               card:
@@ -1137,62 +1143,65 @@ overridden_03_clear_lists:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
-                      openconfig-if-poe-ext:disconnect-type: AC
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
+                      'openconfig-if-poe-ext:disconnect-type': AC
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet3
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: LEGACY
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': LEGACY
               - name: Ethernet4
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
+                      enabled: true
   expected_config_requests:
-    - path: data/openconfig-poe:poe/cards/card=1
+    - path: 'data/openconfig-poe:poe/cards/card=1'
       method: delete
-    - path: data/openconfig-poe:poe/cards/card=0
+    - path: 'data/openconfig-poe:poe/cards/card=0'
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet2/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet3/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet3/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-
 replaced_01_lists_supported:
   module_args:
     config:
       interfaces:
         - name: Ethernet0
-          enabled: True
+          enabled: true
           detection: dot3bt
           priority: high
         - name: Ethernet1
-          enabled: True
+          enabled: true
           priority: high
         - name: Ethernet3
-          enabled: True
+          enabled: true
           detection: dot3bt+legacy
         - name: Ethernet4
-          enabled: True
+          enabled: true
           detection: dot3bt
           priority: low
     state: replaced
@@ -1201,7 +1210,7 @@ replaced_01_lists_supported:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
@@ -1209,71 +1218,73 @@ replaced_01_lists_supported:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
-                      openconfig-if-poe-ext:priority: LOW
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
+                      'openconfig-if-poe-ext:priority': LOW
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet3
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT
               - name: Ethernet4
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
+                      enabled: true
   expected_config_requests:
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet3/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet3/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces
+    - path: 'data/openconfig-interfaces:interfaces'
       method: patch
       data:
-        openconfig-interfaces:interfaces:
+        'openconfig-interfaces:interfaces':
           interface:
             - name: Ethernet0
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:detection-mode: DOT3BT
-                    openconfig-if-poe-ext:priority: HIGH
+                    enabled: true
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT
+                    'openconfig-if-poe-ext:priority': HIGH
             - name: Ethernet1
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:priority: HIGH
+                    enabled: true
+                    'openconfig-if-poe-ext:priority': HIGH
             - name: Ethernet3
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                    enabled: true
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
             - name: Ethernet4
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:detection-mode: DOT3BT
-                    openconfig-if-poe-ext:priority: LOW
-
+                    enabled: true
+                    'openconfig-if-poe-ext:detection-mode': DOT3BT
+                    'openconfig-if-poe-ext:priority': LOW
 replaced_01_lists:
   module_args:
     config:
@@ -1282,17 +1293,17 @@ replaced_01_lists:
           usage_threshold: 39
       interfaces:
         - name: Ethernet0
-          enabled: True
+          enabled: true
           detection: legacy
           disconnect_type: ac
         - name: Ethernet1
-          enabled: True
+          enabled: true
           disconnect_type: ac
         - name: Ethernet3
-          enabled: True
+          enabled: true
           detection: legacy
         - name: Ethernet4
-          enabled: True
+          enabled: true
           detection: legacy
     state: replaced
   existing_config:
@@ -1300,12 +1311,12 @@ replaced_01_lists:
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
                 power-usage-threshold: 300
-                auto-reset-mode: True
+                auto-reset-mode: true
             cards:
               card:
                 - card-id: 0
@@ -1320,80 +1331,81 @@ replaced_01_lists:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
-                      openconfig-if-poe-ext:disconnect-type: AC
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
+                      'openconfig-if-poe-ext:disconnect-type': AC
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet3
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
-                      openconfig-if-poe-ext:detection-mode: LEGACY
+                      enabled: true
+                      'openconfig-if-poe-ext:detection-mode': LEGACY
               - name: Ethernet4
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      enabled: True
+                      enabled: true
   expected_config_requests:
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet0/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
+    - path: >-
+        data/openconfig-interfaces:interfaces/interface=Ethernet4/openconfig-if-ethernet:ethernet/openconfig-if-poe:poe/config
       method: delete
-    - path: data/openconfig-interfaces:interfaces
+    - path: 'data/openconfig-interfaces:interfaces'
       method: patch
       data:
-        openconfig-interfaces:interfaces:
+        'openconfig-interfaces:interfaces':
           interface:
             - name: Ethernet0
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:detection-mode: LEGACY
-                    openconfig-if-poe-ext:disconnect-type: AC
+                    enabled: true
+                    'openconfig-if-poe-ext:detection-mode': LEGACY
+                    'openconfig-if-poe-ext:disconnect-type': AC
             - name: Ethernet1
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:disconnect-type: AC
+                    enabled: true
+                    'openconfig-if-poe-ext:disconnect-type': AC
             - name: Ethernet3
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:detection-mode: LEGACY
+                    enabled: true
+                    'openconfig-if-poe-ext:detection-mode': LEGACY
             - name: Ethernet4
-              openconfig-if-ethernet:ethernet:
-                openconfig-if-poe:poe:
+              'openconfig-if-ethernet:ethernet':
+                'openconfig-if-poe:poe':
                   config:
-                    enabled: True
-                    openconfig-if-poe-ext:detection-mode: LEGACY
-
+                    enabled: true
+                    'openconfig-if-poe-ext:detection-mode': LEGACY
 replaced_02_others:
   module_args:
     config:
       global:
-        power_mgmt_model: 'dynamic'
+        power_mgmt_model: dynamic
     state: replaced
   existing_config:
     - path: 'data/openconfig-poe:poe'
       response:
         code: 200
         value:
-          openconfig-poe:poe:
+          'openconfig-poe:poe':
             global:
               config:
                 power-management-model: CLASS
@@ -1411,25 +1423,25 @@ replaced_02_others:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
               - name: Ethernet0
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
               - name: Ethernet2
-                openconfig-if-ethernet:ethernet:
-                  openconfig-if-poe:poe:
+                'openconfig-if-ethernet:ethernet':
+                  'openconfig-if-poe:poe':
                     config:
-                      openconfig-if-poe-ext:detection-mode: DOT3BT_LEG
+                      'openconfig-if-poe-ext:detection-mode': DOT3BT_LEG
   expected_config_requests:
-    - path: data/openconfig-poe:poe/global/config/power-management-model
+    - path: 'data/openconfig-poe:poe/global/config/power-management-model'
       method: delete
-    - path: data/openconfig-poe:poe
+    - path: 'data/openconfig-poe:poe'
       method: patch
       data:
-        openconfig-poe:poe:
+        'openconfig-poe:poe':
           global:
             config:
               power-management-model: DYNAMIC
