@@ -2233,9 +2233,6 @@ class Route_maps(ConfigBase):
                     if extcomm_type in cfg_set_top['extcommunity']:
                         # Delete eligible configured extcommunity list items for this
                         # extcommunity list
-                        cfg_extcommunity_list_set = set(cfg_set_top['extcommunity'][extcomm_type])
-                        cmd_extcommunity_list_set = ([])
-                        saved_cmd_set = []
                         if extcomm_type == "bandwidth":
                             if "bandwidth_value" in cfg_set_top.get("extcommunity", {}).get("bandwidth"):
                                 if 'bandwidth' not in cmd_set_top.get('extcommunity', {}):
@@ -2245,6 +2242,9 @@ class Route_maps(ConfigBase):
                                     set_extcommunity_delete_attrs.append(bandwidth_string)
                                     set_extcommunity_delete_attrs_type.append(cfg_set_top['extcommunity']['bandwidth'])
                         else:
+                            cfg_extcommunity_list_set = set(cfg_set_top['extcommunity'][extcomm_type])
+                            cmd_extcommunity_list_set = ([])
+                            saved_cmd_set = []
                             if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
                                 cmd_extcommunity_list_set = set(to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type]))
                                 saved_cmd_set = command['set']['extcommunity'].pop(extcomm_type)
