@@ -1484,8 +1484,10 @@ class Route_maps(ConfigBase):
                             else:
                                 transitive_string = "non-transitive"
                             if (bandwidth_value == cmd_set_top['extcommunity'][extcomm_type].get("bandwidth_value") and
-                               transitive_value == cmd_set_top['extcommunity'][extcomm_type].get("transitive_value")):
+                                transitive_value == cmd_set_top['extcommunity'][extcomm_type].get("transitive_value")):
                                 set_extcommunity_delete_attrs.append(self.set_extcomm_rest_names[extcomm_type] + bandwidth_value + ":" + transitive_string)
+                            else:
+                                cmd_set_top['extcommunity'].pop('bandwidth')
                         else:
                             for extcomm_number in cmd_set_top['extcommunity'][extcomm_type]:
                                 if extcomm_number in cfg_set_top['extcommunity'][extcomm_type]:
