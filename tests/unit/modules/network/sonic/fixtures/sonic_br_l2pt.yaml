@@ -1,5 +1,5 @@
 ---
-merged_01: # Populate from empty
+merged_01:  # Populate from empty
   module_args:
     state: 'merged'
     config:
@@ -53,7 +53,7 @@ merged_01: # Populate from empty
               vlan-ids:
                 - 100
 
-merged_02: # Populate with some empty, some existing, some are the same
+merged_02:  # Populate with some empty, some existing, some are the same
   module_args:
     state: 'merged'
     config:
@@ -128,7 +128,7 @@ merged_02: # Populate with some empty, some existing, some are the same
               vlan-ids:
                 - 120..150
 
-merged_03: # Combine configs (ranges, individual VLANs)
+merged_03:  # Combine configs (ranges, individual VLANs)
   module_args:
     state: 'merged'
     config:
@@ -232,7 +232,7 @@ merged_03: # Combine configs (ranges, individual VLANs)
               vlan-ids:
                 - 100..119
 
-replaced_01: # Replace configs for one interface
+replaced_01:  # Replace configs for one interface
   module_args:
     state: 'replaced'
     config:
@@ -338,7 +338,7 @@ replaced_01: # Replace configs for one interface
               vlan-ids:
                 - 23
 
-replaced_02: # Replace configs on interface, one less protocol
+replaced_02:  # Replace configs on interface, one less protocol
   module_args:
     state: 'replaced'
     config:
@@ -424,7 +424,7 @@ replaced_02: # Replace configs on interface, one less protocol
               vlan-ids:
                 - 20..45
 
-overridden_01: # Override an interface, excluding the other
+overridden_01:  # Override an interface, excluding the other
   module_args:
     state: 'overridden'
     config:
@@ -511,7 +511,7 @@ overridden_01: # Override an interface, excluding the other
               vlan-ids:
                 - 20..21
 
-overridden_02: # Override interface and add the other, some configs remain the same
+overridden_02:  # Override interface and add the other, some configs remain the same
   module_args:
     state: 'overridden'
     config:
@@ -610,7 +610,7 @@ overridden_02: # Override interface and add the other, some configs remain the s
               vlan-ids:
                 - 100..150
 
-deleted_01: # Mixed partial/full delete of interface configs
+deleted_01:  # Mixed partial/full delete of interface configs
   module_args:
     state: 'deleted'
     config:
@@ -697,7 +697,7 @@ deleted_01: # Mixed partial/full delete of interface configs
       method: 'delete'
       data:
 
-deleted_02: # Delete entire protocol and range
+deleted_02:  # Delete entire protocol and range
   module_args:
     state: 'deleted'
     config:
@@ -756,7 +756,7 @@ deleted_02: # Delete entire protocol and range
       method: 'delete'
       data:
 
-deleted_03: # Delete interface config
+deleted_03:  # Delete interface config
   module_args:
     state: 'deleted'
     config:
@@ -796,7 +796,7 @@ deleted_03: # Delete interface config
       method: 'delete'
       data:
 
-deleted_04: # Delete all configs
+deleted_04:  # Delete all configs
   module_args:
     state: 'deleted'
     config:

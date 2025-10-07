@@ -1,5 +1,5 @@
 ---
-skeleton: True
+skeleton: true
 want:
   - name: radius
     auth_type: chap
