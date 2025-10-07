@@ -22,7 +22,7 @@ notes:
 short_description: Manage STP configuration on SONiC
 description:
   - This module provides configuration management of STP for devices running SONiC
-author: "Shade Talabi (@stalabi1)"
+author: "S. Talabi (@stalabi1)"
 options:
   config:
     description:

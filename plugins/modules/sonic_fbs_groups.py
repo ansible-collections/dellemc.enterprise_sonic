@@ -21,7 +21,7 @@ notes:
 short_description: Manage flow based services (FBS) groups configuration on SONiC
 description:
   - This module provides configuration management of FBS groups for devices running SONiC
-author: Shade Talabi (@stalabi1)
+author: S. Talabi (@stalabi1)
 options:
   config:
     description:
