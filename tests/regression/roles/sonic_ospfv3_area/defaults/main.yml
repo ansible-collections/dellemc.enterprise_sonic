@@ -43,7 +43,6 @@ sonic_ospfv3_area_tests:
       filter_list_out: pf2
       ranges:
         - prefix: 1::1/64
-          advertise: true
           cost: 4
         - prefix: 2::2/64
           advertise: false
@@ -139,7 +138,7 @@ sonic_ospfv3_area_tests:
     - area_id: 4
       vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
       nssa:
-        enabled: false
+        enabled: true
     - area_id: 1
       vrf_name: "default"
       ranges:

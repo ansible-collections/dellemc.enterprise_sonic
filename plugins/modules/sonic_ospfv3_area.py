@@ -42,13 +42,13 @@ options:
       filter_list_in:
         type: str
         description:
-          - inter area prefix filter list.
+          - inter-area prefix filter list.
           - Filter incoming prefixes into the area.
           - expects name of a prefix list.
       filter_list_out:
         type: str
         description:
-          - inter area prefix filter list.
+          - inter-area prefix filter list.
           - Filter outgoing prefixes from the area.
           - expects name of a prefix list.
       nssa:
@@ -95,7 +95,8 @@ options:
                 type: str
                 required: true
                 description:
-                  - Configure address range prefix
+                  - Configure address range prefix.
+                  - If the same prefix is specified more than once, only the first instance is configured.
               advertise:
                 type: bool
                 description:
@@ -114,7 +115,8 @@ options:
             type: str
             required: true
             description:
-              - Configure address range prefix
+              - Configure address range prefix.
+              - If the same prefix is specified more than once, only the first instance is configured.
           advertise:
             type: bool
             description:
@@ -141,7 +143,7 @@ options:
         type: str
         required: true
         description:
-          - Name of the vrf this area belongs to.
+          - Name of the VRF this area belongs to.
   state:
     description:
       - Specifies the type of configuration update to be performed on the device.

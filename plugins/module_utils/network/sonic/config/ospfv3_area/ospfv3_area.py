@@ -288,41 +288,57 @@ class Ospfv3_area(ConfigBase):
             area_id = cmd.get('area_id')
             match_have = next((cfg for cfg in have if cfg['vrf_name'] == vrf_name and cfg['area_id'] == area_id), None)
 
-            if is_delete_all or len(cmd) == 2:
-                if match_have:
-                    commands.append({'vrf_name': vrf_name, 'area_id': area_id})
-            else:
-                del_cmd = {}
-                if match_have:
-                    for attr in cmd:
-                        if attr in ['vrf_name', 'area_id']:
-                            continue
-                        if attr == 'nssa' or attr == 'stub':
-                            if len(cmd[attr]) == 1:
-                                del_cmd[attr] = match_have[attr]
-                                continue
-                            if 'no_summary' in cmd.get(attr, {}) and 'no_summary' in match_have.get(attr, {}):
-                                del_cmd.setdefault(attr, {})['no_summary'] = match_have[attr]['no_summary']
-                                del_cmd[attr]['enabled'] = match_have[attr]['enabled']
-                            elif 'default_originate' in cmd.get(attr, {}) and 'default_originate' in match_have.get(attr, {}):
-                                del_cmd.setdefault(attr, {})['default_originate'] = match_have[attr]['default_originate']
-                                del_cmd[attr]['enabled'] = match_have[attr]['enabled']
-                            elif 'ranges' in cmd.get(attr, {}) and 'ranges' in match_have.get(attr, {}):
-                                range_cmd = self.get_delete_ospfv3_area_ranges_commands(cmd[attr]['ranges'], match_have[attr]['ranges'])
-                                if range_cmd:
-                                    del_cmd.setdefault(attr, {})['ranges'] = range_cmd
-                                    del_cmd[attr]['enabled'] = match_have[attr]['enabled']
-                        elif attr == 'ranges' and match_have.get(attr, []):
-                            range_cmd = self.get_delete_ospfv3_area_ranges_commands(cmd[attr], match_have[attr])
-                            if range_cmd:
-                                del_cmd[attr] = range_cmd
-                        elif attr in match_have:
-                            del_cmd[attr] = match_have[attr]
+            if not match_have:
+                continue
 
-                if del_cmd:
-                    del_cmd['vrf_name'] = vrf_name
-                    del_cmd['area_id'] = area_id
-                    commands.append(del_cmd)
+            if is_delete_all or len(cmd) == 2:
+                commands.append({'vrf_name': vrf_name, 'area_id': area_id})
+                continue
+
+            del_cmd = {}
+            raw_delete_diff = get_diff(cmd, match_have)
+            if not raw_delete_diff:
+                del_cmd = get_diff(cmd, raw_delete_diff)
+            else:
+                for attr, value in cmd.items():
+                    if attr in ['vrf_name', 'area_id']:
+                        continue
+                    if attr not in match_have:
+                        continue
+                    match_value = match_have[attr]
+
+                    if attr in ['filter_list_in', 'filter_list_out']:
+                        if value == match_value:
+                            del_cmd[attr] = match_value
+                    elif attr in ['nssa', 'stub']:
+                        if len(value) == 1:
+                            del_cmd[attr] = {'enabled': True}
+                        elif 'no_summary' in value and 'no_summary' in match_value:
+                            if value['no_summary'] == match_value['no_summary']:
+                                del_cmd[attr].setdefault('no_summary', match_value['no_summary'])
+                        elif 'default_originate' in value and 'default_originate' in match_value:
+                            raw_delete_diff = get_diff(value['default_originate'], match_value['default_originate'])
+                            if not raw_delete_diff:
+                                del_cmd[attr]['default_originate'] = {'enabled': True}
+                            else:
+                                filtered_delete_diff = get_diff(value['default_originate'], raw_delete_diff)
+                                if filtered_delete_diff:
+                                    del_cmd[attr]['default_originate'] = filtered_delete_diff
+                                    del_cmd[attr]['default_originate']['enabled'] = True
+                        elif 'ranges' in value and 'ranges' in match_value:
+                            range_cmd = self.get_delete_ospfv3_area_ranges_commands(value['ranges'], match_value['ranges'])
+                            if range_cmd:
+                                del_cmd[attr]['ranges'] = range_cmd
+                        if del_cmd.get(attr):
+                            del_cmd[attr]['enabled'] = True
+                    elif attr == 'ranges':
+                        range_cmd = self.get_delete_ospfv3_area_ranges_commands(value, match_value)
+                        if range_cmd:
+                            del_cmd[attr] = range_cmd
+            if del_cmd:
+                del_cmd['vrf_name'] = vrf_name
+                del_cmd['area_id'] = area_id
+                commands.append(del_cmd)
 
         if commands:
             requests = self.delete_ospfv3_area_requests_from_commands(commands, have, is_delete_all)
@@ -337,23 +353,17 @@ class Ospfv3_area(ConfigBase):
             return commands
 
         for range_item in want_ranges:
-            want_range_prefix = range_item.get('prefix')
-            match_have_range = next((cfg for cfg in have_ranges if cfg['prefix'] == want_range_prefix), None)
+            prefix = range_item.get('prefix')
+            match_have_range = next((cfg for cfg in have_ranges if cfg['prefix'] == prefix), None)
             if match_have_range:
-                if len(range_item) == 1:
-                    commands.append({'prefix': want_range_prefix})
-                elif len(range_item) == len(match_have_range):
-                    commands.append({'prefix': want_range_prefix})
+                raw_delete_diff = get_diff(range_item, match_have_range)
+                if not raw_delete_diff:
+                    commands.append({'prefix': prefix})
                 else:
-                    range_cmd = {}
-                    for attr in range_item:
-                        if attr == 'prefix':
-                            continue
-                        if attr in match_have_range:
-                            range_cmd[attr] = match_have_range[attr]
-                    if range_cmd:
-                        range_cmd['prefix'] = want_range_prefix
-                        commands.append(range_cmd)
+                    filtered_delete_diff = get_diff(range_item, raw_delete_diff)
+                    if filtered_delete_diff and 'cost' not in filtered_delete_diff:
+                        if 'advertise' in filtered_delete_diff and not filtered_delete_diff['advertise']:
+                            commands.append(filtered_delete_diff)
         return commands
 
     def _get_replaced_overridden_config(self, want, have, state):
@@ -366,138 +376,121 @@ class Ospfv3_area(ConfigBase):
 
             if not match_have:
                 add_config.append(conf)
-            else:
-                add_cfg, del_cfg = {}, {}
-                for attr in conf:
-                    if attr in ['vrf_name', 'area_id']:
-                        continue
-                    if attr not in match_have and attr not in ['nssa', 'stub']:
-                        add_cfg[attr] = conf[attr]
-                    elif attr == 'ranges':
-                        add_range, del_range = self._get_diff_in_ranges(conf[attr], match_have[attr])
+                continue
+
+            add_cfg, del_cfg = {}, {}
+            for attr, value in conf.items():
+                if attr in ['vrf_name', 'area_id']:
+                    continue
+
+                match_value = match_have.get(attr)
+
+                if attr in ['filter_list_in', 'filter_list_out']:
+                    if value != match_value:
+                        add_cfg[attr] = value
+                elif attr == 'ranges':
+                    if match_value is None:
+                        add_cfg[attr] = value
+                    else:
+                        add_range, del_range = self._get_diff_in_ranges(value, match_value)
                         if add_range:
                             add_cfg[attr] = add_range
                         if del_range:
-                            for range_item in del_range:
+                            del_cfg[attr] = del_range
+                elif attr == 'nssa':
+                    if 'stub' in match_have:
+                        del_cfg['stub'] = {'enabled': True}
+                        add_cfg[attr] = value
+                        continue
+                    elif attr not in match_have:
+                        add_cfg[attr] = value
+                        continue
+                    match_value = match_have[attr]
+                    if 'no_summary' in value:
+                        if 'no_summary' in match_value and value['no_summary'] != match_value['no_summary']:
+                            add_cfg.setdefault(attr, {})['no_summary'] = value['no_summary']
+                        elif 'default_originate' in match_value:
+                            del_cfg.setdefault(attr, {})['default_originate'] = {'enabled': True}
+                            add_cfg.setdefault(attr, {})['no_summary'] = value['no_summary']
+                    elif 'default_originate' in value:
+                        if 'no_summary' in match_value:
+                            del_cfg.setdefault(attr, {})['no_summary'] = match_value
+                            add_cfg.setdefault(attr, {})['default_originate'] = value['default_originate']
+                        elif 'default_originate' in match_value:
+                            add_key, del_key = {}, {}
+                            want_key = value.get('default_originate', {})
+                            have_key = match_value.get('default_originate', {})
+                            diff_keys = set(want_key.items()) ^ set(have_key.items())
+                            for key in dict(diff_keys):
+                                if key in want_key and key in have_key:
+                                    add_key[key] = want_key[key]
+                                    del_key[key] = have_key[key]
+                                elif key in want_key:
+                                    add_key[key] = want_key[key]
+                                elif key in have_key:
+                                    del_key[key] = have_key[key]
+
+                            if add_key:
+                                add_key.setdefault('enabled', value['default_originate']['enabled'])
+                                add_cfg.setdefault(attr, {})['default_originate'] = add_key
+                            if del_key:
+                                del_key.setdefault('enabled', match_value['default_originate']['enabled'])
+                                del_cfg.setdefault(attr, {})['default_originate'] = del_key
+                    elif 'ranges' in value:
+                        add_range, del_range = self._get_diff_in_ranges(value['ranges'], match_value['ranges'])
+                        if add_range:
+                            add_cfg.setdefault(attr, {})['ranges'] = add_range
+                        if del_range:
+                            del_cfg.setdefault(attr, {})['ranges'] = add_range
+                    if 'nssa' in add_cfg:
+                        add_cfg['nssa']['enabled'] = value['enabled']
+                    if 'nssa' in del_cfg:
+                        del_cfg['nssa']['enabled'] = match_value['enabled']
+                elif attr == 'stub':
+                    if 'nssa' in match_have:
+                        del_cfg['nssa'] = {'enabled': True}
+                        add_cfg[attr] = value
+                        continue
+                    elif 'stub' not in match_have:
+                        add_cfg[attr] = value
+                        continue
+
+                    match_value = match_have[attr]
+                    if 'no_summary' in value:
+                        if 'no_summary' in match_value and value['no_summary'] != match_value['no_summary']:
+                            add_cfg.setdefault(attr, {})['no_summary'] = value['no_summary']
+                            add_cfg[attr]['enabled'] = value['enabled']
+                        elif 'no_summary' not in match_value:
+                            add_cfg.setdefault(attr, {})['no_summary'] = value['no_summary']
+                            add_cfg[attr]['enabled'] = value['enabled']
+
+            for attr in match_have:
+                if attr not in conf:
+                    if attr not in ['nssa', 'stub']:
+                        if attr == 'ranges':
+                            for range_item in match_have[attr]:
                                 del_cfg.setdefault(attr, []).append({'prefix': range_item['prefix']})
-                    elif attr in ['filter_list_in', 'filter_list_out']:
-                        if match_have[attr] != conf[attr]:
-                            add_cfg[attr] = conf[attr]
+                        else:
                             del_cfg[attr] = match_have[attr]
-                    elif attr == 'stub':
-                        if 'nssa' in match_have:
-                            del_cfg['nssa'] = {'enabled': True}
-                            add_cfg[attr] = conf[attr]
-                        elif 'stub' in match_have:
-                            for sub_attr in conf[attr]:
-                                if sub_attr not in match_have[attr]:
-                                    add_cfg.setdefault(attr, {})[sub_attr] = conf[attr][sub_attr]
-                                elif match_have[attr][sub_attr] != conf[attr][sub_attr]:
-                                    add_cfg.setdefault(attr, {})[sub_attr] = conf[attr][sub_attr]
-                                    del_cfg.setdefault(attr, {})[sub_attr] = match_have[attr][sub_attr]
-                            for sub_attr in match_have[attr]:
-                                if attr in conf:
-                                    if sub_attr not in conf[attr]:
-                                        del_cfg.setdefault(attr, {})[sub_attr] = match_have[attr][sub_attr]
-                            if add_cfg.get('stub'):
-                                add_cfg['stub']['enabled'] = conf['stub']['enabled']
-                            if del_cfg.get('stub'):
-                                del_cfg['stub']['enabled'] = match_have['stub']['enabled']
-                        else:
-                            add_cfg[attr] = conf[attr]
-                    elif attr == 'nssa':
-                        if 'stub' in match_have:
-                            del_cfg['stub'] = {'enabled': True}
-                            add_cfg[attr] = conf[attr]
-                        elif 'nssa' in match_have:
-                            for sub_attr in conf[attr]:
-                                if sub_attr == 'no_summary':
-                                    if 'default_originate' in match_have[attr]:
-                                        del_cfg.setdefault(attr, {})['default_originate'] = match_have[attr]['default_originate']
-                                        add_cfg.setdefault(attr, {})[sub_attr] = conf[attr][sub_attr]
-                                    elif match_have[attr][sub_attr] != conf[attr][sub_attr]:
-                                        add_cfg.setdefault(attr, {})[sub_attr] = conf[attr][sub_attr]
-                                        del_cfg.setdefault(attr, {})[sub_attr] = match_have[attr][sub_attr]
-                                elif sub_attr == 'default_originate':
-                                    if 'no_summary' in match_have[attr]:
-                                        del_cfg.setdefault(attr, {})['no_summary'] = match_have[attr]['no_summary']
-                                        add_cfg.setdefault(attr, {})[sub_attr] = conf[attr][sub_attr]
-                                    else:
-                                        add_key, del_key = {}, {}
-                                        want_key = conf[attr].get(sub_attr, {})
-                                        have_key = match_have[attr].get(sub_attr, {})
-                                        diff_keys = set(want_key.items()) ^ set(have_key.items())
-                                        for key in dict(diff_keys):
-                                            if key in want_key and key in have_key:
-                                                add_key[key] = want_key[key]
-                                                del_key[key] = have_key[key]
-                                            elif key in want_key:
-                                                add_key[key] = want_key[key]
-                                            elif key in have_key:
-                                                del_key[key] = have_key[key]
+                    else:
+                        del_cfg[attr] = {'enabled': True}
 
-                                        if add_key:
-                                            add_key.setdefault('enabled', conf[attr][sub_attr]['enabled'])
-                                            add_cfg.setdefault(attr, {})[sub_attr] = add_key
-                                        if del_key:
-                                            del_key.setdefault('enabled', match_have[attr][sub_attr]['enabled'])
-                                            del_cfg.setdefault(attr, {})[sub_attr] = del_key
+            if add_cfg:
+                add_cfg.update({'vrf_name': vrf_name, 'area_id': area_id})
+                add_config.append(add_cfg)
 
-                                elif sub_attr == 'ranges':
-                                    conf[attr].setdefault(sub_attr, [])
-                                    match_ranges = []
-                                    if attr in match_have:
-                                        match_ranges = match_have[attr].get(sub_attr, [])
-                                    add_range, del_range = self._get_diff_in_ranges(conf[attr][sub_attr], match_ranges)
-                                    if add_range:
-                                        add_cfg.setdefault(attr, {})[sub_attr] = add_range
-                                    if del_range:
-                                        for range_item in del_range:
-                                            del_cfg.setdefault(attr, {}).setdefault(sub_attr, []).append({'prefix': range_item['prefix']})
-                            if add_cfg.get('nssa'):
-                                add_cfg['nssa']['enabled'] = conf['nssa']['enabled']
+            if del_cfg:
+                del_cfg.update({'vrf_name': vrf_name, 'area_id': area_id})
+                del_config.append(del_cfg)
 
-                            if del_cfg.get('nssa'):
-                                del_cfg['nssa']['enabled'] = match_have['nssa']['enabled']
-
-                            for sub_attr in match_have.get(attr, {}):
-                                if attr in conf:
-                                    if sub_attr not in conf[attr] and sub_attr != 'enabled':
-                                        del_cfg.setdefault(attr, {})[sub_attr] = match_have[attr][sub_attr]
-                        else:
-                            add_cfg[attr] = conf[attr]
-
-                for attr in match_have:
-                    if attr not in conf:
-                        if attr not in ['nssa', 'stub']:
-                            if attr == 'ranges':
-                                for range_item in match_have[attr]:
-                                    del_cfg.setdefault(attr, []).append({'prefix': range_item['prefix']})
-                            else:
-                                del_cfg[attr] = match_have[attr]
-                        else:
-                            del_cfg[attr] = {'enabled': True}
-
-                if add_cfg:
-                    add_cfg['vrf_name'] = vrf_name
-                    add_cfg['area_id'] = area_id
-                    add_config.append(add_cfg)
-
-                if del_cfg:
-                    del_cfg['vrf_name'] = vrf_name
-                    del_cfg['area_id'] = area_id
-                    del_config.append(del_cfg)
-
-                if del_cfg and not add_cfg:
-                    add_config.append({'vrf_name': vrf_name, 'area_id': area_id})
+            if del_cfg and not add_cfg:
+                add_config.append({'vrf_name': vrf_name, 'area_id': area_id})
 
         if state == 'overridden':
             for conf in have:
                 vrf_name = conf['vrf_name']
                 area_id = conf['area_id']
-                want_conf = next((cmd for cmd in want if cmd['vrf_name'] == vrf_name and cmd['area_id'] == area_id), None)
-
-                if not want_conf:
+                if not any(cmd for cmd in want if cmd['vrf_name'] == vrf_name and cmd['area_id'] == area_id):
                     del_config.append({'vrf_name': conf['vrf_name'], 'area_id': conf['area_id']})
 
         return add_config, del_config
@@ -653,10 +646,7 @@ class Ospfv3_area(ConfigBase):
 
     def get_delete_ranges_requests(self, vrf_name, area_id, ranges, type=None):
         requests = []
-        if type:
-            base_uri = OSPF_AREA_ATTRIBUTES[type]['ranges']
-        else:
-            base_uri = OSPF_AREA_ATTRIBUTES['ranges']
+        base_uri = OSPF_AREA_ATTRIBUTES[type]['ranges'] if type else OSPF_AREA_ATTRIBUTES['ranges']
         for range_item in ranges:
             prefix = range_item['prefix'].replace('/', '%2F')
             if len(range_item) == 1:
@@ -713,13 +703,15 @@ class Ospfv3_area(ConfigBase):
                 add_cfg, del_cfg = {}, {}
                 diff_keys = set(item.items()) ^ set(match_prefix.items())
                 for key in dict(diff_keys):
-                    if key in item and key in match_prefix:
+                    if key in item and key in match_prefix and item[key] != match_prefix[key]:
                         add_cfg[key] = item[key]
-                        del_cfg[key] = match_prefix[key]
                     elif key in item:
                         add_cfg[key] = item[key]
                     elif key in match_prefix:
-                        del_cfg[key] = match_prefix[key]
+                        if key == 'advertise' and not match_prefix['advertise']:
+                            del_cfg['advertise'] = True
+                        else:
+                            del_cfg[key] = match_prefix[key]
 
                 if add_cfg:
                     add_cfg['prefix'] = want_prefix
@@ -733,11 +725,11 @@ class Ospfv3_area(ConfigBase):
             have_prefix = item.get('prefix')
             match_prefix = next((x for x in want_range if x.get('prefix') == have_prefix), None)
             if not match_prefix:
-                del_range.append(item)
+                del_range.append({'prefix': have_prefix})
 
         return add_range, del_range
 
-    def __get_delete_ranges(self, want, have):
+    def __get_updated_ranges_after_delete(self, want, have):
         if not want:
             return have
         ranges = []
@@ -749,8 +741,6 @@ class Ospfv3_area(ConfigBase):
                 if len(range_item) != 1:
                     if 'cost' in range_item and 'cost' in match_have_range:
                         del match_have_range['cost']
-                    if 'advertise' in range_item and 'advertise' in match_have_range:
-                        del match_have_range['advertise']
                     ranges.append(match_have_range)
 
         for range_item in have.get('ranges', []):
@@ -772,7 +762,7 @@ class Ospfv3_area(ConfigBase):
                 if attr in ['filter_list_in', 'filter_list_out']:
                     new_conf[attr] = None
                 if attr == 'ranges' and new_conf.get(attr, []):
-                    new_conf['ranges'] = self.__get_delete_ranges(command, new_conf)
+                    new_conf['ranges'] = self.__get_updated_ranges_after_delete(command, new_conf)
                 if attr == 'nssa' and new_conf.get(attr):
                     if 'enabled' in command[attr]:
                         del new_conf[attr]
@@ -781,7 +771,7 @@ class Ospfv3_area(ConfigBase):
                     else:
                         for sub_attr in command[attr]:
                             if sub_attr == 'ranges' and new_conf[attr].get(sub_attr, []):
-                                new_conf[attr][sub_attr] = self.__get_delete_ranges(command[attr], new_conf[attr])
+                                new_conf[attr][sub_attr] = self.__get_updated_ranges_after_delete(command[attr], new_conf[attr])
                             if sub_attr == 'default_originate' and new_conf[attr].get(sub_attr):
                                 for in_attr in ['enabled', 'metric', 'metric_type']:
                                     if in_attr in new_conf[attr][sub_attr]:
@@ -799,39 +789,34 @@ class Ospfv3_area(ConfigBase):
                         del new_conf[attr]['no_summary']
         return True, new_conf
 
-    def _delete_duplicate_entries_in_range(self, commands):
-        for cmd in commands:
-            if cmd.get('ranges'):
-                new_ranges = self._return_unique_ranges(cmd)
-                if new_ranges:
-                    cmd['ranges'] = new_ranges
-            elif cmd.get('nssa') and cmd['nssa'].get('ranges'):
-                new_ranges = self._return_unique_ranges(cmd['nssa'])
-                if new_ranges:
-                    cmd['nssa']['ranges'] = new_ranges
-            elif cmd.get('stub') and cmd['stub'].get('ranges'):
-                new_ranges = self._return_unique_ranges(cmd['stub'])
-                if new_ranges:
-                    cmd['stub']['ranges'] = new_ranges
+    def __derive_ospfv3_area_ranges_merge_op(self, key_set, command, exist_conf):
+        new_conf = exist_conf
+        if command:
+            if 'cost' in command:
+                new_conf['advertise'] = True
+                new_conf['cost'] = command['cost']
+            if 'advertise' in command:
+                new_conf['advertise'] = command['advertise']
 
-    def _return_unique_ranges(self, commands):
-        new_ranges = []
-        known_prefix = []
-        for range_item in commands['ranges']:
-            prefix = range_item.get('prefix')
-            if prefix not in known_prefix:
-                known_prefix.append(prefix)
-                new_ranges.append(range_item)
-        return new_ranges
+        return True, new_conf
+
+    def __sanitize_ranges(self, config):
+        for conf in config:
+            for item in conf.get('ranges', []):
+                if 'cost' in item:
+                    item['advertise'] = True
+            for item in conf.get('nssa', {}).get('ranges', []):
+                if 'cost' in item:
+                    item['advertise'] = True
 
     def get_new_config(self, commands, have):
         """Returns generated configuration based on commands and
         existing configuration"""
         key_set = [
-            {'config': {'vrf_name': '', 'area_id': '', '__delete_op': self.__derive_ospfv3_area_delete_op}, }
+            {'config': {'vrf_name': '', 'area_id': '', '__delete_op': self.__derive_ospfv3_area_delete_op}, },
+            {'ranges': {'prefix': '', '__merge_op': self.__derive_ospfv3_area_ranges_merge_op}, }
         ]
 
         new_config = remove_empties_from_list(get_new_config(commands, have, key_set))
-        self._delete_duplicate_entries_in_range(new_config)
-
+        self.__sanitize_ranges(new_config)
         return new_config
