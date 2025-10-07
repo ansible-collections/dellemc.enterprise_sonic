@@ -2,7 +2,7 @@
 merged_01:
   module_args:
     commands: ['snmp-server community public group ro']
-    save: yes
+    save: true
   expected_commands_to_device:
     - snmp-server community public group ro
     - write memory

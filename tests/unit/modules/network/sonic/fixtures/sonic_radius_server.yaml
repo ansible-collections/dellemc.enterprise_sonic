@@ -49,14 +49,14 @@ merged_01:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config"
       method: "patch"
       data:
-        openconfig-aaa-radius-ext:config: 
+        openconfig-aaa-radius-ext:config:
           nas-ip-address: 1.2.3.4
           retransmit-attempts: 3
-          statistics: True
+          statistics: true
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
       method: "patch"
       data:
-        openconfig-system:servers: 
+        openconfig-system:servers:
           server:
             - address: hostx.local
               config:
@@ -87,15 +87,15 @@ deleted_01:
       response:
         code: 200
         value:
-          openconfig-aaa-radius-ext:config: 
+          openconfig-aaa-radius-ext:config:
             nas-ip-address: 1.2.3.4
             retransmit-attempts: 3
-            statistics: True
+            statistics: true
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
       response:
         code: 200
         value:
-          openconfig-system:servers: 
+          openconfig-system:servers:
             server:
               - address: hostx.local
                 config:
@@ -163,15 +163,15 @@ deleted_02:
       response:
         code: 200
         value:
-          openconfig-aaa-radius-ext:config: 
+          openconfig-aaa-radius-ext:config:
             nas-ip-address: 1.2.3.4
             retransmit-attempts: 3
-            statistics: True
+            statistics: true
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
       response:
         code: 200
         value:
-          openconfig-system:servers: 
+          openconfig-system:servers:
             server:
               - address: hostx.local
                 config:

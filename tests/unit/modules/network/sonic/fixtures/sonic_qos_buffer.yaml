@@ -29,7 +29,7 @@ merged_01:
     - path: '/operations/openconfig-qos-private:qos-buffer-config'
       method: 'post'
       data:
-        openconfig-qos-private:input: 
+        openconfig-qos-private:input:
           operation: 'INIT'
     - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
       method: 'patch'
@@ -178,7 +178,7 @@ deleted_01:
                   config:
                     pool: 'egress_lossy_pool'
                     size: '85'
-                    dynamic-threshold: 2 
+                    dynamic-threshold: 2
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer/buffer-profiles/buffer-profile=profile1/config/static-threshold'
       method: 'delete'

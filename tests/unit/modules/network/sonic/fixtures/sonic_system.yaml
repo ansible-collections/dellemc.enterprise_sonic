@@ -109,7 +109,7 @@ merged_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
       method: "patch"
       data:
-          openconfig-system-ext:audit-rules: DETAIL
+        openconfig-system-ext:audit-rules: DETAIL
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: "patch"
       data:
@@ -453,7 +453,7 @@ replaced_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
       method: "patch"
       data:
-          openconfig-system-ext:audit-rules: BASIC
+        openconfig-system-ext:audit-rules: BASIC
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: "patch"
       data:

@@ -254,12 +254,12 @@ deleted_01:
                     backup-keepalive-source-address: 3.3.3.1
                     backup-keepalive-peer-address: 3.3.3.2
                     backup-keepalive-interval: 1
-                    backup-keepalive-session-vrf: mgmt                   
+                    backup-keepalive-session-vrf: mgmt
             interfaces:
               interface:
                 - config:
                     name: PortChannel10
-                    mclag-domain-id: 1 
+                    mclag-domain-id: 1
                     mclag-id: 10
                   name: PortChannel10
   expected_config_requests:
@@ -319,7 +319,7 @@ deleted_02:
                     backup-keepalive-source-address: 3.3.3.1
                     backup-keepalive-peer-address: 3.3.3.2
                     backup-keepalive-interval: 1
-                    backup-keepalive-session-vrf: mgmt  
+                    backup-keepalive-session-vrf: mgmt
             interfaces:
               interface:
                 - config:
@@ -430,7 +430,7 @@ deleted_02:
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/backup-keepalive-source-address"
       method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/backup-keepalive-peer-address"
-      method: "delete"     
+      method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/backup-keepalive-interval"
       method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=8/config/backup-keepalive-session-vrf"
@@ -471,7 +471,7 @@ replaced_01:
                     backup-keepalive-source-address: 3.3.3.1
                     backup-keepalive-peer-address: 3.3.3.2
                     backup-keepalive-interval: 1
-                    backup-keepalive-session-vrf: mgmt  
+                    backup-keepalive-session-vrf: mgmt
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
@@ -617,7 +617,7 @@ replaced_02:
                     backup-keepalive-source-address: 3.3.3.1
                     backup-keepalive-peer-address: 3.3.3.2
                     backup-keepalive-interval: 1
-                    backup-keepalive-session-vrf: mgmt  
+                    backup-keepalive-session-vrf: mgmt
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
@@ -799,7 +799,7 @@ replaced_03:
                     backup-keepalive-source-address: 3.3.3.1
                     backup-keepalive-peer-address: 3.3.3.2
                     backup-keepalive-interval: 1
-                    backup-keepalive-session-vrf: mgmt  
+                    backup-keepalive-session-vrf: mgmt
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14
@@ -897,9 +897,9 @@ replaced_03:
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/source-address"
       method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-domains/mclag-domain=1/config/session-vrf"
-      method: "delete"  
+      method: "delete"
     - path: "data/openconfig-mclag:mclag/mclag-gateway-macs/mclag-gateway-mac"
-      method: "patch" 
+      method: "patch"
       data:
         openconfig-mclag:mclag-gateway-mac:
           - gateway-mac: 00:00:00:12:12:12
@@ -974,7 +974,7 @@ overridden_01:
                     backup-keepalive-source-address: 3.3.3.1
                     backup-keepalive-peer-address: 3.3.3.2
                     backup-keepalive-interval: 1
-                    backup-keepalive-session-vrf: mgmt  
+                    backup-keepalive-session-vrf: mgmt
             mclag-gateway-macs:
               mclag-gateway-mac:
                 - gateway-mac: 00:00:00:14:14:14

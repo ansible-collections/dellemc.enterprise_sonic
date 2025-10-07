@@ -4,7 +4,7 @@ merged_01:
       - name: profile1
         ecn: green
         green:
-          enable: True
+          enable: true
           min_threshold: 1000
           max_threshold: 5000
           drop_probability: 25
@@ -31,7 +31,7 @@ replaced_01:
     config:
       - name: profile1
         green:
-          enable: False
+          enable: false
           drop_probability: 80
     state: replaced
   existing_qos_wred_config:
@@ -60,7 +60,7 @@ replaced_01:
           - name: profile1
             config:
               name: profile1
-              wred-green-enable: False
+              wred-green-enable: false
               green-drop-probability: '80'
 
 overridden_01:
@@ -69,7 +69,7 @@ overridden_01:
       - name: profile2
         ecn: green
         green:
-          enable: True
+          enable: true
           min_threshold: 3000
           max_threshold: 9000
           drop_probability: 75
@@ -113,7 +113,7 @@ deleted_01:
       - name: profile2
         ecn: green
         green:
-          enable: True
+          enable: true
           min_threshold: 3000
           max_threshold: 9000
           drop_probability: 75
@@ -139,7 +139,7 @@ deleted_01:
                   green-min-threshold: '3000'
                   green-max-threshold: '9000'
                   ecn: ECN_GREEN
-                  wred-green-enable: true     
+                  wred-green-enable: true
                   green-drop-probability: '75'
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile1'

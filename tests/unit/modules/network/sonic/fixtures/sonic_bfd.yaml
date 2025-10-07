@@ -4,36 +4,36 @@ merged_01:
     config:
       profiles:
         - profile_name: 'p1'
-          enabled: True
+          enabled: true
           transmit_interval: 120
           receive_interval: 200
           detect_multiplier: 2
-          passive_mode: True
+          passive_mode: true
           min_ttl: 140
           echo_interval: 150
-          echo_mode: True
+          echo_mode: true
       single_hops:
         - remote_address: '196.88.6.1'
           vrf: 'default'
           interface: 'Ethernet20'
           local_address: '1.1.1.1'
-          enabled: True
+          enabled: true
           transmit_interval: 50
           receive_interval: 80
           detect_multiplier: 4
-          passive_mode: True
+          passive_mode: true
           echo_interval: 110
-          echo_mode: True
+          echo_mode: true
           profile_name: 'p1'
       multi_hops:
         - remote_address: '192.40.1.3'
           vrf: 'default'
           local_address: '3.3.3.3'
-          enabled: True
+          enabled: true
           transmit_interval: 75
           receive_interval: 100
           detect_multiplier: 3
-          passive_mode: True
+          passive_mode: true
           min_ttl: 125
           profile_name: 'p1'
   existing_bfd_config:
@@ -44,55 +44,55 @@ merged_01:
     - path: "/data/openconfig-bfd:bfd"
       method: "patch"
       data:
-        openconfig-bfd:bfd: 
-          openconfig-bfd-ext:bfd-profile: 
-            profile: 
+        openconfig-bfd:bfd:
+          openconfig-bfd-ext:bfd-profile:
+            profile:
               - profile-name: 'p1'
-                config: 
+                config:
                   profile-name: 'p1'
-                  enabled: True 
-                  desired-minimum-tx-interval: 120 
+                  enabled: true
+                  desired-minimum-tx-interval: 120
                   required-minimum-receive: 200
                   detection-multiplier: 2
-                  passive-mode: True 
-                  minimum-ttl: 140 
+                  passive-mode: true
+                  minimum-ttl: 140
                   desired-minimum-echo-receive: 150
-                  echo-active: True 
-          openconfig-bfd-ext:bfd-shop-sessions: 
-            single-hop: 
+                  echo-active: true
+          openconfig-bfd-ext:bfd-shop-sessions:
+            single-hop:
               - remote-address: '196.88.6.1'
                 vrf: 'default'
                 interface: 'Ethernet20'
                 local-address: '1.1.1.1'
-                config: 
-                  remote-address: '196.88.6.1' 
+                config:
+                  remote-address: '196.88.6.1'
                   vrf: 'default'
-                  interface: 'Ethernet20' 
-                  local-address: '1.1.1.1' 
-                  enabled: True
-                  desired-minimum-tx-interval: 50 
-                  required-minimum-receive: 80 
-                  detection-multiplier: 4 
-                  passive-mode: True 
-                  desired-minimum-echo-receive: 110 
-                  echo-active: True 
+                  interface: 'Ethernet20'
+                  local-address: '1.1.1.1'
+                  enabled: true
+                  desired-minimum-tx-interval: 50
+                  required-minimum-receive: 80
+                  detection-multiplier: 4
+                  passive-mode: true
+                  desired-minimum-echo-receive: 110
+                  echo-active: true
                   profile-name: 'p1'
-          openconfig-bfd-ext:bfd-mhop-sessions: 
-            multi-hop: 
+          openconfig-bfd-ext:bfd-mhop-sessions:
+            multi-hop:
               - remote-address: '192.40.1.3'
                 vrf: 'default'
                 local-address: '3.3.3.3'
                 interface: 'null'
-                config: 
-                  remote-address: '192.40.1.3' 
-                  vrf: 'default' 
+                config:
+                  remote-address: '192.40.1.3'
+                  vrf: 'default'
                   local-address: '3.3.3.3'
-                  enabled: True
-                  desired-minimum-tx-interval: 75 
+                  enabled: true
+                  desired-minimum-tx-interval: 75
                   required-minimum-receive: 100
-                  detection-multiplier: 3 
-                  passive-mode: True 
-                  minimum-ttl: 125 
+                  detection-multiplier: 3
+                  passive-mode: true
+                  minimum-ttl: 125
                   profile-name: 'p1'
                   interface: 'null'
 
@@ -101,20 +101,20 @@ replaced_01:
     config:
       profiles:
         - profile_name: 'p2'
-          enabled: False
+          enabled: false
       single_hops:
         - remote_address: '194.56.2.1'
           vrf: 'default'
           interface: 'Ethernet24'
           local_address: '2.2.2.2'
           echo_interval: 125
-          echo_mode: True
+          echo_mode: true
           profile_name: 'p1'
       multi_hops:
         - remote_address: '198.72.1.4'
           vrf: 'default'
           local_address: '4.4.4.4'
-          enabled: True
+          enabled: true
           transmit_interval: 71
           receive_interval: 286
           detect_multiplier: 9
@@ -130,14 +130,14 @@ replaced_01:
                 - profile-name: 'p2'
                   config:
                     profile-name: 'p2'
-                    enabled: True
+                    enabled: true
                     desired-minimum-tx-interval: 135
                     required-minimum-receive: 225
                     detection-multiplier: 10
-                    passive-mode: True
+                    passive-mode: true
                     minimum-ttl: 250
                     desired-minimum-echo-receive: 250
-                    echo-active: True
+                    echo-active: true
             openconfig-bfd-ext:bfd-shop-sessions:
               single-hop:
                 - remote-address: '194.56.2.1'
@@ -149,13 +149,13 @@ replaced_01:
                     vrf: 'default'
                     interface: 'Ethernet24'
                     local-address: '2.2.2.2'
-                    enabled: False
+                    enabled: false
                     desired-minimum-tx-interval: 65
                     required-minimum-receive: 95
                     detection-multiplier: 7
-                    passive-mode: False
+                    passive-mode: false
                     desired-minimum-echo-receive: 145
-                    echo-active: False
+                    echo-active: false
                     profile-name: 'p2'
             openconfig-bfd-ext:bfd-mhop-sessions:
               multi-hop:
@@ -166,11 +166,11 @@ replaced_01:
                     remote-address: '198.72.1.4'
                     vrf: 'default'
                     local-address: '4.4.4.4'
-                    enabled: False
+                    enabled: false
                     desired-minimum-tx-interval: 70
                     required-minimum-receive: 285
                     detection-multiplier: 8
-                    passive-mode: False
+                    passive-mode: false
                     minimum-ttl: 155
                     profile-name: 'p2'
   expected_config_requests:
@@ -186,82 +186,82 @@ replaced_01:
     - path: "/data/openconfig-bfd:bfd"
       method: "patch"
       data:
-        openconfig-bfd:bfd: 
-          openconfig-bfd-ext:bfd-profile: 
-            profile: 
+        openconfig-bfd:bfd:
+          openconfig-bfd-ext:bfd-profile:
+            profile:
               - profile-name: 'p2'
-                config: 
+                config:
                   profile-name: 'p2'
-                  enabled: False
+                  enabled: false
                   desired-minimum-tx-interval: 300
                   required-minimum-receive: 300
                   detection-multiplier: 3
-                  passive-mode: False
+                  passive-mode: false
                   minimum-ttl: 254
                   desired-minimum-echo-receive: 300
-                  echo-active: False 
-          openconfig-bfd-ext:bfd-shop-sessions: 
-            single-hop: 
+                  echo-active: false
+          openconfig-bfd-ext:bfd-shop-sessions:
+            single-hop:
               - remote-address: '194.56.2.1'
                 vrf: 'default'
                 interface: 'Ethernet24'
                 local-address: '2.2.2.2'
-                config: 
+                config:
                   remote-address: '194.56.2.1'
                   vrf: 'default'
                   interface: 'Ethernet24'
                   local-address: '2.2.2.2'
-                  enabled: True
+                  enabled: true
                   desired-minimum-tx-interval: 300
                   required-minimum-receive: 300
                   detection-multiplier: 3
-                  passive-mode: False
+                  passive-mode: false
                   desired-minimum-echo-receive: 125
-                  echo-active: True
-                  profile-name: 'p1' 
-          openconfig-bfd-ext:bfd-mhop-sessions: 
-            multi-hop: 
+                  echo-active: true
+                  profile-name: 'p1'
+          openconfig-bfd-ext:bfd-mhop-sessions:
+            multi-hop:
               - remote-address: '198.72.1.4'
                 vrf: 'default'
                 local-address: '4.4.4.4'
                 interface: 'null'
-                config: 
-                  remote-address: '198.72.1.4' 
+                config:
+                  remote-address: '198.72.1.4'
                   vrf: 'default'
                   local-address: '4.4.4.4'
-                  enabled: True
+                  enabled: true
                   desired-minimum-tx-interval: 71
                   required-minimum-receive: 286
                   detection-multiplier: 9
-                  passive-mode: False
-                  minimum-ttl: 254 
+                  passive-mode: false
+                  minimum-ttl: 254
                   interface: 'null'
 overridden_01:
   module_args:
     config:
       profiles:
         - profile_name: 'p3'
-          enabled: True
+          enabled: true
           transmit_interval: 110
           receive_interval: 230
           detect_multiplier: 10
-          passive_mode: True
+          passive_mode: true
           min_ttl: 170
           echo_interval: 140
-          echo_mode: True
+          echo_mode: true
         - profile_name: 'p4'
       single_hops:
         - remote_address: '182.98.4.1'
           vrf: 'default'
           interface: 'Ethernet28'
           local_address: '3.3.3.3'
-          enabled: True
+          enabled: true
           transmit_interval: 42
           receive_interval: 84
           detect_multiplier: 8
-          passive_mode: True
+          passive_mode: true
           echo_interval: 115
-          echo_mode: True
+          echo_mode: true
           profile_name: 'p3'
         - remote_address: '183.98.3.2'
           vrf: 'default'
@@ -271,11 +271,11 @@ overridden_01:
         - remote_address: '182.44.1.2'
           vrf: 'default'
           local_address: '2.2.2.2'
-          enabled: True
+          enabled: true
           transmit_interval: 74
           receive_interval: 101
           detect_multiplier: 6
-          passive_mode: True
+          passive_mode: true
           min_ttl: 127
           profile_name: 'p3'
         - remote_address: '162.45.5.1'
@@ -293,14 +293,14 @@ overridden_01:
                 - profile-name: 'p2'
                   config:
                     profile-name: 'p2'
-                    enabled: True
+                    enabled: true
                     desired-minimum-tx-interval: 135
                     required-minimum-receive: 225
                     detection-multiplier: 10
-                    passive-mode: True
+                    passive-mode: true
                     minimum-ttl: 250
                     desired-minimum-echo-receive: 250
-                    echo-active: True
+                    echo-active: true
             openconfig-bfd-ext:bfd-shop-sessions:
               single-hop:
                 - remote-address: '194.56.2.1'
@@ -312,13 +312,13 @@ overridden_01:
                     vrf: 'default'
                     interface: 'Ethernet24'
                     local-address: '2.2.2.2'
-                    enabled: False
+                    enabled: false
                     desired-minimum-tx-interval: 65
                     required-minimum-receive: 95
                     detection-multiplier: 7
-                    passive-mode: False
+                    passive-mode: false
                     desired-minimum-echo-receive: 145
-                    echo-active: False
+                    echo-active: false
                     profile-name: 'p2'
             openconfig-bfd-ext:bfd-mhop-sessions:
               multi-hop:
@@ -329,11 +329,11 @@ overridden_01:
                     remote-address: '198.72.1.4'
                     vrf: 'default'
                     local-address: '4.4.4.4'
-                    enabled: False
+                    enabled: false
                     desired-minimum-tx-interval: 70
                     required-minimum-receive: 285
                     detection-multiplier: 8
-                    passive-mode: False
+                    passive-mode: false
                     minimum-ttl: 155
                     profile-name: 'p2'
   expected_config_requests:
@@ -349,49 +349,49 @@ overridden_01:
     - path: "/data/openconfig-bfd:bfd"
       method: "patch"
       data:
-        openconfig-bfd:bfd: 
-          openconfig-bfd-ext:bfd-profile: 
-            profile: 
+        openconfig-bfd:bfd:
+          openconfig-bfd-ext:bfd-profile:
+            profile:
               - profile-name: 'p3'
-                config: 
+                config:
                   profile-name: 'p3'
-                  enabled: True 
+                  enabled: true
                   desired-minimum-tx-interval: 110
                   required-minimum-receive: 230
                   detection-multiplier: 10
-                  passive-mode: True
+                  passive-mode: true
                   minimum-ttl: 170
                   desired-minimum-echo-receive: 140
-                  echo-active: True
+                  echo-active: true
               - profile-name: 'p4'
                 config:
                   profile-name: 'p4'
-                  enabled: True
+                  enabled: true
                   desired-minimum-tx-interval: 300
                   required-minimum-receive: 300
                   detection-multiplier: 3
-                  passive-mode: False
+                  passive-mode: false
                   minimum-ttl: 254
                   desired-minimum-echo-receive: 300
-                  echo-active: False
-          openconfig-bfd-ext:bfd-shop-sessions: 
-            single-hop: 
+                  echo-active: false
+          openconfig-bfd-ext:bfd-shop-sessions:
+            single-hop:
               - remote-address: '182.98.4.1'
                 vrf: 'default'
                 interface: 'Ethernet28'
                 local-address: '3.3.3.3'
-                config: 
+                config:
                   remote-address: '182.98.4.1'
                   vrf: 'default'
                   interface: 'Ethernet28'
                   local-address: '3.3.3.3'
-                  enabled: True
+                  enabled: true
                   desired-minimum-tx-interval: 42
                   required-minimum-receive: 84
                   detection-multiplier: 8
-                  passive-mode: True
+                  passive-mode: true
                   desired-minimum-echo-receive: 115
-                  echo-active: True
+                  echo-active: true
                   profile-name: 'p3'
               - remote-address: '183.98.3.2'
                 vrf: 'default'
@@ -402,29 +402,29 @@ overridden_01:
                   vrf: 'default'
                   interface: 'Ethernet24'
                   local-address: '1.2.3.4'
-                  enabled: True
+                  enabled: true
                   desired-minimum-tx-interval: 300
                   required-minimum-receive: 300
                   detection-multiplier: 3
-                  passive-mode: False
+                  passive-mode: false
                   desired-minimum-echo-receive: 300
-                  echo-active: False
-          openconfig-bfd-ext:bfd-mhop-sessions: 
-            multi-hop: 
+                  echo-active: false
+          openconfig-bfd-ext:bfd-mhop-sessions:
+            multi-hop:
               - remote-address: '162.45.5.1'
                 vrf: 'default'
                 local-address: '2.1.1.1'
                 interface: 'null'
-                config: 
+                config:
                   remote-address: '162.45.5.1'
                   vrf: 'default'
                   local-address: '2.1.1.1'
-                  enabled: True
+                  enabled: true
                   desired-minimum-tx-interval: 300
                   required-minimum-receive: 300
                   detection-multiplier: 3
-                  passive-mode: False
-                  minimum-ttl: 254 
+                  passive-mode: false
+                  minimum-ttl: 254
                   interface: 'null'
               - remote-address: '182.44.1.2'
                 vrf: 'default'
@@ -434,11 +434,11 @@ overridden_01:
                   remote-address: '182.44.1.2'
                   vrf: 'default'
                   local-address: '2.2.2.2'
-                  enabled: True
+                  enabled: true
                   desired-minimum-tx-interval: 74
                   required-minimum-receive: 101
                   detection-multiplier: 6
-                  passive-mode: True
+                  passive-mode: true
                   minimum-ttl: 127
                   interface: 'null'
                   profile-name: 'p3'
@@ -448,27 +448,27 @@ deleted_01:
     config:
       profiles:
         - profile_name: 'p3'
-          enabled: True
+          enabled: true
           transmit_interval: 110
           receive_interval: 230
           detect_multiplier: 10
-          passive_mode: True
+          passive_mode: true
           min_ttl: 170
           echo_interval: 140
-          echo_mode: True
+          echo_mode: true
         - profile_name: 'p4'
       single_hops:
         - remote_address: '182.98.4.1'
           vrf: 'default'
           interface: 'Ethernet28'
           local_address: '3.3.3.3'
-          enabled: True
+          enabled: true
           transmit_interval: 42
           receive_interval: 84
           detect_multiplier: 8
-          passive_mode: True
+          passive_mode: true
           echo_interval: 115
-          echo_mode: True
+          echo_mode: true
           profile_name: 'p3'
         - remote_address: '183.98.3.2'
           vrf: 'default'
@@ -478,11 +478,11 @@ deleted_01:
         - remote_address: '182.44.1.2'
           vrf: 'default'
           local_address: '2.2.2.2'
-          enabled: True
+          enabled: true
           transmit_interval: 74
           receive_interval: 101
           detect_multiplier: 6
-          passive_mode: True
+          passive_mode: true
           min_ttl: 127
           profile_name: 'p3'
         - remote_address: '162.45.5.1'
