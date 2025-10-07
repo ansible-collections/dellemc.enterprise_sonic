@@ -548,6 +548,14 @@ sonic_route_maps_tests:
         set:
           metric:
             rtt_action: subtract
+      - map_name: rm6
+        action: permit
+        sequence_num: 100
+        set:
+          extcommunity:
+            bandwidth:
+              bandwidth_value: "4200"
+              transitive_value: false
   - name: test_case_11_replaced_dict_and_list
     description: Replaced state handling for dict and list attributes
     state: replaced
