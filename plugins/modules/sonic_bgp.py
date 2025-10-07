@@ -199,7 +199,6 @@ EXAMPLES = """
 #  bestpath as-path ignore
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
-#  bestpath bandwidth default-weight
 # !
 # router bgp 4
 #  router-id 10.2.2.4
@@ -211,6 +210,7 @@ EXAMPLES = """
 #  bestpath as-path confed
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth default-weight
 # !
 #
 - name: Delete BGP Global attributes
