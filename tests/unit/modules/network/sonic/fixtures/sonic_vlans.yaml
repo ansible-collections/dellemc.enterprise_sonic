@@ -49,7 +49,7 @@ merged_02:
             VLAN:
               VLAN_LIST:
                 - name: Vlan10
-                  vlanid: 10 
+                  vlanid: 10
                   autostate: "disable"
                   description: "Descr1"
   expected_config_requests:
@@ -87,7 +87,7 @@ deleted_01_vlan_descr:
             VLAN:
               VLAN_LIST:
                 - name: Vlan10
-                  vlanid: 10 
+                  vlanid: 10
                   autostate: "disable"
                   description: Internal
   expected_config_requests:
@@ -117,7 +117,7 @@ deleted_02_vlan:
             VLAN:
               VLAN_LIST:
                 - name: Vlan10
-                  vlanid: 10 
+                  vlanid: 10
                   autostate: "enable"
   expected_config_requests:
     - path: "data/sonic-vlan:sonic-vlan/VLAN/VLAN_LIST=Vlan10"
@@ -150,7 +150,7 @@ replaced_01:
             VLAN:
               VLAN_LIST:
                 - name: Vlan10
-                  vlanid: 10 
+                  vlanid: 10
                   autostate: "disable"
                   description: "Descr1"
   expected_config_requests:
@@ -211,11 +211,11 @@ overridden_01:
             VLAN:
               VLAN_LIST:
                 - name: Vlan10
-                  vlanid: 10 
+                  vlanid: 10
                   autostate: "disable"
                   description: "Descr1"
                 - name: Vlan20
-                  vlanid: 20 
+                  vlanid: 20
                   autostate: "disable"
                   description: "Descr20"
   expected_config_requests:

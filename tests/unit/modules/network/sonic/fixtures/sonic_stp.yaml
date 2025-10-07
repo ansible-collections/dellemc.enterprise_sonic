@@ -615,7 +615,7 @@ replaced_06:
       data:
         openconfig-spanning-tree:config:
           enabled-protocol:
-              - 'MSTP'
+            - 'MSTP'
     - path: "data/openconfig-spanning-tree:stp/global"
       method: "patch"
       data:
