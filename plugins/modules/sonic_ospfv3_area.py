@@ -48,7 +48,7 @@ options:
       filter_list_out:
         type: str
         description:
-          - inter-area prefix filter list.
+          - Inter-area prefix filter list.
           - Filter outgoing prefixes from the area.
           - expects name of a prefix list.
       nssa:
