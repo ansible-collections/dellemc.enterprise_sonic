@@ -50,7 +50,7 @@ options:
         description:
           - Inter-area prefix filter list.
           - Filter outgoing prefixes from the area.
-          - expects name of a prefix list.
+          - Expects name of a prefix list.
       nssa:
         type: dict
         description:
