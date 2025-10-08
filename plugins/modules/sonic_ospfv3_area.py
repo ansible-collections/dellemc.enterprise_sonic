@@ -60,12 +60,12 @@ options:
           default_originate:
             type: dict
             description:
-              - Advertise default route for the NSSA area
+              - Advertise default route for the NSSA area.
             suboptions:
               enabled:
                 type: bool
                 description:
-                  - Enable to advertise the default route for the NSSA area
+                  - Enable to advertise the default route for the NSSA area.
                 required: true
               metric:
                 type: int
@@ -74,7 +74,7 @@ options:
               metric_type:
                 type: int
                 description:
-                  - Configure metric type for the redistributed route
+                  - Configure metric type for the redistributed route.
                 choices: [1, 2]
           enabled:
             type: bool
@@ -84,12 +84,12 @@ options:
           no_summary:
             type: bool
             description:
-              - Disable inter-area route injection into the NSSA
+              - Disable inter-area route injection into the NSSA.
           ranges:
             type: list
             elements: dict
             description:
-              - Configure address range summarization on border routers
+              - Configure address range summarization on border routers.
             suboptions:
               prefix:
                 type: str
@@ -110,7 +110,7 @@ options:
         type: list
         elements: dict
         description:
-          - Configure address range summarization on border routers
+          - Configure address range summarization on border routers.
         suboptions:
           prefix:
             type: str
@@ -130,17 +130,17 @@ options:
       stub:
         type: dict
         description:
-          - Configuration for stub type area
+          - Configuration for STUB type area.
         suboptions:
           enabled:
             type: bool
             description:
-              - Configure area as stub type area
+              - Configure area as STUB type area.
             required: true
           no_summary:
             type: bool
             description:
-              - Disable inter-area route injection into the stub
+              - Disable inter-area route injection into the STUB.
       vrf_name:
         type: str
         required: true

@@ -377,13 +377,19 @@ class Ospfv3_area(ConfigBase):
             match_have_range = next((cfg for cfg in have_ranges if cfg['prefix'] == prefix), None)
             if match_have_range:
                 raw_delete_diff = get_diff(range_item, match_have_range)
-                if not raw_delete_diff:
+                reverse_delete_diff = get_diff(match_have_range, range_item)
+                if not raw_delete_diff and not reverse_delete_diff or (len(range_item) == 1):
                     commands.append({'prefix': prefix})
                 else:
-                    filtered_delete_diff = get_diff(range_item, raw_delete_diff)
-                    if filtered_delete_diff and 'cost' not in filtered_delete_diff:
-                        if 'advertise' in filtered_delete_diff and not filtered_delete_diff['advertise']:
-                            commands.append(filtered_delete_diff)
+                    del_cmd = {}
+                    if 'cost' in range_item and 'cost' in match_have_range and range_item['cost'] == match_have_range['cost']:
+                        del_cmd['cost'] = match_have_range.get('cost')
+                    elif ('advertise' in range_item and not range_item['advertise']):
+                        if ('advertise' in match_have_range and range_item['advertise'] == match_have_range['advertise']):
+                            del_cmd['advertise'] = match_have_range.get('advertise')
+                    if del_cmd:
+                        del_cmd['prefix'] = prefix
+                        commands.append(del_cmd)
         return commands
 
     def _get_replaced_overridden_config(self, want, have, state):
