@@ -270,6 +270,26 @@ class Ospfv3_area(ConfigBase):
             except Exception as exc:
                 self._module.fail_json(msg=str(exc))
 
+            if state != "deleted":
+                match_have = next((cfg for cfg in have if cfg['vrf_name'] == area['vrf_name'] and cfg['area_id'] == area['area_id']), None)
+
+                for range_item in area.get('ranges', []):
+                    prefix = range_item.get('prefix')
+                    if match_have:
+                        match_range = next((cfg for cfg in match_have.get('ranges', []) if cfg['prefix'] == prefix), None)
+                        if 'advertise' not in range_item:
+                            range_item['advertise'] = True if 'cost' in range_item or not match_range else match_range.get('advertise', True)
+                    elif 'advertise' not in range_item or 'cost' in range_item:
+                        range_item['advertise'] = True
+                if area.get('nssa', {}):
+                    for range_item in area['nssa'].get('ranges', []):
+                        prefix = range_item.get('prefix')
+                        if match_have:
+                            match_range = next((cfg for cfg in match_have.get('nssa', {}).get('ranges', []) if cfg['prefix'] == prefix), None)
+                            if 'advertise' not in range_item:
+                                range_item['advertise'] = True if 'cost' in range_item or not match_range else match_range.get('advertise', True)
+                        elif 'advertise' not in range_item or 'cost' in range_item:
+                            range_item['advertise'] = True
         return config
 
     def format_area_name(self, area_id):
@@ -315,22 +335,22 @@ class Ospfv3_area(ConfigBase):
                             del_cmd[attr] = {'enabled': True}
                         elif 'no_summary' in value and 'no_summary' in match_value:
                             if value['no_summary'] == match_value['no_summary']:
-                                del_cmd[attr].setdefault('no_summary', match_value['no_summary'])
+                                del_cmd.setdefault(attr, {}).setdefault('no_summary', match_value['no_summary'])
                         elif 'default_originate' in value and 'default_originate' in match_value:
                             raw_delete_diff = get_diff(value['default_originate'], match_value['default_originate'])
                             if not raw_delete_diff:
-                                del_cmd[attr]['default_originate'] = {'enabled': True}
+                                del_cmd.setdefault(attr, {})['default_originate'] = {'enabled': True}
                             else:
                                 filtered_delete_diff = get_diff(value['default_originate'], raw_delete_diff)
                                 if filtered_delete_diff:
-                                    del_cmd[attr]['default_originate'] = filtered_delete_diff
+                                    del_cmd.setdefault(attr, {})['default_originate'] = filtered_delete_diff
                                     del_cmd[attr]['default_originate']['enabled'] = True
                         elif 'ranges' in value and 'ranges' in match_value:
                             range_cmd = self.get_delete_ospfv3_area_ranges_commands(value['ranges'], match_value['ranges'])
                             if range_cmd:
-                                del_cmd[attr]['ranges'] = range_cmd
+                                del_cmd.setdefault(attr, {})['ranges'] = range_cmd
                         if del_cmd.get(attr):
-                            del_cmd[attr]['enabled'] = True
+                            del_cmd.setdefault(attr, {})['enabled'] = True
                     elif attr == 'ranges':
                         range_cmd = self.get_delete_ospfv3_area_ranges_commands(value, match_value)
                         if range_cmd:
@@ -800,15 +820,6 @@ class Ospfv3_area(ConfigBase):
 
         return True, new_conf
 
-    def __sanitize_ranges(self, config):
-        for conf in config:
-            for item in conf.get('ranges', []):
-                if 'cost' in item:
-                    item['advertise'] = True
-            for item in conf.get('nssa', {}).get('ranges', []):
-                if 'cost' in item:
-                    item['advertise'] = True
-
     def get_new_config(self, commands, have):
         """Returns generated configuration based on commands and
         existing configuration"""
@@ -817,6 +828,4 @@ class Ospfv3_area(ConfigBase):
             {'ranges': {'prefix': '', '__merge_op': self.__derive_ospfv3_area_ranges_merge_op}, }
         ]
 
-        new_config = remove_empties_from_list(get_new_config(commands, have, key_set))
-        self.__sanitize_ranges(new_config)
-        return new_config
+        return remove_empties_from_list(get_new_config(commands, have, key_set))

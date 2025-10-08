@@ -96,11 +96,12 @@ options:
                 required: true
                 description:
                   - Configure address range prefix.
-                  - If the same prefix is specified more than once, only the first instance is configured.
               advertise:
                 type: bool
                 description:
-                  - Enable address range advertising
+                  - Enable address range advertising.
+                  - Default value while creating a new range is True.
+                  - If the I(cost) is specified, I(advertise) is unconditionally set to True during playbook execution.
               cost:
                 type: int
                 description:
@@ -116,11 +117,12 @@ options:
             required: true
             description:
               - Configure address range prefix.
-              - If the same prefix is specified more than once, only the first instance is configured.
           advertise:
             type: bool
             description:
-              - Enable address range advertising
+              - Enable address range advertising.
+              - Default value while creating a new range is True.
+              - If the I(cost) is specified, I(advertise) is unconditionally set to True during playbook execution.
           cost:
             type: int
             description:
