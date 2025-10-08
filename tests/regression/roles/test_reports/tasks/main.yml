@@ -8,7 +8,7 @@
 - debug: var=report_dir
 - blockinfile:
     path: "{{ report_dir }}/regression-{{ file_suffix }}.html"
-    block: "{{ lookup('template', 'regression_html_report.j2')}}"
+    block: "{{ lookup('template', 'regression_html_report.j2') }}"
     mode: 00777
     create: true
     marker: ""

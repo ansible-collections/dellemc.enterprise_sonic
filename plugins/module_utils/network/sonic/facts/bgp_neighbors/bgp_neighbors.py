@@ -54,6 +54,7 @@ class Bgp_neighborsFacts(object):
         'dont_negotiate_capability': 'dont-negotiate-capability',
         'enforce_first_as': 'enforce-first-as',
         'enforce_multihop': 'enforce-multihop',
+        'extended_link_bandwidth': 'extended-link-bandwidth',
         'local_address': ['transport', 'config', 'local-address'],
         'as': 'local-as',
         'no_prepend': 'local-as-no-prepend',

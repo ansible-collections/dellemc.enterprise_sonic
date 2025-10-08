@@ -16,6 +16,7 @@ merged_01:
             ignore: true
             multipath_relax: false
             multipath_relax_as_set: true
+          bandwidth: default_weight
           compare_routerid: true
           med:
             confed: true
@@ -91,6 +92,7 @@ merged_01:
             med-confed: true
             med-missing-as-worst: true
             always-compare-med: true
+            compare-linkbw: "DEFAULT_WT"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/use-multiple-paths/ebgp/config"
       method: "patch"
       data:
@@ -126,6 +128,7 @@ deleted_01:
             ignore: true
             multipath_relax: false
             multipath_relax_as_set: true
+          bandwidth: default_weight
           compare_routerid: true
           med:
             confed: true
@@ -166,6 +169,7 @@ deleted_01:
                 compare-confed-as-path: true
                 med-confed: true
                 med-missing-as-worst: true
+                compare-linkbw: "DEFAULT_WT"
             use-multiple-paths:
               ebgp:
                 config:
@@ -215,6 +219,9 @@ deleted_01:
              compare-confed-as-path"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
+             compare-linkbw"
+      method: "delete"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
              ignore-as-path-length"
       method: "delete"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
@@ -258,6 +265,7 @@ deleted_02:
                 compare-confed-as-path: true
                 med-confed: true
                 med-missing-as-worst: true
+                compare-linkbw: "DEFAULT_WT"
             use-multiple-paths:
               ebgp:
                 config:
@@ -293,6 +301,8 @@ replaced_01:
           on_startup:
             timer: 776
             med_val: 8787
+        bestpath:
+          bandwidth: ignore_weight
         graceful_restart:
           enabled: true
           preserve_fw_state: true
@@ -321,6 +331,7 @@ replaced_01:
                 compare-confed-as-path: true
                 med-confed: true
                 med-missing-as-worst: true
+                compare-linkbw: "DEFAULT_WT"
             use-multiple-paths:
               ebgp:
                 config:
@@ -368,6 +379,12 @@ replaced_01:
         route-selection-options:
           config:
             external-compare-router-id: false
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options"
+      method: "patch"
+      data:
+        route-selection-options:
+          config:
+            compare-linkbw: "IGNORE_LB"
     - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options/config/\
              always-compare-med"
       method: "delete"
@@ -448,6 +465,7 @@ overridden_01:
           as_path:
             confed: true
             ignore: true
+          bandwidth: ignore_weight
           compare_routerid: true
           med:
             confed: true
@@ -578,3 +596,9 @@ overridden_01:
       method: "patch"
       data:
         log-neighbor-state-changes: true
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/route-selection-options"
+      method: "patch"
+      data:
+        route-selection-options:
+          config:
+            compare-linkbw: "IGNORE_LB"
