@@ -42,7 +42,7 @@ options:
       filter_list_in:
         type: str
         description:
-          - inter-area prefix filter list.
+          - Inter-area prefix filter list.
           - Filter incoming prefixes into the area.
           - expects name of a prefix list.
       filter_list_out:
