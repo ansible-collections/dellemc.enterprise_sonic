@@ -44,7 +44,7 @@ options:
         description:
           - Inter-area prefix filter list.
           - Filter incoming prefixes into the area.
-          - expects name of a prefix list.
+          - Expects name of a prefix list.
       filter_list_out:
         type: str
         description:
