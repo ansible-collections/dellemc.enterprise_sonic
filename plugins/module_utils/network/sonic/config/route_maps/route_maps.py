@@ -2260,12 +2260,12 @@ class Route_maps(ConfigBase):
                                 set_extcommunity_delete_attrs.append(self.set_extcomm_rest_names[extcomm_type] + extcomm_number)
                                 set_extcommunity_delete_attrs_type.append(extcomm_number)
 
-                            if set_extcommunity_delete_attrs_type:
-                                # Update the list of deleted extcommunity list items of this type
-                                # in the "command" dict.
-                                if not cmd_set_top.get('extcommunity'):
-                                    command['set']['extcommunity'] = {}
-                                command['set']['extcommunity'][extcomm_type] = set_extcommunity_delete_attrs_type
+                        if set_extcommunity_delete_attrs_type:
+                            # Update the list of deleted extcommunity list items of this type
+                            # in the "command" dict.
+                            if not cmd_set_top.get('extcommunity'):
+                                command['set']['extcommunity'] = {}
+                            command['set']['extcommunity'][extcomm_type] = set_extcommunity_delete_attrs_type
 
                 if command['set'].get('extcommunity') is not None and not command['set']['extcommunity']:
                     command['set'].pop('extcommunity')
