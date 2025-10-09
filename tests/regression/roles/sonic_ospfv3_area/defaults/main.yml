@@ -1,0 +1,301 @@
+---
+ansible_connection: httpapi
+
+sonic_ospfv3_area_test_vars:
+  vrf1: "VrfReg1"
+  vrf2: "VrfReg2"
+
+
+sonic_ospfv3_area_preparations_tests:
+  cleanup:
+    - "no router ospfv3 vrf {{sonic_ospfv3_area_test_vars.vrf1}}"
+    - "no router ospfv3 vrf {{sonic_ospfv3_area_test_vars.vrf2}}"
+    - "no router ospfv3"
+    - "no ip vrf {{sonic_ospfv3_area_test_vars.vrf1}}"
+    - "no ip vrf {{sonic_ospfv3_area_test_vars.vrf2}}"
+    - "no ipv6 prefix-list pf1"
+    - "no ipv6 prefix-list pf2"
+
+  setup:
+    - "ip vrf {{sonic_ospfv3_area_test_vars.vrf1}}"
+    - "ip vrf {{sonic_ospfv3_area_test_vars.vrf2}}"
+    - "router ospfv3"
+    - "router ospfv3 vrf {{sonic_ospfv3_area_test_vars.vrf1}}"
+    - "router ospfv3 vrf {{sonic_ospfv3_area_test_vars.vrf2}}"
+    - "ipv6 prefix-list pf1 seq 10 permit 1::2/64"
+    - "ipv6 prefix-list pf2 seq 10 permit 1::2/64"
+
+sonic_ospfv3_area_tests:
+- name: test_case_01
+  description: Create ospfv3 area
+  state: merged
+  input:
+    - area_id: 1
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+    - area_id: 2
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+      stub:
+        enabled: true
+        no_summary: true
+    - area_id: 3
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+      filter_list_in: pf1
+      filter_list_out: pf2
+      ranges:
+        - prefix: 1::1/64
+          cost: 4
+        - prefix: 2::2/64
+          advertise: false
+        - prefix: 3::3/64
+          advertise: true
+          cost: 10
+    - area_id: 4
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      nssa:
+        enabled: true
+        default_originate:
+          enabled: true
+          metric: 10
+          metric_type: 1
+    - area_id: 5
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      nssa:
+        enabled: true
+        no_summary: true
+
+- name: test_case_02
+  description: Add additional ospfv3 area details
+  state: merged
+  input:
+    - area_id: 1
+      vrf_name: "default"
+      filter_list_in: pf1
+      filter_list_out: pf2
+      ranges:
+        - prefix: 1::1/64
+          advertise: true
+          cost: 4
+        - prefix: 2::2/64
+          advertise: false
+        - prefix: 3::3/64
+          advertise: true
+          cost: 10
+    - area_id: 3
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+      filter_list_in: pf1
+      filter_list_out: pf2
+      ranges:
+        - prefix: 1::1/64
+          advertise: true
+          cost: 4
+        - prefix: 2::2/64
+          advertise: false
+    - area_id: 4
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      nssa:
+        enabled: true
+        default_originate:
+          enabled: true
+          metric: 15
+          metric_type: 2
+    - area_id: 5
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      nssa:
+        enabled: true
+        no_summary: false
+    - area_id: 5
+      vrf_name: "default"
+      stub:
+        enabled: true
+        no_summary: true
+
+- name: test_case_03
+  description: Create more ospfv3 areas.
+  state: merged
+  input:
+    - vrf_name: "default"
+      area_id: 10
+      ranges:
+        - prefix: 20::1/64
+          advertise: true
+          cost: 15
+        - prefix: 21::1/64
+          advertise: true
+          cost: 20
+    - vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      area_id: 3
+      nssa:
+        enabled: true
+        default_originate:
+          enabled: true
+          metric_type: 1
+          metric: 10
+
+- name: test_case_del_01
+  description: Delete subsections of ospfv3 area config
+  state: deleted
+  input:
+    - area_id: 4
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      nssa:
+        enabled: true
+    - area_id: 1
+      vrf_name: "default"
+      ranges:
+        - prefix: 1::1/64
+    - area_id: 3
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+      ranges: []
+    - area_id: 5
+      vrf_name: "default"
+      stub:
+        enabled: true
+        no_summary: true
+
+- name: test_case_del_02
+  description: Delete entire area sections of ospfv3 area config
+  state: deleted
+  input:
+    - area_id: 1
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+    - area_id: 3
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+
+- name: test_case_del_03
+  description: Delete more ospfv3 areas by end to end.
+  state: deleted
+  input:
+    - vrf_name: "default"
+      area_id: 10
+      ranges:
+        - prefix: 20::1/64
+          advertise: true
+          cost: 15
+        - prefix: 21::1/64
+          advertise: true
+          cost: 20
+    - vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      area_id: 3
+      nssa:
+        enabled: true
+        default_originate:
+          enabled: true
+          metric_type: 1
+
+
+- name: test_case_replace_01
+  description: Replace some areas and add some areas.
+  state: replaced
+  input:
+    - vrf_name: "default"
+      area_id: 10
+      ranges:
+        - prefix: 20::1/64
+          advertise: true
+          cost: 15
+        - prefix: 21::1/64
+          advertise: true
+          cost: 20
+    - vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      area_id: 3
+      nssa:
+        enabled: true
+        default_originate:
+          enabled: true
+          metric_type: 1
+    - area_id: 1
+      vrf_name: "default"
+      filter_list_in: pf1
+      filter_list_out: pf2
+      ranges:
+        - prefix: 2::2/64
+          advertise: true
+        - prefix: 3::3/64
+          advertise: true
+          cost: 10
+
+- name: test_case_replace_02
+  description: Replace same area but different nssa type and additional subsections
+  state: replaced
+  input:
+    - vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      area_id: 3
+      nssa:
+        enabled: true
+        no_summary: true
+    - area_id: 2
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+      nssa:
+        enabled: true
+        ranges:
+          - prefix: 1::1/64
+          - prefix: 2::2/64
+            advertise: true
+          - prefix: 3::3/64
+            advertise: true
+            cost: 10
+
+- name: test_case_replace_03
+  description: Replace nssa to stub in ospfv3 area
+  state: replaced
+  input:
+    - vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      area_id: 3
+      stub:
+        enabled: true
+    - area_id: 2
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+
+- name: test_case_overridden_01
+  description: Override stub to nssa in ospfv3 area
+  state: overridden
+  input:
+    - vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      area_id: 3
+      nssa:
+        enabled: true
+        no_summary: true
+    - area_id: 5
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf2}}"
+      stub:
+        enabled: true
+    - area_id: 2
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+      nssa:
+        enabled: true
+        ranges:
+          - prefix: 1::1/64
+          - prefix: 2::2/64
+            advertise: true
+          - prefix: 3::3/64
+            advertise: true
+            cost: 10
+    - vrf_name: "default"
+      area_id: 10
+      ranges:
+        - prefix: 20::1/64
+          advertise: true
+          cost: 15
+
+- name: test_case_overridden_02
+  description: Override with non existent ospfv3 areas
+  state: overridden
+  input:
+    - area_id: 21
+      vrf_name: "{{sonic_ospfv3_area_test_vars.vrf1}}"
+      nssa:
+        enabled: true
+        ranges:
+          - prefix: 1::1/64
+          - prefix: 2::2/64
+            advertise: true
+          - prefix: 3::3/64
+            advertise: true
+            cost: 10
+    - area_id: 10
+      vrf_name: default
+
+- name: test_case_del_everything_01
+  description: Delete all ospfv3 areas
+  state: deleted
+  input: []

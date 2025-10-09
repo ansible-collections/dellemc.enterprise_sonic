@@ -104,10 +104,12 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_ospf_area
     ospfv2:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2
-    ospfv3:
-      redirect: dellemc.enterprise_sonic.sonic_ospfv3
     ospfv2_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2_interfaces
+    ospfv3:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3
+    ospfv3_area:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3_area
     ospfv3_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_ospfv3_interfaces
     pim_global:
