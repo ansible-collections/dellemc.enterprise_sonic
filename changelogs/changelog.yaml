@@ -1106,7 +1106,7 @@ releases:
           sonic_prefix_lists - Fix replaced state handling
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/354).
         - >-
-          sonic_qos_pfc - Add back accidentally deleted line of code 
+          sonic_qos_pfc - Add back accidentally deleted line of code
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/391).
         - >-
           sonic_static_routes - Fix static routes states implementation bug
