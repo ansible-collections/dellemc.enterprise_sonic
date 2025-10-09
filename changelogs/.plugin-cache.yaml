@@ -1,4 +1,3 @@
----
 objects:
   role: {}
 plugins:
@@ -35,6 +34,11 @@ plugins:
       name: sonic_api
       namespace: ''
       version_added: 1.0.0
+    sonic_ars:
+      description: Manage adaptive routing and switching (ARS) configuration on SONiC
+      name: sonic_ars
+      namespace: ''
+      version_added: 3.1.0
     sonic_bfd:
       description: Manage BFD configuration on SONiC
       name: sonic_bfd
@@ -75,6 +79,11 @@ plugins:
       name: sonic_bgp_neighbors_af
       namespace: ''
       version_added: 1.0.0
+    sonic_br_l2pt:
+      description: Manage L2PT configurations on SONiC
+      name: sonic_br_l2pt
+      namespace: ''
+      version_added: 3.1.0
     sonic_command:
       description: Runs commands on devices running Enterprise SONiC
       name: sonic_command
@@ -90,6 +99,11 @@ plugins:
       name: sonic_copp
       namespace: ''
       version_added: 2.1.0
+    sonic_dcbx:
+      description: Manage DCBx configurations on SONiC
+      name: sonic_dcbx
+      namespace: ''
+      version_added: 3.1.0
     sonic_dhcp_relay:
       description: Manage DHCP and DHCPv6 relay configurations on SONiC
       name: sonic_dhcp_relay
@@ -100,11 +114,41 @@ plugins:
       name: sonic_dhcp_snooping
       namespace: ''
       version_added: 2.3.0
+    sonic_drop_counter:
+      description: Manage drop counter configuration on SONiC
+      name: sonic_drop_counter
+      namespace: ''
+      version_added: 3.1.0
+    sonic_ecmp_load_share:
+      description: IP ECMP load share mode configuration handling for SONiC.
+      name: sonic_ecmp_load_share
+      namespace: ''
+      version_added: 3.1.0
+    sonic_evpn_esi_multihome:
+      description: Manage EVPN ESI multihoming configuration on SONiC
+      name: sonic_evpn_esi_multihome
+      namespace: ''
+      version_added: 3.1.0
     sonic_facts:
       description: Collects facts on devices running Enterprise SONiC
       name: sonic_facts
       namespace: ''
       version_added: 1.0.0
+    sonic_fbs_classifiers:
+      description: Manage flow based services (FBS) classifiers configuration on SONiC
+      name: sonic_fbs_classifiers
+      namespace: ''
+      version_added: 3.1.0
+    sonic_fbs_groups:
+      description: Manage flow based services (FBS) groups configuration on SONiC
+      name: sonic_fbs_groups
+      namespace: ''
+      version_added: 3.1.0
+    sonic_fbs_policies:
+      description: Manage flow based services (FBS) policies configuration on SONiC
+      name: sonic_fbs_policies
+      namespace: ''
+      version_added: 3.1.0
     sonic_fips:
       description: Manage FIPS configurations on SONiC
       name: sonic_fips
@@ -127,6 +171,17 @@ plugins:
       name: sonic_ip_neighbor
       namespace: ''
       version_added: 2.1.0
+    sonic_ip_neighbor_interfaces:
+      description: Manage interface-specific IP neighbor configurations on SONiC
+      name: sonic_ip_neighbor_interfaces
+      namespace: ''
+      version_added: 3.1.0
+    sonic_ipv6_router_advertisement:
+      description: Manage interface-specific IPv6 Router Advertisement configurations
+        on SONiC
+      name: sonic_ipv6_router_advertisement
+      namespace: ''
+      version_added: 3.1.0
     sonic_l2_acls:
       description: Manage Layer 2 access control lists (ACL) configurations on SONiC
       name: sonic_l2_acls
@@ -179,6 +234,11 @@ plugins:
       name: sonic_login_lockout
       namespace: ''
       version_added: 2.5.0
+    sonic_lst:
+      description: Manage link state tracking (LST) configuration on SONiC
+      name: sonic_lst
+      namespace: ''
+      version_added: 3.1.0
     sonic_mac:
       description: Manage MAC configuration on SONiC
       name: sonic_mac
@@ -195,6 +255,16 @@ plugins:
       name: sonic_mgmt_servers
       namespace: ''
       version_added: 2.5.0
+    sonic_mirroring:
+      description: Manage port mirroring configuration on SONiC.
+      name: sonic_mirroring
+      namespace: ''
+      version_added: 3.1.0
+    sonic_network_policy:
+      description: Manage network policy configuration on SONiC
+      name: sonic_network_policy
+      namespace: ''
+      version_added: 3.1.0
     sonic_ntp:
       description: Manage NTP configuration on SONiC.
       name: sonic_ntp
@@ -215,6 +285,21 @@ plugins:
       name: sonic_ospfv2_interfaces
       namespace: ''
       version_added: 2.5.0
+    sonic_ospfv3:
+      description: Configure global OSPFv3 protocol settings on SONiC.
+      name: sonic_ospfv3
+      namespace: ''
+      version_added: 3.1.0
+    sonic_ospfv3_area:
+      description: Configure OSPFv3 area settings on SONiC.
+      name: sonic_ospfv3_area
+      namespace: ''
+      version_added: 3.1.0
+    sonic_ospfv3_interfaces:
+      description: Configure OSPFv3 interface mode protocol settings on SONiC.
+      name: sonic_ospfv3_interfaces
+      namespace: ''
+      version_added: 3.1.0
     sonic_pim_global:
       description: Manage global PIM configurations on SONiC
       name: sonic_pim_global
@@ -230,6 +315,11 @@ plugins:
       name: sonic_pki
       namespace: ''
       version_added: 2.3.0
+    sonic_pms:
+      description: Configure interface mode port security settings on SONiC.
+      name: sonic_pms
+      namespace: ''
+      version_added: 3.1.0
     sonic_poe:
       description: Manage PoE configuration on SONiC
       name: sonic_poe
@@ -250,6 +340,16 @@ plugins:
       name: sonic_prefix_lists
       namespace: ''
       version_added: 2.0.0
+    sonic_ptp_default_ds:
+      description: Manage global PTP configurations on SONiC
+      name: sonic_ptp_default_ds
+      namespace: ''
+      version_added: 3.1.0
+    sonic_ptp_port_ds:
+      description: Manage port specific PTP configurations on SONiC
+      name: sonic_ptp_port_ds
+      namespace: ''
+      version_added: 3.1.0
     sonic_qos_buffer:
       description: Manage QoS buffer configuration on SONiC
       name: sonic_qos_buffer
@@ -305,6 +405,11 @@ plugins:
       name: sonic_ssh
       namespace: ''
       version_added: 3.0.0
+    sonic_ssh_server:
+      description: Manage SSH server configurations on SONiC
+      name: sonic_ssh_server
+      namespace: ''
+      version_added: 3.1.0
     sonic_static_routes:
       description: Manage static routes configuration on SONiC
       name: sonic_static_routes
@@ -361,4 +466,4 @@ plugins:
   strategy: {}
   test: {}
   vars: {}
-version: 3.0.0
+version: 3.1.0
