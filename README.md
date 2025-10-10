@@ -130,9 +130,9 @@ Name | Description
 
 Version compatibility
 ----------------------
-* Recommended Ansible version 2.14 or higher (This is required for enterprise_sonic collection version >= 2.4.0).
+* Recommended Ansible version 2.17 or higher (This is required for enterprise_sonic collection version >= 3.2.0).
 * Enterprise SONiC Distribution by Dell Technologies version 3.1 or higher
-* Recommended Python 3.9 or higher (This is required for enterprise_sonic collection version >= 2.4.0.).
+* Recommended Python 3.10 or higher (This is required for enterprise_sonic collection version >= 3.2.0.).
 * Dell Enterprise SONiC images for releases 3.1 - 3.5: Use Ansible Enterprise SONiC collection version 1.1.0 or later 1.m.n versions (from the 1.x branch of this repo)
 * Dell Enterprise SONiC images for release 4.0 and later 4.x.y releases before 4.4.0: Use Ansible Enterprise SONiC collection version 2.0.0 or later 2.m.n releases (from the "2.x" branch of this repo).
 * Dell Enterprise SONiC images for release 4.4.0 and later 4.x.y releases: Use Ansible Enterprise SONiC collection version 3.0.0 or later 3.m.n releases (from the "main" branch of this repo).
