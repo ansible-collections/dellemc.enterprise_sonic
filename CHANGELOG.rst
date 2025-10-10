@@ -4,6 +4,26 @@ Dellemc.Enterprise\_Sonic Release Notes
 
 .. contents:: Topics
 
+v3.2.0
+======
+
+Release Summary
+---------------
+
+| Release Date: 2024-10-10
+|
+| This release provides an Ansible compliance change required on top of the changes included in
+| the 3.1.0 release of the enterprise_sonic Ansible network resource module collection.
+| It also provides accompanying documentation changes in the README file. Additional details are
+| described below.
+|
+| 1) Update the "requires_ansible" version in the meta/runtime.yml file for this collection
+| to the oldest supported version of ansible-core. (This was recently changed by Redhat/Ansible
+| to version "2.17.0".)
+| 2) Update the README file "Recommended version" values for Ansible and Python in accordance
+| with the previous change item to modify the oldest supported version of ansible-core which,
+| in turn, requires a Python version >= "3.10".
+
 v3.1.0
 ======
 
@@ -268,7 +288,7 @@ Bugfixes
 - sonic_mac - Fix MAC states implementation bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/383).
 - sonic_prefix_lists - Fix idempotency failure (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/354).
 - sonic_prefix_lists - Fix replaced state handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/354).
-- sonic_qos_pfc - Add back accidentally deleted line of code  (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/391).
+- sonic_qos_pfc - Add back accidentally deleted line of code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/391).
 - sonic_static_routes - Fix static routes states implementation bug (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/383).
 - sonic_vlans - Fix exception when gathering facts (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/377).
 
