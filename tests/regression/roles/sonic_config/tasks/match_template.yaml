@@ -1,3 +1,4 @@
+---
 - name: Configure sub level command using default match on SONIC device
   sonic_config:
     lines: ['switchport access Vlan 11', 'mtu 1500', 'no shutdown']

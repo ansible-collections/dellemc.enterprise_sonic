@@ -48,4 +48,4 @@
   sonic_bgp_neighbors:
     config: "{{ preparations_tests.init_bgp_neighbors }}"
     state: merged
-  failed_whne: false
+  failed_when: false

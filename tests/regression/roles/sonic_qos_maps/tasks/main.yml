@@ -1,3 +1,4 @@
+---
 - name: Preparations for tests
   ansible.builtin.include_tasks: preparation_tests.yaml
 

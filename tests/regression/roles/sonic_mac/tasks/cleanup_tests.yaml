@@ -1,3 +1,4 @@
+---
 - name: Delete trunk VLANs
   sonic_l2_interfaces:
     config: []

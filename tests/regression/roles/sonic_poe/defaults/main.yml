@@ -140,9 +140,9 @@ sonic_poe_tests:
     state: deleted
     input: {}
 
-  # NOTE: These test cases use all settings available in REST API and resource module, but settings may not be supported by the hardware platforms available
-  # can uncomment when support is added, but be sure to check all values for all config are supported
-  # - name: test_case_02_all_card_settings
+    # NOTE: These test cases use all settings available in REST API and resource module, but settings may not be supported by the hardware platforms available
+    # can uncomment when support is added, but be sure to check all values for all config are supported
+    # - name: test_case_02_all_card_settings
     # description: test merging all settings of additional cards
     # state: merged
     # input:
@@ -152,26 +152,26 @@ sonic_poe_tests:
     #       auto_reset: true
     #       power_mgmt_model: dynamic
 
-  # - name: test_case_03_all_interface_settings
-   # description: test merging all settings for interfaces
-   # state: merged
-   # input:
-   #   interfaces:
-   #     - name: "{{ interface2 }}"
-   #       enabled: true
-   #       detection: legacy
-   #       disconnect_type: dc
-   #       four_pair: true
-   #       high_power: true
-   #       power_classification: normal
-   #       power_limit: 3000
-   #       power_limit_type: user-defined
-   #       power_pairs: spare
-   #       power_up_mode: dot3at
-   #       priority: low
-   #       use_spare_pair: true
+    # - name: test_case_03_all_interface_settings
+    # description: test merging all settings for interfaces
+    # state: merged
+    # input:
+    #   interfaces:
+    #     - name: "{{ interface2 }}"
+    #       enabled: true
+    #       detection: legacy
+    #       disconnect_type: dc
+    #       four_pair: true
+    #       high_power: true
+    #       power_classification: normal
+    #       power_limit: 3000
+    #       power_limit_type: user-defined
+    #       power_pairs: spare
+    #       power_up_mode: dot3at
+    #       priority: low
+    #       use_spare_pair: true
 
-  # - name: test_case_04_all_global_settings
+    # - name: test_case_04_all_global_settings
     # description: test merging all global settings for poe
     # state: merged
     # input:
@@ -180,27 +180,27 @@ sonic_poe_tests:
     #     power_mgmt_model: 'class'
     #     usage_threshold: 49
 
-  # - name: test_case_05_delete_card
+    # - name: test_case_05_delete_card
     # description: test deleting one card from cards list
     # state: deleted
     # input:
     #   cards:
     #     - card_id: 0
 
-  # - name: test_case_06_delete_interface
+    # - name: test_case_06_delete_interface
     # description: test deleting one interface from interfaces list
     # state: deleted
     # input:
     #   interfaces:
     #     - name: "{{ interface2 }}"
 
-  # - name: test_case_07_delete_global
+    # - name: test_case_07_delete_global
     # description: test deleting all settings from global poe settings
     # state: deleted
     # input:
     #   global: {}
 
-  # - name: test_case_08_overridden_set
+    # - name: test_case_08_overridden_set
     # description: test setting everything in overridden
     # state: overridden
     # input:
@@ -220,14 +220,14 @@ sonic_poe_tests:
     #     power_mgmt_model: 'static'
     #     usage_threshold: 98
 
-  # - name: test_case_09_deleted_clears
-   # description: test clearing lists in deleted
-   # state: deleted
-   # input:
-   #   cards: []
-   #   interfaces: []
+    # - name: test_case_09_deleted_clears
+    # description: test clearing lists in deleted
+    # state: deleted
+    # input:
+    #   cards: []
+    #   interfaces: []
 
-  # - name: test_case_10_replaced
+    # - name: test_case_10_replaced
     # description: test replacement of lists
     # state: replaced
     # input:
@@ -244,7 +244,7 @@ sonic_poe_tests:
     #     power_mgmt_model: 'class'
     #     usage_threshold: 90
 
-  # - name: test_case_11_change_settings
+    # - name: test_case_11_change_settings
     # description: test adding and changing settings
     # state: merged
     # input:
@@ -256,7 +256,7 @@ sonic_poe_tests:
     #   global:
     #     auto_reset: false
 
-  # - name: test_case_12_delete_individual_attributes
+    # - name: test_case_12_delete_individual_attributes
     # description: test clearing global settings
     # state: deleted
     # input:
@@ -269,7 +269,7 @@ sonic_poe_tests:
     #     power_mgmt_model: 'class'
     #     usage_threshold: 80
 
-  # - name: test_case_13_deleted_clear_everything
+    # - name: test_case_13_deleted_clear_everything
     # description: test clearing everything
     # state: deleted
     # input: {}

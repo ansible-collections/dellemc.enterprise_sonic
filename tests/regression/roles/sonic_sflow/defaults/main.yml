@@ -1,3 +1,4 @@
+---
 ansible_connection: httpapi
 
 sonic_sflow_tests:

@@ -21,17 +21,17 @@ sonic_qos_interfaces_tests:
           fwd_group_queue: fwd_queue_map1
           fwd_group_pg: fwd_pg_map1
           pfc_priority_queue: pfc_queue_map1
-            #          pfc_priority_pg: pfc_pg_map1
+          # pfc_priority_pg: pfc_pg_map1
         pfc:
           asymmetric: true
           watchdog_action: alert
           watchdog_detect_time: 100
           watchdog_restore_time: 200
-            #          priorities:
-            #            - dot1p: 0
-            #              enable: true
-            #            - dot1p: 1
-            #              enable: true
+          # priorities:
+          #   - dot1p: 0
+          #     enable: true
+          #   - dot1p: 1
+          #     enable: true
 
   - name: test_case_02
     description: Update QoS interfaces
@@ -71,32 +71,32 @@ sonic_qos_interfaces_tests:
           fwd_group_queue: fwd_queue_map1
           fwd_group_pg: fwd_pg_map1
           pfc_priority_queue: pfc_queue_map1
-            #          pfc_priority_pg: pfc_pg_map1
+          # pfc_priority_pg: pfc_pg_map1
         pfc:
           asymmetric: true
           watchdog_action: drop
           watchdog_detect_time: 100
           watchdog_restore_time: 200
-            #          priorities:
-            #            - dot1p: 0
-            #              enable: true
-            #            - dot1p: 1
-            #              enable: true
+          # priorities:
+          #   - dot1p: 0
+          #     enable: true
+          #   - dot1p: 1
+          #     enable: true
 
-            #  - name: test_case_03
-            #    description: Update QoS interfaces priorities
-            #    state: merged
-            #    input:
-            #      - name: '{{ interface1 }}'
-            #        pfc:
-            #          priorities:
-            #            - dot1p: 0
-            #              enable: false
-            #      - name: '{{ interface2 }}'
-            #        pfc:
-            #          priorities:
-            #            - dot1p: 1
-            #              enable: false
+    # - name: test_case_03
+    #   description: Update QoS interfaces priorities
+    #   state: merged
+    #   input:
+    #     - name: '{{ interface1 }}'
+    #       pfc:
+    #         priorities:
+    #           - dot1p: 0
+    #             enable: false
+    #     - name: '{{ interface2 }}'
+    #       pfc:
+    #         priorities:
+    #           - dot1p: 1
+    #             enable: false
 
   - name: test_case_04
     description: Delete QoS interfaces attributes
@@ -122,11 +122,11 @@ sonic_qos_interfaces_tests:
           watchdog_action: drop
           watchdog_detect_time: 100
           watchdog_restore_time: 200
-            #          priorities:
-            #            - dot1p: 0
-            #              enable: true
-            #            - dot1p: 1
-            #              enable: true
+          #          priorities:
+          #            - dot1p: 0
+          #              enable: true
+          #            - dot1p: 1
+          #              enable: true
 
   - name: test_case_05
     description: Delete all QoS interface

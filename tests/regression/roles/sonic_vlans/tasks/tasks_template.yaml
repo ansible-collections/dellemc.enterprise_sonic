@@ -1,3 +1,4 @@
+---
 - name: "{{ item.name ~ ' , ' ~ item.description }}"
   sonic_vlans:
     config: "{{ item.input }}"

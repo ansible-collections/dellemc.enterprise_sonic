@@ -1,3 +1,4 @@
+---
 - name: Configure sub level command using "default" option on SONiC device
   sonic_config:
     lines: ['mtu 1312', 'no shutdown', 'no graceful-shutdown']
