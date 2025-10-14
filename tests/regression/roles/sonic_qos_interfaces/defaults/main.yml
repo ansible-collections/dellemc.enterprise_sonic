@@ -83,20 +83,20 @@ sonic_qos_interfaces_tests:
           #   - dot1p: 1
           #     enable: true
 
-      # - name: test_case_03
-      #   description: Update QoS interfaces priorities
-      #   state: merged
-      #   input:
-      #     - name: '{{ interface1 }}'
-      #       pfc:
-      #         priorities:
-      #           - dot1p: 0
-      #             enable: false
-      #     - name: '{{ interface2 }}'
-      #       pfc:
-      #         priorities:
-      #           - dot1p: 1
-      #             enable: false
+          # - name: test_case_03
+          #   description: Update QoS interfaces priorities
+          #   state: merged
+          #   input:
+          #     - name: '{{ interface1 }}'
+          #       pfc:
+          #         priorities:
+          #           - dot1p: 0
+          #             enable: false
+          #     - name: '{{ interface2 }}'
+          #       pfc:
+          #         priorities:
+          #           - dot1p: 1
+          #             enable: false
 
   - name: test_case_04
     description: Delete QoS interfaces attributes
