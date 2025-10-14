@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_prefix_lists
 
-tests:
+sonic_prefix_lists_tests:
   - name: test_case_01
     description: Add initial prefix list configuration
     state: merged

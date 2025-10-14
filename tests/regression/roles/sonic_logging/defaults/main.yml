@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: logging
 
 po1: Portchannel 100
 vlan1: Vlan 100
@@ -17,7 +16,7 @@ logging_ip_server_7: 10.11.0.7
 logging_ip_server_8: 10.11.0.8
 logging_host_server: logging.dell.com
 
-tests:
+sonic_logging_tests:
   - name: test_case_01
     description: Create a single logging remote server, Syslog security profile
     state: merged

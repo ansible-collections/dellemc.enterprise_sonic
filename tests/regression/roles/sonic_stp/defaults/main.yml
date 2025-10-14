@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: stp
 
-tests:
+sonic_stp_tests:
   - name: test_case_01
     description: Add STP configuration for mst protocol
     state: merged

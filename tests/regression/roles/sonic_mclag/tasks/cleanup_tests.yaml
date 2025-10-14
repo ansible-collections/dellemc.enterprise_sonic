@@ -1,24 +1,24 @@
 ---
 - name: Delete MCLAG configuration
-  dellemc.enterprise_sonic.sonic_mclag:
+  sonic_mclag:
     config:
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Delete test VLANs
-  dellemc.enterprise_sonic.sonic_vlans:
-   config: "{{ preparations_tests.add_vlans_input }}"
-   state: deleted
-  ignore_errors: yes
+  sonic_vlans:
+    config: "{{ preparations_tests.add_vlans_input }}"
+    state: deleted
+  failed_when: false
 
-- name: Delete test lag interfaces
-  dellemc.enterprise_sonic.sonic_lag_interfaces:
+- name: Delete test LAG interfaces
+  sonic_lag_interfaces:
     config: "{{ preparations_tests.add_lag_interfaces }}"
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Delete test VRFs
-  dellemc.enterprise_sonic.sonic_vrfs:
-   config: "{{ preparations_tests.add_vrf_input }}"
-   state: deleted
-  ignore_errors: yes
+  sonic_vrfs:
+    config: "{{ preparations_tests.add_vrf_input }}"
+    state: deleted
+  failed_when: false

@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: br_l2pt
 
-tests:
+sonic_br_l2pt_tests:
   - name: "test_case_01: Populate initial L2PT configurations for each protocol."
     state: merged
     input:
@@ -26,6 +25,7 @@ tests:
           - protocol: 'STP'
             vlan_ids:
               - 120-150
+
   - name: "test_case_02: Merge additional L2PT configurations for each protocol."
     state: merged
     input:
@@ -49,6 +49,7 @@ tests:
           - protocol: 'STP'
             vlan_ids:
               - 100-119
+
   - name: "test_case_03: Replace some L2PT configurations."
     state: replaced
     input:
@@ -72,6 +73,7 @@ tests:
           - protocol: 'LLDP'
             vlan_ids:
               - 100
+
   - name: "test_case_04: Replace some L2PT configurations."
     state: replaced
     input:
@@ -89,6 +91,7 @@ tests:
           - protocol: 'CDP'
             vlan_ids:
               - 20-45
+
   - name: "test_case_05: Override some L2PT configurations."
     state: overridden
     input:
@@ -108,6 +111,7 @@ tests:
           - protocol: 'STP'
             vlan_ids:
               - 20-21
+
   - name: "test_case_06: Override some L2PT configurations."
     state: overridden
     input:
@@ -136,6 +140,7 @@ tests:
           - protocol: 'STP'
             vlan_ids:
               - 100-150
+
   - name: "test_case_07: Delete L2PT configurations (individual + ranges)."
     state: deleted
     input:
@@ -154,6 +159,7 @@ tests:
           - protocol: 'STP'
             vlan_ids:
               - 20-21
+
   - name: "test_case_08: Delete L2PT configurations (protocol)."
     state: deleted
     input:
@@ -163,10 +169,12 @@ tests:
             vlan_ids:
               - 1-100
           - protocol: 'STP'
+
   - name: "test_case_09: Delete L2PT configurations (interface)."
     state: deleted
     input:
       - name: '{{ interface1 }}'
+
   - name: "test_case_10: Delete L2PT configurations (all)."
     state: deleted
     input: []

@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: tacacs_server
 
 preparations_tests:
   delete_tacacs_server:
@@ -8,7 +7,8 @@ preparations_tests:
       description: Configure tacacs server
       state: deleted
       input:
-tests:
+
+sonic_tacacs_server_tests:
   - name: test_case_01
     description: Add new host configuration
     state: merged
@@ -33,6 +33,7 @@ tests:
             port: 60
             timeout: 14
             priority: 4
+
   - name: test_case_02
     description: Update specific params of tacacs server
     state: merged
@@ -48,6 +49,7 @@ tests:
             timeout: 9
             priority: 5
             vrf: default
+
   - name: test_case_03
     description: Delete specific params of tacacs server
     state: deleted
@@ -57,12 +59,14 @@ tests:
       servers:
         host:
           - name: my-host.dell.com
+
   - name: test_case_04
     description: Delete all hosts configurations
     state: deleted
     input:
       servers:
         host:
+
   - name: test_case_05
     description: Merge parameter of tacacs servers
     state: merged
@@ -145,7 +149,6 @@ tests:
             timeout: 30
             priority: 6
 
-test_delete_all:
   - name: test_case_09
     description: Delete all the configurations of tacacs server
     state: deleted

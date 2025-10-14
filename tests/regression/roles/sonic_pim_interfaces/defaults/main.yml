@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: pim_interfaces
 
 vrf1: "VrfReg1"
 vrf2: "VrfReg2"
@@ -39,7 +38,7 @@ preparations_tests:
           - name: '{{ po3 }}'
           - name: '{{ vlan3 }}'
 
-tests:
+sonic_pim_interfaces_tests:
   - name: test_case_01
     description: Add PIM interface configuration
     state: merged

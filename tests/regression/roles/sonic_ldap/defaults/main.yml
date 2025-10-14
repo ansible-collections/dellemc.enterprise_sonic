@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: ldap
 
 vrf1: "VrfReg1"
 vrf2: "VrfReg2"
@@ -12,7 +11,7 @@ preparations_tests:
     - name: '{{ vrf2 }}'
   crypto_profile: '{{ secprofile }}'
 
-tests:
+sonic_ldap_tests:
   - name: test_case_01
     description: Add LDAP global and nss configuration
     state: merged

@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_bgp_neighbors
 
 bgp_as_1: 51
 bgp_as_5: 53
@@ -55,13 +54,7 @@ preparations_tests:
       vrf_name: VrfReg6
       as_notation: "asdot"
 
-tests: "{{ merged_tests + deleted_tests + replaced_tasks + overridden_tasks + deleted_all }}"
-
-action_tests:
-  - name: test_case_action_01
-    description: Delete peer group BGP NEIGHBORS NEIGHBORS properties
-    state: merged
-    input: []
+sonic_bgp_neighbors_tests: "{{ merged_tests + deleted_tests + replaced_tasks + overridden_tasks + deleted_all }}"
 
 deleted_tests:
   - name: test_case_del_01

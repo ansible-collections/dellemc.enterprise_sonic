@@ -1,11 +1,7 @@
 ---
-- name: "Debug"
-  debug:
-    msg: "sonic_evpn_esi_multihome tests started ..."
+- name: Preparations for test
+  ansible.builtin.include_tasks: preparation_tests.yaml
 
-- name: Preparation test
-  include_tasks: preperation_tests.yml
-
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yml
-  loop: "{{ tests }}"
+- name: Test started ..."
+  ansible.builtin.include_tasks: tasks_template.yml
+  loop: "{{ sonic_evpn_esi_multihome_tests }}"

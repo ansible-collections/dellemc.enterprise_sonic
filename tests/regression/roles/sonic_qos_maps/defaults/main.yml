@@ -1,10 +1,10 @@
 ---
 ansible_connection: httpapi
-module_name: qos_maps
 # PFC priority group map configuration only supported on Z9664, Z9432 and Z9864 platforms
-tests:
+
+sonic_qos_maps_tests:
   - name: test_case_01
-    description: Configure QoS maps 
+    description: Configure QoS maps
     state: merged
     input:
       dscp_maps:
@@ -67,7 +67,7 @@ tests:
             - dot1p: 1
               fwd_group: 6
         - name: dot1p_map2
-          entries: 
+          entries:
             - dot1p: 2
               fwd_group: 5
       fwd_group_queue_maps:
@@ -213,7 +213,7 @@ tests:
               queue_index: 1
         - name: fwd_queue_map2
           entries:
-            - fwd_group: 2 
+            - fwd_group: 2
               queue_index: 2
       fwd_group_dscp_maps:
         - name: fwd_dscp_map1
@@ -226,7 +226,7 @@ tests:
           entries:
             - fwd_group: 2
               dscp: 2
-      fwd_group_dot1p_maps: 
+      fwd_group_dot1p_maps:
         - name: fwd_dot1p_map1
           entries:
             - fwd_group: 0

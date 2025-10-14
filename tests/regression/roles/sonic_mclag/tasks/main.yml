@@ -1,24 +1,10 @@
-- debug: msg="sonic_mclag Test started ..."
+---
+- name: Preparations for test
+  ansible.builtin.include_tasks: preparation_tests.yaml
 
-- name: Preparations test, creates VLANs
-  include_tasks: preparation_tests.yaml
+- name: Test started ...
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ sonic_mclag_tests }}"
 
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yaml
-  loop: "{{ merged_tests }}"
-
-- name: "delete_all {{ module_name }} stated ..."
-  include_tasks: tasks_template_del.yaml
-  loop: "{{ delete_all }}"
-  when: delete_all is defined
-
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yaml
-  loop: "{{ updated_tests }}"
-
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yaml
-  loop: "{{ replaced_overridden_tests }}"
-
-- name: Cleanup test
-  include_tasks: cleanup_tests.yaml
+- name: Cleanup for test
+  ansible.builtin.include_tasks: cleanup_tests.yaml

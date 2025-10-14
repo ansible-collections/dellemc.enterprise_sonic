@@ -13,7 +13,7 @@ sonic_drop_counter_tests:
         enable: true
         group: group1
         mirror: session1
-        reasons: 
+        reasons:
           - ANY
       - name: counter2
         alias: c2
