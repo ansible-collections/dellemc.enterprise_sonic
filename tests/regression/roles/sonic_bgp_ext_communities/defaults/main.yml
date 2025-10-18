@@ -286,6 +286,8 @@ deleted_tests:
         members:
           route_origin: null
           route_target: null
+
+replaced_tests:
   - name: replace_test_case_01
     description: Replace created BGP properties
     state: replaced

@@ -1,11 +1,10 @@
 ---
-
-- name: "{{ preparation_tests ~ ' , ' ~ module_name }}"
+- name: "Preparations for test"
   ansible.builtin.include_tasks: preparation_tests.yaml
 
-- name: "{{ Test ~ ' , ' ~ module_name ~ ' started' }}"
+- name: "Test started ..."
   ansible.builtin.include_tasks: tasks_template.yaml
   loop: "{{ sonic_ospfv3_tests }}"
 
-- name: "{{ cleanup_tests ~ ' , ' ~ module_name }}"
+- name: "Cleanup for test"
   ansible.builtin.include_tasks: cleanup_tests.yaml

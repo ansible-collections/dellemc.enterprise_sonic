@@ -280,6 +280,7 @@ sonic_ospf_area_tests:
               key_encrypted: true
 
   - name: test_case_05_clear_subsections
+    description: clear ospf area subsections
     state: deleted
     input:
       - area_id: 2

@@ -42,3 +42,4 @@ sonic_lldp_global_tests:
   - name: test_case_05
     description: Delete all global lldp configurations
     state: deleted
+    input: {}

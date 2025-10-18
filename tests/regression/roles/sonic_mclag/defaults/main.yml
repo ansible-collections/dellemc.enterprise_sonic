@@ -32,7 +32,7 @@ preparations_tests:
     - name: VrfGreen
     - name: VrfBlue
 
-sonic_mclag_tests:
+merged_tests:
   - name: test_case_01
     description: MCLAG properties
     state: merged
@@ -110,10 +110,12 @@ sonic_mclag_tests:
           - vlan: vlan21-25
           - vlan: vlan31-35
 
+delete_all:
   - name: test_case_05
     description: Delete MCLAG properties
     state: deleted
 
+updated_tests:
   - name: test_case_06
     description: Create new MCLAG with all properties including vlans and portchannels
     state: merged
@@ -203,6 +205,7 @@ sonic_mclag_tests:
       domain_id: 2
       system_mac: 00:00:00:01:01:01
 
+replaced_overridden_tests:
   - name: test_case_10
     description: Create new MCLAG with all properties including VLANs and Portchannels
     state: merged

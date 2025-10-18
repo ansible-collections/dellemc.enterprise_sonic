@@ -2,9 +2,21 @@
 - name: Preparations for test
   ansible.builtin.include_tasks: preparation_tests.yaml
 
-- name: Test started ...
+- name: Merge tests started ...
   ansible.builtin.include_tasks: tasks_template.yaml
-  loop: "{{ sonic_mclag_tests }}"
+  loop: "{{ merged_tests }}"
+
+- name: Delete all test started ...
+  ansible.builtin.include_tasks: tasks_template_del.yaml
+  loop: "{{ delete_all }}"
+
+- name: Updated tests started ...
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ updated_tests }}"
+
+- name: Updated tests started ...
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ replaced_overridden_tests }}"
 
 - name: Cleanup for test
   ansible.builtin.include_tasks: cleanup_tests.yaml

@@ -41,3 +41,4 @@ sonic_login_lockout_tests:
   - name: test_case_06
     description: Delete all Login Lockout configurations
     state: deleted
+    input: {}
