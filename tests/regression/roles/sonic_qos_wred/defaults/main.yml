@@ -1,7 +1,7 @@
 ---
 ansible_connection: httpapi
 
-sonic_wred_tests:
+sonic_qos_wred_tests:
   - name: test_case_01
     description: Initial configuration of WRED profiles
     state: merged

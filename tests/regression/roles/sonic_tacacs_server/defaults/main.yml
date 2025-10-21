@@ -152,3 +152,4 @@ sonic_tacacs_server_tests:
   - name: test_case_09
     description: Delete all the configurations of tacacs server
     state: deleted
+    input:

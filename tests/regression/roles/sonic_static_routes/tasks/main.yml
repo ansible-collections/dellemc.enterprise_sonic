@@ -4,7 +4,7 @@
 
 - name: Test started ...
   ansible.builtin.include_tasks: tasks_template.yaml
-  loop: "{{ somic_static_routes_tests }}"
+  loop: "{{ sonic_static_routes_tests }}"
 
 - name: Cleanup for test
   ansible.builtin.include_tasks: cleanup_tests.yaml

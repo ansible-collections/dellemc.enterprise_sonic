@@ -6,7 +6,7 @@ preparations_tests:
     - name: delete_all
       description: Configure radius server
       state: deleted
-      input:
+      input: {}
 
 sonic_radius_server_tests:
   - name: test_case_01
@@ -180,3 +180,4 @@ sonic_radius_server_tests:
   - name: test_case_09
     description: Delete all the configurations of radius server
     state: deleted
+    input: {}
