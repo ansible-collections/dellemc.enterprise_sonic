@@ -7,8 +7,6 @@
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
-from ansible.module_utils.basic import AnsibleModule
-
 DOCUMENTATION = """
 ---
 module: sonic
@@ -25,6 +23,12 @@ options:
     type: str
     required: true
 """
+
+EXAMPLES = """
+"""
+
+
+from ansible.module_utils.basic import AnsibleModule
 
 
 def main():

@@ -103,16 +103,18 @@ sonic_users_tests:
     state: merged
     input:
       - name: user5
-        ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVi\
-          jBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
+        ssh_key: >-
+          ssh-rsa
+          AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw==
   - name: test_case_07
     description: Delete user
     state: deleted
     input:
       - name: user4
       - name: user5
-        ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVi\
-          jBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
+        ssh_key: >-
+          ssh-rsa
+          AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw==
   - name: test_case_08
     description: Delete all users configurations
     state: deleted
