@@ -21,7 +21,7 @@ description:
 options:
   config:
     description:
-      - Dummy configuration 
+      - Dummy configuration
     type: str
     required: true
 """
