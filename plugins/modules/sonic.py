@@ -38,7 +38,8 @@ def main():
                            supports_check_mode=True)
     # The action plugin will handle the execution.
     # This module code is generally not executed.
-    module.exit_json(changed=False, msg="This module was not executed. The action plugin handled the task.")
+    module.exit_json(changed=False, msg="Unexpected invocation of the sonic.py module. Instead
+                                of this module, the referring plugin should have been executed.")
 
 
 if __name__ == '__main__':
