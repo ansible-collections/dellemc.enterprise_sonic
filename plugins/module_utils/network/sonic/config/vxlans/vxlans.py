@@ -387,9 +387,9 @@ class Vxlans(ConfigBase):
     @staticmethod
     def get_create_evpn_request(evpn_nvo, name):
         # Create URL and payload
-        url = "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST"
+        url = "data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST"
         evpn_nvo_list = [{'name': evpn_nvo, 'source_vtep': name}]
-        payload = {'sonic-vxlan:EVPN_NVO_LIST': evpn_nvo_list}
+        payload = {'sonic-vxlan:VXLAN_EVPN_NVO_LIST': evpn_nvo_list}
         request = {"path": url, "method": PATCH, "data": payload}
 
         return request
@@ -530,7 +530,7 @@ class Vxlans(ConfigBase):
         # Create URL and payload
         requests = []
 
-        url = "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST={evpn_nvo}"
+        url = "data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST={evpn_nvo}"
 
         is_change_needed = False
         if matched:

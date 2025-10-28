@@ -27,7 +27,7 @@ merged_01:
     - path: 'data/sonic-vxlan:sonic-vxlan'
       response:
         code: 200
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
   expected_config_requests:
@@ -39,10 +39,10 @@ merged_01:
       method: patch
       data:
         'sonic-vrf:vni': 102
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       method: patch
       data:
-        'sonic-vxlan:EVPN_NVO_LIST':
+        'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
           - name: nvo1
             source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL'
@@ -90,7 +90,7 @@ merged_02:
     - path: 'data/sonic-vxlan:sonic-vxlan'
       response:
         code: 200
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
   expected_config_requests:
@@ -101,10 +101,10 @@ merged_02:
           VXLAN_TUNNEL_LIST:
             - name: vteptest1
               src_ip: 1.1.1.1
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       method: patch
       data:
-        'sonic-vxlan:EVPN_NVO_LIST':
+        'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
           - name: nvo1
             source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH'
@@ -132,7 +132,7 @@ merged_03:
     - path: 'data/sonic-vxlan:sonic-vxlan'
       response:
         code: 200
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
     - path: 'data/sonic-vxlan:sonic-vxlan/SUPPRESS_VLAN_NEIGH'
@@ -169,11 +169,11 @@ deleted_01:
             - vrf_name: Vrfcheck2
               vni: 102
             - vrf_name: default
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -219,7 +219,7 @@ deleted_01:
         data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/external_ip
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
     - path: >-
@@ -260,11 +260,11 @@ deleted_02:
             - vrf_name: Vrfcheck2
               vni: 102
             - vrf_name: default
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -295,7 +295,7 @@ deleted_02:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
     - path: >-
@@ -338,11 +338,11 @@ deleted_03:
           'sonic-vrf:VRF_LIST':
             - vrf_name: Vrfcheck1
               vni: 101
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -363,7 +363,7 @@ deleted_03:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
 deleted_04:
@@ -384,11 +384,11 @@ deleted_04:
           'sonic-vrf:VRF_LIST':
             - vrf_name: Vrfcheck1
               vni: 101
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -409,7 +409,7 @@ deleted_04:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck1/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
 deleted_05:
@@ -426,11 +426,11 @@ deleted_05:
             - vrf_name: Vrfcheck2
               vni: 102
             - vrf_name: default
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -454,7 +454,7 @@ deleted_05:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1'
@@ -492,11 +492,11 @@ replaced_02:
             - vrf_name: default
             - vrf_name: Vrfcheck3
             - vrf_name: Vrfcheck4
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -527,7 +527,7 @@ replaced_02:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1'
@@ -561,10 +561,10 @@ replaced_02:
       method: patch
       data:
         'sonic-vrf:vni': 102
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       method: patch
       data:
-        'sonic-vxlan:EVPN_NVO_LIST':
+        'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
           - name: nvo1
             source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL'
@@ -613,11 +613,11 @@ replaced_03:
             - vrf_name: Vrfcheck2
               vni: 102
             - vrf_name: default
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -648,7 +648,7 @@ replaced_03:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1'
@@ -719,11 +719,11 @@ overridden_02:
             - vrf_name: Vrfcheck2
               vni: 102
             - vrf_name: default
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -754,7 +754,7 @@ overridden_02:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1'
@@ -788,10 +788,10 @@ overridden_02:
       method: patch
       data:
         'sonic-vrf:vni': 102
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       method: patch
       data:
-        'sonic-vxlan:EVPN_NVO_LIST':
+        'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
           - name: nvo1
             source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL'
@@ -842,11 +842,11 @@ overridden_03:
             - vrf_name: default
             - vrf_name: Vrfcheck3
             - vrf_name: Vrfcheck4
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       response:
         code: 200
         value:
-          'sonic-vxlan:EVPN_NVO_LIST':
+          'sonic-vxlan:VXLAN_EVPN_NVO_LIST':
             - name: nvo1
               source_vtep: vteptest1
     - path: 'data/sonic-vxlan:sonic-vxlan'
@@ -877,7 +877,7 @@ overridden_03:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST=nvo1'
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
       method: delete
       data: null
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1'
