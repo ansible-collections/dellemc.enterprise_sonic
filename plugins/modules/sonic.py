@@ -37,7 +37,7 @@ def main():
     module = AnsibleModule(argument_spec=dict(config=dict(type='str', required=True)),
                            supports_check_mode=True)
     # The action plugin will handle the execution.
-    # This module code is generally not executed.
+    # Execution of this module is not expected when plugins are operating correctly.
     module.exit_json(changed=False, msg="Unexpected invocation of the sonic.py module. Instead
                                 of this module, the referring plugin should have been executed.")
 
