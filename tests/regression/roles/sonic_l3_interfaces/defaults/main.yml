@@ -420,7 +420,7 @@ sonic_l3_interfaces_tests:
               eui64: true
           nd_proxy:
             mode: ALL
-            nd_proxy_rules: []            
+            nd_proxy_rules: []
   - name: test_case_14
     description: Replace interface parameters
     state: replaced

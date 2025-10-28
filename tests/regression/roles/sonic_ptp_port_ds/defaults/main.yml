@@ -9,7 +9,7 @@ sonic_ptp_port_ds_tests:
       - interface: '{{ interface1 }}'
         role: slave
         local_priority: 10
-        unicast_table: 
+        unicast_table:
           - "1.1.1.1"
       - interface: '{{ interface2 }}'
         role: master
@@ -30,7 +30,7 @@ sonic_ptp_port_ds_tests:
         unicast_table:
           - "10.1.1.1"
           - "99.1.1.1"
-  
+
   - name: test_case_03
     description: Replaced PTP port configuration
     state: replaced
@@ -38,7 +38,7 @@ sonic_ptp_port_ds_tests:
       - interface: '{{ interface2 }}'
         local_priority: 22
         role: slave
-  
+
   - name: test_case_04
     description: Delete Specific PTP port field configuration
     state: deleted
@@ -56,7 +56,7 @@ sonic_ptp_port_ds_tests:
       - interface: '{{ interface2 }}'
         local_priority: 44
         role: dynamic
-  
+
   - name: test_case_06
     description: Overridden PTP port configuration
     state: overridden
@@ -73,7 +73,7 @@ sonic_ptp_port_ds_tests:
       - interface: '{{ interface2 }}'
         local_priority: 44
         role: dynamic
-        unicast_table: 
+        unicast_table:
           - "1.1.1.1"
           - "2.2.2.2"
       - interface: '{{ interface3 }}'
@@ -84,7 +84,7 @@ sonic_ptp_port_ds_tests:
     state: deleted
     input:
       - interface: '{{ interface2 }}'
-  
+
   - name: test_case_09
     description: Delete all PTP port configuration
     state: deleted

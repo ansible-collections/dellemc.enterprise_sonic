@@ -1,13 +1,12 @@
 ---
 ansible_connection: httpapi
-module_name: roce
 
-tests:
+sonic_roce_tests:
   - name: test_case_01
     description: Enable RoCE for PFC priorities
     state: merged
     input:
-      roce_enable: True
+      roce_enable: true
       pfc_priority: '3,4'
 
   - name: test_case_02
@@ -20,4 +19,4 @@ tests:
     description: Disable RoCE
     state: merged
     input:
-      roce_enable: False
+      roce_enable: false

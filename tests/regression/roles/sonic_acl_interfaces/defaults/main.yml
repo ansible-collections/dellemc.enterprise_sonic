@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: acl_interfaces
 
 po1: "Portchannel 100"
 
@@ -33,7 +32,7 @@ preparations_tests:
         - name: '{{ ipv6acl1 }}'
         - name: '{{ ipv6acl2 }}'
 
-tests:
+sonic_acl_interfaces_tests:
   - name: test_case_01
     description: Add interface access-group configurations
     state: merged

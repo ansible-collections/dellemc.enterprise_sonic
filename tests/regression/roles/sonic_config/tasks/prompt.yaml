@@ -1,12 +1,14 @@
-- name: Test sonic config with prompt handling
+---
+- name: Test SONiC config with prompt handling
   sonic_config:
-      commands:
-        - command: 'do image remove all'
-          prompt: '\[y/N\]:$'
-          answer: 'N'
+    commands:
+      - command: 'do image remove all'
+        prompt: '\[y/N\]:$'
+        answer: 'N'
   register: prompt_tc
 
-- set_fact:
+- name: Set facts
+  ansible.builtin.set_fact:
     ansible_facts:
-      test_reports: "{{ ansible_facts['test_reports']| default({})| combine({module_name: {'prompt_test_case.1': prompt_tc_condition }}, recursive=True) }}"
+      test_reports: "{{ ansible_facts['test_reports'] | default({}) | combine({module_name: {'prompt_test_case.1': prompt_tc_condition}}, recursive=True) }}"
   no_log: true

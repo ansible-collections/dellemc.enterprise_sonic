@@ -1,15 +1,21 @@
 ---
-- name: "Report combined action facts"
+- name: Report combined action facts
   ansible.builtin.include_tasks: all_tasks_log_template.yaml
-- set_fact:
+- name: Format time and date
+  ansible.builtin.set_fact:
     time: "{{ lookup('pipe', 'date +%H-%M-%S') }}"
     date: "{{ lookup('pipe', 'date +%Y-%m-%d') }}"
     report_dir: "{{ lookup('env', 'ANSIBLE_SONIC_REPORT_DIR') | default(REPORT_DIR, true) }}"
-- debug: var=report_dir
-- blockinfile:
+
+- name: Debug
+  ansible.builtin.debug:
+    var: report_dir
+
+- name: Create report
+  ansible.builtin.blockinfile:
     path: "{{ report_dir }}/regression-{{ file_suffix }}.html"
     block: "{{ lookup('template', 'regression_html_report.j2') }}"
-    mode: 00777
+    mode: "00777"
     create: true
     marker: ""
   delegate_to: localhost

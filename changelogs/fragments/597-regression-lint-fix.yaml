@@ -1,0 +1,3 @@
+---
+trivial:
+  - tests/regression - Fix ansible-lint errors in the tests regression directory (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/597).
