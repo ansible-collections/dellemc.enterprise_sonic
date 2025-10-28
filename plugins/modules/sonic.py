@@ -15,7 +15,8 @@ short_description: A dummy module for the sonic action plugin
 version_added: "4.0.0"
 description:
   - "This is the corresponding module for the `sonic` action plugin."
-  - "It is responsible for parameter validation and is not executed directly."
+  - "It is provided to comply with the Ansible requirement that a module "
+  - "must exist for every plugin and is not executed directly."
 options:
   config:
     description:
