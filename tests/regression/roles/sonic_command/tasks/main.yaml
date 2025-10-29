@@ -1,12 +1,26 @@
 ---
+- name: Output
+  ansible.builtin.include_tasks: output.yaml
 
-- include_tasks: output.yaml 
-- include_tasks: contains.yaml  
-- include_tasks: bad_operator.yaml  
-- include_tasks: invalid.yaml  
-- include_tasks: cli_command.yaml 
-- include_tasks: test_local.yaml
+- name: Contains
+  ansible.builtin.include_tasks: contains.yaml
+
+- name: Bad operator
+  ansible.builtin.include_tasks: bad_operator.yaml
+
+- name: Invalid
+  ansible.builtin.include_tasks: invalid.yaml
+
+- name: CLI command
+  ansible.builtin.include_tasks: cli_command.yaml
+
+- name: Test local
+  ansible.builtin.include_tasks: test_local.yaml
   vars:
-    ansible_connection: local 
-- include_tasks: timeout.yaml
-- include_tasks: prompt.yaml  
+    ansible_connection: local
+
+- name: Timeout
+  ansible.builtin.include_tasks: timeout.yaml
+
+- name: Prompt
+  ansible.builtin.include_tasks: prompt.yaml

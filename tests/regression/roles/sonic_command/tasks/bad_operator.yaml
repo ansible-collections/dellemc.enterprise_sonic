@@ -1,33 +1,34 @@
 ---
+- name: Test SONiC commands with wait_for negative case
+  sonic_command:
+    commands:
+      - 'show platform'
+      - 'show system'
+    wait_for:
+      - result[0] contains Fel
+  register: result
+  ignore_errors: true
 
-  - name: Test sonic commands with wait_for negative case
-    sonic_command:
-       commands: 
-         - 'show platform'
-         - 'show system'
-       wait_for: 
-         - result[0] contains Fel
-    register: result
-    ignore_errors: yes
+- name: First assertion
+  ansible.builtin.assert:
+    that:
+      - "result.failed == True"
+      - "result.failed_conditions is defined"
+      - "result.msg is defined"
 
-  - assert:
-      that:
-        - "result.failed == True"
-        - "result.failed_conditions is defined"
-        - "result.msg is defined"
+- name: Test SONiC commands with wait_for and match equals any
+  sonic_command:
+    commands:
+      - 'show platform'
+      - 'show system'
+    wait_for:
+      - result[0] contains Fel
+      - result[1] contains sonic
+    match: any
+  register: result
 
-  - name: Test sonic commands with wait_for and match=any
-    sonic_command:
-       commands:
-         - 'show platform'
-         - 'show system'
-       wait_for:
-         - result[0] contains Fel
-         - result[1] contains sonic
-       match: any
-    register: result
-
-  - assert:
-      that:
-        - "result.failed == False"
-        - "result.changed == False"
+- name: Second assertion
+  ansible.builtin.assert:
+    that:
+      - "result.failed == False"
+      - "result.changed == False"

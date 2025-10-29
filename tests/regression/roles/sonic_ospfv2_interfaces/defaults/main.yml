@@ -28,7 +28,7 @@ preparations_tests:
   delete_ospf:
     - no router ospf
 
-tests:
+sonic_ospfv2_interfaces_tests:
   - name: test_case_01
     description: Add OSPFv2 interface configurations for Ethernet interfaces
     state: merged
@@ -40,15 +40,15 @@ tests:
             priority: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
+            mtu_ignore: true
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile1'
         network: broadcast
       - name: "{{ interface8 }}"
@@ -58,14 +58,14 @@ tests:
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
+          enable: true
         network: point_to_point
       - name: "{{ interface9 }}"
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile1'
   - name: test_case_02
     description: Add OSPFv2 interface configurations for Lag interfaces
@@ -84,14 +84,14 @@ tests:
             md_authentication:
               - key_id: 10
                 md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
               - key_id: 20
                 md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
             hello_multiplier: 5
         network: broadcast
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile1'
       - name: "{{ po2 }}"
         ospf_attributes:
@@ -112,10 +112,10 @@ tests:
             md_authentication:
               - key_id: 10
                 md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
       - name: "{{ vlan2 }}"
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile2'
         network: broadcast
       - name: "{{ lo1 }}"
@@ -130,15 +130,15 @@ tests:
             cost: 20
             priority: 15
           - address: '10.10.120.1'
-            mtu_ignore: True
+            mtu_ignore: true
             authentication_type: 'TEXT'
             md_authentication:
               - key_id: 30
                 md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
         network: point_to_point
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile2'
       - name: "{{ interface7 }}"
         ospf_attributes:
@@ -150,10 +150,10 @@ tests:
             md_authentication:
               - key_id: 10
                 md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
       - name: "{{ vlan2 }}"
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile2'
         network: broadcast
         ospf_attributes:
@@ -162,14 +162,14 @@ tests:
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 2
           - area_id: 33686018
             address: '10.19.120.3'
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 2
       - name: "{{ lo1 }}"
         ospf_attributes:
@@ -178,15 +178,15 @@ tests:
             priority: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
+            mtu_ignore: true
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile1'
         network: point_to_point
   - name: test_case_del_01
@@ -200,21 +200,21 @@ tests:
             priority: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
+            mtu_ignore: true
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile1'
         network: broadcast
       - name: "{{ interface7 }}"
         ospf_attributes: []
         bfd:
-          enable: True
+          enable: true
       - name: "{{ vlan1 }}"
         ospf_attributes:
           - address: '10.10.120.1'
@@ -222,7 +222,7 @@ tests:
             md_authentication:
               - key_id: 10
                 md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
       - name: "{{ po1 }}"
         ospf_attributes:
           - address: '10.10.120.1'
@@ -259,12 +259,12 @@ tests:
             priority: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
+            mtu_ignore: true
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 5
           - area_id: '4.4.4.4'
             address: '10.10.120.10'
@@ -275,9 +275,9 @@ tests:
             md_authentication:
               - key_id: 10
                 md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile1'
         network: broadcast
       - name: "{{ vlan1 }}"
@@ -290,7 +290,7 @@ tests:
             md_authentication:
               - key_id: 10
                 md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
   - name: test_case_replace_01
     description: Replace existing OSPFv2 interface configurations for interface level
     state: replaced
@@ -310,15 +310,15 @@ tests:
             priority: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
+            mtu_ignore: true
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile1'
   - name: test_case_replace_02
     description: Replace OSPFv2 interface configurations
@@ -340,7 +340,7 @@ tests:
             priority: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
+            mtu_ignore: true
   - name: test_case_overridden_01
     description: Override entire OSPFv2 interface configurations
     state: overridden
@@ -354,10 +354,10 @@ tests:
             authentication_type: 'MD5HMAC'
             authentication:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
+          enable: true
           bfd_profile: 'profile1'
         network: broadcast
       - name: "{{ vlan1 }}"

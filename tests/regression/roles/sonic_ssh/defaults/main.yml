@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: ssh
 
-tests:
+sonic_ssh_tests:
   - name: test_case_01
     description: Add SSH client algorithm configuration
     state: merged

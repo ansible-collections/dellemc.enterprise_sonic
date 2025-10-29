@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: pim_global
 
 vrf1: "VrfReg1"
 vrf2: "VrfReg2"
@@ -18,7 +17,7 @@ preparations_tests:
     - name: '{{ prefix_list1 }}'
     - name: '{{ prefix_list2 }}'
 
-tests:
+sonic_pim_global_tests:
   - name: test_case_01
     description: Add PIM global configuration
     state: merged

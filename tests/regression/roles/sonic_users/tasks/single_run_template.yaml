@@ -1,19 +1,22 @@
-- name: "{{ item.name}} , {{ item.description}}"
+---
+- name: "{{ item.name ~ ' , ' ~ item.description }}"
   sonic_users:
     config: "{{ item.input }}"
     state: "{{ item.state }}"
   register: single_run_task_output
-  ignore_errors: yes
+  ignore_errors: true
 
-- set_fact:
+- name: Set fact
+  ansible.builtin.set_fact:
     single_run_task_status: "{{ single_run_idem_condition }}"
   when: item.task_condition_type == "idempotent"
 
-- set_fact:
+- name: Set fact
+  ansible.builtin.set_fact:
     single_run_task_status: "{{ single_run_condition }}"
   when: item.task_condition_type != "idempotent"
 
-- import_role:
+- name: Update report
+  ansible.builtin.import_role:
     name: common
     tasks_from: single.run.facts.report.yaml
-  

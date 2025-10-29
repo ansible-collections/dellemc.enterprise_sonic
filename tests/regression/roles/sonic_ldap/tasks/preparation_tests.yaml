@@ -1,19 +1,19 @@
 ---
 - name: Delete old LDAP configurations
-  dellemc.enterprise_sonic.sonic_ldap:
+  sonic_ldap:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Create VRFs
-  dellemc.enterprise_sonic.sonic_vrfs:
+  sonic_vrfs:
     config: "{{ preparations_tests.vrfs }}"
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
 - name: Create crypto security profile
   vars:
     ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
+  sonic_config:
     commands: "crypto security-profile {{ preparations_tests.crypto_profile }}"
   failed_when: false
