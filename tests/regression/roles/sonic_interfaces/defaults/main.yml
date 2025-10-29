@@ -242,10 +242,10 @@ sonic_interfaces_tests:
         description: Ansible interface9
       - name: Loopback100
         description: Ansible Loopback100 replace
-      # Use only on platform that support this.
-      # - name: "{{ interface7 }}"
-      #  auto_negotiate: true
-      #  autoneg_mode: AUTONEG_MODE_MSA
+        # Use only on platform that support this.
+        # - name: "{{ interface7 }}"
+        #  auto_negotiate: true
+        #  autoneg_mode: AUTONEG_MODE_MSA
   - name: test_case_21
     description: Override interface parameters
     state: overridden
