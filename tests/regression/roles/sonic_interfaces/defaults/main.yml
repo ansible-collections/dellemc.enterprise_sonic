@@ -12,8 +12,8 @@ sonic_interfaces_tests:
         enabled: false
         unreliable_los: UNRELIABLE_LOS_MODE_AUTO
         # Use only on platform that support this.
-        #auto_negotiate: true
-        #autoneg_mode: AUTONEG_MODE_BAM
+        # auto_negotiate: true
+        # autoneg_mode: AUTONEG_MODE_BAM
   - name: test_case_02
     description: Update interface parameters
     state: merged
@@ -24,16 +24,16 @@ sonic_interfaces_tests:
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
         # Use only on platform that support this.
-        #auto_negotiate: true
-        #autoneg_mode: AUTONEG_MODE_MSA
+        # auto_negotiate: true
+        # autoneg_mode: AUTONEG_MODE_MSA
       - name: "{{ interface8 }}"
         description: Ansible interface8
         mtu: 6000
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_ON
         # Use only on platform that support this.
-        #auto_negotiate: true
-        #autoneg_mode: AUTONEG_MODE_MSA
+        # auto_negotiate: true
+        # autoneg_mode: AUTONEG_MODE_MSA
       - name: "{{ interface10 }}"
         description: Ansible interface10
         mtu: 5666
@@ -77,7 +77,7 @@ sonic_interfaces_tests:
       - name: "{{ interface7 }}"
         description:
         # Use only on platform that support this.
-        #autoneg_mode: AUTONEG_MODE_MSA
+        # autoneg_mode: AUTONEG_MODE_MSA
       - name: "{{ interface8 }}"
         mtu: 6000
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
@@ -243,7 +243,7 @@ sonic_interfaces_tests:
       - name: Loopback100
         description: Ansible Loopback100 replace
       # Use only on platform that support this.
-      #- name: "{{ interface7 }}"
+      # - name: "{{ interface7 }}"
       #  auto_negotiate: true
       #  autoneg_mode: AUTONEG_MODE_MSA
   - name: test_case_21
@@ -255,7 +255,7 @@ sonic_interfaces_tests:
         mtu: 3300
         enabled: true
         # Use only on platform that support this.
-        #auto_negotiate: true
-        #autoneg_mode: AUTONEG_MODE_BAM
+        # auto_negotiate: true
+        # autoneg_mode: AUTONEG_MODE_BAM
       - name: Loopback101
         description: Ansible Loopback101
