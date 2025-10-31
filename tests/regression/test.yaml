@@ -32,6 +32,7 @@
     - sonic_evpn_esi_multihome
     - sonic_fbs_classifiers
     - sonic_fbs_groups
+    - sonic_fbs_interfaces
     - sonic_fbs_policies
     - sonic_fips
     - sonic_image_management
