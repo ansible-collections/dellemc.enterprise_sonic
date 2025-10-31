@@ -1,0 +1,319 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: Ethernet4
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+          monitoring:
+            policy_name: monitoring_policy
+          qos:
+            policy_name: qos_policy
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+  existing_fbs_interfaces_config:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:interface:
+          - id: Ethernet4
+            config:
+              id: Ethernet4
+            ingress-policies:
+              forwarding:
+                config:
+                  policy-name: fwd_policy
+              monitoring:
+                config:
+                  policy-name: monitoring_policy
+              qos:
+                config:
+                  policy-name: qos_policy
+            egress-policies:
+              qos:
+                config:
+                  policy-name: qos_policy
+
+replaced_01:
+  module_args:
+    config:
+      - name: Ethernet4
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+    state: replaced
+  existing_fbs_interfaces_config:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:interface:
+            - id: Ethernet4
+              config:
+                id: Ethernet4
+              ingress-policies:
+                forwarding:
+                  config:
+                    policy-name: fwd_policy
+                monitoring:
+                  config:
+                    policy-name: monitoring_policy
+                qos:
+                  config:
+                    policy-name: qos_policy
+              egress-policies:
+                qos:
+                  config:
+                    policy-name: qos_policy
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface=Ethernet4'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:interface:
+          - id: Ethernet4
+            config:
+              id: Ethernet4
+            ingress-policies:
+              forwarding:
+                config:
+                  policy-name: fwd_policy
+
+replaced_02:
+  module_args:
+    config:
+      - name: Ethernet8
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+    state: replaced
+  existing_fbs_interfaces_config:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:interface:
+            - id: Ethernet4
+              config:
+                id: Ethernet4
+              ingress-policies:
+                forwarding:
+                  config:
+                    policy-name: fwd_policy
+                monitoring:
+                  config:
+                    policy-name: monitoring_policy
+                qos:
+                  config:
+                    policy-name: qos_policy
+              egress-policies:
+                qos:
+                  config:
+                    policy-name: qos_policy
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:interface:
+          - id: Ethernet8
+            config:
+              id: Ethernet8
+            egress-policies:
+              qos:
+                config:
+                  policy-name: qos_policy
+
+overridden_01:
+  module_args:
+    config:
+      - name: Ethernet4
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+    state: overridden
+  existing_fbs_interfaces_config:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:interface:
+            - id: Ethernet4
+              config:
+                id: Ethernet4
+              ingress-policies:
+                forwarding:
+                  config:
+                    policy-name: fwd_policy
+                monitoring:
+                  config:
+                    policy-name: monitoring_policy
+                qos:
+                  config:
+                    policy-name: qos_policy
+              egress-policies:
+                qos:
+                  config:
+                    policy-name: qos_policy
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:interface:
+          - id: Ethernet4
+            config:
+              id: Ethernet4
+            ingress-policies:
+              forwarding:
+                config:
+                  policy-name: fwd_policy
+
+overridden_02:
+  module_args:
+    config:
+      - name: Ethernet4
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+      - name: Ethernet8
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+    state: overridden
+  existing_fbs_interfaces_config:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:interface:
+            - id: Ethernet4
+              config:
+                id: Ethernet4
+              ingress-policies:
+                forwarding:
+                  config:
+                    policy-name: fwd_policy
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:interface:
+          - id: Ethernet8
+            config:
+              id: Ethernet8
+            egress-policies:
+              qos:
+                config:
+                  policy-name: qos_policy
+
+deleted_01:
+  module_args:
+    config:
+      - name: Ethernet4
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+          monitoring:
+            policy_name: monitoring_policy
+          qos:
+            policy_name: qos_policy
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+      - name: Ethernet8
+    state: deleted
+  existing_fbs_interfaces_config:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:interface:
+            - id: Ethernet4
+              config:
+                id: Ethernet4
+              ingress-policies:
+                forwarding:
+                  config:
+                    policy-name: fwd_policy
+                monitoring:
+                  config:
+                    policy-name: monitoring_policy
+                qos:
+                  config:
+                    policy-name: qos_policy
+              egress-policies:
+                qos:
+                  config:
+                    policy-name: qos_policy
+            - id: Ethernet8
+              config:
+                id: Ethernet8
+              egress-policies:
+                qos:
+                  config:
+                    policy-name: qos_policy
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface=Ethernet4/ingress-policies/forwarding'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface=Ethernet4/ingress-policies/monitoring'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface=Ethernet4/ingress-policies/qos'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface=Ethernet4/egress-policies/qos'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface=Ethernet8'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_fbs_interfaces_config:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:interface:
+            - id: Ethernet4
+              config:
+                id: Ethernet4
+              ingress-policies:
+                forwarding:
+                  config:
+                    policy-name: fwd_policy
+                monitoring:
+                  config:
+                    policy-name: monitoring_policy
+                qos:
+                  config:
+                    policy-name: qos_policy
+              egress-policies:
+                qos:
+                  config:
+                    policy-name: qos_policy
+            - id: Ethernet8
+              config:
+                id: Ethernet8
+              egress-policies:
+                qos:
+                  config:
+                    policy-name: qos_policy
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/interfaces/interface'
+      method: 'delete'
+      data:

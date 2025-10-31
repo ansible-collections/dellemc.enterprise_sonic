@@ -135,6 +135,7 @@ options:
       - evpn_esi_multihome
       - ssh_server
       - ecmp_load_share
+      - fbs_interfaces
 """
 
 EXAMPLES = """

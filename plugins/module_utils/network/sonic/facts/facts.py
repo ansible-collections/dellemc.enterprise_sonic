@@ -105,6 +105,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.dcbx.dcbx import DcbxFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ssh_server.ssh_server import Ssh_serverFacts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.ecmp_load_share.ecmp_load_share import Ecmp_load_shareFacts
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.fbs_interfaces.fbs_interfaces import Fbs_interfacesFacts
 
 FACT_LEGACY_SUBSETS = {}
 FACT_RESOURCE_SUBSETS = dict(
@@ -190,6 +191,7 @@ FACT_RESOURCE_SUBSETS = dict(
     evpn_esi_multihome=Evpn_esi_multihomeFacts,
     ssh_server=Ssh_serverFacts,
     ecmp_load_share=Ecmp_load_shareFacts,
+    fbs_interfaces=Fbs_interfacesFacts
 )
 
 
