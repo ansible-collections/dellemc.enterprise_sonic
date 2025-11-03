@@ -5,8 +5,8 @@
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
 The sonic_vrrp class
-It is in this file where the current configuration (as dict)
-is compared to the provided configuration (as dict) and the command set
+It is in this file where the current configuration (as list)
+is compared to the provided configuration (as list) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
@@ -137,8 +137,8 @@ class Vrrp(ConfigBase):
     def get_vrrp_facts(self):
         """ Get the 'facts' (the current configuration)
 
-        :rtype: A dictionary
-        :returns: The current configuration as a dictionary
+        :rtype: A list
+        :returns: The current configuration as a list
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         vrrp_facts = facts['ansible_network_resources'].get('vrrp')
@@ -190,7 +190,7 @@ class Vrrp(ConfigBase):
 
     def set_config(self, existing_vrrp_facts):
         """ Collect the configuration from the args passed to the module,
-            collect the current configuration (as a dict from facts)
+            collect the current configuration (as a list from facts)
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -213,8 +213,8 @@ class Vrrp(ConfigBase):
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
 
-        :param want: the desired configuration as a dictionary
-        :param have: the current configuration as a dictionary
+        :param want: the desired configuration as a list
+        :param have: the current configuration as a list
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -477,7 +477,7 @@ class Vrrp(ConfigBase):
         if preempt is not None:
             requests.append(update_requests('preempt', {'openconfig-if-ip:preempt': preempt}))
 
-        if preempt_delay:
+        if preempt_delay is not None:
             requests.append(update_requests('preempt_delay', {'openconfig-if-ip:preempt-delay': preempt_delay}))
 
         if advertisement_interval:

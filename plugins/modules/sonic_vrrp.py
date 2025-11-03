@@ -75,6 +75,7 @@ options:
             description:
               - Configure preempt delay interval (0 to 1000)
             type: int
+            version_added: 4.0.0
           priority:
             description:
               - Priority for MASTER election (1 to 254)
