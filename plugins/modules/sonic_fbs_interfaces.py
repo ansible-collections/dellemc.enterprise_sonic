@@ -239,7 +239,6 @@ EXAMPLES = """
 # (No 'service-policy' configuration present)
 # sonic# show running-configuration interface Eth 1/7 | grep service-policy
 # (No 'service-policy' configuration present)
-
 """
 RETURN = """
 before:
