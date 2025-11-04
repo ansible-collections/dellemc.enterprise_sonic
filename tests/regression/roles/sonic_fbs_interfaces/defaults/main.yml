@@ -30,7 +30,7 @@ sonic_fbs_interfaces_tests:
             policy_name: fwd_policy
 
   - name: test_case_3
-    description: Update FBS interfaces configuration
+    description: Replace FBS interfaces configuration
     state: replaced
     input:
       - name: '{{ interface1 }}'

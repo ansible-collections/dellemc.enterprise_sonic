@@ -90,6 +90,156 @@ options:
 """
 
 EXAMPLES = """
+# Using "merged" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# (No 'service-policy' configuration present)
+
+- name: Merge FBS interfaces configuration
+  dellemc.enterprise_sonic.sonic_fbs_interfaces:
+    config:
+      - name: Eth1/5
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+          monitoring:
+            policy_name: monitoring_policy
+          qos:
+            policy_name: qos_policy
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+    state: merged
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# service-policy type qos in qos_policy
+# service-policy type monitoring in monitoring_policy
+# service-policy type forwarding in fwd_policy
+# service-policy type qos out qos_policy
+
+
+# Using "replaced" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# service-policy type qos in qos_policy
+# service-policy type monitoring in monitoring_policy
+# service-policy type forwarding in fwd_policy
+# service-policy type qos out qos_policy
+# sonic# show running-configuration interface Eth 1/7 | grep service-policy
+# service-policy type qos out qos_policy
+
+- name: Replace FBS interfaces configuration
+  dellemc.enterprise_sonic.sonic_fbs_interfaces:
+    config:
+      - name: Eth1/5
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+    state: replaced
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# service-policy type forwarding in fwd_policy
+# sonic# show running-configuration interface Eth 1/7 | grep service-policy
+# service-policy type qos out qos_policy
+
+
+# Using "overridden" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# service-policy type qos in qos_policy
+# service-policy type monitoring in monitoring_policy
+# service-policy type forwarding in fwd_policy
+# service-policy type qos out qos_policy
+
+- name: Override FBS interfaces configuration
+  dellemc.enterprise_sonic.sonic_fbs_interfaces:
+    config:
+      - name: Eth1/7
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+    state: overridden
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# (No 'service-policy' configuration present)
+# sonic# show running-configuration interface Eth 1/7 | grep service-policy
+# service-policy type qos out qos_policy
+
+
+# Using "deleted" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# service-policy type qos in qos_policy
+# service-policy type monitoring in monitoring_policy
+# service-policy type forwarding in fwd_policy
+# service-policy type qos out qos_policy
+
+- name: Delete FBS interfaces configuration
+  dellemc.enterprise_sonic.sonic_fbs_interfaces:
+    config:
+      - name: Eth1/5
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+          monitoring:
+            policy_name: monitoring_policy
+    state: deleted
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# service-policy type qos in qos_policy
+# service-policy type qos out qos_policy
+
+
+# Using "deleted" state
+#
+# Before state:
+# -------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# service-policy type qos in qos_policy
+# service-policy type monitoring in monitoring_policy
+# service-policy type forwarding in fwd_policy
+# service-policy type qos out qos_policy
+# sonic# show running-configuration interface Eth 1/7 | grep service-policy
+# service-policy type qos out qos_policy
+
+- name: Delete all FBS interfaces configuration
+  dellemc.enterprise_sonic.sonic_fbs_interfaces:
+    config:
+    state: deleted
+
+# After state:
+# ------------
+#
+# sonic# show running-configuration interface Eth 1/5 | grep service-policy
+# (No 'service-policy' configuration present)
+# sonic# show running-configuration interface Eth 1/7 | grep service-policy
+# (No 'service-policy' configuration present)
+
 """
 RETURN = """
 before:
@@ -97,7 +247,7 @@ before:
   returned: always
   type: list
 after:
-  description: The resulting configuration module invocation.
+  description: The resulting configuration from module invocation.
   returned: when changed
   type: dict
 after(generated):
