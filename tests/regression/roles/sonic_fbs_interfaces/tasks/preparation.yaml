@@ -1,0 +1,15 @@
+---
+- name: Delete FBS interfaces configuration
+  sonic_fbs_interfaces:
+    config:
+    state: deleted
+
+- name: Create FBS policies
+  sonic_fbs_policies:
+    config:
+      - policy_name: fwd_policy
+        policy_type: forwarding
+      - policy_name: monitoring_policy
+        policy_type: monitoring
+      - policy_name: qos_policy
+        policy_type: qos
