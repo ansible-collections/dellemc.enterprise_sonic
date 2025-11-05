@@ -593,7 +593,7 @@ class Lag_interfaces(ConfigBase):
             have_obj = search_obj_in_list(conf['name'], have, 'name')
             if conf.get('mode'):
                 if have_obj and conf['mode'] != have_obj['mode'] and state == 'merged':
-                    self._module.fail_json(msg='cannot modify mode for existing portchannel: {1}'.format(conf['name']))
+                    self._module.fail_json(msg='cannot modify mode for existing portchannel: {0}'.format(conf['name']))
             elif state != 'deleted':
                 # For new LAG interface, set default mode to 'lacp'
                 if have_obj and state == 'merged':
