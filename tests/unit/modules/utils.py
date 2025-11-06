@@ -11,6 +11,7 @@ from ansible_collections.dellemc.enterprise_sonic.tests.unit.compat.mock import 
 
 cur_context = None
 
+
 def set_module_args(args):
 
     global cur_context
@@ -41,6 +42,7 @@ def set_module_args(args):
         # Ansible versions.
         serialized_args = json.dumps({"ANSIBLE_MODULE_ARGS": args})
         basic._ANSIBLE_ARGS = to_bytes(serialized_args)
+
 
 class AnsibleExitJson(Exception):
     pass
