@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - ansible-core_219_compatibility - Modify UT module param setting and Netcommon requirements (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/600).
