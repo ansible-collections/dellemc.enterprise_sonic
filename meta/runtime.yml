@@ -1,5 +1,5 @@
 ---
-requires_ansible: '>=2.15.0'
+requires_ansible: '>=2.17.0'
 plugin_routing:
   modules:
     aaa:
@@ -8,6 +8,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_acl_interfaces
     api:
       redirect: dellemc.enterprise_sonic.sonic_api
+    ars:
+      redirect: dellemc.enterprise_sonic.sonic_ars
     bfd:
       redirect: dellemc.enterprise_sonic.sonic_bfd
     bgp:
@@ -40,12 +42,20 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_dhcp_snooping
     drop_counter:
       redirect: dellemc.enterprise_sonic.sonic_drop_counter
+    ecmp_load_share:
+      redirect: dellemc.enterprise_sonic.sonic_ecmp_load_share
     evpn_esi_multihome:
       redirect: dellemc.enterprise_sonic.sonic_evpn_esi_multihome
     facts:
       redirect: dellemc.enterprise_sonic.sonic_facts
     fbs_classifiers:
       redirect: dellemc.enterprise_sonic.sonic_fbs_classifiers
+    fbs_groups:
+      redirect: dellemc.enterprise_sonic.sonic_fbs_groups
+    fbs_interfaces:
+      redirect: dellemc.enterprise_sonic.sonic_fbs_interfaces
+    fbs_policies:
+      redirect: dellemc.enterprise_sonic.sonic_fbs_policies
     fips:
       redirect: dellemc.enterprise_sonic.sonic_fips
     image_management:
@@ -54,6 +64,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_interfaces
     ip_neighbor:
       redirect: dellemc.enterprise_sonic.sonic_ip_neighbor
+    ip_neighbor_interfaces:
+      redirect: dellemc.enterprise_sonic.sonic_ip_neighbor_interfaces
     ipv6_router_advertisement:
       redirect: dellemc.enterprise_sonic.sonic_ipv6_router_advertisement
     l2_acls:
@@ -86,6 +98,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_mgmt_servers
     mirroring:
       redirect: dellemc.enterprise_sonic.sonic_mirroring
+    network_policy:
+      redirect: dellemc.enterprise_sonic.sonic_network_policy
     ntp:
       redirect: dellemc.enterprise_sonic.sonic_ntp
     ospf_area:
@@ -94,6 +108,12 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2
     ospfv2_interfaces:
       redirect: dellemc.enterprise_sonic.sonic_ospfv2_interfaces
+    ospfv3:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3
+    ospfv3_area:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3_area
+    ospfv3_interfaces:
+      redirect: dellemc.enterprise_sonic.sonic_ospfv3_interfaces
     pim_global:
       redirect: dellemc.enterprise_sonic.sonic_pim_global
     pim_interfaces:
@@ -136,6 +156,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_sflow
     ssh:
       redirect: dellemc.enterprise_sonic.sonic_ssh
+    ssh_server:
+      redirect: dellemc.enterprise_sonic.sonic_ssh_server
     static_routes:
       redirect: dellemc.enterprise_sonic.sonic_static_routes
     stp:
@@ -156,5 +178,3 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_vrrp
     vxlans:
       redirect: dellemc.enterprise_sonic.sonic_vxlans
-    ssh_server:
-      redirect: dellemc.enterprise_sonic.sonic_ssh_server

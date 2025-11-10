@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -94,6 +94,7 @@ class Route_maps(ConfigBase):
 
     set_extcomm_rest_names = {
         'rt': 'route-target:',
+        'bandwidth': 'link-bandwidth:',
         'soo': 'route-origin:'
     }
 
@@ -129,7 +130,7 @@ class Route_maps(ConfigBase):
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
-                    self._module.fail_json(msg=str(exc), code=exc.errno)
+                    self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
 
@@ -224,8 +225,7 @@ class Route_maps(ConfigBase):
         # Apply the commands from the playbook
         diff = get_diff(want, modify_have, TEST_KEYS)
         merged_commands = diff
-
-        replaced_requests = self.get_modify_route_maps_requests(merged_commands, want, modify_have)
+        replaced_requests = self.get_modify_route_maps_requests(merged_commands, want, have)
         requests.extend(replaced_requests)
         if merged_commands and len(replaced_requests) > 0:
             merged_commands = update_states(merged_commands, "replaced")
@@ -331,7 +331,7 @@ class Route_maps(ConfigBase):
         for command in commands:
             if command.get('action') is None:
                 self.insert_route_map_cmd_action(command, want)
-            route_map_payload = self.get_modify_single_route_map_request(command, have)
+            route_map_payload = self.get_modify_single_route_map_request(command, have, requests)
             if route_map_payload:
                 route_maps_payload_list.append(route_map_payload)
 
@@ -371,54 +371,18 @@ class Route_maps(ConfigBase):
             if conf_action is not None:
                 command['action'] = conf_action
 
-    def get_modify_single_route_map_request(self, command, have):
+    def get_modify_single_route_map_request(self, command, have, requests):
         '''Create and return the appropriate set of route map REST API attributes
         to modify the route map configuration specified by the current "command".'''
 
-        request = {}
-        if not command:
-            return request
-
-        conf_map_name = command.get('map_name', None)
-        conf_action = command.get('action', None)
-        conf_seq_num = command.get('sequence_num', None)
-        if not conf_map_name or not conf_action or not conf_seq_num:
-            return request
-
-        req_seq_num = str(conf_seq_num)
-
-        if conf_action == 'permit':
-            req_action = 'ACCEPT_ROUTE'
-        elif conf_action == 'deny':
-            req_action = 'REJECT_ROUTE'
-        else:
-            return request
-
-        # Create a "blank" template for the request
-        route_map_request = {
-            'name': conf_map_name,
-            'config': {'name': conf_map_name},
-            'statements': {
-                'statement': [
-                    {
-                        'name': req_seq_num,
-                        'config': {
-                            'name': req_seq_num
-                        },
-                        'actions': {
-                            'config': {
-                                'policy-result': req_action
-                            }
-                        }
-                    }
-                ]
-            }
-        }
+        route_map_request = self.get_route_map_request_skeleton(command)
+        if route_map_request == {}:
+            return route_map_request
 
         route_map_statement = route_map_request['statements']['statement'][0]
 
         self.get_route_map_modify_match_attr(command, route_map_statement)
-        self.get_route_map_modify_set_attr(command, route_map_statement, have)
+        self.get_route_map_modify_set_attr(command, route_map_statement, have, requests)
         self.get_route_map_modify_call_attr(command, route_map_statement)
 
         return route_map_request
@@ -557,7 +521,7 @@ class Route_maps(ConfigBase):
                 }
             }
 
-    def get_route_map_modify_set_attr(self, command, route_map_statement, have):
+    def get_route_map_modify_set_attr(self, command, route_map_statement, have, requests):
         '''In the dict specified by the input route_map_statement paramenter,
         provide REST API definitions of all "set" attributes contained in the
         user input command dict specified by the "command" input parameter
@@ -573,7 +537,7 @@ class Route_maps(ConfigBase):
         conf_seq_num = command.get('sequence_num')
         cmd_rmap_have = self.get_matching_map(conf_map_name, conf_seq_num, have)
         if cmd_rmap_have:
-            cfg_set_top = cmd_rmap_have.get('set')
+            cfg_set_top = cmd_rmap_have.get('set', {})
 
         route_map_actions = route_map_statement['actions']
 
@@ -582,6 +546,14 @@ class Route_maps(ConfigBase):
         route_map_actions['openconfig-bgp-policy:bgp-actions'] = {}
         route_map_bgp_actions = \
             route_map_actions['openconfig-bgp-policy:bgp-actions'] = {}
+        # Handle 'set' ARS object
+        if cmd_set_top.get('ars_object'):
+            route_map_bgp_actions['openconfig-routing-policy-ext:ars-object'] = {
+                'config': {
+                    'set-ars-object': cmd_set_top['ars_object']
+                }
+            }
+
         # Handle 'set' AS path prepend
         if cmd_set_top.get('as_path_prepend'):
             route_map_bgp_actions['set-as-path-prepend'] = {
@@ -718,6 +690,48 @@ class Route_maps(ConfigBase):
                 for soo in soo_list:
                     rmap_set_extcommunities_cfg.append("route-origin:" + soo)
 
+            if cmd_set_top['extcommunity'].get('bandwidth'):
+
+                # If the bandwidth extcommunity is already configured for an existing route map
+                # with the same name and sequence number, remove the existing configuration.
+                if cfg_set_top.get('extcommunity', {}) and cfg_set_top['extcommunity'].get('bandwidth'):
+                    bandwidth_val = cfg_set_top['extcommunity']['bandwidth']['bandwidth_value']
+                    if cfg_set_top['extcommunity']['bandwidth']['transitive_value']:
+                        transitive_val = "transitive"
+                    else:
+                        transitive_val = "non-transitive"
+                    bw_community_str = ":".join(["link-bandwidth", bandwidth_val, transitive_val])
+                    remove_command = {}
+                    remove_command["map_name"] = command.get('map_name')
+                    remove_command["sequence_num"] = command.get('sequence_num')
+                    remove_command["action"] = command.get("action")
+                    remove_request = self.get_route_map_request_skeleton(remove_command)
+                    route_map_remove_statement = remove_request['statements']['statement'][0]
+                    route_map_remove_statement['actions']['openconfig-bgp-policy:bgp-actions'] = {
+                        'set-ext-community': {
+                            'config': {
+                                'method': 'INLINE',
+                                'options': 'REMOVE'
+                            },
+                            'inline': {
+                                'config': {
+                                    'communities': [bw_community_str]
+                                }
+                            }
+                        }
+                    }
+                    remove_route_maps_data = {self.route_maps_data_path: {'policy-definition': [remove_request]}}
+                    final_remove_request = {'path': self.route_maps_uri, 'method': PATCH, 'data': remove_route_maps_data}
+                    requests.append(final_remove_request)
+
+                # Proceed with creation of the new request.
+                bandwidth_val = cmd_set_top['extcommunity'].get('bandwidth').get("bandwidth_value")
+                if cmd_set_top['extcommunity'].get('bandwidth').get("transitive_value"):
+                    transitive_val = "transitive"
+                else:
+                    transitive_val = "non-transitive"
+                rmap_set_extcommunities_cfg.append(":".join(["link-bandwidth", bandwidth_val, transitive_val]))
+
         #
         # Handle configuration for BGP policy "set" conditions
         # to be located within the "config" sub-dictionary
@@ -789,6 +803,52 @@ class Route_maps(ConfigBase):
         # Handle set tag
         if cmd_set_top.get('tag'):
             route_map_bgp_actions_cfg['set-tag'] = cmd_set_top['tag']
+
+    @staticmethod
+    def get_route_map_request_skeleton(command):
+        '''Create and return the appropriate set of route map REST API attributes
+        to create the route map configuration specified by the current "command".'''
+
+        route_map_request = {}
+        if not command:
+            return route_map_request
+
+        conf_map_name = command.get('map_name', None)
+        conf_action = command.get('action', None)
+        conf_seq_num = command.get('sequence_num', None)
+        if not conf_map_name or not conf_action or not conf_seq_num:
+            return route_map_request
+
+        req_seq_num = str(conf_seq_num)
+
+        if conf_action == 'permit':
+            req_action = 'ACCEPT_ROUTE'
+        elif conf_action == 'deny':
+            req_action = 'REJECT_ROUTE'
+        else:
+            return route_map_request
+
+        # Create a "blank" template for the request
+        route_map_request = {
+            'name': conf_map_name,
+            'config': {'name': conf_map_name},
+            'statements': {
+                'statement': [
+                    {
+                        'name': req_seq_num,
+                        'config': {
+                            'name': req_seq_num
+                        },
+                        'actions': {
+                            'config': {
+                                'policy-result': req_action
+                            }
+                        }
+                    }
+                ]
+            }
+        }
+        return route_map_request
 
     @staticmethod
     def get_route_map_modify_call_attr(command, route_map_statement):
@@ -1284,6 +1344,18 @@ class Route_maps(ConfigBase):
         # Handle BGP "set" items within the "config" sub-tree in the openconfig REST API definitons.
         self.get_route_map_delete_set_bgp_cfg(command, set_both_keys, cmd_rmap_have, requests)
 
+        # Handle ars_object
+        if ('ars_object' in set_both_keys and
+                cmd_set_top['ars_object'] == cfg_set_top['ars_object']):
+            request_uri = bgp_set_delete_req_base + 'openconfig-routing-policy-ext:ars-object'
+            request = {'path': request_uri, 'method': DELETE}
+            requests.append(request)
+        else:
+            if cmd_set_top.get('ars_object'):
+                cmd_set_top.pop('ars_object')
+                if not cmd_set_top:
+                    return
+
         # Handle as_path_prepend
         if ('as_path_prepend' in set_both_keys and
                 cmd_set_top['as_path_prepend'] == cfg_set_top['as_path_prepend']):
@@ -1404,18 +1476,31 @@ class Route_maps(ConfigBase):
                     if cfg_set_top['extcommunity'].get(extcomm_type):
                         # Append eligible entries to the delete list. Remember which entries
                         # are ineligible.
-                        for extcomm_number in cmd_set_top['extcommunity'][extcomm_type]:
-                            if extcomm_number in cfg_set_top['extcommunity'][extcomm_type]:
-                                set_extcommunity_delete_attrs.append(
-                                    self.set_extcomm_rest_names[extcomm_type] + extcomm_number)
+                        if extcomm_type == "bandwidth":
+                            bandwidth_value = cfg_set_top['extcommunity'][extcomm_type]["bandwidth_value"]
+                            transitive_value = cfg_set_top['extcommunity'][extcomm_type]["transitive_value"]
+                            if transitive_value:
+                                transitive_string = "transitive"
                             else:
-                                ext_comm_number_remove_list.append(extcomm_number)
+                                transitive_string = "non-transitive"
+                            if (bandwidth_value == cmd_set_top['extcommunity'][extcomm_type].get("bandwidth_value") and
+                               transitive_value == cmd_set_top['extcommunity'][extcomm_type].get("transitive_value")):
+                                set_extcommunity_delete_attrs.append(self.set_extcomm_rest_names[extcomm_type] + bandwidth_value + ":" + transitive_string)
+                            else:
+                                cmd_set_top['extcommunity'].pop('bandwidth')
+                        else:
+                            for extcomm_number in cmd_set_top['extcommunity'][extcomm_type]:
+                                if extcomm_number in cfg_set_top['extcommunity'][extcomm_type]:
+                                    set_extcommunity_delete_attrs.append(
+                                        self.set_extcomm_rest_names[extcomm_type] + extcomm_number)
+                                else:
+                                    ext_comm_number_remove_list.append(extcomm_number)
 
-                        # Delete ineligible entries from the command list.
-                        for extcomm_number in ext_comm_number_remove_list:
-                            cmd_set_top['extcommunity'][extcomm_type].remove(extcomm_number)
-                        if not cmd_set_top['extcommunity'][extcomm_type]:
-                            cmd_set_top['extcommunity'].pop(extcomm_type)
+                            # Delete ineligible entries from the command list.
+                            for extcomm_number in ext_comm_number_remove_list:
+                                cmd_set_top['extcommunity'][extcomm_type].remove(extcomm_number)
+                            if not cmd_set_top['extcommunity'][extcomm_type]:
+                                cmd_set_top['extcommunity'].pop(extcomm_type)
                     else:
                         # If no extcommunity entries of this type are configured,
                         # pop the entire extcommunity command sub-dict for this type.
@@ -1962,6 +2047,7 @@ class Route_maps(ConfigBase):
         # is handled as a "top level" attribute because it can contain
         # only one configured member (either an rtt_action or a "value").
         set_top_level_keys = [
+            'ars_object',
             'as_path_prepend',
             'comm_list_delete',
             'local_preference',
@@ -1972,6 +2058,7 @@ class Route_maps(ConfigBase):
         ]
 
         set_uri_attr = {
+            'ars_object': bgp_set_delete_req_base + 'openconfig-routing-policy-ext:ars-object',
             'as_path_prepend': bgp_set_delete_req_base + 'set-as-path-prepend',
             'comm_list_delete': bgp_set_delete_req_base + 'set-community-delete',
             'community': bgp_set_delete_req_base + 'set-community',
@@ -2150,20 +2237,28 @@ class Route_maps(ConfigBase):
                     if extcomm_type in cfg_set_top['extcommunity']:
                         # Delete eligible configured extcommunity list items for this
                         # extcommunity list
-                        cfg_extcommunity_list_set = set(cfg_set_top['extcommunity'][extcomm_type])
-                        cmd_extcommunity_list_set = ([])
-                        saved_cmd_set = []
-                        if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
-                            cmd_extcommunity_list_set = set(to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type]))
-                            saved_cmd_set = command['set']['extcommunity'].pop(extcomm_type)
-                        for extcomm_number in cfg_extcommunity_list_set.difference(cmd_extcommunity_list_set):
-                            if extcomm_number in saved_cmd_set:
-                                # ignore equivalent asn:nn with different as-notation format
-                                continue
-                            set_extcommunity_delete_attrs.append(
-                                self.set_extcomm_rest_names[extcomm_type] +
-                                extcomm_number)
-                            set_extcommunity_delete_attrs_type.append(extcomm_number)
+                        if extcomm_type == "bandwidth":
+                            if "bandwidth_value" in cfg_set_top.get("extcommunity", {}).get("bandwidth"):
+                                if 'bandwidth' not in cmd_set_top.get('extcommunity', {}):
+                                    bandwidth_value = cfg_set_top['extcommunity']['bandwidth']['bandwidth_value']
+                                    transitive_value = "transitive" if cfg_set_top['extcommunity']['bandwidth']['transitive_value'] else "non-transitive"
+                                    bandwidth_string = (self.set_extcomm_rest_names['bandwidth'] + bandwidth_value + ":" + transitive_value)
+                                    set_extcommunity_delete_attrs.append(bandwidth_string)
+                                    set_extcommunity_delete_attrs_type.append(cfg_set_top['extcommunity']['bandwidth'])
+                        else:
+                            cfg_extcommunity_list_set = set(cfg_set_top['extcommunity'][extcomm_type])
+                            cmd_extcommunity_list_set = ([])
+                            saved_cmd_set = []
+                            if cmd_set_top.get('extcommunity') and extcomm_type in cmd_set_top['extcommunity']:
+                                cmd_extcommunity_list_set = set(to_extcom_str_list(cmd_set_top['extcommunity'][extcomm_type]))
+                                saved_cmd_set = command['set']['extcommunity'].pop(extcomm_type)
+
+                            for extcomm_number in cfg_extcommunity_list_set.difference(cmd_extcommunity_list_set):
+                                if extcomm_number in saved_cmd_set:
+                                    # ignore equivalent asn:nn with different as-notation format
+                                    continue
+                                set_extcommunity_delete_attrs.append(self.set_extcomm_rest_names[extcomm_type] + extcomm_number)
+                                set_extcommunity_delete_attrs_type.append(extcomm_number)
 
                         if set_extcommunity_delete_attrs_type:
                             # Update the list of deleted extcommunity list items of this type

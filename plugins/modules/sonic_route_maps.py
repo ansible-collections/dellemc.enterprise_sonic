@@ -191,6 +191,11 @@ options:
         description: "Information to set into a matching route for re-distribution"
         type: dict
         suboptions:
+          ars_object:
+            description:
+              - Adaptive Routing and Switching object
+            type: str
+            version_added: 3.1.0
           as_path_prepend:
             description:
               - "String specifying a comma-separated list of AS-path numbers"
@@ -290,6 +295,28 @@ options:
                   - "list values containing an embedded ':' character."
                 type: list
                 elements: str
+              bandwidth:
+                version_added: "3.1.0"
+                description:
+                  - Link bandwidth extended community
+                type: dict
+                suboptions:
+                  bandwidth_value:
+                    description:
+                      - "Options are one of the following values"
+                      - "<1..4294967295>  Cumulative bandwidth of all multipaths (outbound-only)"
+                      - "num-multipaths   Internally computed bandwidth based on number of multipaths (outbound-only)"
+                    type: str
+                    required: true
+                  transitive_value:
+                    description:
+                      - The operational default is false if this option is not specified.
+                      - True for transitive, false for non-transitive. If true, include the
+                      - link bandwidth extcommunity in route advertisements sent to
+                      - neighbors across AS boundaries (eBGP neighbors). If false,
+                      - drop the link bandwidth extcommunity from route advertisements
+                      - sent across AS boundaries.
+                    type: bool
           ip_next_hop:
             description:
               - IPv4 next hop address attributes to set into a matching route

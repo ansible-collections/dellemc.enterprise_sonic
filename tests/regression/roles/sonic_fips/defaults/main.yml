@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: fips
 
-tests:
+sonic_fips_tests:
   - name: test_case_01
     description: Add FIPS mode configuration
     state: merged
@@ -21,7 +20,7 @@ tests:
     input:
       enable: true
 
-test_delete_all:
-  - name: del_all_test_case_04
+  - name: test_case_04
     description: Delete all FIPS configuration
     state: deleted
+    input: {}

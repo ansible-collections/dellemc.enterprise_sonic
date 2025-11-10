@@ -1,9 +1,9 @@
 ---
 test_keys:
   - marks:
-    - year
+      - year
   - subjects:
-    - code
+      - code
 want:
   - name: test1
     marks:

@@ -18,10 +18,10 @@ merged_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
       method: "patch"
       data:
-          openconfig-system-ext:config:
-            lockout-period: 5
-            max-retry: 4
-            console-exempt: true
+        openconfig-system-ext:config:
+          lockout-period: 5
+          max-retry: 4
+          console-exempt: true
 deleted_01:
   module_args:
     state: deleted
@@ -60,9 +60,9 @@ replaced_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
       method: "patch"
       data:
-          openconfig-system-ext:config:
-            max-retry: 4
-            console-exempt: true
+        openconfig-system-ext:config:
+          max-retry: 4
+          console-exempt: true
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config/lockout-period"
       method: "delete"
 overridden_01:
@@ -85,7 +85,7 @@ overridden_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/lockout/config"
       method: "patch"
       data:
-          openconfig-system-ext:config:
-            max-retry: 1
-            console-exempt: true
-            lockout-period: 4
+        openconfig-system-ext:config:
+          max-retry: 1
+          console-exempt: true
+          lockout-period: 4

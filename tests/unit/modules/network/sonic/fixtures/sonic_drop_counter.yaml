@@ -177,7 +177,7 @@ deleted_01:
           - ANY
       - name: counter2
       - name: counter3
-        enable: False
+        enable: false
     state: deleted
   existing_drop_counter_config:
     - path: 'data/sonic-debugcounter:sonic-debugcounter'

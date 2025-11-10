@@ -1,0 +1,243 @@
+---
+ansible_connection: httpapi
+
+sonic_ospfv3_interfaces_test_vars:
+  po1: "PortChannel100"
+  po2: "PortChannel101"
+  vlan1: "Vlan100"
+  vlan2: "Vlan101"
+  lo1: "Loopback100"
+
+sonic_ospfv3_interfaces_preparations_tests:
+  lag_interfaces:
+    - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
+    - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
+  vlans:
+    - vlan_id: 100
+    - vlan_id: 101
+  init_loopback:
+    - "interface {{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
+  init_ospf:
+    - router ospfv3
+  delete_ospf:
+    - no router ospfv3
+
+sonic_ospfv3_interfaces_tests:
+
+  - name: test_case_01
+    description: Add OSPFv3 interface configurations for Ethernet interfaces
+    state: merged
+    input:
+      - name: "{{ interface7 }}"
+        area_id: 2.2.2.2
+        cost: 20
+        priority: 20
+        hello_interval: 10
+        dead_interval: 40
+        mtu_ignore: true
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: "{{ interface8 }}"
+        area_id: '3.3.3.3'
+        bfd:
+          enable: true
+        network: point_to_point
+      - name: "{{ interface9 }}"
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+
+  - name: test_case_02
+    description: Add OSPFv3 interface configurations for Lag interfaces
+    state: merged
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
+        area_id: 4.4.4.4
+        cost: 20
+        priority: 15
+        retransmit_interval: 100
+        transmit_delay: 20
+        network: broadcast
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
+        area_id: '3.3.3.3'
+
+  - name: test_case_03
+    description: Add OSPFv3 interface configurations for Vlan and Loopback interfaces
+    state: merged
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
+        area_id: 3.3.3.3
+        cost: 20
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
+        bfd:
+          enable: true
+          bfd_profile: 'profile2'
+        network: broadcast
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
+        network: point_to_point
+
+  - name: test_case_04
+    description: Add OSPFv3 interface configurations
+    state: merged
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
+        area_id: 4.4.4.4
+        cost: 20
+        priority: 15
+        network: point_to_point
+        bfd:
+          enable: true
+          bfd_profile: 'profile2'
+      - name: "{{ interface7 }}"
+        area_id: '4.4.4.4'
+        cost: 15
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
+        bfd:
+          enable: true
+          bfd_profile: 'profile2'
+        network: broadcast
+        area_id: '1.1.1.1'
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
+        area_id: 5.5.5.5
+        cost: 20
+        priority: 20
+        hello_interval: 10
+        dead_interval: 40
+        mtu_ignore: true
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+        network: point_to_point
+
+  - name: test_case_del_01
+    description: Delete OSPFv3 interface configurations
+    state: deleted
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
+        area_id: 3.3.3.3
+        cost: 20
+        priority: 20
+        hello_interval: 10
+        dead_interval: 40
+        mtu_ignore: true
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: "{{ interface7 }}"
+        bfd:
+          enable: true
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
+        network: broadcast
+
+  - name: test_case_del_02
+    description: Delete OSPFv3 interface configurations for interfaces default address
+    state: deleted
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
+        area_id: 3.3.3.3
+        cost: 20
+        priority: 15
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
+        area_id: 3.3.3.3
+        cost: 20
+
+  - name: test_case_del_03
+    description: Delete entire OSPFv3 for an interface.
+    state: deleted
+    input:
+      - name: "{{ interface7 }}"
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
+
+  - name: test_case_05
+    description: Add OSPFv3 interface configurations for interface level
+    state: merged
+    input:
+      - name: "{{ interface7 }}"
+        area_id: 3.3.3.3
+        cost: 20
+        priority: 20
+        hello_interval: 10
+        dead_interval: 40
+        mtu_ignore: true
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
+        area_id: 3.3.3.3
+        cost: 20
+
+  - name: test_case_replace_01
+    description: Replace existing OSPFv3 interface configurations for interface level
+    state: replaced
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
+        area_id: '3.3.3.3'
+        cost: 20
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.lo1 }}"
+        network: point_to_point
+        area_id: 4.4.4.4
+        cost: 20
+        priority: 20
+        hello_interval: 10
+        dead_interval: 40
+        mtu_ignore: true
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+
+  - name: test_case_replace_02
+    description: Replace OSPFv3 interface configurations
+    state: replaced
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
+        area_id: '3.3.3.3'
+        cost: 20
+      - name: "{{ interface8 }}"
+        network: point_to_point
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po1 }}"
+        area_id: 3.3.3.3
+        cost: 20
+        priority: 20
+        hello_interval: 10
+        dead_interval: 40
+        mtu_ignore: true
+
+  - name: test_case_overridden_01
+    description: Override entire OSPFv3 interface configurations
+    state: overridden
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
+        area_id: '3.3.3.3'
+        cost: 20
+        bfd:
+          enable: true
+          bfd_profile: 'profile1'
+        network: broadcast
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan1 }}"
+        area_id: '3.3.3.3'
+        cost: 20
+
+  - name: test_case_overridden_02
+    description: Override OSPFv3 interface configurations
+    state: overridden
+    input:
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.po2 }}"
+        area_id: '3.3.3.3'
+        cost: 20
+        network: broadcast
+      - name: "{{ sonic_ospfv3_interfaces_test_vars.vlan2 }}"
+        area_id: '3.3.3.3'
+        cost: 20
+  - name: test_case_delete_all
+    description: Delete entire OSPFv3 interface configurations
+    state: deleted
+    input: []

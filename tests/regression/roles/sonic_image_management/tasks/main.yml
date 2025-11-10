@@ -1,27 +1,57 @@
 ---
-- ansible.builtin.debug:
-    msg: "sonic_image_management Test started ..."
-
-- name: Preparations for image_management
+- name: Preparations for test
   ansible.builtin.include_tasks: preparation_tests.yml
 
-- ansible.builtin.include_tasks: image_install.yml
-- ansible.builtin.include_tasks: image_cancel.yml
-- ansible.builtin.include_tasks: image_remove.yml
-- ansible.builtin.include_tasks: image_set_default.yml
-- ansible.builtin.include_tasks: image_get_list.yml
-- ansible.builtin.include_tasks: image_get_status.yml
-- ansible.builtin.include_tasks: image_gpg.yml
-- ansible.builtin.include_tasks: image_verify.yml
-- ansible.builtin.include_tasks: cleanup_files.yml
+- name: Image install
+  ansible.builtin.include_tasks: image_install.yml
 
-- ansible.builtin.include_tasks: patch_install.yml
-- ansible.builtin.include_tasks: patch_rollback.yml
-- ansible.builtin.include_tasks: patch_get_history.yml
-- ansible.builtin.include_tasks: patch_get_list.yml
-- ansible.builtin.include_tasks: patch_get_status.yml
+- name: Image cancel
+  ansible.builtin.include_tasks: image_cancel.yml
 
-- ansible.builtin.include_tasks: firmware_install.yml
-- ansible.builtin.include_tasks: firmware_cancel.yml
-- ansible.builtin.include_tasks: firmware_get_list.yml
-- ansible.builtin.include_tasks: firmware_get_status.yml
+- name: Image remove
+  ansible.builtin.include_tasks: image_remove.yml
+
+- name: Image set default
+  ansible.builtin.include_tasks: image_set_default.yml
+
+- name: Image get list
+  ansible.builtin.include_tasks: image_get_list.yml
+
+- name: Image get status
+  ansible.builtin.include_tasks: image_get_status.yml
+
+- name: Image gpg
+  ansible.builtin.include_tasks: image_gpg.yml
+
+- name: Image verify
+  ansible.builtin.include_tasks: image_verify.yml
+
+- name: Cleanup files
+  ansible.builtin.include_tasks: cleanup_files.yml
+
+- name: Patch install
+  ansible.builtin.include_tasks: patch_install.yml
+
+- name: Patch rollback
+  ansible.builtin.include_tasks: patch_rollback.yml
+
+- name: Patch get history
+  ansible.builtin.include_tasks: patch_get_history.yml
+
+- name: Patch get list
+  ansible.builtin.include_tasks: patch_get_list.yml
+
+- name: Patch get status
+  ansible.builtin.include_tasks: patch_get_status.yml
+
+- name: Firmware install
+  ansible.builtin.include_tasks: firmware_install.yml
+
+- name: Firmware cancel
+  ansible.builtin.include_tasks: firmware_cancel.yml
+
+- name: Firmware get list
+  ansible.builtin.include_tasks: firmware_get_list.yml
+
+- name: Firmware get status
+  ansible.builtin.include_tasks: firmware_get_status.yml

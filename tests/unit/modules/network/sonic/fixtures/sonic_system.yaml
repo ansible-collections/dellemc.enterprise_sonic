@@ -11,6 +11,7 @@ merged_01:
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: DETAIL
+      switching_mode: CUT_THROUGH
       concurrent_session_limit: 4
       adjust_txrx_clock_freq: true
       password_complexity:
@@ -23,6 +24,7 @@ merged_01:
         value:
           openconfig-system:config:
             hostname: abcd-host
+            switching-mode: STORE_AND_FORWARD
             adjust-txrx-clock-freq: false
             anycast_address:
               IPv4: true
@@ -75,6 +77,10 @@ merged_01:
       data:
         openconfig-system:config:
           hostname: SONIC-Test1
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "patch"
+      data:
+        openconfig-system:switching-mode: CUT_THROUGH
     - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
       method: "patch"
       data:
@@ -103,7 +109,7 @@ merged_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
       method: "patch"
       data:
-          openconfig-system-ext:audit-rules: DETAIL
+        openconfig-system-ext:audit-rules: DETAIL
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: "patch"
       data:
@@ -115,10 +121,12 @@ merged_01:
           min-len: 10
           min-lower-case: 2
 
+
 merged_02:
   module_args:
     config:
       interface_naming: standard_extended
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -148,15 +156,18 @@ merged_02:
         value:
           openconfig-system-ext:config:
             limit: 4
+
   expected_config_requests:
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode"
       method: "patch"
       data:
         sonic-device-metadata:intf_naming_mode: standard-ext
 
+
 deleted_01:
   module_args:
     state: deleted
+
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -164,6 +175,7 @@ deleted_01:
         value:
           openconfig-system:config:
             hostname: SONIC-Test1
+            switching-mode: CUT_THROUGH
             adjust-txrx-clock-freq: true
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
@@ -222,6 +234,9 @@ deleted_01:
       data:
         openconfig-system:config:
           hostname: sonic
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "delete"
+      data:
     - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
       method: "delete"
       data:
@@ -252,17 +267,18 @@ deleted_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-numerals"
       method: 'delete'
 
+
 deleted_02:
   module_args:
     state: deleted
     config:
       hostname: SONIC-Test1
+      switching_mode: CUT_THROUGH
       interface_naming: standard_extended
       anycast_address:
         ipv6: true
         ipv4: true
         mac_address: aa:bb:cc:dd:ee:ff
-      auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       concurrent_session_limit: 4
       adjust_txrx_clock_freq: true
@@ -273,6 +289,7 @@ deleted_02:
         value:
           openconfig-system:config:
             hostname: SONIC-Test1
+            switching-mode: CUT_THROUGH
             adjust-txrx-clock-freq: true
     - path: "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost"
       response:
@@ -319,6 +336,8 @@ deleted_02:
       data:
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: 'delete'
+    - path: "data/openconfig-system:system/config/switching-mode"
+      method: "delete"
     - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
       method: 'delete'
       data:
@@ -434,7 +453,7 @@ replaced_01:
     - path: "data/openconfig-system:system/openconfig-system-ext:auditd-system/config/audit-rules"
       method: "patch"
       data:
-          openconfig-system-ext:audit-rules: BASIC
+        openconfig-system-ext:audit-rules: BASIC
     - path: "data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit"
       method: "patch"
       data:
@@ -448,6 +467,7 @@ replaced_01:
           min-lower-case: 2
           min-numerals: 2
           min-len: 10
+
 
 overridden_01:
   module_args:

@@ -1,0 +1,5 @@
+---
+- name: Delete all EVPN ESI multihome configuration
+  sonic_evpn_esi_multihome:
+    config: {}
+    state: deleted

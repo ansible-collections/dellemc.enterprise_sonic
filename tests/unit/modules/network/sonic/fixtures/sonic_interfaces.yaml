@@ -6,6 +6,7 @@ merged_01:
         description: "Test Desc for eth1/1"
         enabled: false
         mtu: 1600
+        autoneg_mode: AUTONEG_MODE_MSA
       - name: Loopback1
         description: "Test Desc for Loopback1"
         enabled: false
@@ -71,12 +72,18 @@ merged_01:
       data:
         openconfig-interfaces:config:
           enabled: false
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
 
 merged_02:
   module_args:
     config:
       - name: Eth1/15
-        unreliable_los:  UNRELIABLE_LOS_MODE_ON
+        unreliable_los: UNRELIABLE_LOS_MODE_ON
+        autoneg_mode: AUTONEG_MODE_BAM
     state: merged
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
@@ -96,7 +103,11 @@ merged_02:
       data:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:unreliable-los: UNRELIABLE_LOS_MODE_ON
-
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_BAM"
 
 deleted_01:
   module_args:
@@ -109,7 +120,7 @@ deleted_01:
           openconfig-interfaces:interfaces:
             interface:
               - name: 'Eth1/1'
-                config: 
+                config:
                   enabled: false
                   description: 'Test Desc for eth1/1'
                   mtu: 8888
@@ -120,7 +131,7 @@ deleted_01:
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
               - name: 'Loopback123'
-                config: 
+                config:
                   enabled: false
                   description: 'Test Desc for Loopback123'
     - path: "data/openconfig-port-group:port-groups"
@@ -158,6 +169,7 @@ deleted_02:
         fec: FEC_DISABLED
         auto_negotiate: true
         speed: SPEED_100GB
+        autoneg_mode: AUTONEG_MODE_MSA
         advertised_speed:
           - 100000
       - name: 'Loopback123'
@@ -177,8 +189,9 @@ deleted_02:
                     port-speed: openconfig-if-ethernet:SPEED_40GB
                     openconfig-if-ethernet-ext2:port-fec: FEC_FC
                     openconfig-if-ethernet-ext2:advertised-speed: '100000,40000'
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
               - name: 'Loopback123'
-                config: 
+                config:
                   enabled: false
                   description: 'Test Desc for Loopback123'
     - path: "data/openconfig-port-group:port-groups"
@@ -213,13 +226,16 @@ deleted_02:
           openconfig-if-ethernet-ext2:advertised-speed: '40000'
     - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
       method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/openconfig-if-ethernet-ext2:autoneg-mode"
+      method: "delete"
 
 deleted_03:
   module_args:
     state: deleted
     config:
       - name: 'Eth1/15'
-        unreliable_los:  UNRELIABLE_LOS_MODE_ON
+        unreliable_los: UNRELIABLE_LOS_MODE_ON
+        autoneg_mode: AUTONEG_MODE_BAM
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -234,12 +250,15 @@ deleted_03:
                   config:
                     port-speed: openconfig-if-ethernet:SPEED_40GB
                     openconfig-if-ethernet-ext2:unreliable-los: 'UNRELIABLE_LOS_MODE_ON'
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
       method: "patch"
       data:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:unreliable-los: UNRELIABLE_LOS_MODE_AUTO
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config/openconfig-if-ethernet-ext2:autoneg-mode"
+      method: "delete"
 
 
 replaced_01:
@@ -269,6 +288,7 @@ replaced_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
               - name: 'Eth1/2'
                 config:
                   mtu: 6767
@@ -332,6 +352,8 @@ replaced_01:
       data:
         openconfig-if-ethernet:config:
           port-speed: "openconfig-if-ethernet:SPEED_40GB"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/openconfig-if-ethernet-ext2:autoneg-mode"
+      method: "delete"
 
 replaced_02:
   module_args:
@@ -340,7 +362,8 @@ replaced_02:
       - name: 'Eth1/15'
         mtu: 2000
         speed: "SPEED_40GB"
-        unreliable_los:  UNRELIABLE_LOS_MODE_OFF
+        unreliable_los: UNRELIABLE_LOS_MODE_OFF
+        autoneg_mode: AUTONEG_MODE_BAM
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -378,7 +401,7 @@ replaced_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/config/enabled"
       method: "patch"
       data:
-        enabled: False
+        enabled: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
       method: "patch"
       data:
@@ -389,6 +412,11 @@ replaced_02:
       data:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:unreliable-los: UNRELIABLE_LOS_MODE_OFF
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_BAM"
 
 overridden_01:
   module_args:
@@ -414,6 +442,7 @@ overridden_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
               - name: 'Eth1/2'
                 config:
                   mtu: 2000
@@ -487,6 +516,8 @@ overridden_01:
       data:
         openconfig-if-ethernet:config:
           auto-negotiate: false
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/openconfig-if-ethernet-ext2:autoneg-mode"
+      method: "delete"
 
 overridden_02:
   module_args:
@@ -495,7 +526,8 @@ overridden_02:
       - name: Eth1/15
         mtu: 1600
         speed: "SPEED_40GB"
-        unreliable_los:  UNRELIABLE_LOS_MODE_OFF
+        unreliable_los: UNRELIABLE_LOS_MODE_OFF
+        autoneg_mode: AUTONEG_MODE_BAM
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -533,7 +565,7 @@ overridden_02:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/config/enabled"
       method: "patch"
       data:
-        enabled: False
+        enabled: false
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
       method: "patch"
       data:
@@ -544,3 +576,8 @@ overridden_02:
       data:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:unreliable-los: "UNRELIABLE_LOS_MODE_OFF"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_BAM"

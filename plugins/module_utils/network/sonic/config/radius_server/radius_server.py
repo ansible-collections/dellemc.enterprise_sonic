@@ -74,7 +74,7 @@ class Radius_server(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         radius_server_facts = facts['ansible_network_resources'].get('radius_server')
         if not radius_server_facts:
-            return []
+            return {}
         return radius_server_facts
 
     def execute_module(self):
@@ -416,7 +416,7 @@ class Radius_server(ConfigBase):
         requests = []
         url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server='
 
-        mat_hosts = []
+        mat_hosts, hosts = [], []
         if have.get('servers', None) and have['servers'].get('host', None):
             mat_hosts = have['servers']['host']
 

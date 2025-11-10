@@ -5,6 +5,3 @@
 - name: "Test started . . ."
   ansible.builtin.include_tasks: tasks_template.yaml
   loop: "{{ sonic_ptp_port_ds_tests }}"
-
-- name: "Cleanup started"
-  ansible.builtin.include_tasks: cleanup_tests.yaml

@@ -1,16 +1,16 @@
 ---
-
-  - block:
-
-    - name: test failure for local connection
+- name: Test local
+  when:
+    ansible_connection == 'local'
+  block:
+    - name: Test failure for local connection
       register: result
-      cli_command:
+      ansible.netcommon.cli_command:
         command: show platform
       ignore_errors: true
 
-    - assert:
+    - name: Assertion
+      ansible.builtin.assert:
         that:
           - result.failed == true
           - "'Connection type local is not valid for this module' in result.msg"
-    when: 
-      ansible_connection == 'local'

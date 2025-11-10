@@ -1,3 +1,4 @@
+---
 merged_01:
   module_args:
     config:
@@ -9,7 +10,7 @@ merged_01:
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: False
+        shutdown: false
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
@@ -42,7 +43,7 @@ merged_01:
               read_timeout: 60
               req_limit: 100
               security_profile: profile1
-              openconfig-system-mgmt-servers:disable: False
+              openconfig-system-mgmt-servers:disable: false
               vrf: mgmt
               cipher-suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384
           telemetry-server:
@@ -83,7 +84,7 @@ replaced_01:
             read_timeout: 65
             req_limit: 150
             security_profile: profile2
-            openconfig-system-mgmt-servers:disable: False
+            openconfig-system-mgmt-servers:disable: false
             vrf: mgmt
             cipher-suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384
     - path: '/data/openconfig-system:system/telemetry-server/config'
@@ -140,7 +141,7 @@ overridden_01:
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: False
+        shutdown: false
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
@@ -197,7 +198,7 @@ overridden_01:
               read_timeout: 60
               req_limit: 100
               security_profile: profile1
-              openconfig-system-mgmt-servers:disable: False
+              openconfig-system-mgmt-servers:disable: false
               vrf: mgmt
               cipher-suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
           telemetry-server:
@@ -222,7 +223,7 @@ deleted_01:
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: True
+        shutdown: true
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
@@ -234,7 +235,7 @@ deleted_01:
         port: 1234
         security_profile: profile2
         vrf: mgmt
-    state: deleted       
+    state: deleted
   existing_mgmt_servers_config:
     - path: '/data/openconfig-system:system/rest-server/config'
       response:
@@ -248,7 +249,7 @@ deleted_01:
             read_timeout: 60
             req_limit: 100
             security_profile: profile1
-            openconfig-system-mgmt-servers:disable: True
+            openconfig-system-mgmt-servers:disable: true
             vrf: mgmt
             cipher-suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
     - path: '/data/openconfig-system:system/telemetry-server/config'
@@ -337,7 +338,7 @@ deleted_02:
             read_timeout: 15
             req_limit: 100
             security_profile: profile1
-            openconfig-system-mgmt-servers:disable: True
+            openconfig-system-mgmt-servers:disable: true
             vrf: mgmt
             cipher-suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256
     - path: '/data/openconfig-system:system/telemetry-server/config'

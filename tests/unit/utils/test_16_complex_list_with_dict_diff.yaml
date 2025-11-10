@@ -1,17 +1,17 @@
 ---
 test_keys:
   - config:
-    - vrf_name
-    - bgp_as
+      - vrf_name
+      - bgp_as
   - afis:
-    - afi
-    - safi
+      - afi
+      - safi
   - redistribute:
-    - protocol
+      - protocol
   - route_advertise_list:
-    - advertise_afi
+      - advertise_afi
 want:
-  - bgp_as: 51 
+  - bgp_as: 51
     vrf_name: vrf1
     address_family:
       afis:
@@ -21,13 +21,13 @@ want:
             ebgp: 2
             ibgp: 3
           redistribute:
-            - metric: "20"
+            - metric: '20'
               protocol: connected
               route_map: rmap_reg1
-            - metric: "26"
+            - metric: '26'
               protocol: ospf
               route_map: rmap_reg2
-            - metric: "25"
+            - metric: '25'
               protocol: static
               route_map: rmap_reg3
         - afi: ipv6
@@ -36,25 +36,25 @@ want:
             ebgp: 3
             ibgp: 4
           redistribute:
-            - metric: "21"
+            - metric: '21'
               protocol: connected
               route_map: rmap_reg3
-            - metric: "27"
+            - metric: '27'
               protocol: ospf
               route_map: rmap_reg1
-            - metric: "28"
+            - metric: '28'
               protocol: static
               route_map: rmap_reg2
         - afi: l2vpn
           safi: evpn
-          advertise_all_vni: True
+          advertise_all_vni: true
           route_advertise_list:
             - advertise_afi: ipv4
               route_map: rmap_reg1
             - advertise_afi: ipv6
               route_map: rmap_reg2
   - bgp_as: 52
-    vrf_name: vrf2 
+    vrf_name: vrf2
     address_family:
       afis:
         - afi: ipv4
@@ -63,13 +63,13 @@ want:
             ebgp: 3
             ibgp: 2
           redistribute:
-            - metric: "21"
+            - metric: '21'
               protocol: connected
               route_map: rmap_reg1
-            - metric: "27"
+            - metric: '27'
               protocol: ospf
               route_map: rmap_reg2.1
-            - metric: "25"
+            - metric: '25'
               protocol: static
               route_map: rmap_reg3.1
         - afi: ipv6
@@ -78,13 +78,13 @@ want:
             ebgp: 3
             ibgp: 4
           redistribute:
-            - metric: "22"
+            - metric: '22'
               protocol: connected
               route_map: rmap_rega
-            - metric: "28"
+            - metric: '28'
               protocol: ospf
               route_map: rmap_regb.1
-            - metric: "28"
+            - metric: '28'
               protocol: static
               route_map: rmap_regc.1
         - afi: l2vpn
@@ -93,7 +93,7 @@ want:
             - advertise_afi: ipv6
               route_map: rmap_reg2
 have:
-  - bgp_as: 50 
+  - bgp_as: 50
     vrf_name: vrf1
     address_family:
       afis:
@@ -103,13 +103,13 @@ have:
             ebgp: 2
             ibgp: 3
           redistribute:
-            - metric: "20"
+            - metric: '20'
               protocol: connected
               route_map: rmap_reg1
-            - metric: "26"
+            - metric: '26'
               protocol: ospf
               route_map: rmap_reg2
-            - metric: "25"
+            - metric: '25'
               protocol: static
               route_map: rmap_reg3
         - afi: ipv6
@@ -118,25 +118,25 @@ have:
             ebgp: 3
             ibgp: 4
           redistribute:
-            - metric: "21"
+            - metric: '21'
               protocol: connected
               route_map: rmap_reg3
-            - metric: "27"
+            - metric: '27'
               protocol: ospf
               route_map: rmap_reg1
-            - metric: "28"
+            - metric: '28'
               protocol: static
               route_map: rmap_reg2
         - afi: l2vpn
           safi: evpn
-          advertise_all_vni: True
+          advertise_all_vni: true
           route_advertise_list:
             - advertise_afi: ipv4
               route_map: rmap_reg1
             - advertise_afi: ipv6
               route_map: rmap_reg2
   - bgp_as: 52
-    vrf_name: vrf2 
+    vrf_name: vrf2
     address_family:
       afis:
         - afi: ipv4
@@ -145,13 +145,13 @@ have:
             ebgp: 1
             ibgp: 2
           redistribute:
-            - metric: "20"
+            - metric: '20'
               protocol: connected
               route_map: rmap_reg1
-            - metric: "26"
+            - metric: '26'
               protocol: ospf
               route_map: rmap_reg2
-            - metric: "25"
+            - metric: '25'
               protocol: static
               route_map: rmap_reg3
         - afi: ipv6
@@ -160,13 +160,13 @@ have:
             ebgp: 3
             ibgp: 2
           redistribute:
-            - metric: "21"
+            - metric: '21'
               protocol: connected
               route_map: rmap_rega
-            - metric: "27"
+            - metric: '27'
               protocol: ospf
               route_map: rmap_regb
-            - metric: "28"
+            - metric: '28'
               protocol: static
               route_map: rmap_regc
         - afi: l2vpn
@@ -175,7 +175,7 @@ have:
             - advertise_afi: ipv4
               route_map: rmap_reg1
 diff:
-  - bgp_as: 51 
+  - bgp_as: 51
     vrf_name: vrf1
     address_family:
       afis:
@@ -185,13 +185,13 @@ diff:
             ebgp: 2
             ibgp: 3
           redistribute:
-            - metric: "20"
+            - metric: '20'
               protocol: connected
               route_map: rmap_reg1
-            - metric: "26"
+            - metric: '26'
               protocol: ospf
               route_map: rmap_reg2
-            - metric: "25"
+            - metric: '25'
               protocol: static
               route_map: rmap_reg3
         - afi: ipv6
@@ -200,25 +200,25 @@ diff:
             ebgp: 3
             ibgp: 4
           redistribute:
-            - metric: "21"
+            - metric: '21'
               protocol: connected
               route_map: rmap_reg3
-            - metric: "27"
+            - metric: '27'
               protocol: ospf
               route_map: rmap_reg1
-            - metric: "28"
+            - metric: '28'
               protocol: static
               route_map: rmap_reg2
         - afi: l2vpn
           safi: evpn
-          advertise_all_vni: True
+          advertise_all_vni: true
           route_advertise_list:
             - advertise_afi: ipv4
               route_map: rmap_reg1
             - advertise_afi: ipv6
               route_map: rmap_reg2
   - bgp_as: 52
-    vrf_name: vrf2 
+    vrf_name: vrf2
     address_family:
       afis:
         - afi: ipv4
@@ -226,9 +226,9 @@ diff:
           max_path:
             ebgp: 3
           redistribute:
-            - metric: "21"
+            - metric: '21'
               protocol: connected
-            - metric: "27"
+            - metric: '27'
               protocol: ospf
               route_map: rmap_reg2.1
             - protocol: static
@@ -238,9 +238,9 @@ diff:
           max_path:
             ibgp: 4
           redistribute:
-            - metric: "22"
+            - metric: '22'
               protocol: connected
-            - metric: "28"
+            - metric: '28'
               protocol: ospf
               route_map: rmap_regb.1
             - protocol: static

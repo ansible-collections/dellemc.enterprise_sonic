@@ -279,7 +279,7 @@ class Bgp_neighbors_af(ConfigBase):
                 commands.extend(update_states(del_config, "deleted"))
 
         if add_config:
-            mod_requests = self.get_modify_bgp_neighbors_af_requests(add_config, have)
+            mod_requests = self.get_modify_bgp_neighbors_af_requests(add_config, have, want)
 
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
@@ -309,7 +309,7 @@ class Bgp_neighbors_af(ConfigBase):
             if len(del_requests) > 0:
                 requests.extend(del_requests)
                 commands.extend(update_states(have, "deleted"))
-            mod_requests = self.get_modify_bgp_neighbors_af_requests(new_want, [])
+            mod_requests = self.get_modify_bgp_neighbors_af_requests(new_want, [], new_want)
             if len(mod_requests) > 0:
                 requests.extend(mod_requests)
                 commands.extend(update_states(want, "overridden"))
@@ -327,7 +327,7 @@ class Bgp_neighbors_af(ConfigBase):
         """
         commands = diff
         validate_bgps(self._module, want, have)
-        requests = self.get_modify_bgp_neighbors_af_requests(commands, have)
+        requests = self.get_modify_bgp_neighbors_af_requests(commands, have, want)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
         else:
@@ -452,7 +452,7 @@ class Bgp_neighbors_af(ConfigBase):
                             mat_allowas_in = mat_nei_addr_fam.get('allowas_in', None)
         return mat_allowas_in
 
-    def get_single_neighbors_af_modify_request(self, match, vrf_name, conf_neighbor_val, conf_neighbor):
+    def get_single_neighbors_af_modify_request(self, match, vrf_name, as_val, conf_neighbor_val, conf_neighbor, want):
         requests = []
         conf_nei_addr_fams = conf_neighbor.get('address_family', [])
         conf_nbr_val = conf_neighbor_val.replace('/', '%2f')
@@ -529,22 +529,36 @@ class Bgp_neighbors_af(ConfigBase):
                 allowas_in_cfg = {}
                 conf_allowas_in = conf_nei_addr_fam.get('allowas_in', None)
                 if conf_allowas_in:
-                    mat_allowas_in = self.get_allowas_in(match, conf_neighbor_val, conf_afi, conf_safi)
                     origin = conf_allowas_in.get('origin', None)
+                    value = conf_allowas_in.get('value', None)
+
+                    # Check for a conflict between input allowas_in 'origin' configuration and input allowas_in 'value' configuration.
+                    want_bgp_instance = next((cfg for cfg in want if (cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == as_val))), None)
+                    want_allowas_in = self.get_allowas_in(want_bgp_instance, conf_neighbor_val, conf_afi, conf_safi)
+                    want_origin = want_allowas_in.get('origin')
+                    want_value = want_allowas_in.get('value')
+                    if want_origin is True and want_value is not None:
+                        self._module.fail_json(msg="No allowas_in 'value' can be configured when setting allowas_in 'origin' to 'true'.")
+
+                    # Remove any existing configuration that conflicts with the input 'allowas_in' configuration before applying
+                    # the new requested 'allowas_in' configuration.
+                    mat_allowas_in = self.get_allowas_in(match, conf_neighbor_val, conf_afi, conf_safi)
+
                     if origin is not None:
-                        if mat_allowas_in:
+                        if origin is True and mat_allowas_in:
                             mat_value = mat_allowas_in.get('value', None)
                             if mat_value:
                                 self.append_delete_request(requests, mat_value, mat_allowas_in, 'value', del_url, self.allowas_value_path)
+
                         allowas_in_cfg['origin'] = origin
-                    else:
-                        value = conf_allowas_in.get('value', None)
-                        if value is not None:
-                            if mat_allowas_in:
-                                mat_origin = mat_allowas_in.get('origin', None)
-                                if mat_origin:
-                                    self.append_delete_request(requests, mat_origin, mat_allowas_in, 'origin', del_url, self.allowas_origin_path)
-                            allowas_in_cfg['as-count'] = value
+
+                    if value is not None:
+                        if mat_allowas_in:
+                            mat_origin = mat_allowas_in.get('origin', None)
+                            if mat_origin:
+                                self.append_delete_request(requests, mat_origin, mat_allowas_in, 'origin', del_url, self.allowas_origin_path)
+
+                        allowas_in_cfg['as-count'] = value
                 if allowas_in_cfg:
                     allowas_in_cfg['enabled'] = True
                     afi_safi['allow-own-as'] = {'config': allowas_in_cfg}
@@ -569,15 +583,15 @@ class Bgp_neighbors_af(ConfigBase):
             requests.append({'path': url, 'method': DELETE})
         return requests
 
-    def get_all_neighbors_af_modify_requests(self, match, conf_neighbors, vrf_name):
+    def get_all_neighbors_af_modify_requests(self, match, conf_neighbors, vrf_name, as_val, want):
         requests = []
         for conf_neighbor in conf_neighbors:
             conf_neighbor_val = conf_neighbor.get('neighbor', None)
             if conf_neighbor_val:
-                requests.extend(self.get_single_neighbors_af_modify_request(match, vrf_name, conf_neighbor_val, conf_neighbor))
+                requests.extend(self.get_single_neighbors_af_modify_request(match, vrf_name, as_val, conf_neighbor_val, conf_neighbor, want))
         return requests
 
-    def get_modify_requests(self, conf, match, vrf_name):
+    def get_modify_requests(self, conf, match, vrf_name, as_val, want):
         requests = []
         conf_neighbors = conf.get('neighbors', [])
         mat_neighbors = []
@@ -622,10 +636,10 @@ class Bgp_neighbors_af(ConfigBase):
                     if del_routes:
                         requests.extend(self.get_delete_neighbor_af_routemaps_requests(vrf_name, conf_neighbor_val, afi, safi, del_routes))
 
-            requests.extend(self.get_all_neighbors_af_modify_requests(match, conf_neighbors, vrf_name))
+            requests.extend(self.get_all_neighbors_af_modify_requests(match, conf_neighbors, vrf_name, as_val, want))
         return requests
 
-    def get_modify_bgp_neighbors_af_requests(self, commands, have):
+    def get_modify_bgp_neighbors_af_requests(self, commands, have, want):
         requests = []
         if not commands:
             return requests
@@ -636,7 +650,7 @@ class Bgp_neighbors_af(ConfigBase):
             as_val = conf['bgp_as']
 
             match = next((cfg for cfg in have if (cfg['vrf_name'] == vrf_name and (cfg['bgp_as'] == as_val))), None)
-            modify_reqs = self.get_modify_requests(conf, match, vrf_name)
+            modify_reqs = self.get_modify_requests(conf, match, vrf_name, as_val, want)
             if modify_reqs:
                 requests.extend(modify_reqs)
 
@@ -645,7 +659,7 @@ class Bgp_neighbors_af(ConfigBase):
     def append_delete_request(self, requests, cur_var, mat_var, key, url, path):
         ret_value = False
         request = None
-        if cur_var is not None and mat_var.get(key, None):
+        if cur_var is not None and mat_var.get(key, None) == cur_var:
             requests.append({'path': url + path, 'method': DELETE})
             ret_value = True
         return ret_value
@@ -690,7 +704,7 @@ class Bgp_neighbors_af(ConfigBase):
             mat_nei_addr_fam = next((e_af for e_af in matched_nei_addr_fams if (e_af['afi'] == conf_afi and e_af['safi'] == conf_safi)), None)
 
         if mat_nei_addr_fam:
-            conf_alllowas_in = conf_nei_addr_fam.get('allowas_in')
+            conf_allowas_in = conf_nei_addr_fam.get('allowas_in')
             conf_activate = conf_nei_addr_fam.get('activate')
             conf_fabric_external = conf_nei_addr_fam.get('fabric_external')
             conf_route_map = conf_nei_addr_fam.get('route_map')
@@ -701,7 +715,7 @@ class Bgp_neighbors_af(ConfigBase):
             conf_ip_afi = conf_nei_addr_fam.get('ip_afi')
             conf_prefix_limit = conf_nei_addr_fam.get('prefix_limit')
 
-            var_list = [conf_alllowas_in, conf_activate, conf_fabric_external, conf_route_map, conf_route_reflector_client, conf_route_server_client,
+            var_list = [conf_allowas_in, conf_activate, conf_fabric_external, conf_route_map, conf_route_reflector_client, conf_route_server_client,
                         conf_prefix_list_in, conf_prefix_list_out, conf_ip_afi, conf_prefix_limit]
             if len(list(filter(lambda var: (var is None), var_list))) == len(var_list):
                 requests.append({'path': url, 'method': DELETE})
@@ -722,17 +736,28 @@ class Bgp_neighbors_af(ConfigBase):
                 self.append_delete_request(requests, conf_prefix_list_in, mat_nei_addr_fam, 'prefix_list_in', url, self.prefix_list_in_path)
                 self.append_delete_request(requests, conf_prefix_list_out, mat_nei_addr_fam, 'prefix_list_out', url, self.prefix_list_out_path)
 
-                mat_alllowas_in = mat_nei_addr_fam.get('allowas_in', None)
-                if conf_alllowas_in is not None and mat_alllowas_in:
-                    origin = conf_alllowas_in.get('origin', None)
+                mat_allowas_in = mat_nei_addr_fam.get('allowas_in', None)
+                if conf_allowas_in is not None and mat_allowas_in:
+                    origin = conf_allowas_in.get('origin', None)
+                    value = conf_allowas_in.get('value', None)
+                    mat_allowas_in_options = {}
+                    mat_origin = mat_allowas_in.get('origin', None)
+                    if mat_origin is not None:
+                        mat_allowas_in_options.update({'origin': mat_origin})
+                    mat_value = mat_allowas_in.get('value', None)
+                    if mat_value is not None:
+                        mat_allowas_in_options.update({'value': mat_value})
+
                     if origin is not None:
-                        if self.append_delete_request(requests, origin, mat_alllowas_in, 'origin', url, self.allowas_origin_path):
-                            self.append_delete_request(requests, True, {'enabled': True}, 'enabled', url, self.allowas_enabled_path)
-                    else:
-                        value = conf_alllowas_in.get('value', None)
-                        if value is not None:
-                            if self.append_delete_request(requests, value, mat_alllowas_in, 'value', url, self.allowas_value_path):
-                                self.append_delete_request(requests, True, {'enabled': True}, 'enabled', url, self.allowas_enabled_path)
+                        if self.append_delete_request(requests, origin, mat_allowas_in, 'origin', url, self.allowas_origin_path):
+                            if mat_allowas_in_options.get('origin') is not None:
+                                del (mat_allowas_in_options['origin'])
+                    if value is not None:
+                        if self.append_delete_request(requests, value, mat_allowas_in, 'value', url, self.allowas_value_path):
+                            if mat_allowas_in_options.get('value') is not None:
+                                del (mat_allowas_in_options['value'])
+                    if not mat_allowas_in_options:
+                        self.append_delete_request(requests, True, {'enabled': True}, 'enabled', url, self.allowas_enabled_path)
 
                 mat_ip_afi = mat_nei_addr_fam.get('ip_afi', None)
                 mat_prefix_limit = mat_nei_addr_fam.get('prefix_limit', None)

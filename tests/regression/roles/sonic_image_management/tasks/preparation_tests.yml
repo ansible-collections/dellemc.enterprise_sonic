@@ -14,6 +14,7 @@
     src: "/usr/local/share/script_files/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.zip"
     dest: "/home/admin/imageverify"
     checksum: ""
+    mode: '0755'
 
 - name: Unarchive the zip file
   vars:
@@ -21,7 +22,7 @@
   ansible.builtin.unarchive:
     src: "/home/admin/imageverify/Enterprise_SONiC_OS_4.2.2_Enterprise_Premium.zip"
     dest: "/home/admin/imageverify"
-    remote_src: yes
+    remote_src: true
 
 - name: Get current image name
   dellemc.enterprise_sonic.sonic_image_management:
@@ -29,5 +30,6 @@
       command: get-list
   register: image_list
 
-- ansible.builtin.set_fact:
+- name: Update facts
+  ansible.builtin.set_fact:
     current_image_name: '{{ image_list.info.current }}'

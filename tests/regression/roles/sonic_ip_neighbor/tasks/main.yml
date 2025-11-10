@@ -1,5 +1,4 @@
-- debug: msg="sonic_ip_neighbor Test started ..."
-
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yaml
-  loop: "{{ tests }}"
+---
+- name: "Test started ..."
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ sonic_ip_neighbor_tests }}"

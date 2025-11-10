@@ -1,0 +1,25 @@
+---
+- name: Delete old IP neighbor interface configurations
+  dellemc.enterprise_sonic.sonic_ip_neighbor_interfaces:
+    config: []
+    state: deleted
+  failed_when: false
+
+- name: Initialize default interfaces
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_config:
+    commands: "{{ default_interface_cli }}"
+  failed_when: false
+
+- name: Create LAG interfaces
+  dellemc.enterprise_sonic.sonic_lag_interfaces:
+    config: "{{ sonic_ip_neighbor_interfaces_task_input.lag_interfaces }}"
+    state: merged
+  failed_when: false
+
+- name: Create VLANs
+  dellemc.enterprise_sonic.sonic_vlans:
+    config: "{{ sonic_ip_neighbor_interfaces_task_input.vlans }}"
+    state: merged
+  failed_when: false

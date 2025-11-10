@@ -1,10 +1,21 @@
 ---
 - name: Preparations test, creates VLANs
-  include_tasks: preparation_tests.yaml
+  ansible.builtin.include_tasks: preparation_tests.yaml
 
-- include_tasks: test_get.yaml 
-- include_tasks: test_patch.yaml
-- include_tasks: test_post.yaml
-- include_tasks: test_put.yaml
-- include_tasks: test_delete.yaml  
-- include_tasks: invalid.yaml  
+- name: Test get
+  ansible.builtin.include_tasks: test_get.yaml
+
+- name: Test patch
+  ansible.builtin.include_tasks: test_patch.yaml
+
+- name: Test post
+  ansible.builtin.include_tasks: test_post.yaml
+
+- name: Test put
+  ansible.builtin.include_tasks: test_put.yaml
+
+- name: Test delete
+  ansible.builtin.include_tasks: test_delete.yaml
+
+- name: Invalid
+  ansible.builtin.include_tasks: invalid.yaml

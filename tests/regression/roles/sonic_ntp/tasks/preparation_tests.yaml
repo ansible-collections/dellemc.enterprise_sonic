@@ -1,7 +1,7 @@
 ---
 - name: Delete existing NTP configurations
   sonic_ntp:
-    config: {} 
+    config: {}
     state: deleted
 
 - name: Initialize interfaces

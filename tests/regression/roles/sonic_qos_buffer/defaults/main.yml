@@ -1,10 +1,9 @@
 ---
 ansible_connection: httpapi
-module_name: qos_buffer
 
-tests:
+sonic_qos_buffer_tests:
   - name: test_case_01
-    description: Configure QoS buffer 
+    description: Configure QoS buffer
     state: merged
     input:
       buffer_init: true
@@ -43,7 +42,7 @@ tests:
           static_threshold: 30
 
   - name: test_case_03
-    description: Delete QoS buffer profile attributes 
+    description: Delete QoS buffer profile attributes
     state: deleted
     input:
       buffer_profiles:
