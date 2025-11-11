@@ -1,15 +1,15 @@
 ---
 - name: Delete PIM global configurations
-  dellemc.enterprise_sonic.sonic_pim_global:
+  sonic_pim_global:
     config: []
     state: deleted
 
 - name: Delete test VRFs
-  dellemc.enterprise_sonic.sonic_vrfs:
+  sonic_vrfs:
     config: "{{ preparations_tests.vrfs }}"
     state: deleted
 
 - name: Delete test prefix-lists
-  dellemc.enterprise_sonic.sonic_prefix_lists:
+  sonic_prefix_lists:
     config: "{{ preparations_tests.prefix_lists }}"
     state: deleted

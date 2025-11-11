@@ -116,7 +116,7 @@ replaced_01:
       method: 'patch'
       data:
         openconfig-qos:scheduler-policies:
-          scheduler-policy:      
+          scheduler-policy:
             - name: 'policy1'
               config:
                 name: 'policy1'
@@ -143,7 +143,7 @@ overridden_01:
           - sequence: 255
             scheduler_type: strict
             meter_type: bytes
-            cir: 40000 
+            cir: 40000
             pir: 60000
             cbs: 44000
             pbs: 50000
@@ -181,7 +181,7 @@ overridden_01:
       method: 'patch'
       data:
         openconfig-qos:scheduler-policies:
-          scheduler-policy:      
+          scheduler-policy:
             - name: 'policy2'
               config:
                 name: 'policy2'

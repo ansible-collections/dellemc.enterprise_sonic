@@ -1,16 +1,15 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_evpn_esi_multihome
 
-tests:
-  - name: test_case_01_merged_es_activation_delay_and_df_election_time
+sonic_evpn_esi_multihome_tests:
+  - name: test_case_01
     description: Add es_activation_delay and df_election_time options
     state: merged
     input:
       es_activation_delay: 300
       df_election_time: 1080
 
-  - name: test_case_02_merged_mac_holdtime_neigh_holdtime_and_startup_delay
+  - name: test_case_02
     description: Add mac_holdtime, neigh_holdtime and startup_delay options
     state: merged
     input:
@@ -18,13 +17,13 @@ tests:
       startup_delay: 300
       neigh_holdtime: 1080
 
-  - name: test_case_03_replaced_df_election_time
+  - name: test_case_03
     description: Replace df_election_time option value with a new one
     state: replaced
     input:
       df_election_time: 3000
 
-  - name: test_case_04_overridden_some_options
+  - name: test_case_04
     description: Override the value of a few options
     state: overridden
     input:
@@ -34,7 +33,7 @@ tests:
       startup_delay: 3000
       neigh_holdtime: 500
 
-  - name: test_case_06_deleted_each_option_individually
+  - name: test_case_05
     description: Delete each option individually
     state: deleted
     input:
@@ -44,14 +43,14 @@ tests:
       startup_delay: 3000
       neigh_holdtime: 500
 
-  - name: test_case_07_merged_mac_holdtime_and_startup_delay
+  - name: test_case_06
     description: Merge mac_holdtime and startup_delay options
     state: merged
     input:
       mac_holdtime: 1080
       startup_delay: 500
 
-  - name: test_case_08_deleted_mac_holdtime_and_startup_delay
-    description: Delete any existing mac_holdtime and startup_delay options
+  - name: test_case_07
+    description: Delete all EVPN esi multihome configuration
     state: deleted
     input: {}

@@ -1,0 +1,8 @@
+---
+- name: Delete testing ospfv3 area required configuration
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ sonic_ospfv3_area_preparations_tests.cleanup }}"
+  register: output
+  failed_when: false

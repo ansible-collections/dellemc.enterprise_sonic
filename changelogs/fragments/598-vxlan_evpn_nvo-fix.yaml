@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - sonic.vxlans - Fix VXLAN config/facts handling; moving deprecated uri EVPN_NVO to current one VXLAN_EVPN_NVO (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/598).

@@ -9,16 +9,14 @@ action_condition: "{{ 'Passed' if (action_task_output.failed == false and
                                    action_task_output.changed == true)
                                 else 'Failed'
                     }}"
-cli_test_condition: "{{ 'Passed' if(cli_tests_output.failed == false and
-                                    cli_tests_output.changed == false
-                                    )
+cli_test_condition: "{{ 'Passed' if (cli_tests_output.failed == false and
+                                    cli_tests_output.changed == false)
                                  else 'Failed'
                    }}"
 
-single_run_condition: "{{ 'Passed' if(single_run_task_output.failed == false and
+single_run_condition: "{{ 'Passed' if (single_run_task_output.failed == false and
                                         single_run_task_output.commands != empty and
-                                        single_run_task_output.changed == true
-                                       )
+                                        single_run_task_output.changed == true)
                                  else 'Failed'
                    }}"
 
@@ -40,23 +38,23 @@ native_name: NATIVE
 interface_mode: STANDARD
 
 default_interface_cli_std: default interface range Eth 1/5-1/10
-default_interface_cli_native: default interface range Ethernet20-40
+default_interface_cli_native: default interface range Ethernet4-9
 
 default_interface_cli:
      - "{{ default_interface_cli_std if std_name in interface_mode or std_ext_name in interface_mode else default_interface_cli_native }}"
 
-native_eth1: Ethernet20
-native_eth2: Ethernet24
-native_eth3: Ethernet28
-native_eth4: Ethernet32
-native_eth5: Ethernet36
-native_eth6: Ethernet40
-native_eth7: Ethernet44
-native_eth8: Ethernet48
-native_eth9: Ethernet52
-native_eth10: Ethernet56
-native_eth11: Ethernet60
-native_eth12: Ethernet64
+native_eth1: Ethernet4
+native_eth2: Ethernet5
+native_eth3: Ethernet6
+native_eth4: Ethernet7
+native_eth5: Ethernet8
+native_eth6: Ethernet9
+native_eth7: Ethernet10
+native_eth8: Ethernet11
+native_eth9: Ethernet96
+native_eth10: Ethernet100
+native_eth11: Ethernet104
+native_eth12: Ethernet108
 
 std_eth1: Eth1/5
 std_eth2: Eth1/6
@@ -64,12 +62,12 @@ std_eth3: Eth1/7
 std_eth4: Eth1/8
 std_eth5: Eth1/9
 std_eth6: Eth1/10
-std_eth7: Eth1/60
-std_eth8: Eth1/64
-std_eth9: Eth1/68
-std_eth10: Eth1/72
-std_eth11: Eth1/76
-std_eth12: Eth1/80
+std_eth7: Eth1/11
+std_eth8: Eth1/12
+std_eth9: Eth1/97
+std_eth10: Eth1/98
+std_eth11: Eth1/99
+std_eth12: Eth1/100
 
 interface1: "{{ std_eth1 if std_name in interface_mode else native_eth1 }}"
 interface2: "{{ std_eth2 if std_name in interface_mode else native_eth2 }}"

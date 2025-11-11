@@ -13,7 +13,7 @@ merged_01:
         code: 200
         value:
           openconfig-system-ext:config:
-            ciphers: 'aes256-ctr' 
+            ciphers: 'aes256-ctr'
             kexalgorithms: 'curve25519-sha256,curve25519-sha256@libssh.org'
             macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
   config_requests:
@@ -41,7 +41,7 @@ deleted_01:
           openconfig-system-ext:config:
             ciphers: 'aes192-ctr,chacha20-poly1305@openssh.com'
             kexalgorithms: 'curve25519-sha256,diffie-hellman-group16-sha512'
-            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'            
+            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
   config_requests:
     - path: "data/openconfig-system:system/openconfig-system-ext:ssh-client/config/ciphers"
       method: "delete"
@@ -61,7 +61,7 @@ deleted_02:
           openconfig-system-ext:config:
             ciphers: 'aes192-ctr,chacha20-poly1305@openssh.com'
             kexalgorithms: 'curve25519-sha256,diffie-hellman-group16-sha512'
-            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'            
+            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
   config_requests:
     - path: "data/openconfig-system:system/openconfig-system-ext:ssh-client/config"
       method: "delete"

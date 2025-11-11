@@ -2,217 +2,221 @@
 merged_01:
   module_args:
     config:
-      - name: 'Eth1/5'
+      - name: Eth1/5
         ospf_attributes:
-          - area_id: '2.2.2.2'
+          - area_id: 2.2.2.2
             cost: 20
             priority: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
-          - address: '10.10.120.1'
-            authentication_type: 'MD5HMAC'
+            mtu_ignore: true
+          - address: 10.10.120.1
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
-          bfd_profile: 'profile1'
+          enable: true
+          bfd_profile: profile1
         network: broadcast
-      - name: 'PortChannel100'
+      - name: PortChannel100
         ospf_attributes:
-          - area_id: '3.3.3.3'
-            address: '10.19.120.2'
-            authentication_type: 'MD5HMAC'
+          - area_id: 3.3.3.3
+            address: 10.19.120.2
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
+          enable: true
         network: point_to_point
-      - name: 'Vlan100'
+      - name: Vlan100
         ospf_attributes:
-          - area_id: '2.2.2.2'
+          - area_id: 2.2.2.2
             cost: 20
             hello_multiplier: 2
-          - address: '10.10.120.1'
-            authentication_type: 'NONE'
+          - address: 10.10.120.1
+            authentication_type: NONE
             md_authentication:
               - key_id: 10
-                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                md5key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                encrypted: true
     state: merged
   existing_ospfv2_config:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-              - name: 'PortChannel100'
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan': null
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
-                area-id: '2.2.2.2'
+                address: 0.0.0.0
+                area-id: 2.2.2.2
                 dead-interval: 40
                 hello-interval: 10
                 metric: 20
                 mtu-ignore: true
                 network-type: 'openconfig-ospf-types:BROADCAST_NETWORK'
                 priority: 20
-            - address: '10.10.120.1'
+            - address: 10.10.120.1
               config:
-                address: '10.10.120.1'
-                authentication-type: 'MD5HMAC'
-                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                address: 10.10.120.1
+                authentication-type: MD5HMAC
+                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                 authentication-key-encrypted: true
                 hello-multiplier: 5
                 dead-interval-minimal: true
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               enable-bfd:
                 config:
                   enabled: true
-                  bfd-profile: 'profile1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                  bfd-profile: profile1
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '10.19.120.2'
+            - address: 10.19.120.2
               config:
-                address: '10.19.120.2'
-                authentication-type: 'MD5HMAC'
-                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                address: 10.19.120.2
+                authentication-type: MD5HMAC
+                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                 authentication-key-encrypted: true
                 hello-multiplier: 5
                 dead-interval-minimal: true
-                area-id: '3.3.3.3'
-            - address: '0.0.0.0'
+                area-id: 3.3.3.3
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
+                address: 0.0.0.0
                 network-type: 'openconfig-ospf-types:POINT_TO_POINT_NETWORK'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               enable-bfd:
                 config:
                   enabled: true
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
-                area-id: '2.2.2.2'
+                address: 0.0.0.0
+                area-id: 2.2.2.2
                 hello-multiplier: 2
                 dead-interval-minimal: true
                 metric: 20
-            - address: '10.10.120.1'
+            - address: 10.10.120.1
               config:
-                address: '10.10.120.1'
-                authentication-type: 'NONE'
+                address: 10.10.120.1
+                authentication-type: NONE
               md-authentications:
                 md-authentication:
                   - authentication-key-id: 10
                     config:
                       authentication-key-id: 10
                       authentication-key-encrypted: true
-                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-
+                      authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
 merged_02:
   module_args:
     config:
-      - name: 'PortChannel100'
+      - name: PortChannel100
         ospf_attributes:
-          - area_id: '2.2.2.2'
+          - area_id: 2.2.2.2
             cost: 20
             priority: 15
-          - address: '10.10.120.1'
-            mtu_ignore: True
-            authentication_type: 'TEXT'
+          - address: 10.10.120.1
+            mtu_ignore: true
+            authentication_type: TEXT
             md_authentication:
               - key_id: 30
-                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                md5key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                encrypted: true
         network: point_to_point
         bfd:
-          enable: True
-          bfd_profile: 'profile2'
-      - name: 'Eth1/6'
+          enable: true
+          bfd_profile: profile2
+      - name: Eth1/6
         ospf_attributes:
-          - area_id: '4.4.4.4'
+          - area_id: 4.4.4.4
             cost: 15
             hello_multiplier: 2
-          - address: '10.10.120.1'
-            authentication_type: 'NONE'
+          - address: 10.10.120.1
+            authentication_type: NONE
             md_authentication:
               - key_id: 10
-                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
-      - name: 'Vlan100'
+                md5key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                encrypted: true
+      - name: Vlan100
         bfd:
-          enable: True
-          bfd_profile: 'profile2'
+          enable: true
+          bfd_profile: profile2
         network: broadcast
         ospf_attributes:
-          - area_id: '1.1.1.1'
-            address: '10.19.120.2'
-            authentication_type: 'MD5HMAC'
+          - area_id: 1.1.1.1
+            address: 10.19.120.2
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 2
-          - area_id: '2.2.2.2'
-            address: '10.19.120.3'
-            authentication_type: 'MD5HMAC'
+          - area_id: 2.2.2.2
+            address: 10.19.120.3
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 2
-      - name: 'Loopback100'
+      - name: Loopback100
         ospf_attributes:
-          - area_id: '2.2.2.2'
+          - area_id: 2.2.2.2
             cost: 20
             priority: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
-          - address: '10.10.120.1'
-            authentication_type: 'MD5HMAC'
+            mtu_ignore: true
+          - address: 10.10.120.1
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 5
         bfd:
-          enable: True
-          bfd_profile: 'profile1'
+          enable: true
+          bfd_profile: profile1
         network: point_to_point
     state: merged
   existing_ospfv2_config:
@@ -220,19 +224,19 @@ merged_02:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 dead-interval: 40
                                 dead-interval-minimal: false
                                 hello-interval: 10
@@ -242,141 +246,145 @@ merged_02:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
-              - name: 'Eth1/6'
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-              - name: 'PortChannel100'
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
+                                address: 0.0.0.0
                                 dead-interval-minimal: true
                                 hello-multiplier: 5
                                 network-type: 'openconfig-ospf-types:POINT_TO_POINT_NETWORK'
                               enable-bfd:
                                 config:
                                   enabled: true
-                            - address: '10.19.120.2'
+                            - address: 10.19.120.2
                               config:
-                                address: '10.19.120.2'
-                                area-id: '3.3.3.3'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.19.120.2
+                                area-id: 3.3.3.3
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv4:
-                    openconfig-ospfv2-ext:ospfv2:
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv4':
+                    'openconfig-ospfv2-ext:ospfv2':
                       if-addresses:
-                        - address: '0.0.0.0'
+                        - address: 0.0.0.0
                           config:
-                            address: '0.0.0.0'
-                            area-id: '2.2.2.2'
+                            address: 0.0.0.0
+                            area-id: 2.2.2.2
                             dead-interval-minimal: true
                             hello-multiplier: 2
                             metric: 20
-                        - address: '10.10.120.1'
+                        - address: 10.10.120.1
                           config:
-                            address: '10.10.120.1'
-                            authentication-type: 'NONE'
+                            address: 10.10.120.1
+                            authentication-type: NONE
                           md-authentications:
                             md-authentication:
                               - authentication-key-id: 10
                                 config:
                                   authentication-key-id: 10
                                   authentication-key-encrypted: true
-                                  authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'Loopback100'
+                                  authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
-                area-id: '4.4.4.4'
+                address: 0.0.0.0
+                area-id: 4.4.4.4
                 dead-interval-minimal: true
                 hello-multiplier: 2
                 metric: 15
-            - address: '10.10.120.1'
+            - address: 10.10.120.1
               config:
-                address: '10.10.120.1'
-                authentication-type: 'NONE'
+                address: 10.10.120.1
+                authentication-type: NONE
               md-authentications:
                 md-authentication:
                   - authentication-key-id: 10
                     config:
                       authentication-key-id: 10
                       authentication-key-encrypted: true
-                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                      authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
+                address: 0.0.0.0
                 network-type: 'openconfig-ospf-types:POINT_TO_POINT_NETWORK'
-                area-id: '2.2.2.2'
+                area-id: 2.2.2.2
                 dead-interval: 40
                 hello-interval: 10
                 mtu-ignore: true
                 metric: 20
                 priority: 20
-            - address: '10.10.120.1'
+            - address: 10.10.120.1
               config:
-                address: '10.10.120.1'
-                authentication-type: 'MD5HMAC'
-                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                address: 10.10.120.1
+                authentication-type: MD5HMAC
+                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                 authentication-key-encrypted: true
                 hello-multiplier: 5
                 dead-interval-minimal: true
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               enable-bfd:
                 config:
                   enabled: true
-                  bfd-profile: 'profile1'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                  bfd-profile: profile1
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
-                area-id: '2.2.2.2'
+                address: 0.0.0.0
+                area-id: 2.2.2.2
                 metric: 20
                 priority: 15
-            - address: '10.10.120.1'
+            - address: 10.10.120.1
               config:
-                address: '10.10.120.1'
-                authentication-type: 'TEXT'
+                address: 10.10.120.1
+                authentication-type: TEXT
                 mtu-ignore: true
               md-authentications:
                 md-authentication:
@@ -384,101 +392,103 @@ merged_02:
                     config:
                       authentication-key-id: 30
                       authentication-key-encrypted: true
-                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                      authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               enable-bfd:
                 config:
-                  bfd-profile: 'profile2'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                  bfd-profile: profile2
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
+                address: 0.0.0.0
                 network-type: 'openconfig-ospf-types:BROADCAST_NETWORK'
-            - address: '10.19.120.2'
+            - address: 10.19.120.2
               config:
-                address: '10.19.120.2'
-                authentication-type: 'MD5HMAC'
-                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                address: 10.19.120.2
+                authentication-type: MD5HMAC
+                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                 authentication-key-encrypted: true
                 hello-multiplier: 2
                 dead-interval-minimal: true
-                area-id: '1.1.1.1'
-            - address: '10.19.120.3'
+                area-id: 1.1.1.1
+            - address: 10.19.120.3
               config:
-                address: '10.19.120.3'
-                authentication-type: 'MD5HMAC'
-                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                address: 10.19.120.3
+                authentication-type: MD5HMAC
+                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                 authentication-key-encrypted: true
                 hello-multiplier: 2
                 dead-interval-minimal: true
-                area-id: '2.2.2.2'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                area-id: 2.2.2.2
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               enable-bfd:
                 config:
-                  bfd-profile: 'profile2'
+                  bfd-profile: profile2
                   enabled: true
-
 deleted_01:
   module_args:
     config:
-      - name: 'Eth1/5'
-      - name: 'Eth1/6'
+      - name: Eth1/5
+      - name: Eth1/6
         ospf_attributes:
-          - area_id: '4.4.4.4'
+          - area_id: 4.4.4.4
             cost: 15
             hello_multiplier: 5
-          - address: '10.10.120.1'
+          - address: 10.10.120.1
             md_authentication:
               - key_id: 10
-                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
-      - name: 'PortChannel100'
+                md5key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                encrypted: true
+      - name: PortChannel100
         ospf_attributes:
-          - address: '0.0.0.0'
-          - address: '10.19.120.2'
-      - name: 'Vlan100'
+          - address: 0.0.0.0
+          - address: 10.19.120.2
+      - name: Vlan100
         bfd:
-          enable: True
-        network: 'broadcast'
+          enable: true
+        network: broadcast
         ospf_attributes:
-          - address: '10.10.120.1'
+          - address: 10.10.120.1
             md_authentication:
               - key_id: 10
-                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                md5key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                encrypted: true
     state: deleted
   existing_ospfv2_config:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 dead-interval: 40
                                 dead-interval-minimal: false
                                 hello-interval: 10
@@ -488,51 +498,52 @@ deleted_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
-              - name: 'Eth1/6'
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '4.4.4.4'
+                                address: 0.0.0.0
+                                area-id: 4.4.4.4
                                 dead-interval-minimal: true
                                 hello-multiplier: 2
                                 metric: 15
-                            - address: '10.10.120.1'
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'NONE'
+                                address: 10.10.120.1
+                                authentication-type: NONE
                               md-authentications:
                                 md-authentication:
                                   - authentication-key-id: 10
                                     config:
                                       authentication-key-id: 10
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'PortChannel100'
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 metric: 20
                                 priority: 20
                                 dead-interval-minimal: true
@@ -541,17 +552,17 @@ deleted_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                            - address: '10.19.120.2'
+                            - address: 10.19.120.2
                               config:
-                                address: '10.19.120.2'
-                                area-id: '3.3.3.3'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.19.120.2
+                                area-id: 3.3.3.3
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
-                            - address: '10.10.120.1'
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'TEXT'
+                                address: 10.10.120.1
+                                authentication-type: TEXT
                                 mtu-ignore: true
                               md-authentications:
                                 md-authentication:
@@ -559,16 +570,17 @@ deleted_01:
                                     config:
                                       authentication-key-id: 30
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv4:
-                    openconfig-ospfv2-ext:ospfv2:
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv4':
+                    'openconfig-ospfv2-ext:ospfv2':
                       if-addresses:
-                        - address: '0.0.0.0'
+                        - address: 0.0.0.0
                           config:
-                            address: '0.0.0.0'
-                            area-id: '2.2.2.2'
+                            address: 0.0.0.0
+                            area-id: 2.2.2.2
                             dead-interval-minimal: true
                             hello-multiplier: 2
                             metric: 20
@@ -576,47 +588,47 @@ deleted_01:
                           enable-bfd:
                             config:
                               enabled: true
-                              bfd-profile: 'profile2'
-                        - address: '10.10.120.1'
+                              bfd-profile: profile2
+                        - address: 10.10.120.1
                           config:
-                            address: '10.10.120.1'
-                            authentication-type: 'NONE'
+                            address: 10.10.120.1
+                            authentication-type: NONE
                           md-authentications:
                             md-authentication:
                               - authentication-key-id: 10
                                 config:
                                   authentication-key-id: 10
                                   authentication-key-encrypted: true
-                                  authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                        - address: '10.19.120.2'
+                                  authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                        - address: 10.19.120.2
                           config:
-                            address: '10.19.120.2'
-                            area-id: '1.1.1.1'
-                            authentication-type: 'MD5HMAC'
-                            authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                            address: 10.19.120.2
+                            area-id: 1.1.1.1
+                            authentication-type: MD5HMAC
+                            authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                             authentication-key-encrypted: true
                             hello-multiplier: 2
                             dead-interval-minimal: true
-                        - address: '10.19.120.3'
+                        - address: 10.19.120.3
                           config:
-                            address: '10.19.120.3'
-                            area-id: '2.2.2.2'
-                            authentication-type: 'MD5HMAC'
-                            authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                            address: 10.19.120.3
+                            area-id: 2.2.2.2
+                            authentication-type: MD5HMAC
+                            authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                             authentication-key-encrypted: true
                             hello-multiplier: 2
                             dead-interval-minimal: true
-              - name: 'Loopback100'
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 metric: 20
                                 priority: 20
                                 hello-interval: 10
@@ -627,69 +639,83 @@ deleted_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/priority'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/network-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10'
-      method: 'delete'
-
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/priority
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/network-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10
+      method: delete
 deleted_02:
   module_args:
-    config:
+    config: null
     state: deleted
   existing_ospfv2_config:
     - path: 'data/openconfig-interfaces:interfaces'
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 dead-interval: 40
                                 dead-interval-minimal: false
                                 hello-interval: 10
@@ -699,51 +725,52 @@ deleted_02:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
-              - name: 'Eth1/6'
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '4.4.4.4'
+                                address: 0.0.0.0
+                                area-id: 4.4.4.4
                                 dead-interval-minimal: true
                                 hello-multiplier: 2
                                 metric: 15
-                            - address: '10.10.120.1'
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'NONE'
+                                address: 10.10.120.1
+                                authentication-type: NONE
                               md-authentications:
                                 md-authentication:
                                   - authentication-key-id: 10
                                     config:
                                       authentication-key-id: 10
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'PortChannel100'
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 metric: 20
                                 priority: 20
                                 dead-interval-minimal: true
@@ -752,17 +779,17 @@ deleted_02:
                               enable-bfd:
                                 config:
                                   enabled: true
-                            - address: '10.19.120.2'
+                            - address: 10.19.120.2
                               config:
-                                address: '10.19.120.2'
-                                area-id: '3.3.3.3'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.19.120.2
+                                area-id: 3.3.3.3
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
-                            - address: '10.10.120.1'
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'TEXT'
+                                address: 10.10.120.1
+                                authentication-type: TEXT
                                 mtu-ignore: true
                               md-authentications:
                                 md-authentication:
@@ -770,16 +797,17 @@ deleted_02:
                                     config:
                                       authentication-key-id: 30
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv4:
-                    openconfig-ospfv2-ext:ospfv2:
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv4':
+                    'openconfig-ospfv2-ext:ospfv2':
                       if-addresses:
-                        - address: '0.0.0.0'
+                        - address: 0.0.0.0
                           config:
-                            address: '0.0.0.0'
-                            area-id: '2.2.2.2'
+                            address: 0.0.0.0
+                            area-id: 2.2.2.2
                             dead-interval-minimal: true
                             hello-multiplier: 2
                             metric: 20
@@ -787,47 +815,47 @@ deleted_02:
                           enable-bfd:
                             config:
                               enabled: true
-                              bfd-profile: 'profile2'
-                        - address: '10.10.120.1'
+                              bfd-profile: profile2
+                        - address: 10.10.120.1
                           config:
-                            address: '10.10.120.1'
-                            authentication-type: 'NONE'
+                            address: 10.10.120.1
+                            authentication-type: NONE
                           md-authentications:
                             md-authentication:
                               - authentication-key-id: 10
                                 config:
                                   authentication-key-id: 10
                                   authentication-key-encrypted: true
-                                  authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                        - address: '10.19.120.2'
+                                  authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                        - address: 10.19.120.2
                           config:
-                            address: '10.19.120.2'
-                            area-id: '1.1.1.1'
-                            authentication-type: 'MD5HMAC'
-                            authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                            address: 10.19.120.2
+                            area-id: 1.1.1.1
+                            authentication-type: MD5HMAC
+                            authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                             authentication-key-encrypted: true
                             hello-multiplier: 2
                             dead-interval-minimal: true
-                        - address: '10.19.120.3'
+                        - address: 10.19.120.3
                           config:
-                            address: '10.19.120.3'
-                            area-id: '2.2.2.2'
-                            authentication-type: 'MD5HMAC'
-                            authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                            address: 10.19.120.3
+                            area-id: 2.2.2.2
+                            authentication-type: MD5HMAC
+                            authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                             authentication-key-encrypted: true
                             hello-multiplier: 2
                             dead-interval-minimal: true
-              - name: 'Loopback100'
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 metric: 20
                                 priority: 20
                                 hello-interval: 10
@@ -838,67 +866,71 @@ deleted_02:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: delete
 replaced_01:
   module_args:
     config:
-      - name: 'Eth1/5'
+      - name: Eth1/5
         bfd:
-          bfd_profile: 'profile1'
-          enable: True
+          bfd_profile: profile1
+          enable: true
         ospf_attributes:
           - area_id: '33686018'
             cost: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
+            mtu_ignore: true
             priority: 20
-          - address: '10.10.120.1'
-            authentication_type: 'MD5HMAC'
+          - address: 10.10.120.1
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 5
             md_authentication:
               - key_id: 10
-                md5key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
-      - name: 'Loopback100'
+                md5key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                encrypted: true
+      - name: Loopback100
         network: broadcast
         bfd:
-          bfd_profile: 'profile3'
-          enable: True
-      - name: 'Vlan100'
+          bfd_profile: profile3
+          enable: true
+      - name: Vlan100
         ospf_attributes:
-          - address: '10.10.120.2'
-            area_id: '1.1.1.1'
-            authentication_type: 'MD5HMAC'
+          - address: 10.10.120.2
+            area_id: 1.1.1.1
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 2
-          - address: '10.10.120.3'
-            area_id: '2.2.2.2'
+          - address: 10.10.120.3
+            area_id: 2.2.2.2
         network: broadcast
     state: replaced
   existing_ospfv2_config:
@@ -906,19 +938,19 @@ replaced_01:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 dead-interval: 40
                                 dead-interval-minimal: false
                                 hello-interval: 10
@@ -928,12 +960,12 @@ replaced_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
@@ -943,43 +975,45 @@ replaced_01:
                                     config:
                                       authentication-key-id: 15
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'Eth1/6'
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '4.4.4.4'
+                                address: 0.0.0.0
+                                area-id: 4.4.4.4
                                 dead-interval-minimal: true
                                 hello-multiplier: 2
                                 metric: 15
-                            - address: '10.10.120.1'
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'NONE'
+                                address: 10.10.120.1
+                                authentication-type: NONE
                               md-authentications:
                                 md-authentication:
                                   - authentication-key-id: 10
                                     config:
                                       authentication-key-id: 10
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'PortChannel100'
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 metric: 20
                                 priority: 20
                                 dead-interval-minimal: true
@@ -988,17 +1022,17 @@ replaced_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                            - address: '10.19.120.2'
+                            - address: 10.19.120.2
                               config:
-                                address: '10.19.120.2'
-                                area-id: '3.3.3.3'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.19.120.2
+                                area-id: 3.3.3.3
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
-                            - address: '10.10.120.1'
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'TEXT'
+                                address: 10.10.120.1
+                                authentication-type: TEXT
                                 mtu-ignore: true
                               md-authentications:
                                 md-authentication:
@@ -1006,16 +1040,17 @@ replaced_01:
                                     config:
                                       authentication-key-id: 30
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv4:
-                    openconfig-ospfv2-ext:ospfv2:
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv4':
+                    'openconfig-ospfv2-ext:ospfv2':
                       if-addresses:
-                        - address: '0.0.0.0'
+                        - address: 0.0.0.0
                           config:
-                            address: '0.0.0.0'
-                            area-id: '2.2.2.2'
+                            address: 0.0.0.0
+                            area-id: 2.2.2.2
                             dead-interval-minimal: true
                             hello-multiplier: 2
                             metric: 20
@@ -1023,47 +1058,47 @@ replaced_01:
                           enable-bfd:
                             config:
                               enabled: true
-                              bfd-profile: 'profile2'
-                        - address: '10.10.120.1'
+                              bfd-profile: profile2
+                        - address: 10.10.120.1
                           config:
-                            address: '10.10.120.1'
-                            authentication-type: 'NONE'
+                            address: 10.10.120.1
+                            authentication-type: NONE
                           md-authentications:
                             md-authentication:
                               - authentication-key-id: 10
                                 config:
                                   authentication-key-id: 10
                                   authentication-key-encrypted: true
-                                  authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                        - address: '10.19.120.2'
+                                  authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                        - address: 10.19.120.2
                           config:
-                            address: '10.19.120.2'
-                            area-id: '1.1.1.1'
-                            authentication-type: 'MD5HMAC'
-                            authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                            address: 10.19.120.2
+                            area-id: 1.1.1.1
+                            authentication-type: MD5HMAC
+                            authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                             authentication-key-encrypted: true
                             hello-multiplier: 2
                             dead-interval-minimal: true
-                        - address: '10.19.120.3'
+                        - address: 10.19.120.3
                           config:
-                            address: '10.19.120.3'
-                            area-id: '2.2.2.2'
-                            authentication-type: 'MD5HMAC'
-                            authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                            address: 10.19.120.3
+                            area-id: 2.2.2.2
+                            authentication-type: MD5HMAC
+                            authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                             authentication-key-encrypted: true
                             hello-multiplier: 2
                             dead-interval-minimal: true
-              - name: 'Loopback100'
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 metric: 20
                                 priority: 20
                                 hello-interval: 10
@@ -1074,152 +1109,179 @@ replaced_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/hello-interval'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/mtu-ignore'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/priority'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-key'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-key'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=15'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/hello-interval
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/mtu-ignore
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/priority
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-key
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-key
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=15
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
+                address: 0.0.0.0
                 network-type: 'openconfig-ospf-types:BROADCAST_NETWORK'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               enable-bfd:
                 config:
-                  bfd-profile: 'profile3'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                  bfd-profile: profile3
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '10.10.120.2'
+            - address: 10.10.120.2
               config:
-                address: '10.10.120.2'
-                area-id: '1.1.1.1'
-                authentication-type: 'MD5HMAC'
-                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                address: 10.10.120.2
+                area-id: 1.1.1.1
+                authentication-type: MD5HMAC
+                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                 authentication-key-encrypted: true
                 hello-multiplier: 2
                 dead-interval-minimal: true
-            - address: '10.10.120.3'
+            - address: 10.10.120.3
               config:
-                address: '10.10.120.3'
-                area-id: '2.2.2.2'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                address: 10.10.120.3
+                area-id: 2.2.2.2
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f5/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '10.10.120.1'
+            - address: 10.10.120.1
               config:
-                address: '10.10.120.1'
+                address: 10.10.120.1
               md-authentications:
                 md-authentication:
                   - authentication-key-id: 10
                     config:
                       authentication-key-encrypted: true
                       authentication-key-id: 10
-                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-
+                      authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
 overridden_01:
   module_args:
     config:
-      - name: 'Eth1/5'
+      - name: Eth1/5
         bfd:
-          bfd_profile: 'profile1'
-          enable: True
+          bfd_profile: profile1
+          enable: true
         ospf_attributes:
           - area_id: 33686018
             cost: 20
             hello_interval: 10
             dead_interval: 40
-            mtu_ignore: True
+            mtu_ignore: true
             priority: 20
-          - address: '10.10.120.1'
-            authentication_type: 'MD5HMAC'
+          - address: 10.10.120.1
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 5
-      - name: 'Loopback100'
+      - name: Loopback100
         network: broadcast
         bfd:
-          bfd_profile: 'profile3'
-          enable: True
-      - name: 'Vlan100'
+          bfd_profile: profile3
+          enable: true
+      - name: Vlan100
         ospf_attributes:
-          - address: '10.10.120.2'
-            area_id: '1.1.1.1'
-            authentication_type: 'MD5HMAC'
+          - address: 10.10.120.2
+            area_id: 1.1.1.1
+            authentication_type: MD5HMAC
             authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: True
+              password: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              encrypted: true
             hello_multiplier: 2
-          - address: '10.10.120.3'
-            area_id: '2.2.2.2'
+          - address: 10.10.120.3
+            area_id: 2.2.2.2
         network: broadcast
     state: overridden
   existing_ospfv2_config:
@@ -1227,19 +1289,19 @@ overridden_01:
       response:
         code: 200
         value:
-          openconfig-interfaces:interfaces:
+          'openconfig-interfaces:interfaces':
             interface:
-              - name: 'Eth1/5'
+              - name: Eth1/5
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 dead-interval: 40
                                 dead-interval-minimal: false
                                 hello-interval: 10
@@ -1249,51 +1311,52 @@ overridden_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
-              - name: 'Eth1/6'
+              - name: Eth1/6
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '4.4.4.4'
+                                address: 0.0.0.0
+                                area-id: 4.4.4.4
                                 dead-interval-minimal: true
                                 hello-multiplier: 2
                                 metric: 15
-                            - address: '10.10.120.1'
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'NONE'
+                                address: 10.10.120.1
+                                authentication-type: NONE
                               md-authentications:
                                 md-authentication:
                                   - authentication-key-id: 10
                                     config:
                                       authentication-key-id: 10
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'PortChannel100'
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: PortChannel100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 metric: 20
                                 priority: 20
                                 dead-interval-minimal: true
@@ -1302,17 +1365,17 @@ overridden_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                            - address: '10.19.120.2'
+                            - address: 10.19.120.2
                               config:
-                                address: '10.19.120.2'
-                                area-id: '3.3.3.3'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.19.120.2
+                                area-id: 3.3.3.3
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
-                            - address: '10.10.120.1'
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'TEXT'
+                                address: 10.10.120.1
+                                authentication-type: TEXT
                                 mtu-ignore: true
                               md-authentications:
                                 md-authentication:
@@ -1320,16 +1383,17 @@ overridden_01:
                                     config:
                                       authentication-key-id: 30
                                       authentication-key-encrypted: true
-                                      authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              - name: 'Vlan100'
-                openconfig-vlan:routed-vlan:
-                  openconfig-if-ip:ipv4:
-                    openconfig-ospfv2-ext:ospfv2:
+                                      authentication-md5-key: >-
+                                        U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+              - name: Vlan100
+                'openconfig-vlan:routed-vlan':
+                  'openconfig-if-ip:ipv4':
+                    'openconfig-ospfv2-ext:ospfv2':
                       if-addresses:
-                        - address: '0.0.0.0'
+                        - address: 0.0.0.0
                           config:
-                            address: '0.0.0.0'
-                            area-id: '2.2.2.2'
+                            address: 0.0.0.0
+                            area-id: 2.2.2.2
                             dead-interval-minimal: true
                             hello-multiplier: 2
                             metric: 20
@@ -1337,47 +1401,47 @@ overridden_01:
                           enable-bfd:
                             config:
                               enabled: true
-                              bfd-profile: 'profile2'
-                        - address: '10.10.120.1'
+                              bfd-profile: profile2
+                        - address: 10.10.120.1
                           config:
-                            address: '10.10.120.1'
-                            authentication-type: 'NONE'
+                            address: 10.10.120.1
+                            authentication-type: NONE
                           md-authentications:
                             md-authentication:
                               - authentication-key-id: 10
                                 config:
                                   authentication-key-id: 10
                                   authentication-key-encrypted: true
-                                  authentication-md5-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                        - address: '10.19.120.2'
+                                  authentication-md5-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
+                        - address: 10.19.120.2
                           config:
-                            address: '10.19.120.2'
-                            area-id: '1.1.1.1'
-                            authentication-type: 'MD5HMAC'
-                            authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                            address: 10.19.120.2
+                            area-id: 1.1.1.1
+                            authentication-type: MD5HMAC
+                            authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                             authentication-key-encrypted: true
                             hello-multiplier: 2
                             dead-interval-minimal: true
-                        - address: '10.19.120.3'
+                        - address: 10.19.120.3
                           config:
-                            address: '10.19.120.3'
-                            area-id: '2.2.2.2'
-                            authentication-type: 'MD5HMAC'
-                            authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                            address: 10.19.120.3
+                            area-id: 2.2.2.2
+                            authentication-type: MD5HMAC
+                            authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                             authentication-key-encrypted: true
                             hello-multiplier: 2
                             dead-interval-minimal: true
-              - name: 'Loopback100'
+              - name: Loopback100
                 subinterfaces:
                   subinterface:
                     - index: 0
-                      openconfig-if-ip:ipv4:
-                        openconfig-ospfv2-ext:ospfv2:
+                      'openconfig-if-ip:ipv4':
+                        'openconfig-ospfv2-ext:ospfv2':
                           if-addresses:
-                            - address: '0.0.0.0'
+                            - address: 0.0.0.0
                               config:
-                                address: '0.0.0.0'
-                                area-id: '2.2.2.2'
+                                address: 0.0.0.0
+                                area-id: 2.2.2.2
                                 metric: 20
                                 priority: 20
                                 hello-interval: 10
@@ -1388,99 +1452,127 @@ overridden_01:
                               enable-bfd:
                                 config:
                                   enabled: true
-                                  bfd-profile: 'profile1'
-                            - address: '10.10.120.1'
+                                  bfd-profile: profile1
+                            - address: 10.10.120.1
                               config:
-                                address: '10.10.120.1'
-                                authentication-type: 'MD5HMAC'
-                                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                                address: 10.10.120.1
+                                authentication-type: MD5HMAC
+                                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                                 authentication-key-encrypted: true
                                 hello-multiplier: 5
                                 dead-interval-minimal: true
   expected_config_requests:
-    - path: '/data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/hello-interval'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/mtu-ignore'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/priority'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-key'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/area-id'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-key'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-type'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/dead-interval-minimal'
-      method: 'delete'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Eth1%2f6/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=PortChannel100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/hello-interval
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/mtu-ignore
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/priority
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-key
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/enable-bfd
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/metric
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=0.0.0.0/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.10.120.1/md-authentications/md-authentication=10
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-key
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.2/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/area-id
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-key
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/authentication-type
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2/if-addresses=10.19.120.3/config/dead-interval-minimal
+      method: delete
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               config:
-                address: '0.0.0.0'
+                address: 0.0.0.0
                 network-type: 'openconfig-ospf-types:BROADCAST_NETWORK'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Loopback100/subinterfaces/subinterface=0/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '0.0.0.0'
+            - address: 0.0.0.0
               enable-bfd:
                 config:
-                  bfd-profile: 'profile3'
-    - path: '/data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2'
-      method: 'patch'
+                  bfd-profile: profile3
+    - path: >-
+        /data/openconfig-interfaces:interfaces/interface=Vlan100/openconfig-vlan:routed-vlan/openconfig-if-ip:ipv4/openconfig-ospfv2-ext:ospfv2
+      method: patch
       data:
-        openconfig-ospfv2-ext:ospfv2:
+        'openconfig-ospfv2-ext:ospfv2':
           if-addresses:
-            - address: '10.10.120.2'
+            - address: 10.10.120.2
               config:
-                address: '10.10.120.2'
-                area-id: '1.1.1.1'
-                authentication-type: 'MD5HMAC'
-                authentication-key: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
+                address: 10.10.120.2
+                area-id: 1.1.1.1
+                authentication-type: MD5HMAC
+                authentication-key: U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios=
                 authentication-key-encrypted: true
                 hello-multiplier: 2
                 dead-interval-minimal: true
-            - address: '10.10.120.3'
+            - address: 10.10.120.3
               config:
-                address: '10.10.120.3'
-                area-id: '2.2.2.2'
+                address: 10.10.120.3
+                area-id: 2.2.2.2

@@ -43,9 +43,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
     build_interfaces_create_request,
     retrieve_default_intf_speed,
-    retrieve_port_group_interfaces,
-    retrieve_valid_intf_speed,
-    intf_speed_to_number_map
+    retrieve_port_group_info,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
@@ -81,7 +79,7 @@ eth_conf_url = "/openconfig-if-ethernet:ethernet/config"
 port_num_regex = re.compile(r'[\d]{1,4}$')
 loopback_attribute = ('description', 'enabled')
 non_eth_attribute = ('description', 'mtu', 'enabled')
-eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed', 'unreliable_los')
+eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed', 'unreliable_los', 'autoneg_mode')
 
 non_eth_attributes_default_value = {
     "description": '',
@@ -95,7 +93,8 @@ eth_attributes_default_value = {
     "auto_negotiate": False,
     "fec": 'FEC_DISABLED',
     "advertised_speed": [],
-    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO"
+    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO",
+    "autoneg_mode": "AUTONEG_MODE_BAM"
 }
 default_intf_speeds = {}
 port_group_interfaces = None
@@ -430,7 +429,8 @@ class Interfaces(ConfigBase):
             "auto_negotiate": 'auto-negotiate',
             "fec": 'openconfig-if-ethernet-ext2:port-fec',
             "advertised_speed": 'openconfig-if-ethernet-ext2:advertised-speed',
-            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los'
+            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los',
+            "autoneg_mode": 'openconfig-if-ethernet-ext2:autoneg-mode'
         }
 
         config_url = (url + eth_conf_url) % quote(intf_name, safe='')
@@ -447,16 +447,19 @@ class Interfaces(ConfigBase):
         elif attr in ('fec'):
             payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-platform-types:' + c_attr
             return {"path": config_url, "method": method, "data": payload}
+        elif attr in ('autoneg_mode'):
+            payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet-ext2:' + c_attr
+            return {"path": config_url, "method": method, "data": payload}
         else:
             payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
             if attr == 'speed':
-                valid_intf_speeds = retrieve_valid_intf_speed(self._module, intf_name)
-                if self.is_port_in_port_group(intf_name) and (intf_speed_to_number_map.get(c_attr) not in valid_intf_speeds):
-                    self._module.fail_json(msg=("If a port-group is configured to the default speed, a member interface"
-                                                " can not be set to a non-default speed. Please use the port-group module to change"
-                                                " the speed of the port-group containing the member interface"
-                                                " before changing the interface's port speed."
-                                                " Valid speeds for {} are currently {}").format(intf_name, valid_intf_speeds))
+                port_group_info = retrieve_port_group_info(self._module, intf_name)
+                if port_group_info.get('port_group_id'):
+                    port_group_id = port_group_info['port_group_id']
+                    valid_speeds = port_group_info['valid_speeds']
+                    self._module.fail_json(msg=("Please use the sonic_port_group module to change the speed. "
+                                                "Interface {} is in port-group ID {pg_id}. The valid speeds "
+                                                "for port-group ID {pg_id} are {}.").format(intf_name, valid_speeds, pg_id=port_group_id))
                 payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
             if attr == 'advertised_speed':
                 c_ads = c_attr if c_attr else []
@@ -607,7 +610,8 @@ class Interfaces(ConfigBase):
             "auto_negotiate": 'auto-negotiate',
             "fec": 'openconfig-if-ethernet-ext2:port-fec',
             "advertised_speed": 'openconfig-if-ethernet-ext2:advertised-speed',
-            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los'
+            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los',
+            "autoneg_mode": 'openconfig-if-ethernet-ext2:autoneg-mode'
         }
 
         config_url = (url + eth_conf_url) % quote(intf_name, safe='')
@@ -637,6 +641,10 @@ class Interfaces(ConfigBase):
             payload_attr = attributes_payload[attr]
             payload['openconfig-if-ethernet:config'][payload_attr] = 'UNRELIABLE_LOS_MODE_AUTO'
             return {"path": config_url, "method": PATCH, "data": payload}
+        elif attr in ('autoneg_mode'):
+            payload_attr = attributes_payload[attr]
+            config_url = config_url + "/" + payload_attr
+            return {"path": config_url, "method": method}
         else:
             payload_attr = attributes_payload[attr]
             if attr == 'auto_negotiate':
@@ -685,20 +693,11 @@ class Interfaces(ConfigBase):
                 have.remove(intf)
                 break
 
-    def is_port_in_port_group(self, intf_name):
-        global port_group_interfaces
-        if port_group_interfaces is None:
-            port_group_interfaces = retrieve_port_group_interfaces(self._module)
-        port_num = re.search(port_num_regex, intf_name)
-        port_num = int(port_num.group(0))
-        if port_num in port_group_interfaces:
-            return True
-
-        return False
-
     def _retrieve_default_intf_speed(self, intf_name):
         # To avoid multiple get requests
-        if self.is_port_in_port_group(intf_name):
+        port_group_info = retrieve_port_group_info(self._module, intf_name)
+        # Check if interface is in a port-group
+        if port_group_info.get('port_group_id'):
             return "SPEED_DEFAULT"
 
         if default_intf_speeds.get(intf_name) is None:

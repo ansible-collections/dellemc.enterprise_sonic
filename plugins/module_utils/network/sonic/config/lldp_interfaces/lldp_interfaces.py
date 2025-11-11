@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2022 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -70,6 +70,7 @@ class Lldp_interfaces(ConfigBase):
         'ipv4_management_address': lldp_intf_path + '/config/openconfig-lldp-ext:management-address-ipv4',
         'ipv6_management_address': lldp_intf_path + '/config/openconfig-lldp-ext:management-address-ipv6',
         'mode': lldp_intf_path + '/config/openconfig-lldp-ext:mode',
+        'network_policy': lldp_intf_path + '/config/openconfig-lldp-ext:network-policy',
         'suppress_tlv': lldp_intf_path + '/config/openconfig-lldp-ext:suppress-tlv-advertisement',
         'allowed_vlan': lldp_intf_path + '/config/openconfig-lldp-ext:allowed-vlans',
         'vlan_name_tlv_count': lldp_intf_path + '/config/openconfig-lldp-ext:vlan-name-tlv-count',
@@ -82,8 +83,8 @@ class Lldp_interfaces(ConfigBase):
     def get_lldp_interfaces_facts(self):
         """ Get the 'facts' (the current configuration)
 
-        :rtype: A dictionary
-        :returns: The current configuration as a dictionary
+        :rtype: A list
+        :returns: The current configuration as a list
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         lldp_interfaces_facts = facts['ansible_network_resources'].get('lldp_interfaces')
@@ -179,7 +180,6 @@ class Lldp_interfaces(ConfigBase):
         """
 
         result = {'changed': False}
-        warnings = []
 
         existing_lldp_interfaces_facts = self.get_lldp_interfaces_facts()
         commands, requests = self.set_config(existing_lldp_interfaces_facts)
@@ -209,12 +209,11 @@ class Lldp_interfaces(ConfigBase):
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
         result['commands'] = commands
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_lldp_interfaces_facts):
         """ Collect the configuration from the args passed to the module,
-            collect the current configuration (as a dict from facts)
+            collect the current configuration (as a list from facts)
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -447,6 +446,10 @@ class Lldp_interfaces(ConfigBase):
                 payload = {'openconfig-lldp-ext:mode': command['mode'].upper()}
                 url = self.lldp_intf_config_path['mode'].format(intf_name=name)
                 requests.append({'path': url, 'method': PATCH, 'data': payload})
+            if 'network_policy' in command and command['network_policy'] is not None:
+                payload = {'openconfig-lldp-ext:network-policy': command['network_policy']}
+                url = self.lldp_intf_config_path['network_policy'].format(intf_name=name)
+                requests.append({'path': url, 'method': PATCH, 'data': payload})
             if 'enable' in command and command['enable'] is not None:
                 payload = {'openconfig-lldp:enabled': command['enable']}
                 url = self.lldp_intf_config_path['enable'].format(intf_name=name)
@@ -559,6 +562,9 @@ class Lldp_interfaces(ConfigBase):
 
         if 'mode' in command and command['mode'] is not None:
             url = self.lldp_intf_config_path['mode'].format(intf_name=name)
+            requests.append({'path': url, 'method': DELETE})
+        if 'network_policy' in command and command['network_policy'] is not None:
+            url = self.lldp_intf_config_path['network_policy'].format(intf_name=name)
             requests.append({'path': url, 'method': DELETE})
 
         if re.search('Eth', name):

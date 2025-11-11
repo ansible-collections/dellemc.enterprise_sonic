@@ -36,6 +36,8 @@ sonic_bgp_tests:
       - bgp_as: "{{ bgp_as_1 }}"
         router_id: 110.2.2.4
         rt_delay: 10
+        bestpath:
+          bandwidth: default_weight
       - bgp_as: "{{ bgp_as_2 }}"
         router_id: 110.2.2.5
         rt_delay: 20
@@ -111,6 +113,7 @@ sonic_bgp_tests:
             ignore: true
             multipath_relax: true
             multipath_relax_as_set: true
+          bandwidth: default_weight
           compare_routerid: true
           med:
             confed: true
@@ -133,6 +136,7 @@ sonic_bgp_tests:
             ignore: true
             multipath_relax: true
             multipath_relax_as_set: true
+          bandwidth: ignore_weight
           compare_routerid: true
           med:
             confed: true
@@ -155,6 +159,7 @@ sonic_bgp_tests:
           as_path:
             confed: false
             ignore: false
+          bandwidth: ignore_weight
           compare_routerid: false
           med:
             confed: false
@@ -173,6 +178,7 @@ sonic_bgp_tests:
           as_path:
             multipath_relax: false
             multipath_relax_as_set: false
+          bandwidth: default_weight
           compare_routerid: false
           med:
             missing_as_worst: false
@@ -195,6 +201,7 @@ sonic_bgp_tests:
           as_path:
             confed: true
             ignore: true
+          bandwidth: skip_missing
           compare_routerid: true
           med:
             confed: true
@@ -207,6 +214,7 @@ sonic_bgp_tests:
           as_path:
             multipath_relax: true
             multipath_relax_as_set: true
+          bandwidth: skip_missing
           compare_routerid: true
           med:
             missing_as_worst: true
@@ -220,6 +228,7 @@ sonic_bgp_tests:
           as_path:
             confed: false
             ignore: false
+          bandwidth: skip_missing
           compare_routerid: false
           med:
             confed: false
@@ -259,6 +268,7 @@ sonic_bgp_tests:
           as_path:
             confed: true
             ignore: true
+          bandwidth: skip_missing
           compare_routerid: true
           med:
             confed: true
@@ -273,6 +283,7 @@ sonic_bgp_tests:
           as_path:
             multipath_relax: true
             multipath_relax_as_set: true
+          bandwidth: ignore_weight
           compare_routerid: true
           med:
             missing_as_worst: true
@@ -285,6 +296,7 @@ sonic_bgp_tests:
           as_path:
             multipath_relax: true
             multipath_relax_as_set: true
+          bandwidth: default_weight
           compare_routerid: true
           med:
             missing_as_worst: true
@@ -292,7 +304,7 @@ sonic_bgp_tests:
           restart_time: 500
 
   - name: test_case_09
-    description: Delete BGP properties
+    description: Delete entire BGP routing instance
     state: deleted
     input:
       - bgp_as: "{{ bgp_as_2 }}"
@@ -308,6 +320,7 @@ sonic_bgp_tests:
         bestpath:
           as_path:
             confed: true
+          bandwidth: default_weight
           compare_routerid: false
           med:
             always_compare_med: true
@@ -336,8 +349,12 @@ sonic_bgp_tests:
         router_id: 120.2.2.155
         vrf_name: "{{ vrf_5 }}"
         as_notation: "asdot+"
+        bestpath:
+          bandwidth: ignore_weight
       - bgp_as: "{{ bgp_as_6_dot }}"
         vrf_name: "{{ vrf_6 }}"
+        bestpath:
+          bandwidth: default_weight
 
   - name: test_case_11
     description: Override BGP properties
@@ -348,6 +365,7 @@ sonic_bgp_tests:
         bestpath:
           as_path:
             confed: true
+          bandwidth: ignore_weight
           compare_routerid: true
           med:
             confed: true

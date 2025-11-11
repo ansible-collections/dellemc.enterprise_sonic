@@ -1,0 +1,312 @@
+---
+merged_01:
+  module_args:
+    config:
+      - number: 1
+        applications:
+          - app_type: voice
+            vlan_id: 1
+            untagged: false
+            priority: 0
+            dscp: 0
+          - app_type: voice-signaling
+            dot1p: enabled
+  existing_network_policy_config:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      method: 'patch'
+      data:
+        openconfig-network-policy-ext:network-policies:
+          network-policy:
+            - number: 1
+              config:
+                number: 1
+              applications:
+                application:
+                  - type: VOICE
+                    config:
+                      type: VOICE
+                      vlan-id: 1
+                      tagged: true
+                      priority: 0
+                      dscp: 0
+                  - type: VOICE_SIGNALING
+                    config:
+                      type: VOICE_SIGNALING
+                      vlan-id: 0
+
+replaced_01:
+  module_args:
+    config:
+      - number: 1
+        applications:
+          - app_type: voice
+            vlan_id: 1000
+            untagged: true
+            dscp: 63
+    state: replaced
+  existing_network_policy_config:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      response:
+        code: 200
+        value:
+          openconfig-network-policy-ext:network-policies:
+            network-policy:
+              - number: 1
+                config:
+                  number: 1
+                applications:
+                  application:
+                    - type: VOICE
+                      config:
+                        type: VOICE
+                        vlan-id: 1
+                        tagged: true
+                        priority: 0
+                        dscp: 0
+              - number: 2
+                config:
+                  number: 2
+                applications:
+                  application:
+                    - type: VOICE_SIGNALING
+                      config:
+                        type: VOICE_SIGNALING
+                        vlan-id: 400
+                        tagged: true
+                        priority: 7
+                        dscp: 45
+  expected_config_requests:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=1'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      method: 'patch'
+      data:
+        openconfig-network-policy-ext:network-policies:
+          network-policy:
+            - number: 1
+              config:
+                number: 1
+              applications:
+                application:
+                  - type: VOICE
+                    config:
+                      type: VOICE
+                      vlan-id: 1000
+                      tagged: false
+                      dscp: 63
+
+overridden_01:
+  module_args:
+    config:
+      - number: 1
+        applications:
+          - app_type: voice
+            vlan_id: 1000
+            untagged: true
+            dscp: 63
+    state: overridden
+  existing_network_policy_config:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      response:
+        code: 200
+        value:
+          openconfig-network-policy-ext:network-policies:
+            network-policy:
+              - number: 1
+                config:
+                  number: 1
+                applications:
+                  application:
+                    - type: VOICE
+                      config:
+                        type: VOICE
+                        vlan-id: 1
+                        tagged: true
+                        priority: 0
+                        dscp: 0
+  expected_config_requests:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      method: 'patch'
+      data:
+        openconfig-network-policy-ext:network-policies:
+          network-policy:
+            - number: 1
+              config:
+                number: 1
+              applications:
+                application:
+                  - type: VOICE
+                    config:
+                      type: VOICE
+                      vlan-id: 1000
+                      tagged: false
+                      dscp: 63
+
+overridden_02:
+  module_args:
+    config:
+      - number: 1
+        applications:
+          - app_type: voice
+            vlan_id: 1
+            untagged: false
+            priority: 0
+            dscp: 4
+    state: overridden
+  existing_network_policy_config:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      response:
+        code: 200
+        value:
+          openconfig-network-policy-ext:network-policies:
+            network-policy:
+              - number: 1
+                config:
+                  number: 1
+                applications:
+                  application:
+                    - type: VOICE
+                      config:
+                        type: VOICE
+                        vlan-id: 1
+                        tagged: true
+                        priority: 0
+  expected_config_requests:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      method: 'patch'
+      data:
+        openconfig-network-policy-ext:network-policies:
+          network-policy:
+            - number: 1
+              config:
+                number: 1
+              applications:
+                application:
+                  - type: VOICE
+                    config:
+                      type: VOICE
+                      dscp: 4
+
+deleted_01:
+  module_args:
+    config:
+      - number: 100
+      - number: 101
+        applications:
+          - app_type: voice
+            vlan_id: 100
+            untagged: false
+            priority: 7
+            dscp: 12
+          - app_type: voice-signaling
+      - number: 102
+        applications:
+          - app_type: voice-signaling
+            dot1p: enabled
+    state: deleted
+  existing_network_policy_config:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      response:
+        code: 200
+        value:
+          openconfig-network-policy-ext:network-policies:
+            network-policy:
+              - number: 100
+                config:
+                  number: 100
+              - number: 101
+                config:
+                  number: 101
+                applications:
+                  application:
+                    - type: VOICE
+                      config:
+                        type: VOICE
+                        vlan-id: 100
+                        tagged: true
+                        priority: 7
+                        dscp: 12
+                    - type: VOICE_SIGNALING
+                      config:
+                        type: VOICE_SIGNALING
+                        vlan-id: 400
+                        tagged: true
+                        priority: 7
+                        dscp: 45
+              - number: 102
+                config:
+                  number: 102
+                applications:
+                  application:
+                    - type: VOICE_SIGNALING
+                      config:
+                        type: VOICE_SIGNALING
+                        vlan-id: 0
+  expected_config_requests:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=100'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=101/applications/application=VOICE/config/vlan-id'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=101/applications/application=VOICE/config/tagged'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=101/applications/application=VOICE/config/priority'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=101/applications/application=VOICE/config/dscp'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=101/applications/application=VOICE_SIGNALING'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-policy-ext:network-policies/network-policy=102/applications/application=VOICE_SIGNALING/config/vlan-id'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_network_policy_config:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      response:
+        code: 200
+        value:
+          openconfig-network-policy-ext:network-policies:
+            network-policy:
+              - number: 100
+                config:
+                  number: 100
+              - number: 101
+                config:
+                  number: 101
+                applications:
+                  application:
+                    - type: VOICE
+                      config:
+                        type: VOICE
+                        vlan-id: 100
+                        tagged: true
+                        priority: 7
+                        dscp: 12
+                    - type: VOICE_SIGNALING
+                      config:
+                        type: VOICE_SIGNALING
+                        vlan-id: 400
+                        tagged: true
+                        priority: 7
+                        dscp: 45
+  expected_config_requests:
+    - path: 'data/openconfig-network-policy-ext:network-policies'
+      method: 'delete'
+      data:

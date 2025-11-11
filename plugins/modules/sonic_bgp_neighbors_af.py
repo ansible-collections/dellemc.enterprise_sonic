@@ -82,17 +82,21 @@ options:
                 type: bool
               allowas_in:
                 description:
-                  - Specifies the allowas in values.
+                  - Criterion for accepting received advertisements containing the AS number
+                  - of this BGP router intance in the AS PATH of received advertisements.
+                  - The 'origin' option can not be set to true when a 'value' is set.
                 type: dict
                 suboptions:
-                  value:
-                    description:
-                      - Specifies the value of the allowas in.
-                    type: int
                   origin:
                     description:
-                      - Specifies the origin value.
+                      - Accept this BGP router instance's set AS as the origin.
                     type: bool
+                  value:
+                    description:
+                      - Accept up to this number of occurrences of this BGP router's
+                      - set AS in the AS-PATH of received advertisements.
+                      - (Specify a number in the range 1-10.)
+                    type: int
               fabric_external:
                 description:
                   - Configure a neighbor as fabric-external.

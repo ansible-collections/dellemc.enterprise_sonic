@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -198,6 +198,16 @@ class Route_mapsFacts(object):
         information to convert it to a dictionary matching the "argspec" for
         the "route_maps" resource module.'''
 
+        # Fetch ars_object config
+        set_ars_obj_top = set_bgp_policy.get('openconfig-routing-policy-ext:ars-object')
+        if set_ars_obj_top and set_ars_obj_top.get('config'):
+            ars_object = \
+                set_ars_obj_top['config'].get(
+                    'set-ars-object')
+            if ars_object:
+                parsed_route_map_stmt_set['ars_object'] = \
+                    ars_object
+
         # Fetch as_path_prepend config
         set_as_path_top = set_bgp_policy.get('set-as-path-prepend')
         if set_as_path_top and set_as_path_top.get('config'):
@@ -350,6 +360,13 @@ class Route_mapsFacts(object):
                             parsed_rmap_stmt_set_extcomm['soo'].append(soo_val)
                         else:
                             parsed_rmap_stmt_set_extcomm['soo'] = [soo_val]
+                    elif 'link-bandwidth:' in set_extcommunity_config_item:
+                        if not parsed_rmap_stmt_set_extcomm.get('bandwidth'):
+                            parsed_rmap_stmt_set_extcomm['bandwidth'] = {}
+                        bandwidth_val = set_extcommunity_config_item.split(":")[1]
+                        parsed_rmap_stmt_set_extcomm['bandwidth']['bandwidth_value'] = bandwidth_val
+                        bandwidth_transitive_val = ("transitive" == set_extcommunity_config_item.split(":")[2])
+                        parsed_rmap_stmt_set_extcomm['bandwidth']['transitive_value'] = bandwidth_transitive_val
 
     @staticmethod
     def get_route_map_call_attr(route_map_stmt, parsed_route_map_stmt):

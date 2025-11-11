@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: bgp_as_paths
 
 bgp_as_1: 51
 bgp_as_2: 52
@@ -8,7 +7,7 @@ bgp_as_2: 52
 vrf_1: VrfReg1
 vrf_2: VrfReg2
 
-tests:
+sonic_bgp_as_paths_tests:
   - name: test_case_01
     description: Add BGP as-path lists
     state: merged
@@ -16,11 +15,11 @@ tests:
       - name: test
         members:
           - "11"
-        permit: True
+        permit: true
       - name: test_1
         members:
           - "101.101"
-        permit: False
+        permit: false
   - name: test_case_02
     description: Update BGP as-path lists
     state: merged
@@ -31,13 +30,13 @@ tests:
           - "22"
           - "33"
           - 44
-        permit: True
+        permit: true
       - name: test_1
         members:
           - "101.101"
           - "201.201"
           - "301.301"
-        permit: False
+        permit: false
       - name: test_2
         members:
           - "110"
@@ -45,7 +44,7 @@ tests:
           - "112*"
           - "^113"
           - "45$"
-        permit: True
+        permit: true
   - name: test_case_03
     description: Delete BGP as-path lists' members
     state: deleted
@@ -58,14 +57,14 @@ tests:
           - "101.101"
           - "201.201"
           - "301.301"
-        permit: False
+        permit: false
       - name: test_2
         members:
           - "111*"
           - "112*"
           - "^113"
           - "45$"
-        permit: True
+        permit: true
   - name: test_case_04
     description: Add BGP as-path lists
     state: merged
@@ -74,19 +73,19 @@ tests:
         members:
           - "100.*"
           - "200.*"
-        permit: False
+        permit: false
       - name: test_2
         members:
           - "110"
           - "120"
           - "^800"
           - "25$"
-        permit: True
+        permit: true
       - name: test_3
         members:
           - "900.*"
           - "910.*"
-        permit: False
+        permit: false
   - name: test_case_05
     description: Replace BGP as-path lists
     state: replaced
@@ -95,23 +94,23 @@ tests:
       - name: test_1
         members:
           - "301.301"
-        permit: False
+        permit: false
       - name: test_2
         members:
           - "111*"
           - "112*"
           - "^800"
           - "25$"
-        permit: True
+        permit: true
       - name: test_3
         members:
           - "900.*"
           - "910.*"
-        permit: True
+        permit: true
       - name: test_4
         members:
           - "800.*"
-        permit: True
+        permit: true
   - name: test_case_06
     description: Override BGP as-path lists
     state: overridden
@@ -120,18 +119,18 @@ tests:
         members:
           - "33.*"
           - "44.*"
-        permit: True
+        permit: true
       - name: test_1
         members:
           - "201.201"
           - "301.301"
-        permit: False
+        permit: false
       - name: test_2
         members:
           - "111*"
           - "^800"
           - "25$"
-        permit: True
+        permit: true
   - name: test_case_07
     description: Delete BGP as-path list
     state: deleted

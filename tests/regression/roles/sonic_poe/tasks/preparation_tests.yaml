@@ -1,6 +1,5 @@
-- name: "Delete old poe config"
-  vars:
-    ansible_connection: httpapi
+---
+- name: Delete old PoE configuration
   sonic_poe:
     config: {}
     state: deleted

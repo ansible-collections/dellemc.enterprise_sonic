@@ -1,0 +1,535 @@
+---
+merged_01:
+  module_args:
+    config:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc
+          group_type: ipv4
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
+          next_hops:
+            - entry_id: 1
+              ip_address: 1.1.1.1
+              vrf: VrfReg1
+              next_hop_type: non_recursive
+      replication_groups:
+        - group_name: rep1
+          group_description: xyz
+          group_type: ipv6
+          next_hops:
+            - entry_id: 2
+              ip_address: 1::1
+              vrf: VrfReg2
+              next_hop_type: overlay
+              single_copy: true
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:fbs:
+          next-hop-groups:
+            next-hop-group:
+              - group-name: hop1
+                config:
+                  name: hop1
+                  description: abc
+                  group-type: NEXT_HOP_GROUP_TYPE_IPV4
+                  threshold-type: NEXT_HOP_GROUP_THRESHOLD_COUNT
+                  threshold-up: 15
+                  threshold-down: 5
+                next-hops:
+                  next-hop:
+                    - entry-id: 1
+                      config:
+                        entry-id: 1
+                        ip-address: 1.1.1.1
+                        network-instance: VrfReg1
+                        next-hop-type: NEXT_HOP_TYPE_NON_RECURSIVE
+          replication-groups:
+            replication-group:
+              - group-name: rep1
+                config:
+                  name: rep1
+                  description: xyz
+                  group-type: REPLICATION_GROUP_TYPE_IPV6
+                next-hops:
+                  next-hop:
+                    - entry-id: 2
+                      config:
+                        entry-id: 2
+                        ip-address: 1::1
+                        network-instance: VrfReg2
+                        next-hop-type: NEXT_HOP_TYPE_OVERLAY
+                        single-copy: true
+
+merged_02:
+  module_args:
+    config:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc123
+          group_type: ipv4
+          next_hops:
+            - entry_id: 1
+              ip_address: 2.2.2.2
+              vrf: default
+              next_hop_type: recursive
+      replication_groups:
+        - group_name: rep1
+          group_description: xyz789
+          group_type: ipv6
+          next_hops:
+            - entry_id: 2
+              ip_address: 2::2
+              vrf: VrfReg1
+              next_hop_type: non_recursive
+              single_copy: false
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:fbs:
+            next-hop-groups:
+              next-hop-group:
+                - group-name: hop1
+                  config:
+                    name: hop1
+                    description: abc
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4
+                  next-hops:
+                    next-hop:
+                      - entry-id: 1
+                        config:
+                          entry-id: 1
+                          ip-address: 1.1.1.1
+                          network-instance: VrfReg1
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_NON_RECURSIVE
+            replication-groups:
+              replication-group:
+                - group-name: rep1
+                  config:
+                    name: rep1
+                    description: xyz
+                    group-type: openconfig-fbs-ext:REPLICATION_GROUP_TYPE_IPV6
+                  next-hops:
+                    next-hop:
+                      - entry-id: 2
+                        config:
+                          entry-id: 2
+                          ip-address: 1::1
+                          network-instance: VrfReg2
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_OVERLAY
+                          single-copy: true
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups/replication-group=rep1/next-hops/next-hop=2/config/single-copy'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:fbs:
+          next-hop-groups:
+            next-hop-group:
+              - group-name: hop1
+                config:
+                  name: hop1
+                  description: abc123
+                  group-type: NEXT_HOP_GROUP_TYPE_IPV4
+                next-hops:
+                  next-hop:
+                    - entry-id: 1
+                      config:
+                        entry-id: 1
+                        ip-address: 2.2.2.2
+                        network-instance: default
+                        next-hop-type: NEXT_HOP_TYPE_RECURSIVE
+          replication-groups:
+            replication-group:
+              - group-name: rep1
+                config:
+                  name: rep1
+                  description: xyz789
+                  group-type: REPLICATION_GROUP_TYPE_IPV6
+                next-hops:
+                  next-hop:
+                    - entry-id: 2
+                      config:
+                        entry-id: 2
+                        ip-address: 2::2
+                        network-instance: VrfReg1
+                        next-hop-type: NEXT_HOP_TYPE_NON_RECURSIVE
+
+replaced_01:
+  module_args:
+    config:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc123
+          group_type: ipv6
+          next_hops:
+            - entry_id: 1
+              ip_address: 2::2
+              vrf: default
+              next_hop_type: recursive
+    state: replaced
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:fbs:
+            next-hop-groups:
+              next-hop-group:
+                - group-name: hop1
+                  config:
+                    name: hop1
+                    description: abc
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4
+                  next-hops:
+                    next-hop:
+                      - entry-id: 1
+                        config:
+                          entry-id: 1
+                          ip-address: 1.1.1.1
+                          network-instance: VrfReg1
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_NON_RECURSIVE
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:fbs:
+          next-hop-groups:
+            next-hop-group:
+              - group-name: hop1
+                config:
+                  name: hop1
+                  description: abc123
+                  group-type: NEXT_HOP_GROUP_TYPE_IPV6
+                next-hops:
+                  next-hop:
+                    - entry-id: 1
+                      config:
+                        entry-id: 1
+                        ip-address: 2::2
+                        network-instance: default
+                        next-hop-type: NEXT_HOP_TYPE_RECURSIVE
+
+overridden_01:
+  module_args:
+    config:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc123
+          group_type: ipv4
+          next_hops:
+            - entry_id: 1
+              ip_address: 2.2.2.2
+              vrf: default
+              next_hop_type: recursive
+    state: overridden
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:fbs:
+            next-hop-groups:
+              next-hop-group:
+                - group-name: hop1
+                  config:
+                    name: hop1
+                    description: abc
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4
+                  next-hops:
+                    next-hop:
+                      - entry-id: 1
+                        config:
+                          entry-id: 1
+                          ip-address: 1.1.1.1
+                          network-instance: VrfReg1
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_NON_RECURSIVE
+            replication-groups:
+              replication-group:
+                - group-name: rep1
+                  config:
+                    name: rep1
+                    description: xyz
+                    group-type: openconfig-fbs-ext:REPLICATION_GROUP_TYPE_IPV6
+                  next-hops:
+                    next-hop:
+                      - entry-id: 2
+                        config:
+                          entry-id: 2
+                          ip-address: 1::1
+                          network-instance: VrfReg2
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_OVERLAY
+                          single-copy: true
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:fbs:
+          next-hop-groups:
+            next-hop-group:
+              - group-name: hop1
+                config:
+                  name: hop1
+                  description: abc123
+                  group-type: NEXT_HOP_GROUP_TYPE_IPV4
+                next-hops:
+                  next-hop:
+                    - entry-id: 1
+                      config:
+                        entry-id: 1
+                        ip-address: 2.2.2.2
+                        network-instance: default
+                        next-hop-type: NEXT_HOP_TYPE_RECURSIVE
+
+overridden_02:
+  module_args:
+    config:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc
+          group_type: ipv4
+          next_hops:
+            - entry_id: 1
+              ip_address: 1.1.1.1
+              vrf: default
+    state: overridden
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:fbs:
+            next-hop-groups:
+              next-hop-group:
+                - group-name: hop1
+                  config:
+                    name: hop1
+                    description: abc
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4
+                  next-hops:
+                    next-hop:
+                      - entry-id: 1
+                        config:
+                          entry-id: 1
+                          ip-address: 1.1.1.1
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      method: 'patch'
+      data:
+        openconfig-fbs-ext:fbs:
+          next-hop-groups:
+            next-hop-group:
+              - group-name: hop1
+                config:
+                  name: hop1
+                  group-type: NEXT_HOP_GROUP_TYPE_IPV4
+                next-hops:
+                  next-hop:
+                    - entry-id: 1
+                      config:
+                        entry-id: 1
+                        ip-address: 1.1.1.1
+                        network-instance: default
+
+deleted_01:
+  module_args:
+    config:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
+          next_hops:
+            - entry_id: 1
+            - entry_id: 3
+              vrf: VrfReg1
+              next_hop_type: overlay
+        - group_name: hop2
+      replication_groups:
+        - group_name: rep1
+          group_description: xyz
+          next_hops:
+            - entry_id: 2
+            - entry_id: 4
+              vrf: default
+              next_hop_type: overlay
+              single_copy: true
+        - group_name: rep2
+    state: deleted
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:fbs:
+            next-hop-groups:
+              next-hop-group:
+                - group-name: hop1
+                  config:
+                    name: hop1
+                    description: abc
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4
+                    threshold-type: openconfig-fbs-ext:NEXT_HOP_GROUP_THRESHOLD_COUNT
+                    threshold-up: 15
+                    threshold-down: 5
+                  next-hops:
+                    next-hop:
+                      - entry-id: 1
+                        config:
+                          entry-id: 1
+                          ip-address: 1.1.1.1
+                          network-instance: VrfReg1
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_NON_RECURSIVE
+                      - entry-id: 3
+                        config:
+                          entry-id: 3
+                          ip-address: 2.2.2.2
+                          network-instance: VrfReg1
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_OVERLAY
+                - group-name: hop2
+                  config:
+                    name: hop2
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV6
+            replication-groups:
+              replication-group:
+                - group-name: rep1
+                  config:
+                    name: rep1
+                    description: xyz
+                    group-type: openconfig-fbs-ext:REPLICATION_GROUP_TYPE_IPV6
+                  next-hops:
+                    next-hop:
+                      - entry-id: 2
+                        config:
+                          entry-id: 2
+                          ip-address: 1::1
+                          network-instance: VrfReg2
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_OVERLAY
+                          single-copy: true
+                      - entry-id: 4
+                        config:
+                          entry-id: 4
+                          ip-address: 1::1
+                          network-instance: default
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_OVERLAY
+                          single-copy: true
+                - group-name: rep2
+                  config:
+                    name: rep2
+                    group-type: openconfig-fbs-ext:REPLICATION_GROUP_TYPE_IPV4
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1/config/threshold-up'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1/config/threshold-down'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1/config/threshold-type'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1/next-hops/next-hop=1'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1/next-hops/next-hop=3/config/network-instance'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop1/next-hops/next-hop=3/config/next-hop-type'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups/next-hop-group=hop2'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups/replication-group=rep1/config/description'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups/replication-group=rep1/next-hops/next-hop=2'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups/replication-group=rep1/next-hops/next-hop=4/config/network-instance'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups/replication-group=rep1/next-hops/next-hop=4/config/next-hop-type'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups/replication-group=rep1/next-hops/next-hop=4/config/single-copy'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups/replication-group=rep2'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config: {}
+    state: deleted
+  existing_fbs_groups_config:
+    - path: 'data/openconfig-fbs-ext:fbs'
+      response:
+        code: 200
+        value:
+          openconfig-fbs-ext:fbs:
+            next-hop-groups:
+              next-hop-group:
+                - group-name: hop1
+                  config:
+                    name: hop1
+                    description: abc
+                    group-type: openconfig-fbs-ext:NEXT_HOP_GROUP_TYPE_IPV4
+                    threshold-count: openconfig-fbs-ext:NEXT_HOP_GROUP_THRESHOLD_COUNT
+                    threshold-up: 15
+                    threshold-down: 5
+                  next-hops:
+                    next-hop:
+                      - entry-id: 1
+                        config:
+                          entry-id: 1
+                          ip-address: 1.1.1.1
+                          network-instance: VrfReg1
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_NON_RECURSIVE
+            replication-groups:
+              replication-group:
+                - group-name: rep1
+                  config:
+                    name: rep1
+                    description: xyz
+                    group-type: openconfig-fbs-ext:REPLICATION_GROUP_TYPE_IPV6
+                  next-hops:
+                    next-hop:
+                      - entry-id: 2
+                        config:
+                          entry-id: 2
+                          ip-address: 1::1
+                          network-instance: VrfReg2
+                          next-hop-type: openconfig-fbs-ext:NEXT_HOP_TYPE_OVERLAY
+                          single-copy: true
+  expected_config_requests:
+    - path: 'data/openconfig-fbs-ext:fbs/next-hop-groups'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-fbs-ext:fbs/replication-groups'
+      method: 'delete'
+      data:

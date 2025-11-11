@@ -21,7 +21,7 @@ notes:
 short_description: Manage link state tracking (LST) configuration on SONiC
 description:
   - This module provides configuration management of LST for devices running SONiC
-author: Shade Talabi (@stalabi1)
+author: S. Talabi (@stalabi1)
 options:
   config:
     description:

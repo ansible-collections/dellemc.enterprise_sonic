@@ -6,9 +6,10 @@
     status_code: 204
     body: {"openconfig-interfaces:descriptio": "hi "}
   register: result
-  ignore_errors: yes
-  
-- assert:
+  ignore_errors: true
+
+- name: First assertion
+  ansible.builtin.assert:
     that:
       - "result.failed == true"
       - "result.msg is defined"
@@ -20,9 +21,10 @@
     status_code: 204
     body: {"openconfig-interfaces:description": "hi "}
   register: result
-  ignore_errors: yes
+  ignore_errors: true
 
-- assert:
+- name: Second assertion
+  ansible.builtin.assert:
     that:
       - "result.failed == true"
       - "result.msg is defined"

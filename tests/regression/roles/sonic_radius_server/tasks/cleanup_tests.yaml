@@ -1,6 +1,7 @@
-- name: Deletes old bgp
-  sonic_radius_server:
-    config: {}
+---
+- name: Delete test VRF
+  sonic_vrfs:
+    config:
+      - name: VrfAnsibleTest
     state: deleted
-  ignore_errors: yes
-  
+  failed_when: false

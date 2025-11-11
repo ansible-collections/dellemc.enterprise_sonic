@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: ntp
 
 po1: Portchannel 100
 po2: Portchannel 200
@@ -34,7 +33,7 @@ preparations_tests:
     - "ip vrf {{ vrf_1 }}"
     - "ip vrf {{ vrf_2 }}"
 
-tests:
+sonic_ntp_tests:
   - name: test_case_01
     description: Configure a NTP source interface
     state: merged

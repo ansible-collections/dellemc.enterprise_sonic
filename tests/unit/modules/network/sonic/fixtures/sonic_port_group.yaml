@@ -26,11 +26,11 @@ merged_01:
           - id: '1'
             config:
               id: '1'
-              speed:  openconfig-if-ethernet:SPEED_10GB
+              speed: openconfig-if-ethernet:SPEED_10GB
           - id: '9'
             config:
               id: '9'
-              speed:  openconfig-if-ethernet:SPEED_10GB
+              speed: openconfig-if-ethernet:SPEED_10GB
 
 deleted_01:
   module_args:
@@ -108,8 +108,8 @@ replaced_01:
           - id: '1'
             config:
               id: '1'
-              speed:  openconfig-if-ethernet:SPEED_10GB
+              speed: openconfig-if-ethernet:SPEED_10GB
           - id: '5'
             config:
               id: '5'
-              speed:  openconfig-if-ethernet:SPEED_40GB
+              speed: openconfig-if-ethernet:SPEED_40GB

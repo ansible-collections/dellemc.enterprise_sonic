@@ -1,9 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: login_lockout
 
-
-tests:
+sonic_login_lockout_tests:
   - name: test_case_01
     description: Add Login Lockout configuration
     state: merged
@@ -40,7 +38,7 @@ tests:
     input:
       period: 20
 
-test_delete_all:
-  - name: del_all_test_case_04
+  - name: test_case_06
     description: Delete all Login Lockout configurations
     state: deleted
+    input: {}
