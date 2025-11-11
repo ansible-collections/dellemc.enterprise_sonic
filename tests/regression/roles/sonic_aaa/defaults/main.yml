@@ -107,7 +107,7 @@ sonic_aaa_tests:
         commands_accounting:
           accounting_method:
             - tacacs+
-          accounting_console_exempt: True
+          accounting_console_exempt: true
         session_accounting:
           accounting_method:
             - logging
