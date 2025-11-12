@@ -68,6 +68,9 @@ options:
       - bgp_ext_communities
       - ospfv2_interfaces
       - ospfv2
+      - ospfv3
+      - ospfv3_area
+      - ospfv3_interfaces
       - mclag
       - prefix_lists
       - vlan_mapping
@@ -77,6 +80,7 @@ options:
       - users
       - system
       - port_breakout
+      - pms
       - aaa
       - ldap
       - tacacs_server
@@ -86,12 +90,14 @@ options:
       - logging
       - pki
       - ip_neighbor
+      - ip_neighbor_interfaces
       - port_group
       - dhcp_relay
       - acl_interfaces
       - l2_acls
       - l3_acls
       - lldp_global
+      - ptp_default_ds
       - mac
       - bfd
       - copp
@@ -116,9 +122,20 @@ options:
       - ospf_area
       - ssh
       - lst
+      - ptp_port_ds
       - fbs_classifiers
+      - fbs_groups
+      - fbs_policies
+      - ars
+      - network_policy
+      - br_l2pt
       - dcbx
       - mirroring
+      - drop_counter
+      - evpn_esi_multihome
+      - ssh_server
+      - ecmp_load_share
+      - fbs_interfaces
 """
 
 EXAMPLES = """

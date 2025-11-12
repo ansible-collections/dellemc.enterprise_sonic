@@ -1,7 +1,7 @@
 ---
 namespace: dellemc
 name: enterprise_sonic
-version: 3.0.0
+version: 3.2.0
 readme: README.md
 authors:
   - Senthil Kumar Ganesan <Senthil_Kumar_Ganesa@Dell.com>
@@ -9,7 +9,7 @@ authors:
   - Dhivya <Dhivya_P@Dell.com>
   - Mohamed Javeed <Mohamed_Javeed_Faroo@Dell.com>
   - Nirai Madai <Niraimadaiselvam_Mar@Dell.com>
-  - Shade Talabi <Shade_Talabi@Dell.com>
+  - S. Talabi <Shade_Talabi@Dell.com>
   - Kerry Meyer <Kerry_Meyer@Dell.com>
   - Mingjun Zhang <Mingjun_Zhang@Dell.com>
   - Arun Saravanan Balachandran (arun_saravanan_balac@dell.com)
@@ -21,6 +21,6 @@ description: Ansible Network Collection for Enterprise SONiC Distribution by Del
 license_file: LICENSE
 tags: [dellemc, dell, networking, nos, sonic]
 dependencies:
-  "ansible.netcommon": ">5.0.0"
+  "ansible.netcommon": ">=8.1.0"
 repository: https://github.com/ansible-collections/dellemc.enterprise_sonic
 issues: https://github.com/ansible-collections/dellemc.enterprise_sonic/issues

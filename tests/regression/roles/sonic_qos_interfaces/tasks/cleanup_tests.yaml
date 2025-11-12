@@ -1,23 +1,24 @@
+---
 - name: Delete QoS maps configuration
   sonic_qos_maps:
     config: {}
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Delete QoS WRED configuration
   sonic_qos_wred:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Delete QoS scheduler configuration
   sonic_qos_scheduler:
     config: []
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
-- name: No Buffer Init
+- name: No buffer init
   sonic_qos_buffer:
-    config: 
-      buffer_init: false 
-  ignore_errors: yes
+    config:
+      buffer_init: false
+  failed_when: false

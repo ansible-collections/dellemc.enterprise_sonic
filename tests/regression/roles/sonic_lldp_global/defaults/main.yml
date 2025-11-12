@@ -1,9 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: lldp_global
 
-
-tests:
+sonic_lldp_global_tests:
   - name: test_case_01
     description: Add Global LLDP configuration
     state: merged
@@ -41,7 +39,7 @@ tests:
       tlv_select:
         system_capabilities: true
 
-test_delete_all:
-  - name: del_all_test_case_05
+  - name: test_case_05
     description: Delete all global lldp configurations
     state: deleted
+    input: {}

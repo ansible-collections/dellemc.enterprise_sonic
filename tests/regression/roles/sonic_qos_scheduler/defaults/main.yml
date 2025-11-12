@@ -1,10 +1,9 @@
 ---
 ansible_connection: httpapi
-module_name: qos_scheduler
 
-tests:
+sonic_qos_scheduler_tests:
   - name: test_case_01
-    description: Configure QoS scheduler 
+    description: Configure QoS scheduler
     state: merged
     input:
       - name: policy1
@@ -70,7 +69,7 @@ tests:
             pbs: 1600
 
   - name: test_case_03
-    description: Replace QoS scheduler configuration 
+    description: Replace QoS scheduler configuration
     state: replaced
     input:
       - name: policy1

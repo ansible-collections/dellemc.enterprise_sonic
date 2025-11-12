@@ -1,0 +1,281 @@
+---
+merged_01:
+  module_args:
+    config:
+      - interface: Ethernet0
+        role: slave
+        unicast_table: ["1.1.1.1", "1.1.1.2"]
+    state: merged
+  existing_ptp_port_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0"
+      method: "put"
+      data:
+        ietf-ptp:port-ds-list: [{'port-number': 0, 'underlying-interface': 'Ethernet0'}]
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0/ietf-ptp-ext:role"
+      method: "patch"
+      data:
+        ietf-ptp-ext:role: "SLAVE"
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0/ietf-ptp-ext:unicast-table"
+      method: "patch"
+      data:
+        ietf-ptp-ext:unicast-table: ["1.1.1.1,1.1.1.2"]
+merged_02:
+  module_args:
+    config:
+      - interface: Ethernet4
+        role: dynamic
+        local_priority: 22
+        unicast_table: ["1.1.1.1", "1.1.1.2"]
+    state: merged
+  existing_ptp_port_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      response:
+        code: 200
+        value:
+          ietf-ptp:port-ds-list: [
+            {
+              port-number: 0,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet0",
+              ietf-ptp-ext:unicast-table: [
+                "1.1.1.1",
+                "1.1.1.2"
+              ]
+            }
+          ]
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4"
+      method: "put"
+      data:
+        ietf-ptp:port-ds-list: [{'port-number': 4, 'underlying-interface': 'Ethernet4'}]
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:role"
+      method: "patch"
+      data:
+        ietf-ptp-ext:role: "DYNAMIC"
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:local-priority"
+      method: "patch"
+      data:
+        ietf-ptp-ext:local-priority: 22
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:unicast-table"
+      method: "patch"
+      data:
+        ietf-ptp-ext:unicast-table: ["1.1.1.1,1.1.1.2"]
+replaced_01:
+  module_args:
+    config:
+      - interface: Ethernet4
+        role: slave
+        local_priority: 44
+    state: replaced
+  existing_ptp_port_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      response:
+        code: 200
+        value:
+          ietf-ptp:port-ds-list: [
+            {
+              port-number: 0,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet0",
+              ietf-ptp-ext:unicast-table: [
+                "1.1.1.1",
+                "1.1.1.2"
+              ]
+            },
+            {
+              port-number: 4,
+              ietf-ptp-ext:role: "DYNAMIC",
+              ietf-ptp-ext:local-priority: 22,
+              underlying-interface: "Ethernet4",
+              ietf-ptp-ext:unicast-table: [
+                "1.1.1.1",
+                "1.1.1.2"
+              ]
+            }
+          ]
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:unicast-table=1.1.1.1%2c1.1.1.2"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4"
+      method: "put"
+      data:
+        ietf-ptp:port-ds-list: [{'port-number': 4, 'underlying-interface': 'Ethernet4'}]
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:role"
+      method: "patch"
+      data:
+        ietf-ptp-ext:role: "SLAVE"
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:local-priority"
+      method: "patch"
+      data:
+        ietf-ptp-ext:local-priority: 44
+deleted_01:
+  module_args:
+    config:
+      - interface: Ethernet4
+        role: slave
+        unicast_table:
+          - "1.1.1.2"
+    state: deleted
+  existing_ptp_port_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      response:
+        code: 200
+        value:
+          ietf-ptp:port-ds-list: [
+            {
+              port-number: 0,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet0",
+              ietf-ptp-ext:unicast-table: [
+                "1.1.1.1",
+                "1.1.1.2"
+              ]
+            },
+            {
+              port-number: 4,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet4",
+              ietf-ptp-ext:local-priority: 44,
+              ietf-ptp-ext:unicast-table: [
+                "1.1.1.2"
+              ]
+            }
+          ]
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:role"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:unicast-table=1.1.1.2"
+      method: "delete"
+deleted_02:
+  module_args:
+    config:
+      - interface: Ethernet0
+    state: deleted
+  existing_ptp_port_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      response:
+        code: 200
+        value:
+          ietf-ptp:port-ds-list: [
+            {
+              port-number: 0,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet0",
+              ietf-ptp-ext:unicast-table: [
+                "1.1.1.1",
+                "1.1.1.2"
+              ]
+            },
+            {
+              port-number: 4,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet4",
+              ietf-ptp-ext:local-priority: 44
+            }
+          ]
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0"
+      method: "delete"
+overridden_01:
+  module_args:
+    config:
+      - interface: Ethernet0
+        role: slave
+        local_priority: 55
+    state: overridden
+  existing_ptp_port_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      response:
+        code: 200
+        value:
+          ietf-ptp:port-ds-list: [
+            {
+              port-number: 4,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet4",
+              ietf-ptp-ext:local-priority: 44
+            }
+          ]
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0"
+      method: "put"
+      data:
+        ietf-ptp:port-ds-list: [{'port-number': 0, 'underlying-interface': 'Ethernet0'}]
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0/ietf-ptp-ext:role"
+      method: "patch"
+      data:
+        ietf-ptp-ext:role: "SLAVE"
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=0/ietf-ptp-ext:local-priority"
+      method: "patch"
+      data:
+        ietf-ptp-ext:local-priority: 55
+overridden_02:
+  module_args:
+    config:
+      - interface: Ethernet4
+        unicast_table:
+          - "1.1.1.1"
+          - "3.3.3.3"
+    state: overridden
+  existing_ptp_port_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      response:
+        code: 200
+        value:
+          ietf-ptp:port-ds-list: [
+            {
+              port-number: 4,
+              underlying-interface: "Ethernet4",
+              ietf-ptp-ext:unicast-table: [
+                "1.1.1.1",
+                "1.1.1.2",
+                "2.1.1.2"
+              ]
+            }
+          ]
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:unicast-table=1.1.1.2%2c2.1.1.2"
+      method: "delete"
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4"
+      method: "put"
+      data:
+        ietf-ptp:port-ds-list: [{'port-number': 4, 'underlying-interface': 'Ethernet4'}]
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list=4/ietf-ptp-ext:unicast-table"
+      method: "patch"
+      data:
+        ietf-ptp-ext:unicast-table: ["3.3.3.3"]
+deleted_03:
+  module_args:
+    config:
+    state: deleted
+  existing_ptp_port_ds_config:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      response:
+        code: 200
+        value:
+          ietf-ptp:port-ds-list: [
+            {
+              port-number: 0,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet0",
+              ietf-ptp-ext:unicast-table: [
+                "1.1.1.1",
+                "1.1.1.2"
+              ]
+            },
+            {
+              port-number: 4,
+              ietf-ptp-ext:role: "SLAVE",
+              underlying-interface: "Ethernet4",
+              ietf-ptp-ext:local-priority: 44
+            }
+          ]
+  expected_config_requests:
+    - path: "data/ietf-ptp:ptp/instance-list=0/port-ds-list"
+      method: "delete"

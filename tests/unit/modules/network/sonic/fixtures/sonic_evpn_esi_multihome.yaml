@@ -1,0 +1,163 @@
+---
+merged_01:
+  module_args:
+    config:
+      startup_delay: 300
+      neigh_holdtime: 1080
+      mac_holdtime: 1080
+      es_activation_delay: 300
+      df_election_time: 600
+  existing_evpn_esi_multihome_config:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      method: "patch"
+      data:
+        openconfig-network-instance:config:
+          startup-delay: 300
+          neigh-holdtime: 1080
+          mac-holdtime: 1080
+          es-activation-delay: 300
+          df-election-time: 600
+
+merged_02:
+  module_args:
+    config:
+      mac_holdtime: 1080
+  existing_evpn_esi_multihome_config:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            neigh-holdtime: 1080
+            startup-delay: 300
+            mac-holdtime: 1000
+            es-activation-delay: 300
+            df-election-time: 600
+  expected_config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      method: "patch"
+      data:
+        openconfig-network-instance:config:
+          mac-holdtime: 1080
+
+replaced_01:
+  module_args:
+    config:
+      neigh_holdtime: 2000
+    state: replaced
+  existing_evpn_esi_multihome_config:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            neigh-holdtime: 1080
+            startup-delay: 300
+            mac-holdtime: 1080
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+      method: 'patch'
+      data:
+        openconfig-network-instance:config:
+          neigh-holdtime: 2000
+
+overridden_01:
+  module_args:
+    config:
+      neigh_holdtime: 5000
+    state: overridden
+  existing_evpn_esi_multihome_config:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            neigh-holdtime: 1080
+            startup-delay: 300
+            mac-holdtime: 1080
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh'
+      method: 'delete'
+      data:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+      method: 'patch'
+      data:
+        openconfig-network-instance:config:
+          neigh-holdtime: 5000
+
+overridden_02:
+  module_args:
+    config:
+      df_election_time: 50
+      startup_delay: 300
+    state: overridden
+  existing_evpn_esi_multihome_config:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            startup-delay: 300
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config'
+      method: 'patch'
+      data:
+        openconfig-network-instance:config:
+          df-election-time: 50
+
+deleted_01:
+  module_args:
+    config:
+      startup_delay: 300
+      mac_holdtime: 1080
+      neigh_holdtime: 1080
+      es_activation_delay: 300
+      df_election_time: 600
+    state: deleted
+  existing_evpn_esi_multihome_config:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            neigh-holdtime: 1080
+            startup-delay: 300
+            mac-holdtime: 1080
+            es-activation-delay: 300
+            df-election-time: 600
+  expected_config_requests:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/startup-delay"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/neigh-holdtime"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/mac-holdtime"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/es-activation-delay"
+      method: "delete"
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config/df-election-time"
+      method: "delete"
+
+deleted_02:
+  module_args:
+    config: {}
+    state: deleted
+  existing_evpn_esi_multihome_config:
+    - path: "data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh/config"
+      response:
+        code: 200
+        value:
+          openconfig-network-instance:config:
+            neigh-holdtime: 1080
+            startup-delay: 300
+            mac-holdtime: 1080
+  expected_config_requests:
+    - path: 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/evpn-mh'
+      method: 'delete'
+      data:

@@ -1,0 +1,251 @@
+---
+merged_01:
+  module_args:
+    config:
+      - name: counter1
+        alias: c1
+        counter_description: abc
+        counter_type: PORT_INGRESS_DROPS
+        enable: true
+        group: group1
+        mirror: session1
+        reasons:
+          - ANY
+  existing_drop_counter_config:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      method: 'patch'
+      data:
+        sonic-debugcounter:sonic-debugcounter:
+          DEBUG_COUNTER:
+            DEBUG_COUNTER_LIST:
+              - name: counter1
+                desc: abc
+                group: group1
+                alias: c1
+                type: PORT_INGRESS_DROPS
+                status: enable
+                mirror: session1
+                reasons:
+                  - ANY
+
+replaced_01:
+  module_args:
+    config:
+      - name: counter1
+        alias: c1
+        counter_description: abc123
+        enable: false
+    state: replaced
+  existing_drop_counter_config:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      response:
+        code: 200
+        value:
+          sonic-debugcounter:sonic-debugcounter:
+            DEBUG_COUNTER:
+              DEBUG_COUNTER_LIST:
+                - name: counter1
+                  desc: abc
+                  group: group1
+                  alias: c1
+                  type: PORT_INGRESS_DROPS
+                  status: enable
+                  mirror: session1
+                  reasons:
+                    - ANY
+  expected_config_requests:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      method: 'patch'
+      data:
+        sonic-debugcounter:sonic-debugcounter:
+          DEBUG_COUNTER:
+            DEBUG_COUNTER_LIST:
+              - name: counter1
+                desc: abc123
+                alias: c1
+                status: disable
+
+overridden_01:
+  module_args:
+    config:
+      - name: counter2
+        alias: c2
+        counter_description: xyz
+        counter_type: PORT_INGRESS_DROPS
+        enable: false
+        group: group2
+        reasons:
+          - IP_HEADER_ERROR
+          - L3_EGRESS_LINK_DOWN
+          - SMAC_EQUALS_DMAC
+    state: overridden
+  existing_drop_counter_config:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      response:
+        code: 200
+        value:
+          sonic-debugcounter:sonic-debugcounter:
+            DEBUG_COUNTER:
+              DEBUG_COUNTER_LIST:
+                - name: counter1
+                  desc: abc
+                  group: group1
+                  alias: c1
+                  type: PORT_INGRESS_DROPS
+                  status: enable
+                  mirror: session1
+                  reasons:
+                    - ANY
+  expected_config_requests:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      method: 'patch'
+      data:
+        sonic-debugcounter:sonic-debugcounter:
+          DEBUG_COUNTER:
+            DEBUG_COUNTER_LIST:
+              - name: counter2
+                desc: xyz
+                group: group2
+                alias: c2
+                type: PORT_INGRESS_DROPS
+                status: disable
+                reasons:
+                  - IP_HEADER_ERROR
+                  - L3_EGRESS_LINK_DOWN
+                  - SMAC_EQUALS_DMAC
+
+overridden_02:
+  module_args:
+    config:
+      - name: counter1
+        alias: c1
+        counter_description: abc
+        counter_type: PORT_INGRESS_DROPS
+        enable: true
+        group: group1
+        mirror: session1
+        reasons:
+          - ANY
+    state: overridden
+  existing_drop_counter_config:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      response:
+        code: 200
+        value:
+          sonic-debugcounter:sonic-debugcounter:
+            DEBUG_COUNTER:
+              DEBUG_COUNTER_LIST:
+                - name: counter1
+                  desc: abc
+                  group: group1
+                  alias: c1
+                  type: PORT_INGRESS_DROPS
+                  status: enable
+                  mirror: session1
+  expected_config_requests:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      method: 'patch'
+      data:
+        sonic-debugcounter:sonic-debugcounter:
+          DEBUG_COUNTER:
+            DEBUG_COUNTER_LIST:
+              - name: counter1
+                reasons:
+                  - ANY
+
+deleted_01:
+  module_args:
+    config:
+      - name: counter1
+        alias: c1
+        counter_description: abc
+        counter_type: PORT_INGRESS_DROPS
+        enable: true
+        group: group1
+        mirror: session1
+        reasons:
+          - ANY
+      - name: counter2
+      - name: counter3
+        enable: false
+    state: deleted
+  existing_drop_counter_config:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      response:
+        code: 200
+        value:
+          sonic-debugcounter:sonic-debugcounter:
+            DEBUG_COUNTER:
+              DEBUG_COUNTER_LIST:
+                - name: counter1
+                  desc: abc
+                  group: group1
+                  alias: c1
+                  type: PORT_INGRESS_DROPS
+                  status: enable
+                  mirror: session1
+                  reasons:
+                    - ANY
+                - name: counter2
+                - name: counter3
+                  status: disable
+  expected_config_requests:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1/alias'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1/desc'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1/type'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1/status'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1/group'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1/mirror'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter1/reasons=ANY'
+      method: 'delete'
+      data:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter/DEBUG_COUNTER/DEBUG_COUNTER_LIST=counter2'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_drop_counter_config:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      response:
+        code: 200
+        value:
+          sonic-debugcounter:sonic-debugcounter:
+            DEBUG_COUNTER:
+              DEBUG_COUNTER_LIST:
+                - name: counter1
+                  desc: abc
+                  group: group1
+                  alias: c1
+                  type: PORT_INGRESS_DROPS
+                  status: enable
+                  mirror: session1
+                - name: counter2
+  expected_config_requests:
+    - path: 'data/sonic-debugcounter:sonic-debugcounter'
+      method: 'delete'
+      data:

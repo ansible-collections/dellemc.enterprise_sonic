@@ -1,4 +1,5 @@
-- name: "initialize VRFs"
+---
+- name: Initialize VRFs
   vars:
     ansible_connection: network_cli
   sonic_config:
@@ -6,6 +7,5 @@
 
 - name: Deletes old static routes configurations
   sonic_static_routes:
-    config: [] 
+    config: []
     state: deleted
-  ignore_errors: yes  

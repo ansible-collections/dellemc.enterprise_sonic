@@ -264,6 +264,8 @@ def get_peergroups(module, vrf_name):
                         pg.update({'enforce_first_as': peer_group['config']['enforce-first-as']})
                     if 'enforce-multihop' in peer_group['config']:
                         pg.update({'enforce_multihop': peer_group['config']['enforce-multihop']})
+                    if 'extended-link-bandwidth' in peer_group['config']:
+                        pg.update({'extended_link_bandwidth': peer_group['config']['extended-link-bandwidth']})
                     local_as = {}
                     if 'local-as' in peer_group['config']:
                         local_as.update({'as': peer_group['config']['local-as']})
@@ -345,9 +347,9 @@ def get_peergroups(module, vrf_name):
                         if 'allow-own-as' in each and 'config' in each['allow-own-as']:
                             allowas_in = {}
                             allowas_conf = each['allow-own-as']['config']
-                            if 'origin' in allowas_conf and allowas_conf['origin']:
+                            if 'origin' in allowas_conf and allowas_conf['origin'] is not None:
                                 allowas_in.update({'origin': allowas_conf['origin']})
-                            elif 'as-count' in allowas_conf and allowas_conf['as-count']:
+                            if 'as-count' in allowas_conf and allowas_conf['as-count']:
                                 allowas_in.update({'value': allowas_conf['as-count']})
                             if allowas_in:
                                 samp.update({'allowas_in': allowas_in})
@@ -424,6 +426,8 @@ def update_bgp_nbr_pg_prefix_limit_dict(pfx_lmt_conf):
         prefix_limit.update({'warning_threshold': pfx_lmt_conf['warning-threshold-pct']})
     if 'restart-timer' in pfx_lmt_conf and pfx_lmt_conf['restart-timer']:
         prefix_limit.update({'restart_timer': pfx_lmt_conf['restart-timer']})
+    if 'openconfig-bgp-ext:discard-extra' in pfx_lmt_conf and pfx_lmt_conf['openconfig-bgp-ext:discard-extra']:
+        prefix_limit.update({'discard_extra': pfx_lmt_conf['openconfig-bgp-ext:discard-extra']})
 
     return prefix_limit
 
@@ -456,6 +460,9 @@ def get_prefix_limit_payload(prefix_limit):
     if prefix_limit.get('restart_timer', None) is not None:
         restart_timer = prefix_limit['restart_timer']
         pfx_lmt_cfg.update({'restart-timer': restart_timer})
+    if prefix_limit.get('discard_extra', None) is not None:
+        discard_extra = prefix_limit['discard_extra']
+        pfx_lmt_cfg.update({'discard-extra': discard_extra})
 
     return pfx_lmt_cfg
 
@@ -658,6 +665,21 @@ def get_bgp_af_data(module, af_params_map):
 
 
 def get_bgp_as(module, vrf_name):
+    as_val = None
+    get_path = '%s=%s/%s/global/config' % (network_instance_path, vrf_name, protocol_bgp_path)
+    request = {"path": get_path, "method": GET}
+    try:
+        response = edit_config(module, to_request(module, request))
+    except ConnectionError as exc:
+        module.fail_json(msg=str(exc), code=exc.code)
+
+    resp = response[0][1]
+    if "openconfig-network-instance:config" in resp and 'as' in resp['openconfig-network-instance:config']:
+        as_val = resp['openconfig-network-instance:config']['as']
+    return as_val
+
+
+def get_bgp_bandwidth(module, vrf_name):
     as_val = None
     get_path = '%s=%s/%s/global/config' % (network_instance_path, vrf_name, protocol_bgp_path)
     request = {"path": get_path, "method": GET}

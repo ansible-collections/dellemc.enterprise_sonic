@@ -1,0 +1,22 @@
+---
+- name: Delete interfaces
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.delete_interfaces }}"
+  register: output
+  failed_when: false
+
+- name: Initialize interfaces
+  vars:
+    ansible_connection: network_cli
+  sonic_config:
+    commands: "{{ preparations_tests.init_interfaces }}"
+  register: output
+  failed_when: false
+
+- name: Deletes old VXLANs
+  sonic_vxlans:
+    config: []
+    state: deleted
+  failed_when: false

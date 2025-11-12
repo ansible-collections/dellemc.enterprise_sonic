@@ -1,0 +1,156 @@
+---
+merged_01:
+  module_args:
+    config:
+      server_globals:
+        password_authentication: true
+        publickey_authentication: false
+        max_auth_retries: 6
+        disable_forwarding: true
+        permit_root_login: true
+        permit_user_rc: true
+        x11_forwarding: true
+        permit_user_environment: true
+        ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
+        hostkeyalgorithms: 'rsa-sha2-256,rsa-sha2-512'
+    state: merged
+  facts_get_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            publickey-authentication: true
+  config_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          password-authentication: true
+          publickey-authentication: false
+          max-auth-retries: 6
+          disable-forwarding: true
+          permit-root-login: true
+          permit-user-rc: true
+          x11-forwarding: true
+          permit-user-environment: true
+          ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
+          hostkeyalgorithms: 'rsa-sha2-256,rsa-sha2-512'
+
+deleted_01:
+  module_args:
+    config:
+      server_globals:
+    state: deleted
+  facts_get_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            publickey-authentication: true
+            max-auth-retries: 6
+            disable-forwarding: true
+            permit-root-login: true
+            password-authentication: true
+            ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
+            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
+  config_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      method: "delete"
+
+deleted_02:
+  module_args:
+    config:
+      server_globals:
+        max_auth_retries: 6
+        publickey_authentication: true
+        ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
+    state: deleted
+  facts_get_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            disable-forwarding: true
+            permit-root-login: true
+            password-authentication: true
+            publickey-authentication: true
+            max-auth-retries: 6
+            ciphers: 'aes128-ctr,aes192-ctr,aes256-ctr'
+  config_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
+      method: "delete"
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/ciphers"
+      method: "delete"
+
+replaced_01:
+  module_args:
+    config:
+      server_globals:
+        max_auth_retries: 8
+        publickey_authentication: false
+        disable_forwarding: true
+        macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
+    state: replaced
+  facts_get_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            permit-root-login: true
+            disable-forwarding: true
+            publickey-authentication: true
+            max-auth-retries: 6
+            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
+  config_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/permit-root-login"
+      method: "delete"
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
+      method: "delete"
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/macs"
+      method: "delete"
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          max-auth-retries: 8
+          publickey-authentication: false
+          macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
+
+overridden_01:
+  module_args:
+    config:
+      server_globals:
+        max_auth_retries: 8
+        publickey_authentication: false
+        disable_forwarding: true
+        macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'
+    state: overridden
+  facts_get_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            permit-root-login: true
+            disable-forwarding: true
+            publickey-authentication: true
+            max-auth-retries: 6
+            macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com,hmac-sha2-512-etm@openssh.com'
+  config_requests:
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/permit-root-login"
+      method: "delete"
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/max-auth-retries"
+      method: "delete"
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config/macs"
+      method: "delete"
+    - path: "data/openconfig-system:system/ssh-server/openconfig-system-ext:ssh-server-globals/config"
+      method: "patch"
+      data:
+        openconfig-system-ext:config:
+          max-auth-retries: 8
+          publickey-authentication: false
+          macs: 'umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com'

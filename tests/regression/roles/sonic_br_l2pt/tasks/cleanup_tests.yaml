@@ -1,0 +1,5 @@
+---
+- name: Clean up L2PT configurations
+  sonic_br_l2pt:
+    config: []
+    state: deleted

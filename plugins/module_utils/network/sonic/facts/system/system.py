@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -29,7 +29,8 @@ GET = "get"
 
 
 class SystemFacts(object):
-    """ The sonic system fact class
+    """
+    The sonic system fact class
     """
 
     def __init__(self, module, subspec='config', options='options'):
@@ -47,7 +48,9 @@ class SystemFacts(object):
         self.generated_spec = utils.generate_dict(facts_argument_spec)
 
     def get_system(self):
-        """Get system hostname available in chassis"""
+        """
+        Get system hostname available in chassis
+        """
         request = [{"path": "data/openconfig-system:system/config", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -60,7 +63,9 @@ class SystemFacts(object):
         return data
 
     def get_intf_naming_auto_breakout(self):
-        """Get interface_naming_mode and auto-breakout status available in chassis"""
+        """
+        Get interface_naming_mode and auto-breakout status available in chassis
+        """
         request = [{"path": "data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -78,7 +83,9 @@ class SystemFacts(object):
         return data
 
     def get_anycast_addr(self):
-        """Get system anycast address available in chassis"""
+        """
+        Get system anycast address available in chassis
+        """
         request = [{"path": "data/sonic-sag:sonic-sag/SAG_GLOBAL/SAG_GLOBAL_LIST/", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -91,7 +98,9 @@ class SystemFacts(object):
         return data
 
     def get_load_share_hash_algo(self):
-        """Get load share hash algorithm"""
+        """
+        Get load share hash algorithm
+        """
         request = [{"path": "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -104,7 +113,9 @@ class SystemFacts(object):
         return data
 
     def get_auditd_rules(self):
-        """Get auditd rules configuration available in chassis"""
+        """
+        Get auditd rules configuration available in chassis
+        """
         request = [{"path": "data/openconfig-system:system/openconfig-system-ext:auditd-system", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
@@ -138,6 +149,63 @@ class SystemFacts(object):
                         data['concurrent_session_limit'] = session_limit['limit']
         return data
 
+    def get_switching_mode(self):
+        """
+        Get switching-mode configuration if available in chassis
+        Switching-mode is not available as a resource to query until it has been configured to CUT_THROUGH mode at least once.
+        In that scenario it is assumed the value is STORE_AND_FORWARD.
+        """
+        request = [{"path": "data/openconfig-system:system/config/switching-mode", "method": GET}]
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        data = {}
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if ('openconfig-system:switching-mode' in response[0][1]):
+                    data["switching-mode"] = response[0][1]['openconfig-system:switching-mode']
+                else:
+                    data["switching-mode"] = "STORE_AND_FORWARD"
+        return data
+
+    def get_adjust_txrx_clock_freq(self):
+        """
+        Get adjust-txrx-clock-freq configuration if available in chassis
+        """
+        request = [{"path": "data/openconfig-system:system/config/adjust-txrx-clock-freq", "method": GET}]
+        data = {}
+
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            if 'Resource not found' in str(exc):
+                return data
+
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if ('openconfig-system:adjust-txrx-clock-freq' in response[0][1]):
+                    data["adjust-txrx-clock-freq"] = response[0][1]['openconfig-system:adjust-txrx-clock-freq']
+                else:
+                    data["adjust-txrx-clock-freq"] = False
+        return data
+
+    def get_password_attributes(self):
+        """Get all the password attribute configured in the device"""
+        request = [{"path": "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config", "method": GET}]
+        data = {}
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if 'openconfig-system-ext:config' in response[0][1]:
+                    data = response[0][1]['openconfig-system-ext:config']
+        return data
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for system
         :param connection: the device connection
@@ -154,6 +222,9 @@ class SystemFacts(object):
         anycast_addr = self.get_anycast_addr()
         if anycast_addr:
             data.update(anycast_addr)
+        pwd_configs = self.get_password_attributes()
+        if pwd_configs:
+            data.update(pwd_configs)
         load_share_hash_algo = self.get_load_share_hash_algo()
         if load_share_hash_algo:
             data.update(load_share_hash_algo)
@@ -163,6 +234,12 @@ class SystemFacts(object):
         session_limit = self.get_concurrent_session_limit()
         if session_limit:
             data.update(session_limit)
+        switching_mode = self.get_switching_mode()
+        if switching_mode:
+            data.update(switching_mode)
+        adjust_txrx_clock_freq = self.get_adjust_txrx_clock_freq()
+        if adjust_txrx_clock_freq:
+            data.update(adjust_txrx_clock_freq)
         objs = []
         objs = self.render_config(self.generated_spec, data)
         facts = {}
@@ -204,11 +281,25 @@ class SystemFacts(object):
                 config['anycast_address']['mac_address'] = conf['gwmac']
             if ('auto-breakout' in conf) and (conf['auto-breakout']):
                 config['auto_breakout'] = conf['auto-breakout']
+            if ('switching-mode' in conf) and (conf['switching-mode']):
+                config['switching_mode'] = conf['switching-mode']
             if ('algorithm' in conf) and (conf['algorithm']):
                 config['load_share_hash_algo'] = conf['algorithm']
             if ('audit-rules' in conf) and (conf['audit-rules']):
                 config['audit_rules'] = conf['audit-rules']
             if ('concurrent_session_limit' in conf) and (conf['concurrent_session_limit']):
                 config['concurrent_session_limit'] = conf['concurrent_session_limit']
+            if ('adjust-txrx-clock-freq' in conf):
+                config['adjust_txrx_clock_freq'] = conf['adjust-txrx-clock-freq']
+            if ('min-lower-case' in conf) and (conf['min-lower-case']):
+                config['password_complexity']['min_lower_case'] = conf['min-lower-case']
+            if ('min-upper-case' in conf) and (conf['min-upper-case']):
+                config['password_complexity']['min_upper_case'] = conf['min-upper-case']
+            if ('min-numerals' in conf) and (conf['min-numerals']):
+                config['password_complexity']['min_numerals'] = conf['min-numerals']
+            if ('min-special-char' in conf) and (conf['min-special-char']):
+                config['password_complexity']['min_spl_char'] = conf['min-special-char']
+            if ('min-len' in conf) and (conf['min-len']):
+                config['password_complexity']['min_length'] = conf['min-len']
 
         return utils.remove_empties(config)

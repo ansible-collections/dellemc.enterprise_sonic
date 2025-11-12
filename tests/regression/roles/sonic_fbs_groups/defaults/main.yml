@@ -1,0 +1,215 @@
+---
+ansible_connection: httpapi
+
+sonic_fbs_groups_tests:
+  - name: test_case_01
+    description: Initial FBS groups configuration
+    state: merged
+    input:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc
+          group_type: ipv4
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
+          next_hops:
+            - entry_id: 1
+              ip_address: 1.1.1.1
+              vrf: VrfReg1
+              next_hop_type: non_recursive
+      replication_groups:
+        - group_name: rep1
+          group_description: xyz
+          group_type: ipv6
+          next_hops:
+            - entry_id: 2
+              ip_address: 1::1
+              vrf: VrfReg2
+              next_hop_type: overlay
+              single_copy: true
+
+  - name: test_case_02
+    description: Update FBS groups configuration
+    state: merged
+    input:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc123
+          group_type: ipv4
+          threshold_type: percentage
+          threshold_up: 20
+          threshold_down: 10
+          next_hops:
+            - entry_id: 1
+              ip_address: 3.3.3.3
+              vrf: VrfReg2
+              next_hop_type: recursive
+            - entry_id: 3
+              ip_address: 5.5.5.5
+              vrf: VrfReg1
+              next_hop_type: overlay
+        - group_name: hop2
+          group_description: abc
+          group_type: ipv6
+          next_hops:
+            - entry_id: 5
+              ip_address: 3::3
+              vrf: default
+              next_hop_type: non_recursive
+      replication_groups:
+        - group_name: rep1
+          group_description: xyz789
+          group_type: ipv6
+          next_hops:
+            - entry_id: 2
+              ip_address: 2::2
+              vrf: VrfReg1
+              next_hop_type: recursive
+              single_copy: false
+            - entry_id: 4
+              ip_address: 4::4
+              vrf: default
+              next_hop_type: overlay
+              single_copy: true
+        - group_name: rep2
+          group_description: xyz
+          group_type: ipv4
+          next_hops:
+            - entry_id: 1
+              ip_address: 2.2.2.2
+              vrf: VrfReg1
+              next_hop_type: non_recursive
+              single_copy: true
+
+  - name: test_case_03
+    description: Replace FBS groups configuration
+    state: replaced
+    input:
+      next_hop_groups:
+        - group_name: hop2
+          group_description: qwerty
+          group_type: ipv6
+          next_hops:
+            - entry_id: 8
+              ip_address: 1::1
+        - group_name: hop3
+          group_description: xyz
+          group_type: ipv4
+          next_hops:
+            - entry_id: 9
+              ip_address: 1.2.3.4
+              vrf: VrfReg1
+              next_hop_type: recursive
+      replication_groups:
+        - group_name: rep2
+          group_description: abcd
+          group_type: ipv6
+          next_hops:
+            - entry_id: 7
+              ip_address: 9::9
+              vrf: default
+              next_hop_type: recursive
+        - group_name: rep3
+          group_description: 'rep3 group'
+          group_type: ipv4
+          next_hops:
+            - entry_id: 2
+              ip_address: 2.2.2.2
+              vrf: VrfReg2
+              next_hop_type: non_recursive
+
+  - name: test_case_04
+    description: Override FBS groups configuration
+    state: overridden
+    input:
+      replication_groups:
+        - group_name: rep1
+          group_description: qwerty
+          group_type: ipv6
+          next_hops:
+            - entry_id: 2
+              ip_address: 1::1
+              vrf: VrfReg2
+              next_hop_type: overlay
+              single_copy: true
+
+  - name: test_case_05
+    description: Configure additonal FBS groups for deletion
+    state: merged
+    input:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc
+          group_type: ipv4
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
+          next_hops:
+            - entry_id: 1
+              ip_address: 3.3.3.3
+              vrf: VrfReg2
+              next_hop_type: recursive
+            - entry_id: 3
+              ip_address: 5.5.5.5
+              vrf: VrfReg1
+              next_hop_type: overlay
+        - group_name: hop2
+          group_description: abc123
+          group_type: ipv6
+          next_hops:
+            - entry_id: 5
+              ip_address: 3::3
+              vrf: default
+              next_hop_type: non_recursive
+      replication_groups:
+        - group_name: rep1
+          group_description: xyz
+          group_type: ipv6
+          next_hops:
+            - entry_id: 4
+              ip_address: 4::4
+              vrf: default
+              next_hop_type: overlay
+              single_copy: true
+        - group_name: rep2
+          group_description: xyz789
+          group_type: ipv4
+          next_hops:
+            - entry_id: 1
+              ip_address: 2.2.2.2
+              vrf: VrfReg1
+              next_hop_type: non_recursive
+              single_copy: false
+
+  - name: test_case_06
+    description: Delete FBS groups configuration
+    state: deleted
+    input:
+      next_hop_groups:
+        - group_name: hop1
+          group_description: abc
+          threshold_type: count
+          threshold_up: 15
+          threshold_down: 5
+          next_hops:
+            - entry_id: 1
+            - entry_id: 3
+              vrf: VrfReg1
+              next_hop_type: overlay
+        - group_name: hop2
+      replication_groups:
+        - group_name: rep1
+          group_description: xyz
+          next_hops:
+            - entry_id: 2
+            - entry_id: 4
+              vrf: default
+              next_hop_type: overlay
+              single_copy: true
+        - group_name: rep2
+
+  - name: test_case_07
+    description: Delete all FBS groups configuration
+    state: deleted
+    input: {}

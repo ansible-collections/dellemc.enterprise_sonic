@@ -18,6 +18,9 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties_from_list
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.l3_interfaces.l3_interfaces import L3_interfacesArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -25,12 +28,16 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible.module_utils.connection import ConnectionError
 
+DEFAULT_IPV6_VALUES = {
+    'autoconf': False,
+    'dad': 'DISABLE',
+    'enabled': False
+}
+
 
 class L3_interfacesFacts(object):
     """ The sonic l3_interfaces fact class
     """
-
-    loop_backs = ","
 
     def __init__(self, module, subspec='config', options='options'):
         self._module = module
@@ -62,61 +69,22 @@ class L3_interfacesFacts(object):
 
         l3_configs = []
         for l3 in l3_lists:
-            l3_dict = dict()
-            l3_name = l3["name"]
-            if l3_name == "eth0":
-                continue
+            l3_name = l3['name']
+            if l3_name.startswith('Vlan'):
+                l3_config = self.transform_config(l3.get('openconfig-vlan:routed-vlan'), l3_name, is_vlan=True)
+                if l3_config:
+                    l3_configs.append(l3_config)
+            elif not (l3_name == 'eth0' or l3_name.startswith('Management') or '.' in l3_name or '|' in l3_name):
+                if l3.get('subinterfaces', {}).get('subinterface'):
+                    for sub_intf in l3['subinterfaces']['subinterface']:
+                        if sub_intf.get('index', 0) != 0:
+                            l3_name = l3['name'] + '.' + str(sub_intf['index'])
+                        else:
+                            l3_name = l3['name']
+                        l3_config = self.transform_config(sub_intf, l3_name)
+                        if l3_config:
+                            l3_configs.append(l3_config)
 
-            l3_dict['name'] = l3_name
-
-            ip = None
-            anycast_addr = list()
-            if l3.get('openconfig-vlan:routed-vlan'):
-                ip = l3['openconfig-vlan:routed-vlan']
-                if ip.get('openconfig-if-ip:ipv4', None) and ip['openconfig-if-ip:ipv4'].get('openconfig-interfaces-ext:sag-ipv4', None):
-                    if ip['openconfig-if-ip:ipv4']['openconfig-interfaces-ext:sag-ipv4'].get('config', None):
-                        if ip['openconfig-if-ip:ipv4']['openconfig-interfaces-ext:sag-ipv4']['config'].get('static-anycast-gateway', None):
-                            anycast_addr = ip['openconfig-if-ip:ipv4']['openconfig-interfaces-ext:sag-ipv4']['config']['static-anycast-gateway']
-            else:
-                ip = l3.get('subinterfaces', {}).get('subinterface', [{}])[0]
-
-            l3_dict['ipv4'] = dict()
-            l3_ipv4 = list()
-            if anycast_addr:
-                l3_dict['ipv4']['anycast_addresses'] = anycast_addr
-            elif 'openconfig-if-ip:ipv4' in ip and 'addresses' in ip['openconfig-if-ip:ipv4'] and 'address' in ip['openconfig-if-ip:ipv4']['addresses']:
-                for ipv4 in ip['openconfig-if-ip:ipv4']['addresses']['address']:
-                    if ipv4.get('config') and ipv4.get('config').get('ip'):
-                        temp = dict()
-                        temp['address'] = str(ipv4['config']['ip']) + '/' + str(ipv4['config']['prefix-length'])
-                        temp['secondary'] = ipv4['config']['secondary']
-                        l3_ipv4.append(temp)
-                if l3_ipv4:
-                    l3_dict['ipv4']['addresses'] = l3_ipv4
-
-            l3_dict['ipv6'] = dict()
-            l3_ipv6 = list()
-            if 'openconfig-if-ip:ipv6' in ip:
-                if 'addresses' in ip['openconfig-if-ip:ipv6'] and 'address' in ip['openconfig-if-ip:ipv6']['addresses']:
-                    for ipv6 in ip['openconfig-if-ip:ipv6']['addresses']['address']:
-                        if ipv6.get('config'):
-                            temp = dict()
-                            if ipv6.get('config').get('ip'):
-                                temp['address'] = str(ipv6['config']['ip']) + '/' + str(ipv6['config']['prefix-length'])
-                            if ipv6.get('config').get('openconfig-interfaces-private:eui64'):
-                                temp['eui64'] = ipv6['config']['openconfig-interfaces-private:eui64']
-                            if temp:
-                                l3_ipv6.append(temp)
-                    if l3_ipv6:
-                        l3_dict['ipv6']['addresses'] = l3_ipv6
-                if 'config' in ip['openconfig-if-ip:ipv6'] and 'enabled' in ip['openconfig-if-ip:ipv6']['config']:
-                    l3_dict['ipv6']['enabled'] = ip['openconfig-if-ip:ipv6']['config']['enabled']
-                if 'config' in ip['openconfig-if-ip:ipv6'] and 'ipv6_autoconfig' in ip['openconfig-if-ip:ipv6']['config']:
-                    l3_dict['ipv6']['autoconf'] = ip['openconfig-if-ip:ipv6']['config']['ipv6_autoconfig']
-                if 'config' in ip['openconfig-if-ip:ipv6'] and 'ipv6_dad' in ip['openconfig-if-ip:ipv6']['config']:
-                    l3_dict['ipv6']['dad'] = ip['openconfig-if-ip:ipv6']['config']['ipv6_dad']
-
-            l3_configs.append(l3_dict)
         return l3_configs
 
     def populate_facts(self, connection, ansible_facts, data=None):
@@ -130,63 +98,101 @@ class L3_interfacesFacts(object):
         if connection:  # just for linting purposes, remove
             pass
         if not data:
-            resources = self.get_l3_interfaces()
-        objs = []
-        for resource in resources:
-            if resource:
-                obj = self.render_config(self.generated_spec, resource)
-                obj = self.transform_config(obj)
-                if obj:
-                    objs.append(obj)
+            objs = self.get_l3_interfaces()
 
         ansible_facts['ansible_network_resources'].pop('l3_interfaces', None)
         facts = {}
         if objs:
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            facts['l3_interfaces'] = params['config']
+            facts['l3_interfaces'] = remove_empties_from_list(params['config'])
 
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
+    def transform_config(self, conf, intf_name, is_vlan=False):
+        transformed_conf = {}
+        only_defaults = True
+        if not conf:
+            return transformed_conf
 
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
+        ipv4 = {}
+        ipv6 = {}
+        conf_ipv4 = conf.get('openconfig-if-ip:ipv4')
+        conf_ipv6 = conf.get('openconfig-if-ip:ipv6')
 
-    def transform_config(self, conf):
-        exist_cfg = conf
-        trans_cfg = None
+        if conf_ipv4:
+            if conf_ipv4.get('addresses') and conf_ipv4['addresses'].get('address'):
+                ipv4_addrs = []
+                for item in conf_ipv4['addresses']['address']:
+                    if item.get('config') and item['config'].get('ip'):
+                        ipv4_addrs.append({
+                            'address': item['config']['ip'] + '/' + str(item['config']['prefix-length']),
+                            'secondary': item['config'].get('secondary', False)
+                        })
+                if ipv4_addrs:
+                    ipv4['addresses'] = ipv4_addrs
 
-        is_loop_back = False
-        name = exist_cfg['name']
-        if name.startswith('Loopback'):
-            is_loop_back = True
-            pos = name.find('|')
-            if pos > 0:
-                name = name[0:pos]
+            if is_vlan:
+                if (conf_ipv4.get('openconfig-interfaces-ext:sag-ipv4') and conf_ipv4['openconfig-interfaces-ext:sag-ipv4'].get('config')
+                        and conf_ipv4['openconfig-interfaces-ext:sag-ipv4']['config'].get('static-anycast-gateway')):
+                    ipv4['anycast_addresses'] = conf_ipv4['openconfig-interfaces-ext:sag-ipv4']['config']['static-anycast-gateway']
 
-        if not (is_loop_back and self.is_loop_back_already_esist(name)) and (name != "eth0"):
-            trans_cfg = dict()
-            trans_cfg['name'] = name
-            if is_loop_back:
-                self.update_loop_backs(name)
-            trans_cfg['ipv4'] = exist_cfg.get('ipv4', {})
-            trans_cfg['ipv6'] = exist_cfg.get('ipv6', {})
+            conf_proxy_arp = conf_ipv4.get('proxy-arp', {}).get('config')
+            if conf_proxy_arp and 'mode' in conf_proxy_arp:
+                ipv4.setdefault('proxy_arp', {})['mode'] = conf_proxy_arp['mode']
 
-        return trans_cfg
+            if ipv4:
+                only_defaults = False
+                transformed_conf['ipv4'] = ipv4
 
-    def reset_loop_backs(self):
-        self.loop_backs = ","
+        if conf_ipv6:
+            if conf_ipv6.get('addresses') and conf_ipv6['addresses'].get('address'):
+                ipv6_addrs = []
+                for item in conf_ipv6['addresses']['address']:
+                    if item.get('config') and item['config'].get('ip'):
+                        temp = {'address': item['config']['ip'] + '/' + str(item['config']['prefix-length'])}
+                        if item['config'].get('openconfig-interfaces-private:eui64'):
+                            temp['eui64'] = item['config']['openconfig-interfaces-private:eui64']
+                        ipv6_addrs.append(temp)
+                if ipv6_addrs:
+                    ipv6['addresses'] = ipv6_addrs
 
-    def update_loop_backs(self, loop_back):
-        self.loop_backs += "{Loopback},".format(Loopback=loop_back)
+            if is_vlan:
+                if (conf_ipv6.get('openconfig-interfaces-ext:sag-ipv6') and conf_ipv6['openconfig-interfaces-ext:sag-ipv6'].get('config')
+                        and conf_ipv6['openconfig-interfaces-ext:sag-ipv6']['config'].get('static-anycast-gateway')):
+                    ipv6['anycast_addresses'] = conf_ipv6['openconfig-interfaces-ext:sag-ipv6']['config']['static-anycast-gateway']
 
-    def is_loop_back_already_esist(self, loop_back):
-        return (",{0},".format(loop_back) in self.loop_backs)
+            if conf_ipv6.get('config'):
+                if 'enabled' in conf_ipv6['config']:
+                    ipv6['enabled'] = conf_ipv6['config']['enabled']
+                if 'ipv6_dad' in conf_ipv6['config']:
+                    ipv6['dad'] = conf_ipv6['config']['ipv6_dad']
+                if 'ipv6_autoconfig' in conf_ipv6['config']:
+                    ipv6['autoconf'] = conf_ipv6['config']['ipv6_autoconfig']
+
+            conf_nd_proxy = conf_ipv6.get('nd-proxy', {}).get('config')
+            if conf_nd_proxy:
+                ipv6.setdefault('nd_proxy', {})
+                if 'mode' in conf_nd_proxy:
+                    ipv6['nd_proxy']['mode'] = conf_nd_proxy['mode']
+                if 'nd-proxy-rules' in conf_nd_proxy:
+                    ipv6['nd_proxy']['nd_proxy_rules'] = conf_nd_proxy['nd-proxy-rules']
+
+            for option, value in ipv6.items():
+                if option == 'nd_proxy':
+                    # If nd_proxy is present and has any keys, it's not default
+                    if value:  # value is a dict, so non-empty means non-default
+                        only_defaults = False
+                        break
+                elif (option not in DEFAULT_IPV6_VALUES) or (value != DEFAULT_IPV6_VALUES[option]):
+                    only_defaults = False
+                    break
+
+            # Update facts for interface only when at least one option is not default
+            if ipv6 and not only_defaults:
+                transformed_conf['ipv6'] = ipv6
+
+        if transformed_conf:
+            transformed_conf['name'] = intf_name
+
+        return transformed_conf

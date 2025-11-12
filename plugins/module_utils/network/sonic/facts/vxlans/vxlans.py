@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -63,12 +63,10 @@ class VxlansFacts(object):
             # using mock data instead
             data = self.get_all_vxlans()
 
-        objs = list()
+        objs = []
         for conf in data:
             if conf:
-                obj = self.render_config(self.generated_spec, conf)
-                if obj:
-                    objs.append(obj)
+                objs.append(conf)
 
         ansible_facts['ansible_network_resources'].pop('vxlans', None)
         facts = {}
@@ -80,18 +78,6 @@ class VxlansFacts(object):
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
-
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
 
     def get_all_vxlans(self):
         vxlans = []
@@ -140,15 +126,15 @@ class VxlansFacts(object):
 
     def get_all_vxlans_evpn_nvo_list(self):
         """Get all the evpn nvo list available """
-        request = [{"path": "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST", "method": GET}]
+        request = [{"path": "data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         vxlans_evpn_nvo_list = []
-        if "sonic-vxlan:EVPN_NVO_LIST" in response[0][1]:
-            vxlans_evpn_nvo_list = response[0][1].get("sonic-vxlan:EVPN_NVO_LIST", [])
+        if "sonic-vxlan:VXLAN_EVPN_NVO_LIST" in response[0][1]:
+            vxlans_evpn_nvo_list = response[0][1].get("sonic-vxlan:VXLAN_EVPN_NVO_LIST", [])
 
         return vxlans_evpn_nvo_list
 
@@ -168,7 +154,7 @@ class VxlansFacts(object):
 
     def fill_tunnel_source_ip(self, vxlans, vxlan_tunnels, vxlans_evpn_nvo_list):
         for each_tunnel in vxlan_tunnels:
-            vxlan = dict()
+            vxlan = {}
             vxlan['name'] = each_tunnel['name']
             vxlan['source_ip'] = each_tunnel.get('src_ip', None)
             vxlan['primary_ip'] = each_tunnel.get('primary_ip', None)
@@ -188,9 +174,9 @@ class VxlansFacts(object):
                 vlan = int(each_vlan_map['vlan'][4:])
                 vlan_map = matched_vtep.get('vlan_map')
                 if vlan_map:
-                    vlan_map.append(dict({'vni': vni, 'vlan': vlan}))
+                    vlan_map.append({'vni': vni, 'vlan': vlan})
                 else:
-                    matched_vtep['vlan_map'] = [dict({'vni': vni, 'vlan': vlan})]
+                    matched_vtep['vlan_map'] = [{'vni': vni, 'vlan': vlan}]
 
     def fill_vrf_map(self, vxlans, vxlan_vrf_list):
         for each_vrf in vxlan_vrf_list:
@@ -208,12 +194,12 @@ class VxlansFacts(object):
                 vrf = each_vrf['vrf_name']
                 vrf_map = matched_vtep.get('vrf_map')
                 if vrf_map:
-                    vrf_map.append(dict({'vni': vni, 'vrf': vrf}))
+                    vrf_map.append({'vni': vni, 'vrf': vrf})
                 else:
-                    matched_vtep['vrf_map'] = [dict({'vni': vni, 'vrf': vrf})]
+                    matched_vtep['vrf_map'] = [{'vni': vni, 'vrf': vrf}]
 
     def fill_suppress_vlan_neigh(self, vxlans, suppress_vlans):
-        suppress_vlan_neigh = dict()
+        suppress_vlan_neigh = {}
         suppress_vlan_neigh_list = []
         for each_suppress_vlan_neigh in suppress_vlans:
             name = each_suppress_vlan_neigh.get('name', None)
@@ -226,6 +212,6 @@ class VxlansFacts(object):
             if matched_suppress_vn:
                 suppress_vlan_neigh = matched_suppress_vn.get('suppress_vlan_neigh')
                 if suppress_vlan_neigh:
-                    suppress_vlan_neigh.append(dict({'vlan_name': name}))
+                    suppress_vlan_neigh.append({'vlan_name': name})
                 else:
-                    matched_suppress_vn['suppress_vlan_neigh'] = [dict({'vlan_name': name})]
+                    matched_suppress_vn['suppress_vlan_neigh'] = [{'vlan_name': name}]

@@ -1,11 +1,7 @@
-- debug: msg="sonic_sflow Test started ..."
+---
+- name: Preparations for test
+  ansible.builtin.include_tasks: preparation_tests.yml
 
-- name: Preparation test
-  include_tasks: preparation_tests.yml
-
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yml
-  loop: "{{ tests }}"
-
-- name: "Cleanup {{ module_name }} started ..."
-  include_tasks: cleanup_tests.yml
+- name: Test started ...
+  ansible.builtin.include_tasks: tasks_template.yml
+  loop: "{{ sonic_sflow_tests }}"

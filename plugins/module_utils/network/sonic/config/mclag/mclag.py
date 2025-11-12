@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -46,6 +46,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
+PUT = 'put'
 DELETE = 'delete'
 
 TEST_KEYS = [
@@ -252,6 +253,8 @@ class Mclag(ConfigBase):
                     diff['unique_ip']['vlans'] = self.get_vlan_range_diff(diff['unique_ip']['vlans'], have['unique_ip']['vlans'])
                     if not diff['unique_ip']['vlans']:
                         diff.pop('unique_ip')
+                        if len(diff) == 1:
+                            diff.pop('domain_id')
 
             # Obtain diff for VLAN ranges in peer_gateway
             if 'peer_gateway' in diff and diff['peer_gateway'] is not None and diff['peer_gateway'].get('vlans'):
@@ -259,8 +262,10 @@ class Mclag(ConfigBase):
                     diff['peer_gateway']['vlans'] = self.get_vlan_range_diff(diff['peer_gateway']['vlans'], have['peer_gateway']['vlans'])
                     if not diff['peer_gateway']['vlans']:
                         diff.pop('peer_gateway')
+                        if len(diff) == 1:
+                            diff.pop('domain_id')
 
-            requests = self.get_create_mclag_requests(want, diff)
+            requests = self.get_create_mclag_requests(want, diff, have)
             if len(requests) > 0:
                 commands = update_states(diff, "merged")
         return commands, requests
@@ -320,7 +325,7 @@ class Mclag(ConfigBase):
         requests = []
         if want and not have:
             commands = [update_states(want, state)]
-            requests = self.get_create_mclag_requests(want, want)
+            requests = self.get_create_mclag_requests(want, want, have)
         elif not want and have:
             commands = [update_states(have, 'deleted')]
             requests = self.get_delete_all_mclag_domain_requests(have)
@@ -412,6 +417,7 @@ class Mclag(ConfigBase):
                 commands.extend(update_states(del_command, 'deleted'))
                 if delete_all:
                     requests = self.get_delete_all_mclag_domain_requests(del_command)
+                    have = {}
                 else:
                     if any(delete_all_vlans.values()):
                         del_command = deepcopy(del_command)
@@ -425,7 +431,7 @@ class Mclag(ConfigBase):
             if add_command:
                 add_command['domain_id'] = want['domain_id']
                 commands.extend(update_states(add_command, state))
-                requests.extend(self.get_create_mclag_requests(add_command, add_command))
+                requests.extend(self.get_create_mclag_requests(add_command, add_command, have))
 
         return commands, requests
 
@@ -553,12 +559,16 @@ class Mclag(ConfigBase):
         requests.append(request)
         return requests
 
-    def get_create_mclag_requests(self, want, commands):
+    def get_create_mclag_requests(self, want, commands, have):
         requests = []
         path = 'data/openconfig-mclag:mclag/mclag-domains/mclag-domain'
         method = PATCH
-        payload = self.build_create_payload(want, commands)
+        payload = self.build_create_payload(want, commands, have)
         if payload:
+            # With current SONiC behavior, it is necessary to use REST put method to ensure
+            # the initial configuration of a domain id is configured on the device in all cases.
+            if commands['domain_id'] != have.get('domain_id'):
+                method = PUT
             request = {'path': path, 'method': method, 'data': payload}
             requests.append(request)
         if 'gateway_mac' in commands and commands['gateway_mac'] is not None:
@@ -595,7 +605,7 @@ class Mclag(ConfigBase):
                 requests.append(request)
         return requests
 
-    def build_create_payload(self, want, commands):
+    def build_create_payload(self, want, commands, have):
         temp = {}
         if 'session_timeout' in commands and commands['session_timeout'] is not None:
             temp['session-timeout'] = commands['session_timeout']
@@ -622,7 +632,10 @@ class Mclag(ConfigBase):
         if 'backup_keepalive_session_vrf' in commands and commands['backup_keepalive_session_vrf'] is not None:
             temp['backup-keepalive-session-vrf'] = commands['backup_keepalive_session_vrf']
         mclag_dict = {}
-        if temp:
+        # Create payload if the above attributes are present in commands or
+        # if domain ID doesn't exist
+        if temp or (commands.get('domain_id') is not None and commands['domain_id'] != have.get('domain_id')):
+            temp['domain-id'] = commands['domain_id']
             domain_id = {"domain-id": want["domain_id"]}
             mclag_dict.update(domain_id)
             config = {"config": temp}
@@ -630,6 +643,7 @@ class Mclag(ConfigBase):
             payload = {"openconfig-mclag:mclag-domain": [mclag_dict]}
         else:
             payload = {}
+
         return payload
 
     def build_create_unique_ip_payload(self, commands):

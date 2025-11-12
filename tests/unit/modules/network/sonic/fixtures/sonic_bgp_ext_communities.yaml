@@ -4,10 +4,10 @@ merged_01:
     config:
       - name: test1
         members:
-          regex: 
+          regex:
             - 808
         match: all
-        permit: True
+        permit: true
         type: expanded
     state: merged
   existing_bgp_config:
@@ -42,7 +42,7 @@ merged_02:
           regex:
             - 800
         match: any
-        permit: True
+        permit: true
         type: expanded
     state: merged
   existing_bgp_config:
@@ -99,10 +99,10 @@ merged_03:
     config:
       - name: test1
         members:
-          route_target: 
+          route_target:
             - "2.2.2.2:201"
         match: all
-        permit: True
+        permit: true
         type: standard
     state: merged
   existing_bgp_config:
@@ -129,7 +129,7 @@ deleted_01:
         type: expanded
         match: all
         members:
-          regex: 
+          regex:
             - 808
         permit: true
     state: deleted
@@ -156,7 +156,7 @@ deleted_02:
       - name: test2
         type: expanded
         members:
-          regex: 
+          regex:
     state: deleted
   existing_bgp_config:
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
@@ -201,7 +201,7 @@ deleted_04:
     config:
       - name: test4
         members:
-          route_origin: 
+          route_origin:
             - 600:600
         permit: true
         match: all
@@ -272,7 +272,7 @@ deleted_07:
     config:
       - name: test7
         members:
-          route_target: 
+          route_target:
             - 1.1.1.1:33
         permit: true
     state: deleted
@@ -292,7 +292,8 @@ deleted_07:
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test7/config/ext-community-member=route-target%3A1.1.1.1%3A33"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=test7/\
+             config/ext-community-member=route-target%3A1.1.1.1%3A33"
       method: "delete"
 deleted_08:
   module_args:
@@ -348,14 +349,14 @@ replaced_01:
           regex:
             - 919
         match: all
-        permit: True
+        permit: true
         type: expanded
       - name: replace_test3
         members:
           route_origin:
             - "101:101"
         match: any
-        permit: False
+        permit: false
         type: standard
     state: replaced
   existing_bgp_config:
@@ -389,9 +390,11 @@ replaced_01:
                   openconfig-bgp-policy-ext:action: 'PERMIT'
                   match-set-options: 'ALL'
   expected_config_requests:
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=replace_test1"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/\
+             ext-community-set=replace_test1"
       method: "delete"
-    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/ext-community-set=replace_test3"
+    - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets/\
+             ext-community-set=replace_test3"
       method: "delete"
     - path: "data/openconfig-routing-policy:routing-policy/defined-sets/openconfig-bgp-policy:bgp-defined-sets/ext-community-sets"
       method: "patch"
@@ -426,14 +429,14 @@ overridden_01:
           regex:
             - 919
         match: all
-        permit: True
+        permit: true
         type: expanded
       - name: test4
         members:
           route_origin:
             - "101:101"
         match: any
-        permit: False
+        permit: false
         type: standard
     state: overridden
   existing_bgp_config:

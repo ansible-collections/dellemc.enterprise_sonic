@@ -1,0 +1,321 @@
+---
+merged_01:
+  module_args:
+    config:
+      hash_algorithm: CRC_32HI
+      hash_ingress_port: true
+      hash_offset:
+        offset: 12
+        flow_based: true
+      hash_roce_qpn: true
+      hash_seed: 8888
+      ipv4:
+        ipv4_src_ip: true
+        ipv4_ip_proto: true
+        ipv4_l4_dst_port: true
+        ipv4_l4_src_port: true
+        ipv4_symmetric: false
+  existing_ecmp_load_share_config:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:loadshare:
+            hash-algorithm:
+              config:
+                algorithm: CRC_32LO
+            ingress-port:
+              config:
+                ingress-port: true
+            ipv4-attrs:
+              config:
+                ipv4-src-ip: true
+                ipv4-dst-ip: true
+                ipv4-l4-src-port: true
+                ipv4-l4-dst-port: true
+                ipv4-ip-proto: true
+                ipv4-symmetric: true
+  expected_config_requests:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:loadshare:
+          hash-algorithm:
+            config:
+              algorithm: CRC_32HI
+          roce-attrs:
+            config:
+              qpn: true
+              hash: hash
+          seed-attrs:
+            config:
+              ecmp-hash-seed: 8888
+              hash: hash
+          offset-attrs:
+            config:
+              ecmp-hash-offset: 12
+              ecmp-hash-flow-based: true
+              hash: hash
+          ipv4-attrs:
+            config:
+              ipv4-symmetric: false
+              ipv4: ipv4
+deleted_01:
+  module_args:
+    state: deleted
+    config:
+  existing_ecmp_load_share_config:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:loadshare:
+            hash-algorithm:
+              config:
+                algorithm: CRC
+            ipv4-attrs:
+              config:
+                ipv4-src-ip: true
+                ipv4-dst-ip: true
+                ipv4-l4-src-port: true
+                ipv4-l4-dst-port: true
+  expected_config_requests:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      method: "delete"
+      data:
+
+deleted_02:
+  module_args:
+    state: deleted
+    config:
+      hash_algorithm: CRC
+      hash_ingress_port: true
+      hash_roce_qpn: true
+      ipv4:
+        ipv4_src_ip: false
+  existing_ecmp_load_share_config:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:loadshare:
+            hash-algorithm:
+              config:
+                algorithm: CRC
+            ingress-port:
+              config:
+                ingress-port: true
+            roce-attrs:
+              config:
+                qpn: true
+            ipv4-attrs:
+              config:
+                ipv4-src-ip: false
+                ipv4-dst-ip: true
+                ipv4-l4-src-port: true
+                ipv4-l4-dst-port: true
+  expected_config_requests:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/roce-attrs"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/ingress-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:loadshare:
+          ipv4-attrs:
+            config:
+              ipv4-src-ip: true
+              ipv4: ipv4
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      hash_algorithm: CRC_32LO
+      hash_ingress_port: true
+      hash_offset:
+        offset: 12
+        flow_based: true
+      hash_roce_qpn: true
+      hash_seed: 8888
+      ipv4:
+        ipv4_src_ip: false
+        ipv4_dst_ip: false
+        ipv4_symmetric: true
+  existing_ecmp_load_share_config:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:loadshare:
+            hash-algorithm:
+              config:
+                algorithm: CRC_32HI
+            ingress-port:
+              config:
+                ingress-port: true
+            roce-attrs:
+              config:
+                qpn: true
+            seed-attrs:
+              config:
+                ecmp-hash-seed: 8888
+            ipv4-attrs:
+              config:
+                ipv4-src-ip: false
+                ipv4-dst-ip: false
+                ipv4-l4-src-port: false
+                ipv4-l4-dst-port: false
+                ipv4-symmetric: true
+  expected_config_requests:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/ingress-port"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/roce-attrs"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare/seed-attrs"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:loadshare:
+          ipv4-attrs:
+            config:
+              ipv4-dst-ip: true
+              ipv4-src-ip: true
+              ipv4-l4-dst-port: true
+              ipv4-l4-src-port: true
+              ipv4-symmetric: false
+              ipv4: ipv4
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:loadshare:
+          hash-algorithm:
+            config:
+              algorithm: CRC_32LO
+          ingress-port:
+            config:
+              ingress-port: true
+              hash: hash
+          roce-attrs:
+            config:
+              qpn: true
+              hash: hash
+          seed-attrs:
+            config:
+              ecmp-hash-seed: 8888
+              hash: hash
+          offset-attrs:
+            config:
+              ecmp-hash-offset: 12
+              ecmp-hash-flow-based: true
+              hash: hash
+          ipv4-attrs:
+            config:
+              ipv4-dst-ip: false
+              ipv4-src-ip: false
+              ipv4-symmetric: true
+              ipv4: ipv4
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      hash_algorithm: CRC
+      hash_offset:
+        offset: 12
+      hash_roce_qpn: true
+      hash_seed: 9999
+      ipv4:
+        ipv4_src_ip: false
+        ipv4_dst_ip: false
+        ipv4_ip_proto: false
+  existing_ecmp_load_share_config:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      response:
+        code: 200
+        value:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      response:
+        code: 200
+        value:
+          openconfig-loadshare-mode-ext:loadshare:
+            hash-algorithm:
+              config:
+                algorithm: CRC_32LO
+            ingress-port:
+              config:
+                ingress-port: true
+            roce-attrs:
+              config:
+                qpn: true
+            seed-attrs:
+              config:
+                ecmp-hash-seed: 8888
+            offset-attrs:
+              config:
+                ecmp-hash-offset: 12
+                ecmp-hash-flow-based: true
+            ipv4-attrs:
+              config:
+                ipv4-src-ip: true
+                ipv4-dst-ip: true
+                ipv4-l4-src-port: false
+                ipv4-l4-dst-port: false
+                ipv4-ip-proto: false
+                ipv4-symmetric: false
+  expected_config_requests:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      method: "delete"
+      data:
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:loadshare:
+          ipv4-attrs:
+            config:
+              ipv4-dst-ip: true
+              ipv4-src-ip: true
+              ipv4-ip-proto: true
+              ipv4-l4-dst-port: true
+              ipv4-l4-src-port: true
+              ipv4-symmetric: false
+              ipv4: ipv4
+    - path: "data/openconfig-loadshare-mode-ext:loadshare"
+      method: "patch"
+      data:
+        openconfig-loadshare-mode-ext:loadshare:
+          hash-algorithm:
+            config:
+              algorithm: CRC
+          roce-attrs:
+            config:
+              qpn: true
+              hash: hash
+          seed-attrs:
+            config:
+              ecmp-hash-seed: 9999
+              hash: hash
+          offset-attrs:
+            config:
+              ecmp-hash-offset: 12
+              hash: hash
+          ipv4-attrs:
+            config:
+              ipv4-dst-ip: false
+              ipv4-src-ip: false
+              ipv4-ip-proto: false
+              ipv4-symmetric: false
+              ipv4: ipv4

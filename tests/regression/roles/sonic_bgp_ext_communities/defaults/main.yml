@@ -1,8 +1,9 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_bgp_ext_communities
 
-tests: "{{  merged_tests + deleted_tests + replaced_tests + overridden_tests + deleted_all }}"
+sonic_bgp_ext_communities_tests: >-
+  {{  merged_tests + deleted_tests + replaced_tests + overridden_tests +
+  deleted_all }}
 
 merged_tests:
   - name: test_case_01
@@ -15,19 +16,19 @@ merged_tests:
         match: any
         members:
           regex:
-            - "11"
-            - "12"
+            - '11'
+            - '12'
       - name: test_std
         type: standard
         permit: true
         match: all
         members:
-            route_target:
-              - "101:101"
-              - "201:201"
-            route_origin:
-              - "301:301"
-              - "401:401"
+          route_target:
+            - '101:101'
+            - '201:201'
+          route_origin:
+            - '301:301'
+            - '401:401'
   - name: test_case_02
     description: Update permit BGP Communities properties
     state: merged
@@ -38,21 +39,21 @@ merged_tests:
         match: any
         members:
           regex:
-            - "13"
-            - "14"
+            - '13'
+            - '14'
       - name: test_std
         type: standard
         permit: true
         match: all
         members:
-            route_target:
-              - "2201:101"
-              - "3301:201"
-              - "11.1.1.1:223"
-              - "11.1.1.2:224"
-            route_origin:
-              - "4401:301"
-              - "5501:401"
+          route_target:
+            - '2201:101'
+            - '3301:201'
+            - '11.1.1.1:223'
+            - '11.1.1.2:224'
+          route_origin:
+            - '4401:301'
+            - '5501:401'
   - name: test_case_03
     description: Update permit BGP Communities properties
     state: merged
@@ -63,20 +64,20 @@ merged_tests:
         match: any
         members:
           regex:
-            - "15"
-            - "16"
+            - '15'
+            - '16'
       - name: test_std
         type: standard
         permit: true
         match: all
         members:
-            route_target:
-              - "2202:101"
-              - "3302:201"
-              - "11.1.1.1:225"
-              - "11.1.1.2:226"
-              - "11.1.1.3:225"
-              - "11.1.1.4:226"
+          route_target:
+            - '2202:101'
+            - '3302:201'
+            - '11.1.1.1:225'
+            - '11.1.1.2:226'
+            - '11.1.1.3:225'
+            - '11.1.1.4:226'
   - name: test_case_04
     description: Update match BGP Communities properties
     state: merged
@@ -87,16 +88,16 @@ merged_tests:
         match: any
         members:
           regex:
-            - "15"
-            - "16"
+            - '15'
+            - '16'
       - name: test_std
         type: standard
         permit: true
         match: all
         members:
-            route_origin:
-              - "4403:301"
-              - "5503:401"
+          route_origin:
+            - '4403:301'
+            - '5503:401'
   - name: test_case_05
     description: Create new Communities properties
     state: merged
@@ -106,14 +107,14 @@ merged_tests:
         permit: true
         members:
           regex:
-            - "20"
+            - '20'
         match: any
       - name: test_std1
         type: standard
         permit: false
         members:
           route_target:
-            - "1.1.1.1:33"
+            - '1.1.1.1:33'
         match: any
   - name: test_case_06
     description: test BGP Communities properties
@@ -125,19 +126,18 @@ merged_tests:
         match: any
         members:
           regex:
-            - "15"
-            - "16"
+            - '15'
+            - '16'
       - name: test_comm
         type: standard
         permit: false
         match: any
         members:
-            route_origin:
-              - "4403:301"
-              - "5503:401"
+          route_origin:
+            - '4403:301'
+            - '5503:401'
 
 deleted_tests:
-  # Ethernet testcases started...
   - name: del_test_case_0111
     description: BGP Communities properties
     state: merged
@@ -148,77 +148,77 @@ deleted_tests:
         match: any
         members:
           regex:
-            - "11"
-            - "12"
-            - "13"
-            - "14"
-            - "15"
-            - "16"
+            - '11'
+            - '12'
+            - '13'
+            - '14'
+            - '15'
+            - '16'
       - name: test_std
         type: standard
         permit: true
         match: all
         members:
-            route_target:
-              - "101:101"
-              - "201:201"
-              - "102:101"
-              - "202:201"
-              - "1.1.1.1:101"
-              - "1.1.1.2:201"
-            route_origin:
-              - "301:301"
-              - "401:401"
-              - "302:301"
-              - "402:401"
-              - "303:301"
-              - "403:401"
+          route_target:
+            - '101:101'
+            - '201:201'
+            - '102:101'
+            - '202:201'
+            - '1.1.1.1:101'
+            - '1.1.1.2:201'
+          route_origin:
+            - '301:301'
+            - '401:401'
+            - '302:301'
+            - '402:401'
+            - '303:301'
+            - '403:401'
       - name: test_std11
         type: standard
         permit: true
         match: all
         members:
-            route_target:
-              - "101:101"
-              - "201:201"
-              - "102:101"
-              - "202:201"
-              - "103:101"
-              - "203:201"
-              - "1.1.1.1:101"
-              - "1.1.1.2:201"
-              - "1.1.1.1:102"
-              - "1.1.1.2:203"
-            route_origin:
-              - "301:301"
-              - "401:401"
-              - "302:301"
-              - "402:401"
-              - "303:301"
-              - "403:401"
+          route_target:
+            - '101:101'
+            - '201:201'
+            - '102:101'
+            - '202:201'
+            - '103:101'
+            - '203:201'
+            - '1.1.1.1:101'
+            - '1.1.1.2:201'
+            - '1.1.1.1:102'
+            - '1.1.1.2:203'
+          route_origin:
+            - '301:301'
+            - '401:401'
+            - '302:301'
+            - '402:401'
+            - '303:301'
+            - '403:401'
       - name: test_std12
         type: standard
         permit: true
         match: all
         members:
-            route_target:
-              - "101:101"
-              - "201:201"
-              - "102:101"
-              - "202:201"
-              - "103:101"
-              - "203:201"
-              - "1.1.1.1:101"
-              - "1.1.1.2:201"
-              - "1.1.1.1:102"
-              - "1.1.1.2:203"
-            route_origin:
-              - "301:301"
-              - "401:401"
-              - "302:301"
-              - "402:401"
-              - "303:301"
-              - "403:401"
+          route_target:
+            - '101:101'
+            - '201:201'
+            - '102:101'
+            - '202:201'
+            - '103:101'
+            - '203:201'
+            - '1.1.1.1:101'
+            - '1.1.1.2:201'
+            - '1.1.1.1:102'
+            - '1.1.1.2:203'
+          route_origin:
+            - '301:301'
+            - '401:401'
+            - '302:301'
+            - '402:401'
+            - '303:301'
+            - '403:401'
   - name: del_test_case_01
     description: BGP Communities properties
     state: deleted
@@ -227,26 +227,26 @@ deleted_tests:
         type: expanded
         members:
           regex:
-          - "11"
-          - "12"
+            - '11'
+            - '12'
       - name: test_std
         type: standard
         members:
-            route_target:
-              - "101:101"
-              - "201:201"
-            route_origin:
-              - "301:301"
-              - "401:401"
+          route_target:
+            - '101:101'
+            - '201:201'
+          route_origin:
+            - '301:301'
+            - '401:401'
       - name: test_std1
         type: standard
         members:
-            route_target:
-              - "101:101"
-              - "201:201"
-            route_origin:
-              - "301:301"
-              - "401:401"
+          route_target:
+            - '101:101'
+            - '201:201'
+          route_origin:
+            - '301:301'
+            - '401:401'
   - name: del_test_case_02
     description: BGP Communities properties
     state: deleted
@@ -254,38 +254,38 @@ deleted_tests:
       - name: test_ext
         type: expanded
         members:
-          regex:
+          regex: null
       - name: test_std
         type: standard
         members:
-            route_target:
-              - "1.1.1.1:101"
+          route_target:
+            - '1.1.1.1:101'
       - name: test_std11
         type: standard
         members:
-            route_origin:
-              - "301:301"
-              - "401:401"
-            route_target:
-              - "1.1.1.1:101"
+          route_origin:
+            - '301:301'
+            - '401:401'
+          route_target:
+            - '1.1.1.1:101'
   - name: del_test_case_03
     description: Update created BGP properties
     state: deleted
     input:
-        - name: test_ext
-        - name: test_std
-          type: standard
-          members:
-              route_target:
-        - name: test_std11
-          type: standard
-          members:
-              route_origin:
-        - name: test_std12
-          type: standard
-          members:
-              route_origin:
-              route_target:
+      - name: test_ext
+      - name: test_std
+        type: standard
+        members:
+          route_target: null
+      - name: test_std11
+        type: standard
+        members:
+          route_origin: null
+      - name: test_std12
+        type: standard
+        members:
+          route_origin: null
+          route_target: null
 
 replaced_tests:
   - name: replace_test_case_01
@@ -298,18 +298,18 @@ replaced_tests:
         match: any
         members:
           route_origin:
-            - "4403:301"
-            - "5503:401"
+            - '4403:301'
+            - '5503:401'
       - name: test_comm112
         type: standard
         permit: true
         match: any
         members:
           route_target:
-            - "2.2.2.2:201"
+            - '2.2.2.2:201'
           route_origin:
-            - "500:500"
-            - "600:600"
+            - '500:500'
+            - '600:600'
   - name: replace_test_case_02
     description: Replace2 created BGP properties
     state: replaced
@@ -320,8 +320,8 @@ replaced_tests:
         match: all
         members:
           regex:
-            - "15"
-            - "20"
+            - '15'
+            - '20'
             - 25
       - name: test_comm112
         type: standard
@@ -329,17 +329,17 @@ replaced_tests:
         match: any
         members:
           route_target:
-            - "2.2.2.2:201"
+            - '2.2.2.2:201'
           route_origin:
-            - "500:500"
-            - "600:600"
+            - '500:500'
+            - '600:600'
       - name: test_std
         type: standard
         permit: false
         match: any
         members:
           route_origin:
-            - "5503:401"
+            - '5503:401'
 
 overridden_tests:
   - name: overridden_test_case_01
@@ -352,11 +352,11 @@ overridden_tests:
         match: all
         members:
           route_target:
-            - "12.12.12.12:335"
-            - "13.13.13.13:445"
+            - '12.12.12.12:335'
+            - '13.13.13.13:445'
           route_origin:
-            - "4301:4301"
-            - "501:501"
+            - '4301:4301'
+            - '501:501'
       - name: test_new_expanded
         type: expanded
         permit: false
@@ -376,16 +376,16 @@ overridden_tests:
         members:
           regex:
             - 33
-            - "44"
+            - '44'
       - name: test_new_std
         type: standard
         permit: true
         match: all
         members:
           route_target:
-            - "13.13.13.13:445"
+            - '13.13.13.13:445'
           route_origin:
-            - "501:501"
+            - '501:501'
       - name: test_new_expanded
         type: expanded
         permit: false
@@ -405,9 +405,9 @@ overridden_tests:
         match: all
         members:
           route_target:
-            - "13.13.13.13:445"
+            - '13.13.13.13:445'
           route_origin:
-            - "501:501"
+            - '501:501'
       - name: test_new_expanded
         type: expanded
         permit: false
@@ -427,7 +427,7 @@ overridden_tests:
         match: all
         members:
           route_origin:
-            - "502:502"
+            - '502:502'
 
 deleted_all:
   - name: del_test_case_04

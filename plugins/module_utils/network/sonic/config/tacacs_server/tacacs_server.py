@@ -75,7 +75,7 @@ class Tacacs_server(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         tacacs_server_facts = facts['ansible_network_resources'].get('tacacs_server')
         if not tacacs_server_facts:
-            return []
+            return {}
         return tacacs_server_facts
 
     def execute_module(self):

@@ -21,7 +21,7 @@ notes:
 short_description: Manage QoS interfaces configuration on SONiC
 description:
   - This module provides configuration management of QoS interfaces for devices running SONiC
-author: "Shade Talabi (@stalabi1)"
+author: "S. Talabi (@stalabi1)"
 options:
   config:
     description:

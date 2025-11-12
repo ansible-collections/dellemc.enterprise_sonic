@@ -18,14 +18,14 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
     ConfigBase,
 )
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
+    remove_empties,
     to_list,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
     update_states,
-    normalize_interface_name,
-    remove_empties_from_list
+    normalize_interface_name
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -39,16 +39,29 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 from ansible.module_utils.connection import ConnectionError
 
+try:
+    from urllib.parse import quote
+except ImportError:
+    from urllib import quote
+
 TEST_KEYS = [
-    {"addresses": {"address": "", "secondary": ""}}
+    {"addresses": {"address": ""}}
 ]
 TEST_KEYS_formatted_diff = [
     {"config": {"name": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {"addresses": {"address": "", "secondary": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
+    {"addresses": {"address": "", '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
 ]
 
 DELETE = "DELETE"
 PATCH = "PATCH"
+
+DEFAULT_VALUES = {
+    'ipv6': {
+        'autoconf': False,
+        'dad': 'DISABLE',
+        'enabled': False
+    }
+}
 
 
 class L3_interfaces(ConfigBase):
@@ -64,6 +77,35 @@ class L3_interfaces(ConfigBase):
     gather_network_resources = [
         'l3_interfaces',
     ]
+
+    l3_non_vlan_path = 'data/openconfig-interfaces:interfaces/interface={intf_name}/subinterfaces/subinterface={sub_intf}'
+    l3_vlan_path = 'data/openconfig-interfaces:interfaces/interface={vlan_name}/openconfig-vlan:routed-vlan'
+
+    ipv4_path = '{l3_intf_path}/openconfig-if-ip:ipv4'
+    ipv4_addresses_path = ipv4_path + '/addresses'
+    ipv4_addr_del_path = ipv4_addresses_path + '/address={address}'
+    ipv4_sag_path = ipv4_path + '/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway'
+    ipv4_sag_del_path = ipv4_sag_path + '={address}'
+    ipv4_proxy_arp_path = ipv4_path + '/proxy-arp'
+    ipv4_proxy_arp_config_path = ipv4_proxy_arp_path + '/config'
+    ipv4_proxy_arp_mode_path = ipv4_proxy_arp_config_path + '/mode'
+
+    ipv6_path = '{l3_intf_path}/openconfig-if-ip:ipv6'
+    ipv6_addresses_path = ipv6_path + '/addresses'
+    ipv6_addr_del_path = ipv6_addresses_path + '/address={address}'
+    ipv6_sag_path = ipv6_path + '/openconfig-interfaces-ext:sag-ipv6/config/static-anycast-gateway'
+    ipv6_sag_del_path = ipv6_sag_path + '={address}'
+    ipv6_config_root_path = ipv6_path + '/config'
+    ipv6_config_path = {
+        'enabled': ipv6_config_root_path + '/enabled',
+        'dad': ipv6_config_root_path + '/ipv6_dad',
+        'autoconf': ipv6_config_root_path + '/ipv6_autoconfig'
+    }
+    ipv6_nd_proxy_path = ipv6_path + '/nd-proxy'
+    ipv6_nd_proxy_config_path = ipv6_nd_proxy_path + '/config'
+    ipv6_nd_proxy_mode_path = ipv6_nd_proxy_config_path + '/mode'
+    ipv6_nd_proxy_rules_path = ipv6_nd_proxy_config_path + '/nd-proxy-rules'
+    ipv6_nd_proxy_rules_del_path = ipv6_nd_proxy_rules_path + '={rule}'
 
     def __init__(self, module):
         super(L3_interfaces, self).__init__(module)
@@ -98,43 +140,25 @@ class L3_interfaces(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
-        result['commands'] = commands
-
-        changed_l3_interfaces_facts = self.get_l3_interfaces_facts()
 
         result['before'] = existing_l3_interfaces_facts
-        if result['changed']:
-            result['after'] = changed_l3_interfaces_facts
-
-        new_config = changed_l3_interfaces_facts
         old_config = existing_l3_interfaces_facts
         if self._module.check_mode:
-            result.pop('after', None)
-
-            existing_l3_intf_facts = remove_empties_from_list(existing_l3_interfaces_facts)
-            cmmnds = remove_empties_from_list(commands)
-
-            old_config = self.remove_default_entries(existing_l3_intf_facts)
-            cmds = self.remove_default_entries(cmmnds)
-
-            new_config = get_new_config(cmds, old_config,
-                                        TEST_KEYS_formatted_diff)
-            new_config = remove_empties_from_list(new_config)
-            new_config = self.remove_default_entries(new_config)
+            new_config = self.get_new_config(commands, old_config)
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_l3_interfaces_facts()
+            if result['changed']:
+                result['after'] = new_config
 
         if self._module._diff:
-            old_conf = remove_empties_from_list(old_config)
-            old_conf = self.remove_default_entries(old_conf)
+            self.sort_lists_in_config(old_config)
+            if not self._module.check_mode:
+                self.sort_lists_in_config(new_config)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-            new_conf = remove_empties_from_list(new_config)
-            new_conf = self.remove_default_entries(new_conf)
-
-            self.sort_lists_in_config(old_conf)
-            self.sort_lists_in_config(new_conf)
-            result['diff'] = get_formatted_config_diff(old_conf,
-                                                       new_conf,
-                                                       self._module._verbosity)
+        result['commands'] = commands
         result['warnings'] = warnings
         return result
 
@@ -146,8 +170,7 @@ class L3_interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
-        normalize_interface_name(want, self._module)
+        want = self.validate_and_normalize_want(self._module.params['config'])
         have = existing_l3_interfaces_facts
         resp = self.set_state(want, have)
         return to_list(resp)
@@ -162,85 +185,145 @@ class L3_interfaces(ConfigBase):
                   to the desired configuration
         """
         state = self._module.params['state']
-        diff = get_diff(want, have, TEST_KEYS)
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
+        if state in ('replaced', 'overridden'):
+            commands, requests = self._state_replaced_overridden(want, have, state)
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
-        elif state == 'replaced':
-            commands, requests = self._state_replaced(want, have)
-        ret_commands = commands
-        return ret_commands, requests
+            commands, requests = self._state_merged(want, have)
+        return commands, requests
 
-    def _state_replaced(self, want, have):
+    def _state_replaced_overridden(self, want, have, state):
         """ The command generator when state is replaced
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        ret_requests = list()
-        commands = list()
-        new_have = remove_empties_from_list(have)
-        new_have = self.remove_default_entries(new_have)
-        new_want = remove_empties_from_list(want)
-        new_want = self.remove_default_entries(new_want)
-        get_replace_interfaces_list = self.get_interface_object_for_replaced(new_have, want)
+        commands, del_commands = [], []
+        requests, del_requests = [], []
 
-        diff_del = get_diff(get_replace_interfaces_list, new_want, TEST_KEYS)
-        diff_add = get_diff(new_want, get_replace_interfaces_list, TEST_KEYS)
+        if have:
+            want_dict = {item['name']: item for item in want} if want else {}
+            for have_conf in have:
+                intf_name = have_conf['name']
+                have_conf = self.remove_defaults(have_conf)
+                conf = want_dict.get(intf_name)
+                if not conf:
+                    # Delete all L3 interfaces that are not specified in 'overridden'
+                    if state == 'overridden':
+                        del_commands.append({'name': intf_name})
+                        del_requests.extend(self.get_delete_l3_interface_requests(have_conf, have_conf))
+                    continue
 
-        if diff_del:
-            delete_l3_interfaces_requests = self.get_delete_all_requests(diff_del)
-            ret_requests.extend(delete_l3_interfaces_requests)
-            commands.extend(update_states(diff_del, "deleted"))
-            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(new_want)
-            ret_requests.extend(l3_interfaces_to_create_requests)
-            commands.extend(update_states(new_want, "replaced"))
-        elif diff_add:
-            l3_interfaces_to_create_requests = self.get_create_l3_interfaces_requests(diff_add)
-            ret_requests.extend(l3_interfaces_to_create_requests)
-            commands.extend(update_states(diff_add, "replaced"))
-        return commands, ret_requests
+                command = {}
+                conf_addrs = self.get_addresses(conf)
+                have_addrs = self.get_addresses(have_conf)
+                del_addrs = {
+                    'ipv4': {'primary': set(), 'secondary': set()},
+                    'ipv6': {'address': set(), 'eui64': set()}
+                }
+                for option in ('ipv4', 'ipv6'):
+                    is_ipv6 = (option == 'ipv6')
+                    if not have_conf.get(option):
+                        continue
 
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
+                    if not conf.get(option):
+                        command[option] = have_conf[option]
+                        continue
 
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands = list()
-        ret_requests = list()
-        new_want = remove_empties_from_list(want)
-        new_want = self.remove_default_entries(new_want)
-        new_have = remove_empties_from_list(have)
-        new_have = self.remove_default_entries(new_have)
-        get_override_interfaces = self.get_interface_object_for_overridden(new_have)
-        diff = get_diff(get_override_interfaces, new_want, TEST_KEYS)
-        diff2 = get_diff(new_want, get_override_interfaces, TEST_KEYS)
+                    if have_conf[option].get('anycast_addresses'):
+                        if conf[option].get('anycast_addresses'):
+                            del_anycast_addrs = set(have_conf[option]['anycast_addresses']).difference(conf[option]['anycast_addresses'])
+                            if del_anycast_addrs:
+                                command.setdefault(option, {})['anycast_addresses'] = list(del_anycast_addrs)
+                        else:
+                            command.setdefault(option, {})['anycast_addresses'] = have_conf[option]['anycast_addresses']
 
-        if diff or diff2:
-            delete_interfaces_requests = self.get_delete_all_requests(new_have)
-            ret_requests.extend(delete_interfaces_requests)
-            commands.extend(update_states(diff, "deleted"))
-            interfaces_to_create_requests = self.get_create_l3_interfaces_requests(new_want)
-            ret_requests.extend(interfaces_to_create_requests)
-            commands.extend(update_states(want, "overridden"))
+                    if is_ipv6:
+                        del_addrs['ipv6']['address'] = have_addrs['ipv6']['address'].difference(conf_addrs['ipv6']['address'])
+                        del_addrs['ipv6']['eui64'] = have_addrs['ipv6']['eui64'].difference(conf_addrs['ipv6']['eui64'])
 
-        return commands, ret_requests
+                        del_ipv6_subopt_command = {}
+                        for suboption in ('enabled', 'dad', 'autoconf'):
+                            if suboption in have_conf['ipv6'] and suboption not in conf['ipv6']:
+                                del_ipv6_subopt_command[suboption] = have_conf['ipv6'][suboption]
+                        if del_ipv6_subopt_command:
+                            command.setdefault('ipv6', {})
+                            command['ipv6'].update(del_ipv6_subopt_command)
+                    else:
+                        del_addrs['ipv4']['primary'] = have_addrs['ipv4']['primary'].difference(conf_addrs['ipv4']['primary'])
+                        del_addrs['ipv4']['secondary'] = have_addrs['ipv4']['secondary'].difference(conf_addrs['ipv4']['secondary'])
 
-    def _state_merged(self, want, have, diff):
+                        # If primary address is deleted without deleting all secondary address, then
+                        # delete all existing addresses and reconfigure specifed primary and secondary addresses
+                        if len(del_addrs['ipv4']['primary']) and len(del_addrs['ipv4']['secondary']) < len(have_addrs['ipv4']['secondary']):
+                            del_addrs['ipv4']['secondary'] = have_addrs['ipv4']['secondary']
+
+                    if is_ipv6:
+                        have_nd_proxy = have_conf[option].get('nd_proxy')
+                        want_nd_proxy = conf[option].get('nd_proxy')
+                        # If ipv6 addresses are present in the delete list, then delete the nd_proxy config since
+                        # deleting of ipv6 addresses is not allowed if nd_proxy is present.
+                        if have_nd_proxy and (not want_nd_proxy or del_addrs['ipv6']['address'] or del_addrs['ipv6']['eui64']):
+                            command.setdefault('ipv6', {})['nd_proxy'] = have_nd_proxy
+                        elif have_nd_proxy and want_nd_proxy:
+                            nd_proxy_cmd = {}
+                            # If mode is different, then delete the existing nd_proxy config since
+                            # deleting of mode is not allowed if nd_proxy_rules are present.
+                            if have_nd_proxy.get('mode') != want_nd_proxy.get('mode'):
+                                command.setdefault('ipv6', {})['nd_proxy'] = have_nd_proxy
+                            else:
+                                have_nd_proxy_rules = set(have_nd_proxy.get('nd_proxy_rules', []))
+                                want_nd_proxy_rules = set(want_nd_proxy.get('nd_proxy_rules', []))
+                                del_nd_proxy_rules = have_nd_proxy_rules - want_nd_proxy_rules
+                                if del_nd_proxy_rules:
+                                    nd_proxy_cmd['nd_proxy_rules'] = list(del_nd_proxy_rules)
+                                if nd_proxy_cmd:
+                                    command.setdefault('ipv6', {})['nd_proxy'] = nd_proxy_cmd
+                    else:
+                        have_proxy_arp = have_conf[option].get('proxy_arp')
+                        want_proxy_arp = conf[option].get('proxy_arp')
+                        # If ipv4 addresses are present in the delete list, then delete the proxy_arp config
+                        # since deleting of ipv4 addresses is not allowed if proxy_arp is present.
+                        if have_proxy_arp and (not want_proxy_arp or del_addrs['ipv4']['primary'] or del_addrs['ipv4']['secondary']):
+                            command.setdefault('ipv4', {})['proxy_arp'] = have_proxy_arp
+
+                ipv4_addrs_list, ipv6_addrs_list = self.get_addresses_list(del_addrs)
+                if ipv4_addrs_list:
+                    command.setdefault('ipv4', {})
+                    command['ipv4']['addresses'] = ipv4_addrs_list
+                if ipv6_addrs_list:
+                    command.setdefault('ipv6', {})
+                    command['ipv6']['addresses'] = ipv6_addrs_list
+
+                if command:
+                    command['name'] = intf_name
+                    del_commands.append(command)
+                    del_requests.extend(self.get_delete_l3_interface_requests(command, have_conf))
+
+        if del_commands:
+            commands = update_states(del_commands, 'deleted')
+            new_have = self.get_new_config(commands, have)
+            requests = del_requests
+        else:
+            new_have = have
+
+        add_commands = self.get_diff(want, new_have)
+        if add_commands:
+            commands.extend(update_states(add_commands, state))
+            requests.extend(self.get_create_l3_interfaces_requests(add_commands))
+
+        return commands, requests
+
+    def _state_merged(self, want, have):
         """ The command generator when state is merged
 
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        self.validate_primary_ips(want)
-        commands = diff
+        commands = self.get_diff(want, have)
         requests = self.get_create_l3_interfaces_requests(commands)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -256,521 +339,586 @@ class L3_interfaces(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        commands = list()
-        if not want:
-            commands = self.remove_default_entries(have)
-            requests = self.get_delete_all_completely_requests(commands)
+        commands, requests = [], []
+        if not have:
+            return commands, requests
+        elif not want:
+            for have_conf in have:
+                commands.append({'name': have_conf['name']})
+                requests.extend(self.get_delete_l3_interface_requests(have_conf, have_conf))
         else:
-            commands = self.remove_default_entries(want)
-            filtered_have = self.remove_default_entries(have)
-            requests = self.get_delete_l3_interfaces_requests(commands, filtered_have)
-        if len(requests) == 0:
-            commands = []
+            have_dict = {item['name']: item for item in have}
+            for conf in want:
+                intf_name = conf['name']
+                have_conf = have_dict.get(intf_name)
+                if not have_conf:
+                    continue
+
+                have_conf = self.remove_defaults(have_conf)
+                # Delete all L3 config if only interface name is specified
+                if len(conf.keys()) == 1:
+                    commands.append(conf)
+                    requests.extend(self.get_delete_l3_interface_requests(have_conf, have_conf))
+                    continue
+
+                command = {}
+                have_addrs = self.get_addresses(have_conf)
+                del_addrs = {
+                    'ipv4': {'primary': set(), 'secondary': set()},
+                    'ipv6': {'address': set(), 'eui64': set()}
+                }
+                for option in ('ipv4', 'ipv6'):
+                    is_ipv6 = (option == 'ipv6')
+                    if not (option in conf and have_conf.get(option)):
+                        continue
+
+                    # If ipv4/ipv6 is specified as empty, then delete all ipv4/ipv6 config
+                    if conf[option] == {}:
+                        command[option] = have_conf[option]
+                        continue
+
+                    if conf[option].get('anycast_addresses') and have_conf[option].get('anycast_addresses'):
+                        del_anycast_addrs = set(conf[option]['anycast_addresses']).intersection(have_conf[option]['anycast_addresses'])
+                        if del_anycast_addrs:
+                            command[option] = {'anycast_addresses': list(del_anycast_addrs)}
+
+                    # In deletion, only the address is considered
+                    conf_addrs = set()
+                    if conf[option].get('addresses'):
+                        conf_addrs = {addr['address'] for addr in conf[option]['addresses']}
+
+                    if is_ipv6:
+                        del_addrs['ipv6']['address'] = have_addrs['ipv6']['address'].intersection(conf_addrs)
+                        del_addrs['ipv6']['eui64'] = have_addrs['ipv6']['eui64'].intersection(conf_addrs)
+
+                        del_ipv6_subopt_command = {}
+                        for suboption in ('enabled', 'dad', 'autoconf'):
+                            if suboption in have_conf['ipv6'] and have_conf['ipv6'][suboption] == conf['ipv6'].get(suboption):
+                                del_ipv6_subopt_command[suboption] = have_conf['ipv6'][suboption]
+                        if del_ipv6_subopt_command:
+                            command.setdefault('ipv6', {})
+                            command['ipv6'].update(del_ipv6_subopt_command)
+
+                        # Handle nd proxy
+                        have_nd_proxy = have_conf[option].get('nd_proxy')
+                        conf_nd_proxy = conf[option].get('nd_proxy')
+                        if have_nd_proxy and conf_nd_proxy:
+                            nd_proxy_cmd = {}
+                            if have_nd_proxy.get('mode') == conf_nd_proxy.get('mode'):
+                                nd_proxy_cmd['mode'] = have_nd_proxy.get('mode')
+
+                            have_nd_proxy_rules = set(have_nd_proxy.get('nd_proxy_rules', []))
+                            conf_nd_proxy_rules = set(conf_nd_proxy.get('nd_proxy_rules', []))
+                            del_nd_proxy_rules = have_nd_proxy_rules.intersection(conf_nd_proxy_rules)
+
+                            if del_nd_proxy_rules:
+                                nd_proxy_cmd['nd_proxy_rules'] = list(del_nd_proxy_rules)
+
+                            if nd_proxy_cmd:
+                                command.setdefault('ipv6', {})['nd_proxy'] = nd_proxy_cmd
+
+                    else:
+                        del_addrs['ipv4']['primary'] = have_addrs['ipv4']['primary'].intersection(conf_addrs)
+                        del_addrs['ipv4']['secondary'] = have_addrs['ipv4']['secondary'].intersection(conf_addrs)
+
+                        # Handle proxy arp
+                        have_proxy_arp = have_conf[option].get('proxy_arp')
+                        conf_proxy_arp = conf[option].get('proxy_arp')
+                        if have_proxy_arp and conf_proxy_arp and have_proxy_arp['mode'] == conf_proxy_arp['mode']:
+                            command.setdefault('ipv4', {})['proxy_arp'] = have_proxy_arp
+
+                ipv4_addrs_list, ipv6_addrs_list = self.get_addresses_list(del_addrs)
+                if ipv4_addrs_list:
+                    command.setdefault('ipv4', {})
+                    command['ipv4']['addresses'] = ipv4_addrs_list
+                if ipv6_addrs_list:
+                    command.setdefault('ipv6', {})
+                    command['ipv6']['addresses'] = ipv6_addrs_list
+
+                if command:
+                    command['name'] = intf_name
+                    commands.append(command)
+                    requests.extend(self.get_delete_l3_interface_requests(command, have_conf))
+
         if commands:
             commands = update_states(commands, "deleted")
         return commands, requests
 
-    def remove_default_entries(self, config):
-        new_config = list()
-        state = self._module.params['state']
-        for obj in config:
-            new_obj = dict()
-            if obj.get('ipv4', None) and \
-               (obj['ipv4'].get('addresses', None) or
-               obj['ipv4'].get('anycast_addresses', None) or
-               state == 'deleted'):
-                new_obj['ipv4'] = obj['ipv4']
-            if obj.get('ipv6', None) and \
-               (obj['ipv6'].get('addresses', None) or
-               obj['ipv6'].get('dad', None) or
-               obj['ipv6'].get('autoconf', None) is not None or
-               obj['ipv6'].get('enabled', None) is not None or
-               state == 'deleted'):
-
-                new_obj['ipv6'] = obj['ipv6'].copy()
-
-                # The following options have defult values in the device IPv6
-                # configuration when they have been "deleted":
-                #
-                # enable => False,
-                # dad => "DISABLE",
-                # autoconf => False
-                #
-                # Enable correct handling for all states by filtering out these
-                # options when they have default values unless the target state
-                # for the currently executing playbook task is "merged" state.
-                # This is to enable idempotent handling for all states given the
-                # following coniderations:
-                #
-                # - In 'merged' state, the input playbook value and the configured value
-                # of each of these "defaulted" options is needed to enable the
-                # correct "diff" calculation for the changes to be applied to the
-                # device.
-                # - For 'deleted' state, the "deletion" of any of the "defaulted" options
-                # is a no-op. If any of these options currently has the "default" value
-                # configured, it is already "deleted" and no further action is needed to
-                # execute a request to "delete" the default value. If it is configured to
-                # a value other than the default value, then the request to "delete" the
-                # default value has no effect. Options having the "default" value should
-                # therefore be deleted from both the input playbook and the device
-                # configuration to be used for processing the playbook task.
-                # - For 'replaced' and 'overridden' states, absence of an option in the
-                # input playbook task causes deletion of that option from the device
-                # configuration if it has a non-default value. For the "defaulted" options,
-                # this is the same as configuring the option to the default value. For
-                # this reason, removal of a default value option from the input playbook
-                # task and also from the "filtered" device configuration results in the
-                # desired end result and allows correct idempotent handling for these options.
-                # This is because the states of these options in the input playbook
-                # task and filtered device configuration will match when the defaulted option
-                # is configured to the "default" value (or "deleted", which is the same thing
-                # for these options).
-                #
-                if state != "merged":
-                    if new_obj['ipv6'].get('enabled', None) is False:
-                        del new_obj['ipv6']['enabled']
-                    if new_obj['ipv6'].get('dad', None) == "DISABLE":
-                        del new_obj['ipv6']['dad']
-                    if new_obj['ipv6'].get('autoconf', None) is False:
-                        del new_obj['ipv6']['autoconf']
-                    if new_obj.get('ipv6', None) == {}:
-                        del new_obj['ipv6']
-
-            if new_obj or state == "deleted":
-                key_set = set(obj.keys())
-                key_set.discard('ipv4')
-                key_set.discard('ipv6')
-                for key in key_set:
-                    new_obj[key] = obj[key]
-
-                new_config.append(new_obj)
-
-        return new_config
-
-    def get_interface_object_for_replaced(self, have, want):
-        objects = list()
-        names = [i.get('name', None) for i in want]
-        for obj in have:
-            if 'name' in obj and obj['name'] in names:
-                objects.append(obj.copy())
-        return objects
-
-    def get_interface_object_for_overridden(self, have):
-        objects = list()
-        for obj in have:
-            if 'name' in obj and obj['name'] != "Management0":
-                if obj.get('ipv4', None):
-                    ipv4_addresses = obj['ipv4'].get('addresses', None)
-                    anycast_addresses = obj['ipv4'].get('anycast_addresses', None)
-                else:
-                    ipv4_addresses = None
-                    anycast_addresses = None
-
-                if obj.get('ipv6', None):
-                    ipv6_addresses = obj['ipv6'].get('addresses', None)
-                    ipv6_enable = obj['ipv6'].get('enabled', None)
-                    ipv6_autoconf = obj['ipv6'].get('autoconf', None)
-                    ipv6_dad = obj['ipv6'].get('dad', None)
-                else:
-                    ipv6_addresses = None
-                    ipv6_enable = None
-                    ipv6_autoconf = None
-                    ipv6_dad = None
-
-                if ipv4_addresses is not None or ipv6_addresses is not None:
-                    objects.append(obj.copy())
-                    continue
-
-                if ipv6_enable or anycast_addresses is not None:
-                    objects.append(obj.copy())
-                    continue
-        return objects
-
-    def get_address(self, ip_str, have_obj):
-        to_return = list()
-        for i in have_obj:
-            if i.get(ip_str) and i[ip_str].get('addresses'):
-                for ip in i[ip_str]['addresses']:
-                    to_return.append(ip['address'])
-        return to_return
-
-    def get_delete_l3_interfaces_requests(self, want, have):
+    def get_delete_addresses_requests(self, l3_intf_path, addresses, ipv6=False, delete_all=False):
+        """Get requests to delete IP/IPv6 addresses based on the command specified"""
         requests = []
-        ipv4_addrs_url_all = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4/addresses'
-        ipv6_addrs_url_all = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/addresses'
-        ipv4_anycast_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4'
-        ipv4_anycast_url += '/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway={anycast_ip}'
-        ipv4_addr_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4/addresses/address={address}'
-        ipv6_addr_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/addresses/address={address}'
-        ipv6_enabled_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config/enabled'
-        ipv6_autoconf_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config/ipv6_autoconfig'
-        ipv6_dad_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config/ipv6_dad'
-
-        if not want:
-            return requests
-        for each_l3 in want:
-            l3 = each_l3.copy()
-            name = l3.pop('name')
-            sub_intf = self.get_sub_interface_name(name)
-            have_obj = next((e_cfg for e_cfg in have if e_cfg['name'] == name), None)
-            if not have_obj:
-                continue
-            have_ipv4_addrs = list()
-            have_ipv4_anycast_addrs = list()
-            have_ipv6_addrs = list()
-            have_ipv6_enabled = None
-            have_ipv6_autoconf = None
-            have_ipv6_dad = None
-
-            if have_obj.get('ipv4'):
-                if 'addresses' in have_obj['ipv4']:
-                    have_ipv4_addrs = have_obj['ipv4']['addresses']
-                if 'anycast_addresses' in have_obj['ipv4']:
-                    have_ipv4_anycast_addrs = have_obj['ipv4']['anycast_addresses']
-
-            have_ipv6_addrs = self.get_address('ipv6', [have_obj])
-            if have_obj.get('ipv6') and 'enabled' in have_obj['ipv6']:
-                have_ipv6_enabled = have_obj['ipv6']['enabled']
-            if have_obj.get('ipv6') and 'autoconf' in have_obj['ipv6']:
-                have_ipv6_autoconf = have_obj['ipv6']['autoconf']
-            if (have_obj.get('ipv6') and 'dad' in have_obj['ipv6'] and
-               have_obj['ipv6']['dad'] is not None and have_obj['ipv6']['dad'] != "DISABLE"):
-                have_ipv6_dad = have_obj['ipv6']['dad']
-
-            ipv4 = l3.get('ipv4', None)
-            ipv6 = l3.get('ipv6', None)
-
-            ipv4_addrs = None
-            ipv6_addrs = None
-
-            is_del_ipv4 = None
-            is_del_ipv6 = None
-            if name and ipv4 is None and ipv6 is None:
-                is_del_ipv4 = True
-                is_del_ipv6 = True
+        if addresses:
+            if delete_all:
+                if ipv6:
+                    requests.append({'path': self.ipv6_addresses_path.format(l3_intf_path=l3_intf_path), 'method': DELETE})
+                else:
+                    requests.append({'path': self.ipv4_addresses_path.format(l3_intf_path=l3_intf_path), 'method': DELETE})
             else:
-                if ipv4 and not ipv4.get('addresses') and not ipv4.get('anycast_addresses'):
-                    is_del_ipv4 = True
-                if (ipv6 and not ipv6.get('addresses') and ipv6.get('enabled') is None and
-                   ipv6.get('autoconf') is None and ipv6.get('dad') is None):
-                    is_del_ipv6 = True
+                if ipv6:
+                    for item in addresses:
+                        address = item['address'].split('/')[0]
+                        url = self.ipv6_addr_del_path.format(l3_intf_path=l3_intf_path, address=address)
+                        requests.append({'path': url, 'method': DELETE})
+                else:
+                    # For IPv4, delete secondary IP(s) followed by primary IP
+                    primary_addr_del_request = None
+                    for item in addresses:
+                        address = item['address'].split('/')[0]
+                        url = self.ipv4_addr_del_path.format(l3_intf_path=l3_intf_path, address=address)
+                        if item.get('secondary'):
+                            requests.append({'path': url + '/config/secondary', 'method': DELETE})
+                        else:
+                            primary_addr_del_request = {'path': url, 'method': DELETE}
 
-            if is_del_ipv4:
-                if have_ipv4_addrs and len(have_ipv4_addrs) != 0:
-                    ipv4_addrs_delete_request = {"path": ipv4_addrs_url_all.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                    requests.append(ipv4_addrs_delete_request)
-                if have_ipv4_anycast_addrs and len(have_ipv4_anycast_addrs) != 0:
-                    for ip in have_ipv4_anycast_addrs:
-                        ip = ip.replace('/', '%2f')
-                        anycast_delete_request = {"path": ipv4_anycast_url.format(intf_name=name, sub_intf_name=sub_intf, anycast_ip=ip),
-                                                  "method": DELETE}
-                        requests.append(anycast_delete_request)
-            else:
-                ipv4_addrs = []
-                ipv4_anycast_addrs = []
-                if l3.get('ipv4'):
-                    if l3['ipv4'].get('addresses'):
-                        ipv4_addrs = l3['ipv4']['addresses']
-                    if l3['ipv4'].get('anycast_addresses'):
-                        ipv4_anycast_addrs = l3['ipv4']['anycast_addresses']
+                    if primary_addr_del_request:
+                        requests.append(primary_addr_del_request)
 
-                # Store the primary ip at end of the list. So primary ip will be deleted after the secondary ips
-                ipv4_del_reqs = []
-                if ipv4_addrs:
-                    for ip in ipv4_addrs:
-                        if have_ipv4_addrs:
-                            match_ip = next((addr for addr in have_ipv4_addrs if addr['address'] == ip['address']), None)
-                            if match_ip:
-                                addr = ip['address'].split('/')[0]
-                                del_url = ipv4_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr)
-                                if match_ip['secondary']:
-                                    del_url += '/config/secondary'
-                                    ipv4_del_reqs.insert(0, {"path": del_url, "method": DELETE})
-                                else:
-                                    ipv4_del_reqs.append({"path": del_url, "method": DELETE})
-                            if ipv4_del_reqs:
-                                requests.extend(ipv4_del_reqs)
-
-                if ipv4_anycast_addrs:
-                    for ip in ipv4_anycast_addrs:
-                        if have_ipv4_anycast_addrs and ip in have_ipv4_anycast_addrs:
-                            ip = ip.replace('/', '%2f')
-                            anycast_delete_request = {"path": ipv4_anycast_url.format(intf_name=name, sub_intf_name=sub_intf, anycast_ip=ip), "method": DELETE}
-                            requests.append(anycast_delete_request)
-
-            if is_del_ipv6:
-                if have_ipv6_addrs and len(have_ipv6_addrs) != 0:
-                    ipv6_addrs_delete_request = {"path": ipv6_addrs_url_all.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                    requests.append(ipv6_addrs_delete_request)
-
-                if have_ipv6_enabled:
-                    ipv6_enabled_delete_request = {"path": ipv6_enabled_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                    requests.append(ipv6_enabled_delete_request)
-
-                if have_ipv6_autoconf:
-                    ipv6_autoconf_delete_request = {"path": ipv6_autoconf_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                    requests.append(ipv6_autoconf_delete_request)
-
-                if have_ipv6_dad:
-                    ipv6_dad_delete_request = {"path": ipv6_dad_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                    requests.append(ipv6_dad_delete_request)
-            else:
-                ipv6_addrs = []
-                ipv6_enabled = None
-                ipv6_autoconf = None
-                ipv6_dad = None
-                if l3.get('ipv6'):
-                    if l3['ipv6'].get('addresses'):
-                        ipv6_addrs = l3['ipv6']['addresses']
-                    if 'enabled' in l3['ipv6']:
-                        ipv6_enabled = l3['ipv6']['enabled']
-                    if 'autoconf' in l3['ipv6']:
-                        ipv6_autoconf = l3['ipv6']['autoconf']
-                    if 'dad' in l3['ipv6']:
-                        ipv6_dad = l3['ipv6']['dad']
-
-                if ipv6_addrs:
-                    for ip in ipv6_addrs:
-                        if have_ipv6_addrs and ip['address'] in have_ipv6_addrs:
-                            addr = ip['address'].split('/')[0]
-                            request = {"path": ipv6_addr_url.format(intf_name=name, sub_intf_name=sub_intf, address=addr), "method": DELETE}
-                            requests.append(request)
-
-                if have_ipv6_enabled and ipv6_enabled is not None:
-                    request = {"path": ipv6_enabled_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                    requests.append(request)
-                if have_ipv6_autoconf and ipv6_autoconf is not None:
-                    request = {"path": ipv6_autoconf_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                    requests.append(request)
-                if have_ipv6_dad and ipv6_dad == have_ipv6_dad:
-                    request = {"path": ipv6_dad_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                    requests.append(request)
         return requests
 
-    def get_delete_all_completely_requests(self, configs):
-        delete_requests = list()
-        for l3 in configs:
-            if l3['name'] != "Management0":
-                if l3['ipv4'] or l3['ipv6']:
-                    delete_requests.append(l3)
-        return self.get_delete_all_requests(delete_requests)
-
-    def get_delete_all_requests(self, configs):
+    def get_delete_anycast_addresses_requests(self, l3_intf_path, addresses, ipv6=False):
+        """Get requests to delete IP/IPv6 anycast addresses
+        based on the command specified
+        """
         requests = []
-        ipv4_addrs_url_all = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4/addresses'
-        ipv4_anycast_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4'
-        ipv4_anycast_url += '/openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway={anycast_ip}'
-        ipv6_addrs_url_all = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/addresses'
-        ipv6_enabled_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config/enabled'
-        ipv6_autoconf_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config/ipv6_autoconfig'
-        ipv6_dad_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config/ipv6_dad'
+        if addresses:
+            if ipv6:
+                for addr in addresses:
+                    url = self.ipv6_sag_del_path.format(l3_intf_path=l3_intf_path, address=addr.replace('/', '%2f'))
+                    requests.append({'path': url, 'method': DELETE})
+            else:
+                for addr in addresses:
+                    url = self.ipv4_sag_del_path.format(l3_intf_path=l3_intf_path, address=addr.replace('/', '%2f'))
+                    requests.append({'path': url, 'method': DELETE})
 
-        for l3 in configs:
-            name = l3.get('name')
-            ipv4_addrs = []
-            ipv4_anycast = []
-            if name == "Management0":
-                continue
-            if l3.get('ipv4'):
-                if l3['ipv4'].get('addresses'):
-                    ipv4_addrs = l3['ipv4']['addresses']
-                if l3['ipv4'].get('anycast_addresses', None):
-                    ipv4_anycast = l3['ipv4']['anycast_addresses']
+        return requests
 
-            ipv6_addrs = []
-            ipv6_enabled = None
-            ipv6_autoconf = None
-            ipv6_dad = None
-            if l3.get('ipv6'):
-                if l3['ipv6'].get('addresses'):
-                    ipv6_addrs = l3['ipv6']['addresses']
-                if 'enabled' in l3['ipv6']:
-                    ipv6_enabled = l3['ipv6']['enabled']
-                if 'autoconf' in l3['ipv6']:
-                    ipv6_autoconf = l3['ipv6']['autoconf']
-                if 'dad' in l3['ipv6']:
-                    ipv6_dad = l3['ipv6']['dad']
+    def get_delete_proxy_arp_requests(self, l3_intf_path, proxy_arp):
+        """
+        Get requests to delete the proxy arp related configs
+        """
+        requests = []
+        if proxy_arp and 'mode' in proxy_arp:
+            requests.append({'path': self.ipv4_proxy_arp_mode_path.format(l3_intf_path=l3_intf_path), 'method': DELETE})
 
-            sub_intf = self.get_sub_interface_name(name)
+        return requests
 
-            if ipv4_addrs:
-                ipv4_addrs_delete_request = {"path": ipv4_addrs_url_all.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                requests.append(ipv4_addrs_delete_request)
-            if ipv4_anycast:
-                for ip in ipv4_anycast:
-                    ip = ip.replace('/', '%2f')
-                    anycast_delete_request = {"path": ipv4_anycast_url.format(intf_name=name, sub_intf_name=sub_intf, anycast_ip=ip), "method": DELETE}
-                    requests.append(anycast_delete_request)
-            if ipv6_addrs:
-                ipv6_addrs_delete_request = {"path": ipv6_addrs_url_all.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                requests.append(ipv6_addrs_delete_request)
-            if ipv6_enabled:
-                ipv6_enabled_delete_request = {"path": ipv6_enabled_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                requests.append(ipv6_enabled_delete_request)
-            if ipv6_autoconf:
-                ipv6_autoconf_delete_request = {"path": ipv6_autoconf_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                requests.append(ipv6_autoconf_delete_request)
-            if ipv6_dad:
-                ipv6_dad_delete_request = {"path": ipv6_dad_url.format(intf_name=name, sub_intf_name=sub_intf), "method": DELETE}
-                requests.append(ipv6_dad_delete_request)
+    def get_delete_nd_proxy_requests(self, l3_intf_path, nd_proxy):
+        """
+        Get requests to delete nd_proxy configuration for IPv6.
+        If nd_proxy is provided and contains 'nd_proxy_rules', delete only those rules.
+        Otherwise, delete the entire nd_proxy config.
+        """
+        requests = []
+        if nd_proxy and isinstance(nd_proxy, dict):
+            if nd_proxy.get('nd_proxy_rules'):
+                for r in nd_proxy['nd_proxy_rules']:
+                    encoded_rule = quote(r, safe='')
+                    url = self.ipv6_nd_proxy_rules_del_path.format(l3_intf_path=l3_intf_path, rule=encoded_rule)
+                    requests.append({'path': url, 'method': DELETE})
+
+            if 'mode' in nd_proxy:
+                url = self.ipv6_nd_proxy_mode_path.format(l3_intf_path=l3_intf_path)
+                requests.append({'path': url, 'method': DELETE})
+
+        return requests
+
+    def get_delete_ipv6_param_requests(self, command):
+        """Get requests to delete specific IPv6 configurations
+        based on the command specified
+        """
+        requests = []
+        if not (command and command.get('ipv6')):
+            return requests
+
+        l3_intf_path = self.get_l3_interface_path(command['name'])
+        for option in ('enabled', 'autoconf', 'dad'):
+            if option in command['ipv6']:
+                requests.append({'path': self.ipv6_config_path[option].format(l3_intf_path=l3_intf_path), 'method': DELETE})
+
+        return requests
+
+    def get_delete_l3_interface_requests(self, command, have_conf):
+        """Get requests to delete L3 configurations of an interface
+        based on the command specified
+        """
+        requests = []
+        l3_intf_path = self.get_l3_interface_path(command['name'])
+        if command.get('ipv4'):
+            if command['ipv4'].get('proxy_arp'):
+                requests.extend(self.get_delete_proxy_arp_requests(l3_intf_path, command['ipv4']['proxy_arp']))
+            if command['ipv4'].get('addresses'):
+                delete_all_addrs = (len(command['ipv4']['addresses']) == len(have_conf['ipv4']['addresses']))
+                requests.extend(self.get_delete_addresses_requests(l3_intf_path, command['ipv4']['addresses'], delete_all=delete_all_addrs))
+            if command['ipv4'].get('anycast_addresses'):
+                requests.extend(self.get_delete_anycast_addresses_requests(l3_intf_path, command['ipv4']['anycast_addresses']))
+        if command.get('ipv6'):
+            if command['ipv6'].get('nd_proxy'):
+                requests.extend(self.get_delete_nd_proxy_requests(l3_intf_path, command['ipv6']['nd_proxy']))
+            if command['ipv6'].get('addresses'):
+                delete_all_addrs = (len(command['ipv6']['addresses']) == len(have_conf['ipv6']['addresses']))
+                requests.extend(self.get_delete_addresses_requests(l3_intf_path, command['ipv6']['addresses'], ipv6=True, delete_all=delete_all_addrs))
+            if command['ipv6'].get('anycast_addresses'):
+                requests.extend(self.get_delete_anycast_addresses_requests(l3_intf_path, command['ipv6']['anycast_addresses'], ipv6=True))
+            requests.extend(self.get_delete_ipv6_param_requests(command))
+
         return requests
 
     def get_create_l3_interfaces_requests(self, configs):
+        """Get requests to configure L3 configurations for the interfaces
+        specified in commands
+        """
         requests = []
         if not configs:
             return requests
 
-        ipv4_addrs_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4/addresses'
-        ipv4_anycast_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv4/'
-        ipv4_anycast_url += 'openconfig-interfaces-ext:sag-ipv4/config/static-anycast-gateway'
-        ipv6_addrs_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/addresses'
-        ipv6_enabled_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config'
-        ipv6_autoconf_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config'
-        ipv6_eui64_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/addresses'
-        ipv6_dad_url = 'data/openconfig-interfaces:interfaces/interface={intf_name}/{sub_intf_name}/openconfig-if-ip:ipv6/config'
-
         for l3 in configs:
-            l3_interface_name = l3.get('name')
-            if l3_interface_name == "eth0":
-                continue
+            intf_name = l3.get('name')
+            l3_intf_path = self.get_l3_interface_path(intf_name)
 
-            sub_intf = self.get_sub_interface_name(l3_interface_name)
-
-            ipv4_addrs = []
-            ipv4_anycast = []
             if l3.get('ipv4'):
                 if l3['ipv4'].get('addresses'):
                     ipv4_addrs = l3['ipv4']['addresses']
-                if l3['ipv4'].get('anycast_addresses'):
-                    ipv4_anycast = l3['ipv4']['anycast_addresses']
+                    ipv4_addrs_pri_payload = []
+                    ipv4_addrs_sec_payload = []
+                    for item in ipv4_addrs:
+                        is_secondary = item.get('secondary', False)
+                        if is_secondary:
+                            ipv4_addrs_sec_payload.append(self.get_ipv4_addr_payload(item['address'], is_secondary))
+                        else:
+                            ipv4_addrs_pri_payload.append(self.get_ipv4_addr_payload(item['address'], is_secondary))
 
-            ipv6_addrs = []
-            ipv6_enabled = None
-            ipv6_autoconf = None
-            ipv6_dad = None
+                    # Configure primary IP, followed by secondary IP(s)
+                    if ipv4_addrs_pri_payload:
+                        payload = {'openconfig-if-ip:addresses': {'address': ipv4_addrs_pri_payload}}
+                        requests.append({'path': self.ipv4_addresses_path.format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+                    if ipv4_addrs_sec_payload:
+                        payload = {'openconfig-if-ip:addresses': {'address': ipv4_addrs_sec_payload}}
+                        requests.append({'path': self.ipv4_addresses_path.format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+
+                if l3['ipv4'].get('anycast_addresses'):
+                    payload = {'openconfig-interfaces-ext:static-anycast-gateway': l3['ipv4']['anycast_addresses']}
+                    requests.append({'path': self.ipv4_sag_path.format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+
+                if l3['ipv4'].get('proxy_arp'):
+                    if 'mode' in l3['ipv4']['proxy_arp'] and l3['ipv4']['proxy_arp']['mode'] is not None:
+                        payload = {'openconfig-if-ip:mode': l3['ipv4']['proxy_arp']['mode']}
+                        requests.append({'path': self.ipv4_proxy_arp_mode_path.format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+
             if l3.get('ipv6'):
                 if l3['ipv6'].get('addresses'):
                     ipv6_addrs = l3['ipv6']['addresses']
-                if 'enabled' in l3['ipv6']:
-                    ipv6_enabled = l3['ipv6']['enabled']
-                if 'autoconf' in l3['ipv6']:
-                    ipv6_autoconf = l3['ipv6']['autoconf']
+                    ipv6_addrs_payload = []
+                    for item in ipv6_addrs:
+                        ipv6_addrs_payload.append(self.get_ipv6_addr_payload(item['address'], item.get('eui64', False)))
+
+                    if ipv6_addrs_payload:
+                        payload = {'openconfig-if-ip:addresses': {'address': ipv6_addrs_payload}}
+                        requests.append({'path': self.ipv6_addresses_path.format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+
+                if l3['ipv6'].get('anycast_addresses'):
+                    payload = {'openconfig-interfaces-ext:static-anycast-gateway': l3['ipv6']['anycast_addresses']}
+                    requests.append({'path': self.ipv6_sag_path.format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+
+                if l3['ipv6'].get('enabled') is not None:
+                    payload = {'openconfig-if-ip:enabled': l3['ipv6']['enabled']}
+                    requests.append({'path': self.ipv6_config_path['enabled'].format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+
                 if l3['ipv6'].get('dad'):
-                    ipv6_dad = l3['ipv6']['dad']
+                    payload = {'openconfig-if-ip:ipv6_dad': l3['ipv6']['dad']}
+                    requests.append({'path': self.ipv6_config_path['dad'].format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
 
-            if ipv4_addrs:
-                ipv4_addrs_pri_payload = []
-                ipv4_addrs_sec_payload = []
-                for item in ipv4_addrs:
-                    ipv4_addr_mask = item['address'].split('/')
-                    ipv4 = ipv4_addr_mask[0]
-                    ipv4_mask = ipv4_addr_mask[1]
-                    ipv4_secondary = item['secondary']
-                    if ipv4_secondary:
-                        ipv4_addrs_sec_payload.append(self.build_create_addr_payload(ipv4, ipv4_mask, ipv4_secondary))
-                    else:
-                        ipv4_addrs_pri_payload.append(self.build_create_addr_payload(ipv4, ipv4_mask, ipv4_secondary))
-                if ipv4_addrs_pri_payload:
-                    payload = self.build_create_payload(ipv4_addrs_pri_payload)
-                    ipv4_addrs_req = {"path": ipv4_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                    requests.append(ipv4_addrs_req)
-                if ipv4_addrs_sec_payload:
-                    payload = self.build_create_payload(ipv4_addrs_sec_payload)
-                    ipv4_addrs_req = {"path": ipv4_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                    requests.append(ipv4_addrs_req)
+                if l3['ipv6'].get('autoconf') is not None:
+                    payload = {'openconfig-if-ip:ipv6_autoconfig': l3['ipv6']['autoconf']}
+                    requests.append({'path': self.ipv6_config_path['autoconf'].format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
 
-            if ipv4_anycast:
-                anycast_payload = {'openconfig-interfaces-ext:static-anycast-gateway': ipv4_anycast}
-                anycast_url = ipv4_anycast_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf)
-                requests.append({'path': anycast_url, 'method': PATCH, 'data': anycast_payload})
-
-            if ipv6_addrs:
-                ipv6_addrs_payload = []
-                ipv6_addrs_eui64_payload = []
-                for item in ipv6_addrs:
-                    ipv6_addr_mask = item['address'].split('/')
-                    ipv6 = ipv6_addr_mask[0]
-                    ipv6_mask = ipv6_addr_mask[1]
-                    ipv6_eui64 = item.get('eui64')
-                    ipv6_addrs_payload.append(self.build_create_addr_payload(ipv6, ipv6_mask, None, ipv6_eui64))
-                if ipv6_addrs_payload:
-                    payload = self.build_create_payload(ipv6_addrs_payload)
-                    ipv6_addrs_req = {"path": ipv6_addrs_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                    requests.append(ipv6_addrs_req)
-
-            if ipv6_enabled is not None:
-                payload = self.build_update_ipv6_enabled(ipv6_enabled)
-                ipv6_enabled_req = {"path": ipv6_enabled_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                requests.append(ipv6_enabled_req)
-
-            if ipv6_autoconf is not None:
-                payload = self.build_update_ipv6_autoconf(ipv6_autoconf)
-                ipv6_autoconf_req = {"path": ipv6_autoconf_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                requests.append(ipv6_autoconf_req)
-
-            if ipv6_dad is not None:
-                payload = self.build_update_ipv6_dad(ipv6_dad)
-                ipv6_dad_req = {"path": ipv6_dad_url.format(intf_name=l3_interface_name, sub_intf_name=sub_intf), "method": PATCH, "data": payload}
-                requests.append(ipv6_dad_req)
+                if l3['ipv6'].get('nd_proxy'):
+                    nd_proxy = l3['ipv6']['nd_proxy']
+                    if isinstance(nd_proxy, dict):
+                        if 'mode' in nd_proxy and nd_proxy['mode'] is not None:
+                            payload = {"openconfig-if-ip:mode": nd_proxy['mode']}
+                            requests.append({'path': self.ipv6_nd_proxy_mode_path. format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
+                        if 'nd_proxy_rules' in nd_proxy and nd_proxy['nd_proxy_rules'] is not None:
+                            payload = {"openconfig-if-ip:nd-proxy-rules": nd_proxy['nd_proxy_rules']}
+                            requests.append({'path': self.ipv6_nd_proxy_rules_path. format(l3_intf_path=l3_intf_path), 'method': PATCH, 'data': payload})
 
         return requests
 
-    def validate_primary_ips(self, want):
-        error_intf = {}
-        for l3 in want:
-            l3_interface_name = l3.get('name')
+    def validate_and_normalize_want(self, want):
+        updated_want = []
+        state = self._module.params['state']
+        if not want:
+            if state != 'deleted':
+                self._module.fail_json(msg='value of config parameter must not be empty for state {0}'.format(state))
+            return updated_want
 
-            ipv4_addrs = []
-            if l3.get('ipv4') and l3['ipv4'].get('addresses'):
-                ipv4_addrs = l3['ipv4']['addresses']
+        if state != 'deleted':
+            for conf in want:
+                intf_name = conf['name']
+                if self.is_mgmt_interface(intf_name):
+                    continue
+                conf = remove_empties(conf)
+                primary_ips = 0
+                if conf.get('ipv4') and conf['ipv4'].get('addresses'):
+                    for addr in conf['ipv4']['addresses']:
+                        if not addr.setdefault('secondary', False):
+                            primary_ips += 1
+                            if primary_ips > 1:
+                                self._module.fail_json(msg='Multiple ipv4 primary ips found! {0}'.format(conf))
+                updated_want.append(remove_empties(conf))
+        else:
+            # In state deleted, empty ipv4 and ipv6 are supported
+            for conf in want:
+                intf_name = conf['name']
+                if self.is_mgmt_interface(intf_name):
+                    continue
 
-            if ipv4_addrs:
-                ipv4_pri_addrs = [addr['address'] for addr in ipv4_addrs if not addr['secondary']]
-                if len(ipv4_pri_addrs) > 1:
-                    error_intf[l3_interface_name] = ipv4_pri_addrs
+                conf_ipv4 = conf.get('ipv4')
+                conf_ipv6 = conf.get('ipv6')
 
-        if error_intf:
-            err = "Multiple ipv4 primary ips found! " + str(error_intf)
-            self._module.fail_json(msg=str(err), code=300)
+                if not conf_ipv4 and not conf_ipv6:
+                    delete_ipv4 = delete_ipv6 = True
+                else:
+                    delete_ipv4 = delete_ipv6 = False
+                    if conf_ipv4:
+                        delete_ipv4 = True
+                        for option in ('addresses', 'anycast_addresses', 'proxy_arp'):
+                            # For proxy_arp, treat empty dict as not present
+                            if option == 'proxy_arp' and conf_ipv4.get(option) in [None, {}, []]:
+                                continue
+                            if conf_ipv4.get(option) not in [None, []]:
+                                delete_ipv4 = False
+                                break
+                    if conf_ipv6:
+                        delete_ipv6 = True
+                        for option in ('addresses', 'anycast_addresses', 'dad', 'autoconf', 'enabled', 'nd_proxy'):
+                            val = conf_ipv6.get(option)
+                            # For nd_proxy, treat empty dict or all-empty dict as not present
+                            # check if nd_proxy is a dictionary and all of its values are empty
+                            # For ex. nd_proxy = {'mode': None, 'nd_proxy_rules' : []}
+                            if option == 'nd_proxy' and val in [None, {}, []] or (isinstance(val, dict) and all(v in [None, {}, []] for v in val.values())):
+                                continue
+                            if val not in [None, []]:
+                                delete_ipv6 = False
+                                break
 
-    def build_create_payload(self, addrs_payload):
-        payload = {'openconfig-if-ip:addresses': {'address': addrs_payload}}
-        return payload
+                if delete_ipv4 and delete_ipv6:
+                    updated_want.append({'name': intf_name})
+                else:
+                    updated_conf = remove_empties(conf)
+                    if delete_ipv4:
+                        updated_conf['ipv4'] = {}
+                    if delete_ipv6:
+                        updated_conf['ipv6'] = {}
+                    updated_want.append(updated_conf)
 
-    def build_create_addr_payload(self, ip, mask, secondary=None, ipv6_eui64=None):
-        cfg = {'ip': ip, 'prefix-length': float(mask)}
+        normalize_interface_name(updated_want, self._module)
+        return updated_want
+
+    def get_l3_interface_path(self, intf_name):
+        if intf_name.startswith('Vlan'):
+            return self.l3_vlan_path.format(vlan_name=intf_name)
+        else:
+            sub_intf = 0
+            if '.' in intf_name:
+                intf_name, sub_intf = intf_name.split('.')
+            return self.l3_non_vlan_path.format(intf_name=intf_name, sub_intf=sub_intf)
+
+    @staticmethod
+    def get_ipv4_addr_payload(ip_prefix, secondary=False):
+        ip, mask = ip_prefix.split('/')
+        addr_payload = {
+            'ip': ip,
+            'openconfig-if-ip:config': {
+                'ip': ip,
+                'prefix-length': int(mask)
+            }
+        }
         if secondary:
-            cfg['secondary'] = secondary
-        if ipv6_eui64:
-            cfg['openconfig-interfaces-private:eui64'] = ipv6_eui64
-        addr_payload = {'ip': ip, 'openconfig-if-ip:config': cfg}
+            addr_payload['openconfig-if-ip:config']['secondary'] = secondary
         return addr_payload
 
-    def get_sub_interface_name(self, name):
-        sub_intf = "subinterfaces/subinterface=0"
-        if name.startswith("Vlan"):
-            sub_intf = "openconfig-vlan:routed-vlan"
-        return sub_intf
+    @staticmethod
+    def get_ipv6_addr_payload(ipv6_prefix, eui64=False):
+        ipv6, mask = ipv6_prefix.split('/')
+        addr_payload = {
+            'ip': ipv6,
+            'openconfig-if-ip:config': {
+                'ip': ipv6,
+                'prefix-length': int(mask)
+            }
+        }
+        if eui64:
+            addr_payload['openconfig-if-ip:config']['openconfig-interfaces-private:eui64'] = eui64
+        return addr_payload
 
-    def build_update_ipv6_enabled(self, ipv6_enabled):
-        payload = {'config': {'enabled': ipv6_enabled}}
-        return payload
+    @staticmethod
+    def remove_defaults(have_conf, conf=None, delete_op=True):
+        if delete_op:
+            # For delete operation, the default values in have_conf are removed
+            updated_conf = have_conf.copy()
+            if have_conf and have_conf.get('ipv6'):
+                updated_conf['ipv6'] = have_conf['ipv6'].copy()
+                for option in ('enabled', 'autoconf', 'dad'):
+                    if updated_conf['ipv6'].get(option) == DEFAULT_VALUES['ipv6'][option]:
+                        del updated_conf['ipv6'][option]
 
-    def build_update_ipv6_autoconf(self, ipv6_autoconf):
-        payload = {'config': {'ipv6_autoconfig': ipv6_autoconf}}
-        return payload
+                if not updated_conf['ipv6']:
+                    del updated_conf['ipv6']
+        else:
+            # For merge operation, the default values in conf are removed
+            # if that option is not present in have_conf
+            updated_conf = conf.copy()
+            if conf and conf.get('ipv6'):
+                have_ipv6 = have_conf.get('ipv6', {}) if have_conf else {}
+                updated_conf['ipv6'] = conf['ipv6'].copy()
+                for option in ('enabled', 'autoconf', 'dad'):
+                    if option not in have_ipv6 and conf['ipv6'].get(option) == DEFAULT_VALUES['ipv6'][option]:
+                        del updated_conf['ipv6'][option]
 
-    def build_update_ipv6_dad(self, ipv6_dad):
-        payload = {'config': {'ipv6_dad': ipv6_dad}}
-        return payload
+                if not conf['ipv6']:
+                    del conf['ipv6']
+
+        return updated_conf
+
+    def get_diff(self, want, have):
+        updated_want = []
+        have_dict = {item['name']: item for item in have} if have else {}
+        for conf in want:
+            if conf.get('ipv6'):
+                have_conf = have_dict.get(conf['name'], {})
+                conf = self.remove_defaults(have_conf, conf, False)
+            if conf.get('ipv4') or conf.get('ipv6'):
+                updated_want.append(conf)
+
+        return get_diff(updated_want, have, TEST_KEYS)
+
+    def get_new_config(self, commands, have):
+        """Returns generated configuration based on commands and
+        existing configuration"""
+        state = self._module.params['state']
+        new_conf = get_new_config(commands, have, TEST_KEYS_formatted_diff)
+        new_conf_dict = {item['name']: item for item in new_conf} if new_conf else {}
+        if state != 'deleted':
+            for command in commands:
+                if command['state'] == 'deleted' or not command.get('ipv4', {}).get('addresses'):
+                    continue
+
+                conf = new_conf_dict.get(command['name'], {})
+                if not conf.get('ipv4', {}).get('addresses'):
+                    continue
+
+                pri_ip_indices = []
+                for i in range(len(conf['ipv4']['addresses'])):
+                    if not conf['ipv4']['addresses'][i].get('secondary'):
+                        pri_ip_indices.append(i)
+
+                # If new primary IP is configured, delete the old primary IP
+                if len(pri_ip_indices) > 1:
+                    new_pri_ip = None
+                    for addr in command['ipv4']['addresses']:
+                        if not addr.get('secondary'):
+                            new_pri_ip = addr['address']
+                            break
+
+                    for i in pri_ip_indices:
+                        if conf['ipv4']['addresses'][i]['address'] != new_pri_ip:
+                            del conf['ipv4']['addresses'][i]
+                            break
+
+        generated_conf = []
+        for conf in new_conf:
+            # Set to default values if deleted
+            conf.setdefault('ipv6', {})
+            for suboption in ('enabled', 'autoconf', 'dad'):
+                conf['ipv6'].setdefault(suboption, DEFAULT_VALUES['ipv6'][suboption])
+
+            # Remove empty lists
+            for option in ('ipv4', 'ipv6'):
+                if option in conf:
+                    for suboption in ('addresses', 'anycast_addresses'):
+                        if suboption in conf[option] and len(conf[option][suboption]) == 0:
+                            del conf[option][suboption]
+                    # --- Remove empty nd_proxy_rules ---
+                    if option == 'ipv6' and conf[option].get('nd_proxy'):
+                        nd_proxy = conf[option]['nd_proxy']
+                        if isinstance(nd_proxy, dict) and 'nd_proxy_rules' in nd_proxy and len(nd_proxy['nd_proxy_rules']) == 0:
+                            del nd_proxy['nd_proxy_rules']
+
+                    if not conf[option]:
+                        del conf[option]
+
+            # Return config if non-default values are present
+            if conf.get('ipv4') or conf.get('ipv6') != DEFAULT_VALUES['ipv6']:
+                generated_conf.append(conf)
+
+        return generated_conf
 
     def sort_lists_in_config(self, config):
         if config:
             config.sort(key=lambda x: x['name'])
             for cfg in config:
-                if cfg.get('ipv4', None) and cfg['ipv4'].get('addresses', None):
-                    cfg['ipv4']['addresses'].sort(key=lambda x: x['address'])
-                if cfg.get('ipv4', None) and cfg['ipv4'].get('anycast_addresses', None):
-                    cfg['ipv4']['anycast_addresses'].sort()
-                if cfg.get('ipv6', None) and cfg['ipv6'].get('addresses', None):
-                    cfg['ipv6']['addresses'].sort(key=lambda x: x['address'])
+                for option in ('ipv4', 'ipv6'):
+                    if cfg.get(option):
+                        if cfg[option].get('addresses'):
+                            cfg[option]['addresses'].sort(key=lambda x: x['address'])
+                        if cfg[option].get('anycast_addresses'):
+                            cfg[option]['anycast_addresses'].sort()
+                        if option == 'ipv6' and cfg[option].get('nd_proxy'):
+                            nd_proxy = cfg[option]['nd_proxy']
+                            if isinstance(nd_proxy, dict) and nd_proxy.get('nd_proxy_rules'):
+                                nd_proxy['nd_proxy_rules'].sort()
+
+    @staticmethod
+    def is_mgmt_interface(intf_name):
+        if intf_name == 'eth0' or intf_name.startswith('Management'):
+            return True
+        return False
+
+    @staticmethod
+    def get_addresses(conf):
+        """Get set of the ip and ipv6 addresses available in the given
+        L3 interface config dict
+        """
+        addresses = {
+            'ipv4': {'primary': set(), 'secondary': set()},
+            'ipv6': {'address': set(), 'eui64': set()}
+        }
+        if not conf:
+            return addresses
+
+        if conf.get('ipv4') and conf['ipv4'].get('addresses'):
+            for addr in conf['ipv4']['addresses']:
+                if addr.get('address'):
+                    if addr.get('secondary'):
+                        addresses['ipv4']['secondary'].add(addr['address'])
+                    else:
+                        addresses['ipv4']['primary'].add(addr['address'])
+
+        if conf.get('ipv6') and conf['ipv6'].get('addresses'):
+            for addr in conf['ipv6']['addresses']:
+                if addr.get('address'):
+                    if addr.get('eui64'):
+                        addresses['ipv6']['eui64'].add(addr['address'])
+                    else:
+                        addresses['ipv6']['address'].add(addr['address'])
+
+        return addresses
+
+    @staticmethod
+    def get_addresses_list(addresses):
+        """Get list of the ip and ipv6 addresses available in the given
+        addresses dict
+        """
+        ipv4_addresses, ipv6_addresses = [], []
+        if addresses:
+            for addr in addresses['ipv4']['primary']:
+                ipv4_addresses.append({'address': addr, 'secondary': False})
+            for addr in addresses['ipv4']['secondary']:
+                ipv4_addresses.append({'address': addr, 'secondary': True})
+
+            for addr in addresses['ipv6']['address']:
+                ipv6_addresses.append({'address': addr})
+            for addr in addresses['ipv6']['eui64']:
+                ipv6_addresses.append({'address': addr, 'eui64': True})
+
+        return ipv4_addresses, ipv6_addresses

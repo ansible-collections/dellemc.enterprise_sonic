@@ -19,7 +19,7 @@ version_added: 1.1.0
 notes:
   - Tested against Enterprise SONiC Distribution by Dell Technologies
   - Supports C(check_mode)
-author: Shade Talabi (@stalabi1)
+author: S. Talabi (@stalabi1)
 short_description: Manage AAA configuration on SONiC
 description:
   - This module provides configuration management of AAA for devices running SONiC.

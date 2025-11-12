@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -20,9 +20,6 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.c
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
     remove_empties,
     to_list,
-)
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
-    utils,
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
@@ -62,8 +59,23 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
         new_conf['load_share_hash_algo'] = None
     if 'audit_rules' in command:
         new_conf['audit_rules'] = 'NONE'
+    if 'password_complexity' in command and 'password_complexity' in new_conf:
+        if 'min_lower_case' in command['password_complexity']:
+            new_conf['password_complexity']['min_lower_case'] = None
+        if 'min_upper_case' in command['password_complexity']:
+            new_conf['password_complexity']['min_upper_case'] = None
+        if 'min_numeral' in command['password_complexity']:
+            new_conf['password_complexity']['min_numeral'] = None
+        if 'min_spl_char' in command['password_complexity']:
+            new_conf['password_complexity']['min_spl_char'] = None
+        if 'min_length' in command['password_complexity']:
+            new_conf['password_complexity']['min_length'] = 8
     if 'concurrent_session_limit' in command:
         new_conf['concurrent_session_limit'] = None
+    if 'switching_mode' in command:
+        new_conf['switching_mode'] = 'STORE_AND_FORWARD'
+    if 'adjust_txrx_clock_freq' in command:
+        new_conf['adjust_txrx_clock_freq'] = False
 
     return True, new_conf
 
@@ -204,8 +216,9 @@ class System(ConfigBase):
         """
         commands = []
         requests = []
-        want = utils.remove_empties(want)
         new_have = self.remove_default_entries(have)
+        want = remove_empties(want)
+
         if not want:
             if have:
                 requests = self.get_delete_all_system_request(new_have)
@@ -246,20 +259,30 @@ class System(ConfigBase):
                 'ipv6': True
             },
             'auto_breakout': 'DISABLE',
+            'switching_mode': 'STORE_AND_FORWARD',
+            'adjust_txrx_clock_freq': False,
+            'password_complexity': {
+                'min_length': 8
+            }
         }
         del_request_method = {
             'hostname': self.get_hostname_delete_request,
             'interface_naming': self.get_intfname_delete_request,
             'auto_breakout': self.get_auto_breakout_delete_request,
+            'switching_mode': self.get_switching_mode_delete_request,
             'load_share_hash_algo': self.get_load_share_hash_algo_delete_request,
             'audit_rules': self.get_audit_rules_delete_request,
             'concurrent_session_limit': self.get_session_limit_delete_request,
+            'adjust_txrx_clock_freq': self.get_adjust_txrx_clock_freq_delete_request,
         }
 
         new_have = remove_empties(have)
         new_want = remove_empties(want)
 
-        for option in ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo', 'audit_rules', 'concurrent_session_limit'):
+        options = ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo',
+                   'audit_rules', 'concurrent_session_limit', 'adjust_txrx_clock_freq',
+                   'switching_mode')
+        for option in options:
             if option in new_want:
                 if new_want[option] != new_have.get(option):
                     add_command[option] = new_want[option]
@@ -287,6 +310,27 @@ class System(ConfigBase):
             if have_anycast:
                 del_command['anycast_address'] = have_anycast
                 del_requests.extend(self.get_anycast_delete_request(del_command['anycast_address']))
+
+        want_password_complexity = new_want.get('password_complexity', {})
+        have_password_complexity = new_have.get('password_complexity', {})
+        if want_password_complexity:
+            for option in ('min_length', 'min_spl_char', 'min_lower_case', 'min_upper_case', 'min_numerals'):
+                if option in want_password_complexity:
+                    if want_password_complexity[option] != have_password_complexity.get(option):
+                        add_command.setdefault('password_complexity', {})
+                        add_command['password_complexity'][option] = want_password_complexity[option]
+                else:
+                    if option in have_password_complexity and have_password_complexity[option] != default_values['password_complexity'].get(option):
+                        del_command.setdefault('password_complexity', {})
+                        del_command['password_complexity'][option] = have_password_complexity[option]
+            if del_command.get('password_complexity'):
+                del_requests.extend(self.get_password_complexity_delete_request(del_command['password_complexity']))
+        else:
+            if have_password_complexity:
+                for option in ('min_length', 'min_spl_char', 'min_lower_case', 'min_upper_case', 'min_numerals'):
+                    if option in have_password_complexity and have_password_complexity[option] != default_values['password_complexity'].get(option):
+                        del_command['password_complexity'] = have_password_complexity
+                        del_requests.extend(self.get_password_complexity_delete_request(del_command['password_complexity']))
 
         if del_command:
             commands = update_states(del_command, 'deleted')
@@ -321,6 +365,16 @@ class System(ConfigBase):
         if auto_breakout_payload:
             request = {'path': auto_breakout_path, 'method': method, 'data': auto_breakout_payload}
             requests.append(request)
+        switching_mode_path = "data/openconfig-system:system/config/switching-mode"
+        switching_mode_payload = self.build_create_switching_mode_payload(commands)
+        if switching_mode_payload:
+            request = {'path': switching_mode_path, 'method': method, 'data': switching_mode_payload}
+            requests.append(request)
+        adjust_txrx_clock_freq_path = 'data/openconfig-system:system/config/adjust-txrx-clock-freq'
+        adjust_txrx_clock_freq_payload = self.build_create_adjust_txrx_clock_freq_payload(commands)
+        if adjust_txrx_clock_freq_payload:
+            request = {'path': adjust_txrx_clock_freq_path, 'method': method, 'data': adjust_txrx_clock_freq_payload}
+            requests.append(request)
         load_share_hash_algo_path = "data/openconfig-loadshare-mode-ext:loadshare/hash-algorithm/config"
         load_share_hash_algo_payload = self.build_create_load_share_hash_algo_payload(commands)
         if load_share_hash_algo_payload:
@@ -332,6 +386,11 @@ class System(ConfigBase):
             request = {'path': audit_rules_path, 'method': method, 'data': audit_rules_payload}
             requests.append(request)
 
+        password_complexity_path = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config'
+        password_complexity_payload = self.build_create_password_complexity_payload(commands)
+        if password_complexity_payload:
+            request = {'path': password_complexity_path, 'method': method, 'data': password_complexity_payload}
+            requests.append(request)
         # Payload creation for concurrent session limit attribute
         session_limit_path = 'data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit'
         session_limit_payload = self.build_create_session_limit_payload(commands)
@@ -382,6 +441,29 @@ class System(ConfigBase):
             payload.update({'sonic-device-metadata:auto-breakout': commands["auto_breakout"]})
         return payload
 
+    def build_create_switching_mode_payload(self, commands):
+        payload = {}
+        if "switching_mode" in commands and commands["switching_mode"]:
+            payload.update({'openconfig-system:switching-mode': commands["switching_mode"]})
+        return payload
+
+    def build_create_password_complexity_payload(self, commands):
+        payload = {}
+        config_dict = {}
+        if "password_complexity" in commands and commands["password_complexity"]:
+            if "min_lower_case" in commands["password_complexity"] and commands["password_complexity"]["min_lower_case"] != 0:
+                config_dict['min-lower-case'] = commands["password_complexity"]["min_lower_case"]
+            if "min_upper_case" in commands["password_complexity"] and commands["password_complexity"]["min_upper_case"] != 0:
+                config_dict['min-upper-case'] = commands["password_complexity"]["min_upper_case"]
+            if "min_numerals" in commands["password_complexity"] and commands["password_complexity"]["min_numerals"] != 0:
+                config_dict['min-numerals'] = commands["password_complexity"]["min_numerals"]
+            if "min_spl_char" in commands["password_complexity"] and commands["password_complexity"]["min_spl_char"] != 0:
+                config_dict['min-special-char'] = commands["password_complexity"]["min_spl_char"]
+            if "min_length" in commands["password_complexity"] and commands["password_complexity"]["min_length"] != 0:
+                config_dict['min-len'] = commands["password_complexity"]["min_length"]
+            payload = {"openconfig-system-ext:config": config_dict}
+        return payload
+
     def build_create_load_share_hash_algo_payload(self, commands):
         payload = {}
         if "load_share_hash_algo" in commands and commands["load_share_hash_algo"]:
@@ -399,6 +481,12 @@ class System(ConfigBase):
         payload = {}
         if "concurrent_session_limit" in commands and commands["concurrent_session_limit"]:
             payload.update({'openconfig-system-ext:limit': commands['concurrent_session_limit']})
+        return payload
+
+    def build_create_adjust_txrx_clock_freq_payload(self, commands):
+        payload = {}
+        if "adjust_txrx_clock_freq" in commands:
+            payload.update({'openconfig-system:adjust-txrx-clock-freq': commands["adjust_txrx_clock_freq"]})
         return payload
 
     def remove_default_entries(self, data):
@@ -425,9 +513,31 @@ class System(ConfigBase):
                 if mac is not None:
                     new_anycast["mac_address"] = mac
             new_data["anycast_address"] = new_anycast
+            new_password_complexity = {}
+            password_complexity = data.get('password_complexity', None)
+            if password_complexity:
+                min_lower_case = password_complexity.get("min_lower_case", None)
+                if min_lower_case is not None:
+                    new_password_complexity["min_lower_case"] = min_lower_case
+                min_upper_case = password_complexity.get("min_upper_case", None)
+                if min_upper_case is not None:
+                    new_password_complexity["min_upper_case"] = min_upper_case
+                min_numerals = password_complexity.get("min_numerals", None)
+                if min_numerals is not None:
+                    new_password_complexity["min_numerals"] = min_numerals
+                min_spl_char = password_complexity.get("min_spl_char", None)
+                if min_spl_char is not None:
+                    new_password_complexity["min_spl_char"] = min_spl_char
+                min_length = password_complexity.get("min_length", None)
+                if min_length != 8:
+                    new_password_complexity["min_length"] = min_length
+            new_data["password_complexity"] = new_password_complexity
             auto_breakout_mode = data.get('auto_breakout', None)
             if auto_breakout_mode != "DISABLE":
                 new_data["auto_breakout"] = auto_breakout_mode
+            switching_mode = data.get('switching_mode', None)
+            if switching_mode != "STORE_AND_FORWARD":
+                new_data["switching_mode"] = switching_mode
             load_share_hash_algo = data.get('load_share_hash_algo', None)
             if load_share_hash_algo is not None:
                 new_data["load_share_hash_algo"] = load_share_hash_algo
@@ -437,6 +547,9 @@ class System(ConfigBase):
             concurrent_session_limit = data.get("concurrent_session_limit", None)
             if concurrent_session_limit is not None:
                 new_data["concurrent_session_limit"] = concurrent_session_limit
+            adjust_txrx_clock_freq = data.get('adjust_txrx_clock_freq', None)
+            if adjust_txrx_clock_freq:
+                new_data["adjust_txrx_clock_freq"] = adjust_txrx_clock_freq
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -450,8 +563,14 @@ class System(ConfigBase):
         if "anycast_address" in have:
             request = self.get_anycast_delete_request(have["anycast_address"])
             requests.extend(request)
+        if "password_complexity" in have:
+            request = self.get_password_complexity_delete_request(have["password_complexity"])
+            requests.extend(request)
         if "auto_breakout" in have:
             request = self.get_auto_breakout_delete_request()
+            requests.append(request)
+        if "switching_mode" in have:
+            request = self.get_switching_mode_delete_request()
             requests.append(request)
         if "load_share_hash_algo" in have:
             request = self.get_load_share_hash_algo_delete_request()
@@ -462,6 +581,28 @@ class System(ConfigBase):
         if "concurrent_session_limit" in have:
             request = self.get_session_limit_delete_request()
             requests.append(request)
+        if "adjust_txrx_clock_freq" in have and have["adjust_txrx_clock_freq"]:
+            request = self.get_adjust_txrx_clock_freq_delete_request()
+            requests.append(request)
+        return requests
+
+    def get_password_complexity_delete_request(self, password_complexity):
+        requests = []
+        if 'min_lower_case' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-lower-case'
+            requests.append({'path': url, 'method': DELETE})
+        if 'min_upper_case' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-upper-case'
+            requests.append({'path': url, 'method': DELETE})
+        if 'min_spl_char' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-special-char'
+            requests.append({'path': url, 'method': DELETE})
+        if 'min_numerals' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-numerals'
+            requests.append({'path': url, 'method': DELETE})
+        if 'min_length' in password_complexity:
+            url = 'data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-len'
+            requests.append({'path': url, 'method': DELETE})
         return requests
 
     def get_hostname_delete_request(self):
@@ -474,6 +615,12 @@ class System(ConfigBase):
 
     def get_intfname_delete_request(self):
         path = 'data/sonic-device-metadata:sonic-device-metadata/DEVICE_METADATA/DEVICE_METADATA_LIST=localhost/intf_naming_mode'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_switching_mode_delete_request(self):
+        path = 'data/openconfig-system:system/config/switching-mode'
         method = DELETE
         request = {'path': path, 'method': method}
         return request
@@ -517,6 +664,12 @@ class System(ConfigBase):
 
     def get_session_limit_delete_request(self):
         path = 'data/openconfig-system:system/openconfig-system-ext:login/concurrent-session/config/limit'
+        method = DELETE
+        request = {'path': path, 'method': method}
+        return request
+
+    def get_adjust_txrx_clock_freq_delete_request(self):
+        path = 'data/openconfig-system:system/config/adjust-txrx-clock-freq'
         method = DELETE
         request = {'path': path, 'method': method}
         return request
