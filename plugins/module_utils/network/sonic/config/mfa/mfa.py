@@ -253,6 +253,13 @@ class Mfa(ConfigBase):
                 for key in ['key_seed_encrypted', 'client_secret_encrypted']:
                     if key in mfa_global_have and mfa_global_want.get(key):
                         commands['mfa_global'].update({key: True})
+
+            rsa_servers_have = have.get('rsa_servers', {})
+            rsa_servers_want = want.get('rsa_servers', {})
+            if commands and rsa_servers_have and rsa_servers_want:
+                if 'client_key_encrypted' in rsa_servers_have and rsa_servers_want.get('client_key_encrypted'):
+                    commands['rsa_servers'].update({'client_key_encrypted': True})
+
         requests = self.get_modify_mfa_requests(commands, have)
         if commands and len(requests) > 0:
             commands = update_states(commands, "merged")
@@ -271,8 +278,10 @@ class Mfa(ConfigBase):
         commands, requests = [], []
         is_delete_all = False
 
-        if not want:
-            new_have = have
+        if not have:
+            return commands, requests
+        elif not want:
+            new_have = deepcopy(have)
             new_want = want
             is_delete_all = True
             if new_have:
@@ -354,6 +363,7 @@ class Mfa(ConfigBase):
 
     def get_modify_rsa_servers_request(self, commands, have):
         """Get request to modify RSA Server configurations"""
+
         request = None
 
         rsa_servers = commands.get('rsa_servers')
@@ -445,7 +455,6 @@ class Mfa(ConfigBase):
 
         have_conf = have
         if have_conf:
-            have_conf = remove_empties(have_conf)
             if have_conf.get('mfa_global') and mfa_global:
                 commands_del = []
                 commands_del, requests_mfa_global_del = self.get_delete_mfa_global_requests(mfa_global, have_conf['mfa_global'])
