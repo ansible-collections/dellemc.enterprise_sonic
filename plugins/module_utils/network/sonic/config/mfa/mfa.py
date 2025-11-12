@@ -644,30 +644,29 @@ class Mfa(ConfigBase):
         for rsa_server in want_data:
             hostname = rsa_server.get('hostname')
             server_port = rsa_server.get('server_port')
-            client_id = rsa_server.get('client_id')
-            client_key = rsa_server.get('client_key')
             connection_timeout = rsa_server.get('connection_timeout')
             read_timeout = rsa_server.get('read_timeout')
 
             for cfg_rsa_server in have_data:
                 cfg_hostname = cfg_rsa_server.get('hostname')
                 cfg_server_port = cfg_rsa_server.get('server_port')
-                cfg_client_id = cfg_rsa_server.get('client_id')
-                cfg_client_key = cfg_rsa_server.get('client_key')
                 cfg_connection_timeout = cfg_rsa_server.get('connection_timeout')
                 cfg_read_timeout = cfg_rsa_server.get('read_timeout')
 
                 if hostname == cfg_hostname:
-                    if ((server_port and server_port != cfg_server_port) or
-                            (connection_timeout and connection_timeout != cfg_connection_timeout) or
-                            (read_timeout and read_timeout != cfg_read_timeout)):
-                        rsa_servers_list.append(cfg_rsa_server)
-                        if server_port and server_port != cfg_server_port:
-                            requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'port-number'))
-                        if connection_timeout and connection_timeout != cfg_connection_timeout:
-                            requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'connection-timeout'))
-                        if read_timeout and read_timeout != cfg_read_timeout:
-                            requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'read-timeout'))
+                    del_command = {}
+                    if server_port and server_port != cfg_server_port:
+                        del_command['server_port'] = cfg_server_port
+                        requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'port-number'))
+                    if connection_timeout and connection_timeout != cfg_connection_timeout:
+                        del_command['connection_timeout'] = cfg_connection_timeout
+                        requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'connection-timeout'))
+                    if read_timeout and read_timeout != cfg_read_timeout:
+                        del_command['read_timeout'] = cfg_read_timeout
+                        requests.append(self.get_delete_attr_request(hostname, 'rsa-servers', 'read-timeout'))
+                    if del_command:
+                        rsa_servers_list.append(del_command)
+
         return rsa_servers_list, requests
 
     def sort_lists_in_config(self, config):
