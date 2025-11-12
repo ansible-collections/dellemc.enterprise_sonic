@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -32,44 +32,73 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
     get_new_config,
     get_formatted_config_diff
 )
 
 
+delete_all = False
 QOS_PATH = '/data/openconfig-qos:qos'
 PATCH = 'patch'
 DELETE = 'delete'
-TEST_KEYS_formatted_diff = [
-    {'dscp_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'dot1p_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'fwd_group_queue_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'fwd_group_dscp_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'fwd_group_dot1p_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'fwd_group_pg_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'pfc_priority_queue_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'pfc_priority_pg_maps': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'entries': {'dscp': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'entries': {'dot1p': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'entries': {'fwd_group': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
+ANS_MAP_DATA = [
+    {
+        'map': 'dscp_maps',
+        'attr1': 'dscp',
+        'attr2': 'fwd_group'
+    },
+    {
+        'map': 'dot1p_maps',
+        'attr1': 'dot1p',
+        'attr2': 'fwd_group'
+    },
+    {
+        'map': 'fwd_group_queue_maps',
+        'attr1': 'fwd_group',
+        'attr2': 'queue_index'
+    },
+    {
+        'map': 'fwd_group_dscp_maps',
+        'attr1': 'fwd_group',
+        'attr2': 'dscp'
+    },
+    {
+        'map': 'fwd_group_dot1p_maps',
+        'attr1': 'fwd_group',
+        'attr2': 'dot1p'
+    },
+    {
+        'map': 'fwd_group_pg_maps',
+        'attr1': 'fwd_group',
+        'attr2': 'pg_index'
+    },
+    {
+        'map': 'pfc_priority_queue_maps',
+        'attr1': 'dot1p',
+        'attr2': 'queue_index'
+    },
+    {
+        'map': 'pfc_priority_pg_maps',
+        'attr1': 'dot1p',
+        'attr2': 'pg_index'
+    }
 ]
-lookup_list = [
-    {'map_name': 'dscp_maps', 'oc_map': 'dscp-map', 'attr1': 'dscp', 'attr2': 'fwd_group', 'oc_attr1': 'dscp', 'oc_attr2': 'fwd-group'},
-    {'map_name': 'dot1p_maps', 'oc_map': 'dot1p-map', 'attr1': 'dot1p', 'attr2': 'fwd_group', 'oc_attr1': 'dot1p', 'oc_attr2': 'fwd-group'},
-    {'map_name': 'fwd_group_queue_maps', 'oc_map': 'forwarding-group-queue-map', 'attr1': 'fwd_group', 'attr2': 'queue_index',
-     'oc_attr1': 'fwd-group', 'oc_attr2': 'output-queue-index'},
-    {'map_name': 'fwd_group_dscp_maps', 'oc_map': 'forwarding-group-dscp-map', 'attr1': 'fwd_group', 'attr2': 'dscp', 'oc_attr1': 'fwd-group',
-     'oc_attr2': 'dscp'},
-    {'map_name': 'fwd_group_dot1p_maps', 'oc_map': 'forwarding-group-dot1p-map', 'attr1': 'fwd_group', 'attr2': 'dot1p', 'oc_attr1': 'fwd-group',
-     'oc_attr2': 'dot1p'},
-    {'map_name': 'fwd_group_pg_maps', 'oc_map': 'forwarding-group-priority-group-map', 'attr1': 'fwd_group', 'attr2': 'pg_index',
-     'oc_attr1': 'fwd-group', 'oc_attr2': 'priority-group-index'},
-    {'map_name': 'pfc_priority_queue_maps', 'oc_map': 'pfc-priority-queue-map', 'attr1': 'dot1p', 'attr2': 'queue_index', 'oc_attr1': 'dot1p',
-     'oc_attr2': 'output-queue-index'},
-    {'map_name': 'pfc_priority_pg_maps', 'oc_map': 'pfc-priority-priority-group-map', 'attr1': 'dot1p', 'attr2': 'pg_index', 'oc_attr1': 'dot1p',
-     'oc_attr2': 'priority-group-index'}
-]
+
+OC_ATTR_MAP = {
+    'dot1p': 'dot1p',
+    'dot1p_maps': 'dot1p-map',
+    'dscp': 'dscp',
+    'dscp_maps': 'dscp-map',
+    'fwd_group_dot1p_maps': 'forwarding-group-dot1p-map',
+    'fwd_group_dscp_maps': 'forwarding-group-dscp-map',
+    'fwd_group_pg_maps': 'forwarding-group-priority-group-map',
+    'fwd_group_queue_maps': 'forwarding-group-queue-map',
+    'fwd_group': 'fwd-group',
+    'queue_index': 'output-queue-index',
+    'pfc_priority_pg_maps': 'pfc-priority-priority-group-map',
+    'pfc_priority_queue_maps': 'pfc-priority-queue-map',
+    'pg_index': 'priority-group-index'
+}
 
 
 class Qos_maps(ConfigBase):
@@ -108,41 +137,35 @@ class Qos_maps(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_qos_maps_facts = self.get_qos_maps_facts()
         commands, requests = self.set_config(existing_qos_maps_facts)
-        if commands and len(requests) > 0:
+        if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_qos_maps_facts = self.get_qos_maps_facts()
-
         result['before'] = existing_qos_maps_facts
-        if result['changed']:
-            result['after'] = changed_qos_maps_facts
-
-        new_config = changed_qos_maps_facts
         old_config = existing_qos_maps_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_qos_maps_facts,
-                                        TEST_KEYS_formatted_diff)
+            new_config = self.get_new_config(commands, existing_qos_maps_facts)
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_qos_maps_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_qos_maps_facts):
@@ -155,8 +178,34 @@ class Qos_maps(ConfigBase):
         """
         want = remove_empties(self._module.params['config'])
         have = existing_qos_maps_facts
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
         resp = self.set_state(want, have)
         return to_list(resp)
+
+    def get_diff(self, base_data, compare_data):
+        """This method calculates the diff between base_data and compare_data.
+           Due to ambiguous 'entries' keys, the diff must be calculated by map then combined."""
+        diff = {}
+        maps_test_keys = {
+            map_dict['map']: [{map_dict['map']: {'name': ''}}, {'entries': {map_dict['attr1']: ''}}] for map_dict in ANS_MAP_DATA
+        }
+        maps_compare_data = {key: {key: value} for key, value in compare_data.items()}
+
+        for key, value in base_data.items():
+            map_base_data = {key: value}
+            map_compare_data = maps_compare_data.get(key)
+
+            if map_compare_data:
+                map_test_keys = maps_test_keys[key]
+                map_diff = get_diff(map_base_data, map_compare_data, map_test_keys)
+
+                if map_diff:
+                    diff.update(map_diff)
+            else:
+                diff.update(map_base_data)
+
+        return diff
 
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
@@ -167,79 +216,18 @@ class Qos_maps(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
-        diff = get_diff(want, have)
+        diff = self.get_diff(want, have)
 
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
-        elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have)
-        elif state == 'merged':
+        if state == 'merged':
             commands, requests = self._state_merged(diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
-        return commands, requests
-
-    def _state_replaced(self, want, have, diff):
-        """ The command generator when state is replaced
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands = []
-        requests = []
-        mod_commands = []
-
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
-        replaced_config = self.get_replaced_config(want, have)
-
-        if replaced_config:
-            is_delete_all = replaced_config == have
-            del_requests = self.get_delete_qos_maps_requests(replaced_config, have, is_delete_all)
-            requests.extend(del_requests)
-            commands.extend(update_states(replaced_config, 'deleted'))
-            mod_commands = want
-        else:
-            mod_commands = diff
-
-        if mod_commands:
-            mod_request = self.get_modify_qos_maps_request(mod_commands)
-
-            if mod_request:
-                requests.append(mod_request)
-                commands.extend(update_states(mod_commands, 'replaced'))
-        return commands, requests
-
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        commands = []
-        requests = []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
-
-        if have and have != want:
-            is_delete_all = True
-            del_requests = self.get_delete_qos_maps_requests(have, None, is_delete_all)
-            requests.extend(del_requests)
-            commands.extend(update_states(have, 'deleted'))
-            have = []
-
-        if not have and want:
-            mod_commands = want
-            mod_request = self.get_modify_qos_maps_request(mod_commands)
-
-            if mod_request:
-                requests.append(mod_request)
-                commands.extend(update_states(mod_commands, 'overridden'))
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have, diff)
+        elif state == 'deleted':
+            commands, requests = self._state_deleted(want, have, diff)
 
         return commands, requests
 
@@ -252,257 +240,344 @@ class Qos_maps(ConfigBase):
         """
         commands = diff
         requests = self.get_modify_qos_maps_request(commands)
-        if commands and len(requests) > 0:
+
+        if commands and requests:
             commands = update_states(commands, 'merged')
         else:
             commands = []
+
         return commands, requests
 
-    def _state_deleted(self, want, have):
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is replaced
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        commands, mod_commands = [], []
+        replaced_config, requests = self.get_replaced_config(want, have)
+
+        if replaced_config:
+            commands.extend(update_states(replaced_config, 'deleted'))
+            mod_commands = want
+        else:
+            mod_commands = diff
+
+        if mod_commands:
+            mod_request = self.get_modify_qos_maps_request(mod_commands)
+
+            if mod_request:
+                requests.append(mod_request)
+                commands.extend(update_states(mod_commands, 'replaced'))
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is overridden
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        global delete_all
+        delete_all = False
+        commands, requests = [], []
+        mod_commands, mod_request = None, None
+        del_commands = self.get_diff(have, want)
+
+        if del_commands:
+            delete_all = True
+            del_requests = self.get_delete_qos_maps_requests(del_commands, delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(have, 'deleted'))
+            mod_commands = want
+            mod_request = self.get_modify_qos_maps_request(mod_commands)
+        elif diff:
+            mod_commands = diff
+            mod_request = self.get_modify_qos_maps_request(mod_commands)
+
+        if mod_request:
+            requests.append(mod_request)
+            commands.extend(update_states(mod_commands, 'overridden'))
+
+        return commands, requests
+
+    def _state_deleted(self, want, have, diff):
         """ The command generator when state is deleted
 
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        is_delete_all = False
+        global delete_all
+        delete_all = False
+        commands, requests = [], []
 
         if not want:
             commands = deepcopy(have)
-            is_delete_all = True
+            delete_all = True
         else:
-            commands = deepcopy(want)
+            commands = self.get_diff(want, diff)
 
-        requests = self.get_delete_qos_maps_requests(commands, have, is_delete_all)
-
-        if commands and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
+        if commands:
+            requests = self.get_delete_qos_maps_requests(commands, delete_all)
+            if requests:
+                commands = update_states(commands, 'deleted')
         else:
             commands = []
+
         return commands, requests
 
     def get_modify_qos_maps_request(self, commands):
+        """ Returns a patch request to modify the QoS maps configuration"""
         request = None
 
         if commands:
             qos_dict = {}
 
-            for lookup_dict in lookup_list:
-                map_name = lookup_dict.get('map_name')
-                maps = commands.get(map_name)
-                if maps:
-                    self.update_qos_dict(maps, lookup_dict, qos_dict)
+            for map_dict in ANS_MAP_DATA:
+                ans_map_name = map_dict['map']
+                map_cfg = commands.get(ans_map_name)
 
+                if map_cfg:
+                    oc_map_list = []
+                    oc_map_name = OC_ATTR_MAP[ans_map_name]
+
+                    for cfg in map_cfg:
+                        oc_map_dict = {'name': cfg['name'], 'config': {'name': cfg['name']}}
+                        entries = cfg.get('entries')
+
+                        if entries:
+                            oc_entry_list = []
+
+                            for entry in entries:
+                                attr1 = map_dict['attr1']
+                                attr2 = map_dict['attr2']
+                                val1 = entry.get(attr1)
+                                val2 = entry.get(attr2)
+                                oc_attr1 = OC_ATTR_MAP[attr1]
+                                oc_entry_dict = {oc_attr1: val1, 'config': {oc_attr1: val1}}
+
+                                if val2 is not None:
+                                    oc_attr2 = OC_ATTR_MAP[attr2]
+                                    oc_entry_dict['config'][oc_attr2] = val2
+                                if oc_entry_dict:
+                                    oc_entry_list.append(oc_entry_dict)
+                            if oc_entry_list:
+                                oc_entries_name = f'{oc_map_name}-entries'
+                                oc_entry_name = f'{oc_map_name}-entry'
+                                oc_map_dict[oc_entries_name] = {oc_entry_name: oc_entry_list}
+                        if oc_map_dict:
+                            oc_map_list.append(oc_map_dict)
+                    if oc_map_list:
+                        qos_dict[f'openconfig-qos-maps-ext:{oc_map_name}s'] = {oc_map_name: oc_map_list}
             if qos_dict:
                 payload = {'openconfig-qos:qos': qos_dict}
                 request = {'path': QOS_PATH, 'method': PATCH, 'data': payload}
 
         return request
 
-    def get_delete_qos_maps_requests(self, commands, have, is_delete_all):
+    @staticmethod
+    def get_delete_qos_maps_request(oc_map_name, name=None, val1=None, attr2=None):
+        """Returns a delete request to delete the specified QoS maps configuration"""
+        url = f'{QOS_PATH}/openconfig-qos-maps-ext:{oc_map_name}s'
+
+        if name:
+            url += f'/{oc_map_name}={name}'
+        if val1 is not None:
+            url += f'/{oc_map_name}-entries/{oc_map_name}-entry={val1}'
+        if attr2:
+            url += f'/config/{attr2}'
+
+        request = {'path': url, 'method': DELETE}
+
+        return request
+
+    def get_delete_qos_maps_requests(self, commands, is_delete_all):
+        """Returns a list of delete requests to delete the specified QoS maps configuration"""
         requests = []
 
-        if not commands:
-            return requests
+        for map_dict in ANS_MAP_DATA:
+            ans_map_name = map_dict['map']
+            map_cfg = commands.get(ans_map_name)
+            oc_map_name = OC_ATTR_MAP[ans_map_name]
 
-        if is_delete_all:
-            url = '%s/openconfig-qos-maps-ext:dscp-maps' % (QOS_PATH)
-            requests.append({'path': url, 'method': DELETE})
-            url = '%s/openconfig-qos-maps-ext:dot1p-maps' % (QOS_PATH)
-            requests.append({'path': url, 'method': DELETE})
-            url = '%s/openconfig-qos-maps-ext:forwarding-group-queue-maps' % (QOS_PATH)
-            requests.append({'path': url, 'method': DELETE})
-            url = '%s/openconfig-qos-maps-ext:forwarding-group-dscp-maps' % (QOS_PATH)
-            requests.append({'path': url, 'method': DELETE})
-            url = '%s/openconfig-qos-maps-ext:forwarding-group-dot1p-maps' % (QOS_PATH)
-            requests.append({'path': url, 'method': DELETE})
-            url = '%s/openconfig-qos-maps-ext:forwarding-group-priority-group-maps' % (QOS_PATH)
-            requests.append({'path': url, 'method': DELETE})
-            url = '%s/openconfig-qos-maps-ext:pfc-priority-queue-maps' % (QOS_PATH)
-            requests.append({'path': url, 'method': DELETE})
-            url = '%s/openconfig-qos-maps-ext:pfc-priority-priority-group-maps' % (QOS_PATH)
-            requests.append({'path': url, 'method': DELETE})
+            if map_cfg:
+                if is_delete_all:
+                    requests.append(self.get_delete_qos_maps_request(oc_map_name))
+                    continue
 
-            return requests
+                for cfg in map_cfg:
+                    name = cfg['name']
+                    if len(cfg) == 1:
+                        requests.append(self.get_delete_qos_maps_request(oc_map_name, name))
+                        continue
 
-        for lookup_dict in lookup_list:
-            self.update_qos_map_deletion(commands, have, lookup_dict, requests)
+                    entries = cfg.get('entries')
+
+                    if entries:
+                        for entry in entries:
+                            attr1 = map_dict['attr1']
+                            val1 = entry.get(attr1)
+
+                            if len(entry) == 1:
+                                requests.append(self.get_delete_qos_maps_request(oc_map_name, name, val1))
+                                continue
+
+                            attr2 = map_dict['attr2']
+                            val2 = entry.get(attr2)
+
+                            if val2 is not None:
+                                oc_attr2 = OC_ATTR_MAP[attr2]
+                                requests.append(self.get_delete_qos_maps_request(oc_map_name, name, val1, oc_attr2))
 
         return requests
 
-    def update_qos_dict(self, maps, lookup_dict, qos_dict):
-        map_list = []
-        for m in maps:
-            map_dict = {}
-            name = m.get('name')
-            entries = m.get('entries')
-            oc_map = lookup_dict['oc_map']
-
-            if name:
-                map_dict.update({'name': name, 'config': {'name': name}})
-            if entries:
-                entry_list = []
-                for entry in entries:
-                    entry_dict = {}
-                    attr1_key = lookup_dict['attr1']
-                    attr2_key = lookup_dict['attr2']
-                    attr1 = entry.get(attr1_key)
-                    attr2 = entry.get(attr2_key)
-                    if attr1 is not None:
-                        oc_attr1 = lookup_dict['oc_attr1']
-                        entry_dict[oc_attr1] = attr1
-                        entry_dict['config'] = {oc_attr1: attr1}
-                        if attr2 is not None:
-                            oc_attr2 = lookup_dict['oc_attr2']
-                            entry_dict['config'].update({oc_attr2: attr2})
-                    if entry_dict:
-                        entry_list.append(entry_dict)
-                if entry_list:
-                    map_dict.update({oc_map + '-entries': {oc_map + '-entry': entry_list}})
-            if map_dict:
-                map_list.append(map_dict)
-        if map_list:
-            all_maps_dict = {'openconfig-qos-maps-ext:' + oc_map + 's': {oc_map: map_list}}
-            if all_maps_dict:
-                qos_dict.update(all_maps_dict)
-
-    def update_qos_map_deletion(self, commands, have, lookup_dict, requests):
-        map_name = lookup_dict['map_name']
-        maps = commands.get(map_name)
-        cfg_maps = have.get(map_name)
-        maps_list = []
-
-        if maps and cfg_maps:
-            for m in maps:
-                name = m.get('name')
-                entries = m.get('entries')
-
-                for cfg_m in cfg_maps:
-                    cfg_name = cfg_m.get('name')
-                    cfg_entries = cfg_m.get('entries')
-
-                    if name and name == cfg_name:
-                        map_dict = {}
-                        oc_map = lookup_dict['oc_map']
-                        if not entries:
-                            url = '%s/openconfig-qos-maps-ext:%ss/%s=%s' % (QOS_PATH, oc_map, oc_map, name)
-                            requests.append({'path': url, 'method': DELETE})
-                            map_dict.update({'name': name})
-
-                        else:
-                            if entries and cfg_entries:
-                                entries_list = []
-                                for entry in entries:
-                                    entry_dict = {}
-                                    attr1_key = lookup_dict['attr1']
-                                    attr2_key = lookup_dict['attr2']
-                                    attr1 = entry.get(attr1_key)
-                                    attr2 = entry.get(attr2_key)
-
-                                    for cfg_entry in cfg_entries:
-                                        cfg_attr1 = cfg_entry.get(attr1_key)
-                                        cfg_attr2 = cfg_entry.get(attr2_key)
-
-                                        if attr1 is not None and attr1 == cfg_attr1:
-                                            oc_attr2 = lookup_dict['oc_attr2']
-                                            if attr2 is not None and attr2 == cfg_attr2:
-                                                url = '%s/openconfig-qos-maps-ext:%ss/%s=%s/' % (QOS_PATH, oc_map, oc_map, name)
-                                                url += '%s-entries/%s-entry=%s/config/%s' % (oc_map, oc_map, attr1, oc_attr2)
-                                                requests.append({'path': url, 'method': DELETE})
-                                                entry_dict.update({attr1_key: attr1, attr2_key: attr2})
-                                            if attr2 is None:
-                                                url = '%s/openconfig-qos-maps-ext:%ss/%s=%s/' % (QOS_PATH, oc_map, oc_map, name)
-                                                url += '%s-entries/%s-entry=%s' % (oc_map, oc_map, attr1)
-                                                requests.append({'path': url, 'method': DELETE})
-                                                entry_dict.update({attr1_key: attr1})
-                                            if entry_dict:
-                                                entries_list.append(entry_dict)
-
-                                if entries_list:
-                                    map_dict.update({'name': name, 'entries': entries_list})
-
-                        if map_dict:
-                            maps_list.append(map_dict)
-                        break
-        if maps_list:
-            commands[map_name] = maps_list
-        elif map_name in commands:
-            commands.pop(map_name)
-
-    def sort_lists_in_config(self, config):
+    @staticmethod
+    def sort_lists_in_config(config):
+        """Sorts the lists in QoS maps configuration"""
         if config:
-            if 'dscp_maps' in config and config['dscp_maps']:
-                config['dscp_maps'].sort(key=lambda x: x['name'])
-                for m in config['dscp_maps']:
-                    if 'entries' in m and m['entries']:
-                        m['entries'].sort(key=lambda x: x['dscp'])
-            if 'dot1p_maps' in config and config['dot1p_maps']:
-                config['dot1p_maps'].sort(key=lambda x: x['name'])
-                for m in config['dot1p_maps']:
-                    if 'entries' in m and m['entries']:
-                        m['entries'].sort(key=lambda x: x['dot1p'])
-            if 'fwd_group_queue_maps' in config and config['fwd_group_queue_maps']:
-                config['fwd_group_queue_maps'].sort(key=lambda x: x['name'])
-                for m in config['fwd_group_queue_maps']:
-                    if 'entries' in m and m['entries']:
-                        m['entries'].sort(key=lambda x: x['fwd_group'])
-            if 'fwd_group_dscp_maps' in config and config['fwd_group_dscp_maps']:
-                config['fwd_group_dscp_maps'].sort(key=lambda x: x['name'])
-                for m in config['fwd_group_dscp_maps']:
-                    if 'entries' in m and m['entries']:
-                        m['entries'].sort(key=lambda x: x['fwd_group'])
-            if 'fwd_group_dot1p_maps' in config and config['fwd_group_dot1p_maps']:
-                config['fwd_group_dot1p_maps'].sort(key=lambda x: x['name'])
-                for m in config['fwd_group_dot1p_maps']:
-                    if 'entries' in m and m['entries']:
-                        m['entries'].sort(key=lambda x: x['fwd_group'])
-            if 'fwd_group_pg_maps' in config and config['fwd_group_pg_maps']:
-                config['fwd_group_pg_maps'].sort(key=lambda x: x['name'])
-                for m in config['fwd_group_pg_maps']:
-                    if 'entries' in m and m['entries']:
-                        m['entries'].sort(key=lambda x: x['fwd_group'])
-            if 'pfc_priority_queue_maps' in config and config['pfc_priority_queue_maps']:
-                config['pfc_priority_queue_maps'].sort(key=lambda x: x['name'])
-                for m in config['pfc_priority_queue_maps']:
-                    if 'entries' in m and m['entries']:
-                        m['entries'].sort(key=lambda x: x['dot1p'])
-            if 'pfc_priority_pg_maps' in config and config['pfc_priority_pg_maps']:
-                config['pfc_priority_pg_maps'].sort(key=lambda x: x['name'])
-                for m in config['pfc_priority_pg_maps']:
-                    if 'entries' in m and m['entries']:
-                        m['entries'].sort(key=lambda x: x['dot1p'])
+            for map_dict in ANS_MAP_DATA:
+                ans_map_name = map_dict['map']
+                attr1 = map_dict['attr1']
+                if config.get(ans_map_name):
+                    config[ans_map_name].sort(key=lambda x: x['name'])
+                    for cfg in config[ans_map_name]:
+                        if cfg.get('entries'):
+                            cfg['entries'].sort(key=lambda x: x[attr1])
 
     def get_replaced_config(self, want, have):
+        """Returns the replaced QoS maps configuration and the corresponding delete requests"""
         config_dict = {}
+        requests = []
 
-        if want and have:
-            self.update_replaced_config(want, have, 'dscp_maps', config_dict)
-            self.update_replaced_config(want, have, 'dot1p_maps', config_dict)
-            self.update_replaced_config(want, have, 'fwd_group_queue_maps', config_dict)
-            self.update_replaced_config(want, have, 'fwd_group_dscp_maps', config_dict)
-            self.update_replaced_config(want, have, 'fwd_group_dot1p_maps', config_dict)
-            self.update_replaced_config(want, have, 'fwd_group_pg_maps', config_dict)
-            self.update_replaced_config(want, have, 'pfc_priority_queue_maps', config_dict)
-            self.update_replaced_config(want, have, 'pfc_priority_pg_maps', config_dict)
+        if not want or not have:
+            return config_dict, requests
 
-        return config_dict
+        for map_dict in ANS_MAP_DATA:
+            ans_map_name = map_dict['map']
+            map_cfg = want.get(ans_map_name)
 
-    def update_replaced_config(self, want, have, map_name, config_dict):
-        maps = want.get(map_name)
-        cfg_maps = have.get(map_name)
-        maps_list = []
+            if map_cfg:
+                map_list = []
+                have_map_cfg = have.get(ans_map_name, [])
+                have_cfg_dict = {cfg.get('name'): cfg for cfg in have_map_cfg}
+                oc_map_name = OC_ATTR_MAP[ans_map_name]
 
-        if maps and cfg_maps:
-            for m in maps:
-                name = m.get('name')
-                entries = m.get('entries')
+                for cfg in map_cfg:
+                    name = cfg['name']
+                    have_cfg = have_cfg_dict.get(name)
 
-                for cfg_m in cfg_maps:
-                    cfg_name = cfg_m.get('name')
-                    cfg_entries = cfg_m.get('entries')
+                    if not have_cfg:
+                        continue
 
-                    if name and name == cfg_name:
-                        if entries != cfg_entries:
-                            maps_list.append({'name': cfg_name})
-        if maps_list:
-            config_dict[map_name] = maps_list
+                    entries = cfg.get('entries')
+                    have_entries = have_cfg.get('entries')
+
+                    if (entries and have_entries) and (entries != have_entries):
+                        map_list.append(have_cfg)
+                        requests.append(self.get_delete_qos_maps_request(oc_map_name, name))
+                if map_list:
+                    config_dict[ans_map_name] = map_list
+
+        return config_dict, requests
+
+    def __derive_merge_op(self, key_set, command, exist_conf):
+        """Returns new QoS map configuration for merge operation"""
+        if not command:
+            return True, exist_conf
+
+        if not exist_conf:
+            return True, command
+
+        new_conf = deepcopy(exist_conf)
+        for map_dict in ANS_MAP_DATA:
+            ans_map_name = map_dict['map']
+            attr1 = map_dict['attr1']
+            attr2 = map_dict['attr2']
+            map_cfg = command.get(ans_map_name)
+
+            if map_cfg:
+                new_map_cfg = new_conf.get(ans_map_name)
+                if not new_map_cfg:
+                    new_conf[ans_map_name] = map_cfg
+                    continue
+
+                new_cfg_dict = {cfg.get('name'): cfg for cfg in new_map_cfg}
+                for cfg in map_cfg:
+                    name = cfg['name']
+                    new_cfg = new_cfg_dict.get(name)
+                    if not new_cfg:
+                        new_conf[ans_map_name].append(cfg)
+                        continue
+
+                    entries = cfg.get('entries')
+                    if entries:
+                        new_entries = new_cfg.get('entries')
+                        if not new_entries:
+                            new_cfg['entries'] = entries
+                            continue
+
+                        new_entry_dict = {entry.get(attr1): entry for entry in new_entries}
+                        for entry in entries:
+                            val1 = entry.get(attr1)
+                            new_entry = new_entry_dict.get(val1)
+                            if not new_entry:
+                                new_entries.append(entry)
+                                continue
+
+                            val2 = entry.get(attr2)
+                            if val2:
+                                new_entry[attr2] = val2
+
+        return True, new_conf
+
+    def __derive_delete_op(self, key_set, command, exist_conf):
+        """Returns new QoS map configuration for delete operation"""
+        if delete_all:
+            return True, {}
+
+        new_conf = deepcopy(exist_conf)
+        for map_dict in ANS_MAP_DATA:
+            ans_map_name = map_dict['map']
+            attr1 = map_dict['attr1']
+            map_cfg = command.get(ans_map_name)
+
+            if map_cfg:
+                new_map_cfg = new_conf.get(ans_map_name)
+                new_cfg_dict = {cfg.get('name'): idx for idx, cfg in enumerate(new_map_cfg)}
+                # Loop over reversed list to avoid index out of range when using del
+                for cfg in map_cfg[::-1]:
+                    name = cfg['name']
+                    new_cfg = new_cfg_dict.get(name)
+                    if len(cfg) == 1:
+                        del new_map_cfg[new_cfg]
+                        continue
+
+                    entries = cfg.get('entries')
+                    if entries:
+                        new_entries = new_map_cfg[new_cfg].get('entries')
+                        new_entry_dict = {entry.get(attr1): idx for idx, entry in enumerate(new_entries)}
+                        # Loop over reversed list to avoid index out of range when using del
+                        for entry in entries[::-1]:
+                            val1 = entry.get(attr1)
+                            new_entry = new_entry_dict.get(val1)
+                            del new_entries[new_entry]
+                        if not new_entries:
+                            del new_map_cfg[new_cfg]['entries']
+
+                if not new_map_cfg:
+                    del new_conf[ans_map_name]
+
+        return True, new_conf
+
+    def get_new_config(self, commands, have):
+        """Returns generated configuration based on commands and
+           existing configuration"""
+        key_set = [
+            {'config': {'__merge_op': self.__derive_merge_op, '__delete_op': self.__derive_delete_op}},
+        ]
+        new_config = get_new_config(commands, have, key_set)
+
+        return new_config

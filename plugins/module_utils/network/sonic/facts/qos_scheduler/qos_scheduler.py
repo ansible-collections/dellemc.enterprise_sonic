@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -54,103 +54,89 @@ class Qos_schedulerFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        objs = []
-
         if not data:
             cfg = self.get_config(self._module)
-            data = self.update_qos_scheduler(cfg)
-        objs = self.render_config(self.generated_spec, data)
+            data = self.render_config(cfg)
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+        if data:
+            params = utils.validate_config(self.argument_spec, {'config': data})
             facts['qos_scheduler'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
-
     def get_config(self, module):
+        """Gets the list of scheduler policy configurations if present"""
         cfg = None
-        get_path = '/data/openconfig-qos:qos/scheduler-policies'
+        get_path = '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy'
         request = {'path': get_path, 'method': 'get'}
 
         try:
             response = edit_config(module, to_request(module, request))
-            if 'openconfig-qos:scheduler-policies' in response[0][1]:
-                cfg = response[0][1].get('openconfig-qos:scheduler-policies')
+            if 'openconfig-qos:scheduler-policy' in response[0][1]:
+                cfg = response[0][1].get('openconfig-qos:scheduler-policy')
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
 
         return cfg
 
-    def update_qos_scheduler(self, cfg):
-
+    def render_config(self, cfg):
+        """Transform OC data to argspec format"""
         config_list = []
         if cfg:
-            scheduler_policy = cfg.get('scheduler-policy')
-            if scheduler_policy:
-                for policy in scheduler_policy:
-                    config_dict = {}
-                    name = policy.get('name')
-                    if name:
-                        config_dict['name'] = name
-                    schedulers = policy.get('schedulers')
-                    if schedulers:
-                        scheduler = schedulers.get('scheduler')
-                        if scheduler:
-                            schedulers_list = []
-                            for schedule in scheduler:
-                                schedulers_dict = {}
-                                sequence = schedule.get('sequence')
-                                if sequence is not None:
-                                    schedulers_dict['sequence'] = sequence
-                                config = schedule.get('config')
-                                if config:
-                                    scheduler_type = config.get('priority')
-                                    weight = config.get('weight')
-                                    meter_type = config.get('meter-type')
+            for policy in cfg:
+                config_dict = {}
+                name = policy.get('name')
+                if name:
+                    config_dict['name'] = name
 
-                                    if scheduler_type:
-                                        schedulers_dict['scheduler_type'] = scheduler_type.lower()
-                                    if weight:
-                                        schedulers_dict['weight'] = weight
-                                    if meter_type:
-                                        schedulers_dict['meter_type'] = meter_type.lower()
+                schedulers = policy.get('schedulers')
+                if schedulers:
+                    scheduler = schedulers.get('scheduler')
+                    if scheduler:
+                        schedulers_list = []
+                        for schedule in scheduler:
+                            schedulers_dict = {}
+                            sequence = schedule.get('sequence')
+                            if sequence is not None:
+                                schedulers_dict['sequence'] = sequence
 
-                                two_rate_three_color = schedule.get('two-rate-three-color')
-                                if two_rate_three_color:
-                                    trtc_config = two_rate_three_color.get('config')
-                                    if trtc_config:
-                                        cir = trtc_config.get('cir')
-                                        pir = trtc_config.get('pir')
-                                        cbs = trtc_config.get('bc')
-                                        pbs = trtc_config.get('be')
+                            config = schedule.get('config')
+                            if config:
+                                scheduler_type = config.get('priority')
+                                weight = config.get('weight')
+                                meter_type = config.get('meter-type')
 
-                                        if cir:
-                                            schedulers_dict['cir'] = cir
-                                        if pir:
-                                            schedulers_dict['pir'] = pir
-                                        if cbs:
-                                            schedulers_dict['cbs'] = cbs
-                                        if pbs:
-                                            schedulers_dict['pbs'] = pbs
+                                if scheduler_type:
+                                    schedulers_dict['scheduler_type'] = scheduler_type.lower()
+                                if weight:
+                                    schedulers_dict['weight'] = weight
+                                if meter_type:
+                                    schedulers_dict['meter_type'] = meter_type.lower()
 
-                                if schedulers_dict:
-                                    schedulers_list.append(schedulers_dict)
-                            if schedulers_list:
-                                config_dict['schedulers'] = schedulers_list
+                            two_rate_three_color = schedule.get('two-rate-three-color')
+                            if two_rate_three_color:
+                                trtc_config = two_rate_three_color.get('config')
+                                if trtc_config:
+                                    cir = trtc_config.get('cir')
+                                    pir = trtc_config.get('pir')
+                                    cbs = trtc_config.get('bc')
+                                    pbs = trtc_config.get('be')
 
-                    if config_dict:
-                        config_list.append(config_dict)
+                                    if cir:
+                                        schedulers_dict['cir'] = cir
+                                    if pir:
+                                        schedulers_dict['pir'] = pir
+                                    if cbs:
+                                        schedulers_dict['cbs'] = cbs
+                                    if pbs:
+                                        schedulers_dict['pbs'] = pbs
+
+                            if schedulers_dict:
+                                schedulers_list.append(schedulers_dict)
+                        if schedulers_list:
+                            config_dict['schedulers'] = schedulers_list
+
+                if config_dict:
+                    config_list.append(config_dict)
 
         return config_list
