@@ -639,7 +639,7 @@ after:
   description: The resulting configuration module invocation.
   returned: when changed
   type: dict
-after(generated):
+after_generated:
   description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: dict
