@@ -1,0 +1,6 @@
+---
+bugfixes:
+  - sonic_qos_buffer - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+  - sonic_qos_maps - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+  - sonic_qos_scheduler - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+  - sonic_roce - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
