@@ -158,7 +158,8 @@ merged_01:
                     route-distinguisher: 3.3.3.3:33
                     import-rts:
                       - '22:22'
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list"
       method: "patch"
       data:
         openconfig-bgp-evpn-ext:route-advertise-list:
@@ -172,7 +173,8 @@ merged_01:
               advertise-afi-safi: IPV6_UNICAST
               route-map:
                 - bbb
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config"
       method: "patch"
       data:
         openconfig-bgp-evpn-ext:config:
@@ -191,7 +193,8 @@ merged_01:
           afi-safis:
             afi-safi:
               - afi-safi-name: 'openconfig-bgp-types:IPV6_UNICAST'
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/network-config"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/network-config"
       method: "patch"
       data:
         network-config:
@@ -202,13 +205,15 @@ merged_01:
             - config:
                 prefix: '192.168.10.1/32'
               prefix: '192.168.10.1/32'
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/route-flap-damping"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/route-flap-damping"
       method: "patch"
       data:
         route-flap-damping:
           config:
             enabled: true
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/aggregate-address-config"
       method: "patch"
       data:
         openconfig-network-instance:aggregate-address-config:
@@ -219,7 +224,8 @@ merged_01:
                 as-set: true
                 policy-name: 'aaa'
                 summary-only: true
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/use-multiple-paths"
       method: "patch"
       data:
         openconfig-network-instance:use-multiple-paths:
@@ -279,14 +285,16 @@ merged_01:
           afi-safis:
             afi-safi:
               - afi-safi-name: 'openconfig-bgp-types:L2VPN_EVPN'
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config"
       method: "patch"
       data:
         openconfig-bgp-evpn-ext:config:
           freeze: '600'
           max-moves: 15
           time: 300
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: "patch"
       data:
         openconfig-bgp-ext:import-network-instance:
@@ -294,7 +302,8 @@ merged_01:
             name:
               - default
             policy-name: rmap-1
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: "patch"
       data:
         openconfig-bgp-ext:import-network-instance:
@@ -315,7 +324,8 @@ merged_01:
           afi-safis:
             afi-safi:
               - afi-safi-name: 'openconfig-bgp-types:IPV6_UNICAST'
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: "patch"
       data:
         openconfig-bgp-ext:import-network-instance:
@@ -324,7 +334,8 @@ merged_01:
               - default
               - VrfReg1
             policy-name: rmap-2
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: "patch"
       data:
         openconfig-bgp-ext:import-network-instance:
@@ -576,7 +587,8 @@ merged_02:
                 l2vpn-evpn:
                   openconfig-bgp-evpn-ext:config:
                     advertise-default-gw: false
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list"
       method: "patch"
       data:
         openconfig-bgp-evpn-ext:route-advertise-list:
@@ -590,7 +602,8 @@ merged_02:
               advertise-afi-safi: IPV6_UNICAST
               route-map:
                 - bbNew
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config"
       method: "patch"
       data:
         openconfig-bgp-evpn-ext:config:
@@ -655,7 +668,8 @@ merged_02:
                 metric: 28.0
                 import-policy:
                   - aa
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: "patch"
       data:
         openconfig-bgp-ext:import-network-instance:
@@ -663,21 +677,24 @@ merged_02:
             name:
               - VrfReg2
             policy-name: rmap-2
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: "patch"
       data:
         openconfig-bgp-ext:import-network-instance:
           config:
             name:
               - VrfReg2
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/\
+             afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: "patch"
       data:
         openconfig-bgp-ext:import-network-instance:
           config:
             name:
               - default
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: "patch"
       data:
         openconfig-bgp-ext:import-network-instance:
@@ -1067,59 +1084,85 @@ deleted_01:
       response:
         code: 200
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/enabled"
       method: "patch"
       data:
         openconfig-bgp-evpn-ext:enabled: true
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/use-multiple-paths/ibgp/config/maximum-paths"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/use-multiple-paths/ibgp/config/maximum-paths"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=1.1.1.1%2F1"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=1.1.1.1%2F1"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/as-set"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/as-set"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/policy-name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/policy-name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/summary-only"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/aggregate-address-config/aggregate-address=2.2.2.2%2F2/config/summary-only"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths/ibgp/config/maximum-paths"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/use-multiple-paths/ibgp/config/maximum-paths"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-all-vni"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-all-vni"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-peer-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-peer-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-svi-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-svi-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV4_UNICAST/config/route-map=aa"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV4_UNICAST/config/route-map=aa"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV6_UNICAST/config/route-map=bb"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV6_UNICAST/config/route-map=bb"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=VrfReg2"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=VrfReg2"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=VrfReg2"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=VrfReg2"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/max-moves"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/max-moves"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/time"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/time"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=default"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=default"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=VrfReg1"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=VrfReg1"
       method: "delete"
 
 deleted_02:
@@ -1303,69 +1346,101 @@ deleted_02:
             - vrf_name: VrfReg1
             - vrf_name: VrfReg2
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/network-config/network=22.22.22.22%2f16"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/network-config/network=22.22.22.22%2f16"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-all-vni"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-all-vni"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-default-gw"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-default-gw"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-peer-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-peer-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-svi-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-svi-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/max-moves"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/max-moves"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/time"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/time"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=600"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=600"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/network-config/network=22.22.22.22%2f16"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             network-config/network=22.22.22.22%2f16"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/route-flap-damping/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             route-flap-damping/config/enabled"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV4_UNICAST"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV6_UNICAST"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:L2VPN_EVPN"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV6"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV6"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV6"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV6"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:STATIC,openconfig-policy-types:BGP,openconfig-types:IPV6"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:STATIC,openconfig-policy-types:BGP,openconfig-types:IPV6"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV4_UNICAST"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV6_UNICAST"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV4_UNICAST"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV6_UNICAST"
       method: "delete"
 
 deleted_03:
@@ -1500,43 +1575,62 @@ deleted_03:
           sonic-vrf:VRF_LIST:
             - vrf_name: default
   expected_config_requests:
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-all-vni"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-all-vni"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-default-gw"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-default-gw"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-peer-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-pip-peer-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-svi-ip"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/advertise-svi-ip"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV4_UNICAST/config/route-map=aa"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV4_UNICAST/config/route-map=aa"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV6_UNICAST/config/route-map=bb"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV6_UNICAST/config/route-map=bb"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=600"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=600"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/route-flap-damping/config/enabled"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             route-flap-damping/config/enabled"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV4_UNICAST"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:L2VPN_EVPN"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:L2VPN_EVPN"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV6"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV6"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV6"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV6"
       method: "delete"
-    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:STATIC,openconfig-policy-types:BGP,openconfig-types:IPV6"
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:STATIC,openconfig-policy-types:BGP,openconfig-types:IPV6"
       method: "delete"
       data:
 
@@ -1777,23 +1871,32 @@ replaced_01:
       response:
         code: 200
   expected_config_requests:
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/import-rts=12%3A12
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/import-rts=12%3A12"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV4_UNICAST/config/route-map=aa
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list=IPV4_UNICAST/config/route-map=aa"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=1
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=1"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/metric
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/metric"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=default
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name=default"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance"
       method: patch
       data:
         openconfig-bgp-ext:import-network-instance:
@@ -1801,7 +1904,7 @@ replaced_01:
             name:
               - VrfReg1
             policy-name: rmap-reg1
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
       method: patch
       data:
         openconfig-network-instance:global:
@@ -1814,7 +1917,7 @@ replaced_01:
                     advertise-default-gw: false
                     import-rts:
                       - '22:22'
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
       method: patch
       data:
         openconfig-network-instance:global:
@@ -1834,7 +1937,8 @@ replaced_01:
                           route-distinguisher: 10.10.10.10:55
                           vni-number: 5
                         vni-number: 5
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:route-advertise/route-advertise-list"
       method: patch
       data:
         openconfig-bgp-evpn-ext:route-advertise-list:
@@ -1843,11 +1947,12 @@ replaced_01:
               advertise-afi-safi: IPV4_UNICAST
               route-map:
                 - bb
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/enabled
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/enabled"
       method: patch
       data:
         openconfig-bgp-evpn-ext:enabled: true
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections"
       method: patch
       data:
         openconfig-network-instance:table-connections:
@@ -2064,37 +2169,52 @@ overridden_01:
       response:
         code: 200
   expected_config_requests:
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths/ebgp/config/maximum-paths
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/use-multiple-paths/ebgp/config/maximum-paths"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV6_UNICAST/use-multiple-paths/ibgp/config/maximum-paths
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV6_UNICAST/use-multiple-paths/ibgp/config/maximum-paths"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:config/import-rts=12%3A12
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:config/import-rts=12%3A12"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=1
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:vnis/vni=1"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config/freeze"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV6_UNICAST
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV6_UNICAST"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/network-config/network=3.3.3.3%2f16
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/network-config/network=3.3.3.3%2f16"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/name"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/openconfig-bgp-ext:import-network-instance/config/policy-name"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=IPV4_UNICAST/route-flap-damping/config/enabled"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=openconfig-bgp-types:IPV4_UNICAST
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=BGP,bgp/bgp/global/afi-safis/\
+             afi-safi=openconfig-bgp-types:IPV4_UNICAST"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/metric
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:DIRECTLY_CONNECTED,openconfig-policy-types:BGP,openconfig-types:IPV4/config/metric"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:OSPF,openconfig-policy-types:BGP,openconfig-types:IPV4/config/import-policy=bb"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections/table-connection=openconfig-policy-types:STATIC,openconfig-policy-types:BGP,openconfig-types:IPV6
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections/\
+             table-connection=openconfig-policy-types:STATIC,openconfig-policy-types:BGP,openconfig-types:IPV6"
       method: delete
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
       method: patch
       data:
         openconfig-network-instance:global:
@@ -2107,7 +2227,7 @@ overridden_01:
                     advertise-default-gw: false
                     import-rts:
                       - '22:22'
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global"
       method: patch
       data:
         openconfig-network-instance:global:
@@ -2127,13 +2247,14 @@ overridden_01:
                           export-rts:
                             - 77:77
                         vni-number: 5
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=BGP,bgp/bgp/global/afi-safis/afi-safi=L2VPN_EVPN/\
+             l2vpn-evpn/openconfig-bgp-evpn-ext:dup-addr-detection/config"
       method: patch
       data:
         openconfig-bgp-evpn-ext:config:
           max-moves: 10
           time: 600
-    - path: /data/openconfig-network-instance:network-instances/network-instance=default/table-connections
+    - path: "/data/openconfig-network-instance:network-instances/network-instance=default/table-connections"
       method: patch
       data:
         openconfig-network-instance:table-connections:

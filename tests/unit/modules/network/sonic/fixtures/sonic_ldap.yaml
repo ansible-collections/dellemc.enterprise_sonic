@@ -182,7 +182,7 @@ merged_02:
             openconfig-aaa-ldap-ext:ldap:
               config:
                 nss-base-passwd: 'password'
-                nss-skipmembers: False
+                nss-skipmembers: false
                 pam-login-attribute: 'loginattrstring'
                 vrf-name: 'VrfReg1'
                 security_profile: 'default1'
@@ -197,7 +197,7 @@ merged_02:
               config:
                 base: 'base_name'
                 bind-pw: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                encrypted: True
+                encrypted: true
                 search-time-limit: 10
                 sudoers-search-filter: 'filter1'
                 version: 3
@@ -306,7 +306,7 @@ deleted_01:
                     bind-dn: 'CN=example.com'
                     retransmit-attempts: 3
                     bind-pw: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                    encrypted: True
+                    encrypted: true
                     version: 3
                     base: admin
   expected_config_requests:
@@ -408,7 +408,7 @@ deleted_02:
                     bind-dn: 'CN=example.com'
                     retransmit-attempts: 3
                     bind-pw: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                    encrypted: True
+                    encrypted: true
                     version: 3
                     base: admin
   expected_config_requests:
@@ -522,7 +522,7 @@ replaced_01:
                     bind-dn: 'CN=example.com'
                     retransmit-attempts: 3
                     bind-pw: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                    encrypted: True
+                    encrypted: true
                     version: 3
                     base: admin
   expected_config_requests:
@@ -690,7 +690,7 @@ overridden_01:
                     bind-dn: 'CN=example.com'
                     retransmit-attempts: 3
                     bind-pw: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-                    encrypted: True
+                    encrypted: true
                     version: 3
                     base: admin
   expected_config_requests:

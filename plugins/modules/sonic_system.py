@@ -81,8 +81,8 @@ options:
           - JENKINS_HASH_HI
       audit_rules:
         description:
-           - Specifies audit rule profile type.
-           - Can be used on SONiC release versions 4.4.0 and above.
+          - Specifies audit rule profile type.
+          - Can be used on SONiC release versions 4.4.0 and above.
         version_added: 2.5.0
         type: str
         choices:
@@ -90,6 +90,15 @@ options:
           - DETAIL
           - CUSTOM
           - NONE
+      switching_mode:
+        description:
+          - Specifies switching mode in the device.
+          - Operational default value is STORE_AND_FORWARD.
+        version_added: 3.1.0
+        type: str
+        choices:
+          - CUT_THROUGH
+          - STORE_AND_FORWARD
       adjust_txrx_clock_freq:
         description:
           - Adjust TX/RX clock frequency to platform specific value.

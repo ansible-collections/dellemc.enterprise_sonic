@@ -1,5 +1,6 @@
-- name: Delete DCBx Interface configurations
-  dellemc.enterprise_sonic.sonic_dcbx:
+---
+- name: Delete DCBx configuration
+  sonic_dcbx:
     config:
     state: deleted
-  ignore_errors: yes
+  failed_when: false

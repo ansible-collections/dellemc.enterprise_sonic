@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: ospfv2
 
 vrf1: "VrfReg1"
 vrf2: "VrfReg2"
@@ -13,7 +12,7 @@ preparations_tests:
     - name: '{{ vrf1 }}'
     - name: '{{ vrf2 }}'
 
-tests:
+sonic_ospfv2_tests:
   - name: test_case_01
     description: Add OSPFv2 configuration
     state: merged
@@ -146,7 +145,7 @@ tests:
             addresses:
               - "2.2.2.2"
         max_metric:
-          administrative: True
+          administrative: true
           external_lsa_connected: 2127
           router_lsa_stub: 2128
           on_startup: 20

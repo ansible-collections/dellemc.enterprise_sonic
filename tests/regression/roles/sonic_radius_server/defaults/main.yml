@@ -1,14 +1,14 @@
 ---
 ansible_connection: httpapi
-module_name: radius_server
 
 preparations_tests:
   delete_radius_server:
     - name: delete_all
       description: Configure radius server
       state: deleted
-      input:
-tests:
+      input: {}
+
+sonic_radius_server_tests:
   - name: test_case_01
     description: Add new host configuration
     state: merged
@@ -177,7 +177,7 @@ tests:
             priority: 6
             source_interface: "{{ interface3 }}"
 
-test_delete_all:
   - name: test_case_09
     description: Delete all the configurations of radius server
     state: deleted
+    input: {}

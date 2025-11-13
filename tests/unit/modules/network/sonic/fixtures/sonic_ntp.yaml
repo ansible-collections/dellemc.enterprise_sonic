@@ -24,7 +24,7 @@ merged_01:
         - key_id: 20
           key_type: NTP_AUTH_SHA2_256
           key_value: "efgh"
-      enable_ntp_auth: True
+      enable_ntp_auth: true
   existing_ntp_config:
     - path: "data/openconfig-system:system/ntp"
       response:
@@ -33,7 +33,7 @@ merged_01:
     - path: "data/openconfig-system:system/ntp/config/enable-ntp-auth"
       method: "patch"
       data:
-        openconfig-system:enable-ntp-auth: True
+        openconfig-system:enable-ntp-auth: true
     - path: "data/openconfig-system:system/ntp/config/source-interface"
       method: "patch"
       data:
@@ -79,7 +79,7 @@ merged_01:
                 address: dell.org
                 minpoll: 7
                 maxpoll: 10
-                prefer: True
+                prefer: true
 merged_02:
   module_args:
     config:
@@ -115,16 +115,16 @@ merged_02:
           ntp-key:
             - key-id: 10
               config:
-                encrypted: 
+                encrypted:
                 key-id: 10
-                key-type: 
-                key-value: 
+                key-type:
+                key-value:
             - key-id: 20
               config:
-                encrypted: 
+                encrypted:
                 key-id: 20
-                key-type: 
-                key-value: 
+                key-type:
+                key-value:
     - path: "data/openconfig-system:system/ntp/servers"
       method: "patch"
       data:
@@ -140,7 +140,7 @@ merged_02:
                 address: dell.org
                 minpoll: 7
                 maxpoll: 10
-                prefer: True
+                prefer: true
 deleted_01:
   module_args:
     state: deleted
@@ -162,13 +162,13 @@ deleted_01:
                     address: dell.org
                     minpoll: 7
                     maxpoll: 10
-                    prefer: True
+                    prefer: true
             config:
               source-interface:
                 - Eth1/8
                 - Eth1/16
-              enable-ntp-auth: True
-              trusted-key: 
+              enable-ntp-auth: true
+              trusted-key:
                 - 77
                 - 88
               network-instance: mgmt
@@ -227,13 +227,13 @@ deleted_02:
                     address: dell.org
                     minpoll: 7
                     maxpoll: 10
-                    prefer: True
+                    prefer: true
             config:
               source-interface:
                 - Eth1/8
                 - Eth1/16
-              enable-ntp-auth: True
-              trusted-key: 
+              enable-ntp-auth: true
+              trusted-key:
                 - 77
                 - 88
               network-instance: mgmt
@@ -278,7 +278,7 @@ replaced_01:
           key_id: 20
       source_interfaces:
         - Eth1/9
-      enable_ntp_auth: False
+      enable_ntp_auth: false
       trusted_keys:
       ntp_keys:
         - key_id: 30
@@ -303,13 +303,13 @@ replaced_01:
                     address: dell.org
                     minpoll: 7
                     maxpoll: 10
-                    prefer: True
+                    prefer: true
             config:
               source-interface:
                 - Eth1/8
                 - Eth1/16
-              enable-ntp-auth: True
-              trusted-key: 
+              enable-ntp-auth: true
+              trusted-key:
                 - 77
                 - 88
               network-instance: mgmt
@@ -333,7 +333,7 @@ replaced_01:
     - path: "data/openconfig-system:system/ntp/config/enable-ntp-auth"
       method: "patch"
       data:
-        openconfig-system:enable-ntp-auth: False
+        openconfig-system:enable-ntp-auth: false
     - path: "data/openconfig-system:system/ntp/config/network-instance"
       method: "patch"
       data:
@@ -370,7 +370,7 @@ replaced_01:
                 address: 10.11.0.3
                 minpoll: 6
                 maxpoll: 13
-                prefer: False
+                prefer: false
                 key-id: 20
 
 overridden_01:
@@ -384,7 +384,7 @@ overridden_01:
           key_id: 20
       source_interfaces:
         - Eth1/9
-      enable_ntp_auth: False
+      enable_ntp_auth: false
       trusted_keys:
         - 66
       ntp_keys:
@@ -410,13 +410,13 @@ overridden_01:
                     address: dell.org
                     minpoll: 7
                     maxpoll: 10
-                    prefer: True
+                    prefer: true
             config:
               source-interface:
                 - Eth1/8
                 - Eth1/16
-              enable-ntp-auth: True
-              trusted-key: 
+              enable-ntp-auth: true
+              trusted-key:
                 - 77
                 - 88
               network-instance: mgmt
@@ -440,7 +440,7 @@ overridden_01:
     - path: "data/openconfig-system:system/ntp/config/enable-ntp-auth"
       method: "patch"
       data:
-        openconfig-system:enable-ntp-auth: False
+        openconfig-system:enable-ntp-auth: false
     - path: "data/openconfig-system:system/ntp/config/network-instance"
       method: "patch"
       data:
@@ -482,5 +482,5 @@ overridden_01:
                 address: 10.11.0.3
                 minpoll: 6
                 maxpoll: 13
-                prefer: False
+                prefer: false
                 key-id: 20

@@ -2,33 +2,33 @@
 want:
   - name: vrf1
     router_id: 110.2.2.30
-    log_neighbor_changes: True
-  - name: vrf2 
+    log_neighbor_changes: true
+  - name: vrf2
     router_id: 111.2.2.30
-    log_neighbor_changes: False
-  - name: vrf3 
+    log_neighbor_changes: false
+  - name: vrf3
     router_id: 112.2.2.30
-    log_neighbor_changes: False
-  - name: vrf4 
+    log_neighbor_changes: false
+  - name: vrf4
     router_id: 113.2.2.30
-    log_neighbor_changes: True
+    log_neighbor_changes: true
 have:
   - name: vrf1
     router_id: 100.2.2.30
-    log_neighbor_changes: False
-  - name: vrf2 
+    log_neighbor_changes: false
+  - name: vrf2
     router_id: 111.2.2.30
-    log_neighbor_changes: False
-  - name: vrf3 
+    log_neighbor_changes: false
+  - name: vrf3
     router_id: 102.2.2.30
-    log_neighbor_changes: True
+    log_neighbor_changes: true
 diff:
   - name: vrf1
     router_id: 110.2.2.30
-    log_neighbor_changes: True
-  - name: vrf3 
+    log_neighbor_changes: true
+  - name: vrf3
     router_id: 112.2.2.30
-    log_neighbor_changes: False
-  - name: vrf4 
+    log_neighbor_changes: false
+  - name: vrf4
     router_id: 113.2.2.30
-    log_neighbor_changes: True
+    log_neighbor_changes: true

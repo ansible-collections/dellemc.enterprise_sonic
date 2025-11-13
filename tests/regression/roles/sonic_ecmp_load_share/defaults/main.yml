@@ -1,0 +1,107 @@
+---
+ansible_connection: httpapi
+
+sonic_ecmp_load_share_tests:
+  - name: test_case_01
+    description: Intial configuration of loadshare mode
+    state: merged
+    input:
+      hash_ingress_port: true
+      hash_algorithm: CRC
+      ipv4:
+        ipv4_src_ip: false
+        ipv4_dst_ip: false
+      ipv6:
+        ipv6_src_ip: false
+        ipv6_dst_ip: false
+
+  - name: test_case_02
+    description: Update loadshare mode configuration
+    state: merged
+    input:
+      hash_algorithm: CRC_32LO
+      hash_offset:
+        offset: 12
+        flow_based: true
+      hash_roce_qpn: true
+      hash_seed: 8888
+      ipv4:
+        ipv4_ip_proto: false
+        ipv4_l4_dst_port: false
+        ipv4_l4_src_port: false
+        ipv4_symmetric: false
+
+  - name: test_case_03
+    description: Replace loadshare mode configuration
+    state: replaced
+    input:
+      hash_algorithm: CRC_32LO
+      hash_ingress_port: true
+      hash_offset:
+        offset: 12
+        flow_based: true
+      hash_roce_qpn: true
+      hash_seed: 8888
+      ipv4:
+        ipv4_dst_ip: false
+        ipv4_src_ip: false
+
+  - name: test_case_04
+    description: Override loadshare mode configuration
+    state: overridden
+    input:
+      ipv4:
+        ipv4_dst_ip: true
+        ipv4_src_ip: true
+        ipv4_l4_dst_port: true
+        ipv4_l4_src_port: true
+        ipv4_symmetric: true
+      ipv6:
+        ipv6_dst_ip: true
+        ipv6_src_ip: true
+        ipv6_l4_dst_port: true
+        ipv6_l4_src_port: true
+        ipv6_symmetric: true
+
+  - name: test_case_05
+    description: Override loadshare mode configuration
+    state: overridden
+    input:
+      hash_algorithm: CRC_32HI
+      hash_ingress_port: true
+      hash_offset:
+        offset: 12
+        flow_based: true
+      hash_roce_qpn: true
+      hash_seed: 8888
+      ipv4:
+        ipv4_dst_ip: false
+        ipv4_src_ip: false
+        ipv4_l4_dst_port: false
+        ipv4_l4_src_port: false
+      ipv6:
+        ipv6_dst_ip: false
+        ipv6_src_ip: false
+        ipv6_l4_dst_port: false
+        ipv6_l4_src_port: false
+        ipv6_next_hdr: false
+
+  - name: test_case_06
+    description: Delete specified loadshare mode configuration
+    state: deleted
+    input:
+      hash_algorithm: CRC_32HI
+      hash_ingress_port: true
+      hash_roce_qpn: true
+      hash_seed: 8888
+      ipv4:
+        ipv4_l4_dst_port: false
+        ipv4_l4_src_port: false
+      ipv6:
+        ipv6_l4_dst_port: false
+        ipv6_l4_src_port: false
+
+  - name: test_case_7
+    description: Delete all loadshare mode configuration
+    state: deleted
+    input: {}

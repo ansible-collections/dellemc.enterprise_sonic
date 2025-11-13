@@ -1,6 +1,6 @@
 ---
 ansible_connection: httpapi
-module_name: mclag
+
 preparations_tests:
   add_vlans_input:
     - vlan_id: 4
@@ -111,12 +111,12 @@ merged_tests:
           - vlan: vlan31-35
 
 delete_all:
-  - name: del_all_test_case_01
+  - name: test_case_05
     description: Delete MCLAG properties
     state: deleted
 
 updated_tests:
-  - name: test_case_05
+  - name: test_case_06
     description: Create new MCLAG with all properties including vlans and portchannels
     state: merged
     input:
@@ -153,7 +153,7 @@ updated_tests:
           - lag: Po13
           - lag: Po12
 
-  - name: del_test_case_01
+  - name: test_case_07
     description: Delete MCLAG properties
     state: deleted
     input:
@@ -186,7 +186,7 @@ updated_tests:
         portchannels:
           - lag: Po13
 
-  - name: del_test_case_02
+  - name: test_case_08
     description: Delete MCLAG associated vlans and portchannels
     state: deleted
     input:
@@ -198,7 +198,7 @@ updated_tests:
       members:
         portchannels:
 
-  - name: del_test_case_03
+  - name: test_case_09
     description: Delete MCLAG system mac after deletion of backup keepalive session parameters.
     state: deleted
     input:
@@ -206,7 +206,7 @@ updated_tests:
       system_mac: 00:00:00:01:01:01
 
 replaced_overridden_tests:
-  - name: test_case_06
+  - name: test_case_10
     description: Create new MCLAG with all properties including VLANs and Portchannels
     state: merged
     input:
@@ -237,7 +237,7 @@ replaced_overridden_tests:
           - lag: Po10
           - lag: Po11
 
-  - name: test_case_07
+  - name: test_case_11
     description: Replace MCLAG Portchannels and VLANs
     state: replaced
     input:
@@ -256,7 +256,7 @@ replaced_overridden_tests:
           - lag: Po11
           - lag: Po12
 
-  - name: test_case_08
+  - name: test_case_12
     description: Replace MCLAG domain ID and properties
     state: replaced
     input:
@@ -286,7 +286,7 @@ replaced_overridden_tests:
           - lag: Po10
           - lag: Po12
 
-  - name: test_case_09
+  - name: test_case_13
     description: Replace MCLAG properties
     state: replaced
     input:
@@ -307,7 +307,7 @@ replaced_overridden_tests:
           - lag: Po10
           - lag: Po11
 
-  - name: test_case_10
+  - name: test_case_14
     description: Override MCLAG properties including VLANs and Portchannels
     state: overridden
     input:
@@ -334,3 +334,9 @@ replaced_overridden_tests:
         portchannels:
           - lag: Po10
           - lag: Po12
+
+  - name: test_case_15
+    description: Replace MCLAG properties with only a domain ID
+    state: replaced
+    input:
+      domain_id: 12

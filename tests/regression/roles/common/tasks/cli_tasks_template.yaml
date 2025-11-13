@@ -1,14 +1,21 @@
-- debug: msg="{{ base_cfg_path + item.name }}.cfg"
+---
+- name: Debug message
+  ansible.builtin.debug:
+    msg: "{{ base_cfg_path + item.name }}.cfg"
 
-- name: "Push CLI for validation"
+- name: Push CLI for validation
   vars:
     ansible_connection: network_cli
   sonic_config:
     src: "{{ base_cfg_path + item.name }}.cfg"
   register: cli_tests_output
-  ignore_errors: yes
-  
-- debug: var=cli_tests_output
-- import_role:
+  ignore_errors: true
+
+- name: Set var
+  ansible.builtin.debug:
+    var: cli_tests_output
+
+- name: Import role
+  ansible.builtin.import_role:
     name: common
     tasks_from: cli.test.facts.report.yaml

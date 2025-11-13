@@ -1,10 +1,9 @@
 ---
 ansible_connection: httpapi
-module_name: mgmt_servers 
 
-tests:
+sonic_mgmt_servers_tests:
   - name: test_case_01
-    description: Initial configuration of REST and telemetry servers 
+    description: Initial configuration of REST and telemetry servers
     state: merged
     input:
       rest:
@@ -15,8 +14,8 @@ tests:
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: False
-        vrf: mgmt 
+        shutdown: false
+        vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
         api_timeout: 45
@@ -76,7 +75,7 @@ tests:
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: False
+        shutdown: false
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256,ecdhe-ecdsa-with-aes-256-gcm-SHA384
       telemetry:
@@ -101,7 +100,7 @@ tests:
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: False
+        shutdown: false
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-256-gcm-SHA384,ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:
@@ -113,7 +112,7 @@ tests:
         port: 1234
         security_profile: profile2
         vrf: mgmt
- 
+
   - name: test_case_06
     description: Configure REST and telemetry servers for delete all
     state: merged
@@ -126,7 +125,7 @@ tests:
         read_timeout: 60
         req_limit: 100
         security_profile: profile1
-        shutdown: False
+        shutdown: false
         vrf: mgmt
         cipher_suite: ecdhe-ecdsa-with-aes-128-gcm-SHA256
       telemetry:

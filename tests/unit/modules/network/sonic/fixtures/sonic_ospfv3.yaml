@@ -1,0 +1,767 @@
+---
+merged_01:
+  module_args:
+    config:
+      - vrf_name: default
+        router_id: 10.10.10.10
+        distance:
+          external: 20
+        redistribute:
+          - protocol: kernel
+            metric: 15
+            metric_type: 2
+            route_map: rmap_reg1
+        graceful_restart:
+          enable: true
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            advertise_router_id:
+              - 20.10.10.10
+      - vrf_name: VrfReg1
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: bgp
+            metric: 15
+            metric_type: 2
+            route_map: rmap_reg1
+        auto_cost_reference_bandwidth: 155783
+        graceful_restart:
+          helper:
+            enable: true
+            planned_only: true
+            strict_lsa_checking: true
+            supported_grace_time: 30
+        log_adjacency_changes: detail
+    state: merged
+  existing_ospfv3_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          'sonic-vrf:VRF_LIST':
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+  expected_config_requests:
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      method: patch
+      data:
+        'openconfig-network-instance:ospfv3':
+          global:
+            config:
+              router-id: 10.10.10.10
+            graceful-restart:
+              config:
+                enabled: true
+                'openconfig-ospfv3-ext:grace-period': 100
+                helper-only: true
+                'openconfig-ospfv3-ext:planned-only': true
+              'openconfig-ospfv3-ext:helpers':
+                helper:
+                  - neighbour-id: 20.10.10.10
+                    config:
+                      neighbour-id: 20.10.10.10
+            'openconfig-ospfv3-ext:distance':
+              config:
+                external: 20
+            'openconfig-ospfv3-ext:route-distribution-policies':
+              distribute-list:
+                - protocol: KERNEL
+                  direction: IMPORT
+                  config:
+                    metric: 15
+                    'openconfig-ospfv3-ext:metric-type': TYPE_2
+                    route-map: rmap_reg1
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3
+      method: patch
+      data:
+        'openconfig-network-instance:ospfv3':
+          global:
+            'openconfig-ospfv3-ext:timers':
+              spf:
+                config:
+                  initial-delay: 20
+                  maximum-delay: 50
+                  throttle-delay: 10
+            'openconfig-ospfv3-ext:route-distribution-policies':
+              distribute-list:
+                - protocol: BGP
+                  direction: IMPORT
+                  config:
+                    metric: 15
+                    'openconfig-ospfv3-ext:metric-type': TYPE_2
+                    route-map: rmap_reg1
+            config:
+              'openconfig-ospfv3-ext:auto-cost-reference-bandwidth': 155783
+              'openconfig-ospfv3-ext:log-adjacency-state-changes': 'openconfig-ospfv3-ext:DETAIL'
+            graceful-restart:
+              config:
+                enabled: true
+                helper-only: true
+                'openconfig-ospfv3-ext:planned-only': true
+                'openconfig-ospfv3-ext:strict-lsa-checking': true
+                'openconfig-ospfv3-ext:supported-grace-time': 30
+merged_02:
+  module_args:
+    config:
+      - vrf_name: VrfReg2
+        write_multiplier: 20
+        router_id: 20.20.20.20
+        distance:
+          all: 30
+        redistribute:
+          - protocol: default_route
+            metric: 10
+            metric_type: 2
+            always: true
+          - protocol: kernel
+            metric: 15
+            metric_type: 2
+            route_map: rmap_reg2
+    state: merged
+  existing_ospfv3_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          'sonic-vrf:VRF_LIST':
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                router-id: 10.10.10.10
+                'openconfig-ospfv3-ext:enable': true
+              'openconfig-ospfv3-ext:distance':
+                config:
+                  external: 20
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:KERNEL'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:KERNEL'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                'openconfig-ospfv3-ext:enable': true
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:BGP'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:BGP'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+              'openconfig-ospfv3-ext:timers':
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    throttle-delay: 10
+  expected_config_requests:
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3
+      method: patch
+      data:
+        'openconfig-network-instance:ospfv3':
+          global:
+            config:
+              'openconfig-ospfv3-ext:write-multiplier': 20
+              router-id: 20.20.20.20
+            'openconfig-ospfv3-ext:distance':
+              config:
+                all: 30
+            'openconfig-ospfv3-ext:route-distribution-policies':
+              distribute-list:
+                - protocol: DEFAULT_ROUTE
+                  direction: IMPORT
+                  config:
+                    metric: 10
+                    always: true
+                    'openconfig-ospfv3-ext:metric-type': TYPE_2
+                - protocol: KERNEL
+                  direction: IMPORT
+                  config:
+                    metric: 15
+                    'openconfig-ospfv3-ext:metric-type': TYPE_2
+                    route-map: rmap_reg2
+deleted_01:
+  module_args:
+    config:
+      - vrf_name: VrfReg2
+        router_id: 20.20.20.20
+        graceful_restart:
+          grace_period: 100
+          helper:
+            enable: true
+            planned_only: true
+            advertise_router_id:
+              - 10.10.10.10
+      - vrf_name: VrfReg1
+        redistribute:
+          - protocol: bgp
+            metric: 15
+          - protocol: default_route
+            always: true
+    state: deleted
+  existing_ospfv3_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          'sonic-vrf:VRF_LIST':
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                router-id: 10.10.10.10
+                'openconfig-ospfv3-ext:enable': true
+                'openconfig-ospfv3-ext:auto-cost-reference-bandwidth': 444444
+                'openconfig-ospfv3-ext:log-adjacency-state-changes': 'openconfig-ospfv3-ext:DETAIL'
+              'openconfig-ospfv3-ext:distance':
+                config:
+                  external: 20
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:DEFAULT_ROUTE'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 10
+                      protocol: 'openconfig-ospfv3-ext:DEFAULT_ROUTE'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg2
+                      always: true
+                  - protocol: 'openconfig-ospfv3-ext:KERNEL'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:KERNEL'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg2
+              graceful-restart:
+                config:
+                  enabled: true
+                  helper-only: true
+                  'openconfig-ospfv3-ext:planned-only': true
+                  'openconfig-ospfv3-ext:strict-lsa-checking': true
+                  'openconfig-ospfv3-ext:supported-grace-time': 70
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                router-id: 20.20.20.20
+                'openconfig-ospfv3-ext:enable': true
+                'openconfig-ospfv3-ext:write-multiplier': 20
+              graceful-restart:
+                config:
+                  enabled: true
+                  'openconfig-ospfv3-ext:grace-period': 100
+                  helper-only: true
+                  'openconfig-ospfv3-ext:planned-only': true
+                'openconfig-ospfv3-ext:helpers':
+                  helper:
+                    - neighbour-id: 10.10.10.10
+                      config:
+                        neighbour-id: 10.10.10.10
+              'openconfig-ospfv3-ext:distance':
+                config:
+                  all: 30
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                'openconfig-ospfv3-ext:enable': true
+                'openconfig-ospfv3-ext:auto-cost-reference-bandwidth': 444444
+                'openconfig-ospfv3-ext:log-adjacency-state-changes': 'openconfig-ospfv3-ext:DETAIL'
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:BGP'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:BGP'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+                  - protocol: 'openconfig-ospfv3-ext:DEFAULT_ROUTE'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      always: true
+                      protocol: 'openconfig-ospfv3-ext:DEFAULT_ROUTE'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+              'openconfig-ospfv3-ext:timers':
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    throttle-delay: 10
+              graceful-restart:
+                config:
+                  enabled: true
+                  helper-only: true
+                  'openconfig-ospfv3-ext:planned-only': true
+                  'openconfig-ospfv3-ext:strict-lsa-checking': true
+                  'openconfig-ospfv3-ext:supported-grace-time': 70
+  expected_config_requests:
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:route-distribution-policies/distribute-list=BGP,IMPORT
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/global/openconfig-ospfv3-ext:route-distribution-policies/distribute-list=DEFAULT_ROUTE,IMPORT/config/always
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/config/router-id
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/graceful-restart/config/helper-only
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/graceful-restart/config/openconfig-ospfv3-ext:grace-period
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/graceful-restart/config/openconfig-ospfv3-ext:planned-only
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global/graceful-restart/openconfig-ospfv3-ext:helpers/helper=10.10.10.10
+      method: delete
+deleted_02:
+  module_args:
+    config: null
+    state: deleted
+  existing_ospfv3_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          'sonic-vrf:VRF_LIST':
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                router-id: 10.10.10.10
+                'openconfig-ospfv3-ext:enable': true
+              'openconfig-ospfv3-ext:distance':
+                config:
+                  external: 20
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:KERNEL'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:KERNEL'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                'openconfig-ospfv3-ext:enable': true
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:BGP'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:BGP'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+              'openconfig-ospfv3-ext:timers':
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    throttle-delay: 10
+  expected_config_requests:
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/global
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3/global
+      method: delete
+replaced_01:
+  module_args:
+    config:
+      - vrf_name: VrfReg2
+        write_multiplier: 20
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: bgp
+            metric: 15
+            metric_type: 2
+            route_map: rmap_reg1
+      - vrf_name: default
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: connected
+            metric: 15
+            metric_type: 2
+            route_map: rmap_reg1
+        auto_cost_reference_bandwidth: 111111
+        graceful_restart:
+          helper:
+            enable: true
+            planned_only: true
+            strict_lsa_checking: true
+            supported_grace_time: 30
+        log_adjacency_changes: brief
+    state: replaced
+  existing_ospfv3_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          'sonic-vrf:VRF_LIST':
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                router-id: 10.10.10.10
+                'openconfig-ospfv3-ext:enable': true
+              'openconfig-ospfv3-ext:distance':
+                config:
+                  external: 20
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:KERNEL'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:KERNEL'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                'openconfig-ospfv3-ext:enable': true
+                'openconfig-ospfv3-ext:write-multiplier': 20
+                'openconfig-ospfv3-ext:auto-cost-reference-bandwidth': 155783
+                'openconfig-ospfv3-ext:log-adjacency-state-changes': 'openconfig-ospfv3-ext:DETAIL'
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:BGP'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:BGP'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+              'openconfig-ospfv3-ext:timers':
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    throttle-delay: 10
+              graceful-restart:
+                config:
+                  enabled: true
+                  helper-only: true
+                  'openconfig-ospfv3-ext:planned-only': true
+                  'openconfig-ospfv3-ext:strict-lsa-checking': true
+                  'openconfig-ospfv3-ext:supported-grace-time': 30
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+  expected_config_requests:
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3
+      method: patch
+      data:
+        'openconfig-network-instance:ospfv3':
+          global:
+            config:
+              'openconfig-ospfv3-ext:write-multiplier': 20
+            'openconfig-ospfv3-ext:timers':
+              spf:
+                config:
+                  initial-delay: 20
+                  maximum-delay: 50
+                  throttle-delay: 10
+            'openconfig-ospfv3-ext:route-distribution-policies':
+              distribute-list:
+                - protocol: BGP
+                  direction: IMPORT
+                  config:
+                    metric: 15
+                    'openconfig-ospfv3-ext:metric-type': TYPE_2
+                    route-map: rmap_reg1
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      method: patch
+      data:
+        'openconfig-network-instance:ospfv3':
+          global:
+            'openconfig-ospfv3-ext:timers':
+              spf:
+                config:
+                  initial-delay: 20
+                  maximum-delay: 50
+                  throttle-delay: 10
+            'openconfig-ospfv3-ext:route-distribution-policies':
+              distribute-list:
+                - protocol: DIRECTLY_CONNECTED
+                  direction: IMPORT
+                  config:
+                    metric: 15
+                    'openconfig-ospfv3-ext:metric-type': TYPE_2
+                    route-map: rmap_reg1
+            config:
+              'openconfig-ospfv3-ext:auto-cost-reference-bandwidth': 111111
+              'openconfig-ospfv3-ext:log-adjacency-state-changes': 'openconfig-ospfv3-ext:BRIEF'
+            graceful-restart:
+              config:
+                enabled: true
+                helper-only: true
+                'openconfig-ospfv3-ext:planned-only': true
+                'openconfig-ospfv3-ext:strict-lsa-checking': true
+                'openconfig-ospfv3-ext:supported-grace-time': 30
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3/global
+      method: delete
+overridden_01:
+  module_args:
+    config:
+      - vrf_name: default
+        write_multiplier: 20
+        timers:
+          throttle_spf:
+            delay_time: 10
+            initial_hold_time: 20
+            maximum_hold_time: 50
+        redistribute:
+          - protocol: bgp
+            metric: 15
+            metric_type: 2
+            route_map: rmap_reg1
+        auto_cost_reference_bandwidth: 111111
+        log_adjacency_changes: brief
+    state: overridden
+  existing_ospfv3_config:
+    - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
+      response:
+        code: 200
+        value:
+          'sonic-vrf:VRF_LIST':
+            - vrf_name: default
+            - vrf_name: VrfReg1
+            - vrf_name: VrfReg2
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                router-id: 10.10.10.10
+                'openconfig-ospfv3-ext:enable': true
+                'openconfig-ospfv3-ext:auto-cost-reference-bandwidth': 155783
+                'openconfig-ospfv3-ext:log-adjacency-state-changes': 'openconfig-ospfv3-ext:DETAIL'
+              'openconfig-ospfv3-ext:distance':
+                config:
+                  external: 20
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:KERNEL'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:KERNEL'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+              graceful-restart:
+                config:
+                  enabled: true
+                  helper-only: true
+                  'openconfig-ospfv3-ext:planned-only': true
+                  'openconfig-ospfv3-ext:strict-lsa-checking': true
+                  'openconfig-ospfv3-ext:supported-grace-time': 30
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                'openconfig-ospfv3-ext:enable': true
+                'openconfig-ospfv3-ext:write-multiplier': 20
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:BGP'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:BGP'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+              'openconfig-ospfv3-ext:timers':
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    throttle-delay: 10
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3
+      response:
+        code: 200
+        value:
+          'openconfig-network-instance:ospfv3':
+            global:
+              config:
+                'openconfig-ospfv3-ext:enable': true
+              'openconfig-ospfv3-ext:route-distribution-policies':
+                distribute-list:
+                  - protocol: 'openconfig-ospfv3-ext:BGP'
+                    direction: 'openconfig-ospfv3-ext:IMPORT'
+                    config:
+                      metric: 15
+                      protocol: 'openconfig-ospfv3-ext:BGP'
+                      direction: 'openconfig-ospfv3-ext:IMPORT'
+                      metric-type: 'openconfig-ospfv3-ext:TYPE_2'
+                      route-map: rmap_reg1
+              'openconfig-ospfv3-ext:timers':
+                spf:
+                  config:
+                    initial-delay: 20
+                    maximum-delay: 50
+                    throttle-delay: 10
+  expected_config_requests:
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3/global
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF3,ospfv3/ospfv3/global
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF3,ospfv3/ospfv3/global
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF3,ospfv3/ospfv3
+      method: patch
+      data:
+        'openconfig-network-instance:ospfv3':
+          global:
+            config:
+              'openconfig-ospfv3-ext:write-multiplier': 20
+              'openconfig-ospfv3-ext:auto-cost-reference-bandwidth': 111111
+              'openconfig-ospfv3-ext:log-adjacency-state-changes': 'openconfig-ospfv3-ext:BRIEF'
+            'openconfig-ospfv3-ext:timers':
+              spf:
+                config:
+                  initial-delay: 20
+                  maximum-delay: 50
+                  throttle-delay: 10
+            'openconfig-ospfv3-ext:route-distribution-policies':
+              distribute-list:
+                - protocol: BGP
+                  direction: IMPORT
+                  config:
+                    metric: 15
+                    'openconfig-ospfv3-ext:metric-type': TYPE_2
+                    route-map: rmap_reg1

@@ -1,0 +1,6 @@
+---
+- name: Delete FBS policies
+  sonic_fbs_policies:
+    config:
+    state: deleted
+  failed_when: false

@@ -18,7 +18,7 @@ version_added: "2.5.0"
 short_description: Manage PoE configuration on SONiC
 description:
   - This module provides configuration management of PoE at global and card level for devices running SONiC
-author: "Shade Talabi (@stalabi1), Xiao Han (@Xiao_Han2)"
+author: "S. Talabi (@stalabi1), Xiao Han (@Xiao_Han2)"
 options:
   config:
     description:

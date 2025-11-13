@@ -1,29 +1,30 @@
+---
 - name: Delete existing logging configurations
   sonic_logging:
-    config: {} 
+    config: {}
     state: deleted
-  ignore_errors: yes
+  failed_when: false
 
 - name: Initialize loopback
   sonic_interfaces:
     config:
       - name: Loopback100
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
 - name: Initialize portchannel
   sonic_lag_interfaces:
     config:
       - name: PortChannel100
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
-- name: Initialize vlan
+- name: Initialize VLAN
   sonic_vlans:
     config:
       - vlan_id: 100
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
 - name: Create VRFs
   sonic_vrfs:
@@ -31,7 +32,7 @@
       - name: Vrf_logging_1
       - name: Vrf_logging_2
     state: merged
-  ignore_errors: yes
+  failed_when: false
 
 - name: Create security profiles
   sonic_pki:

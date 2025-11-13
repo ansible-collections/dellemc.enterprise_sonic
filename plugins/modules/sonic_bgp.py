@@ -51,7 +51,7 @@ options:
         description:
           - Specify the AS number notation format
           - Option supported on Enterprise-Sonic releases 4.4.0 and higher.
-        choices: [ 'asdot', 'asdot+' ]
+        choices: ['asdot', 'asdot+']
         type: str
       max_med:
         description:
@@ -134,6 +134,16 @@ options:
                 description:
                   - Configures the multipath_relax_as_set values of as-path.
                 type: bool
+          bandwidth:
+            version_added: 3.1.0
+            description:
+              - Link Bandwidth attribute for the bestpath selection process
+              - Options are as follows
+              - default_weight - Assign a low default weight (value 1) to paths not having link bandwidth
+              - ignore_weight - Ignore link bandwidth (i.e., do regular ECMP, not weighted)
+              - skip_missing - Ignore paths without link bandwidth for ECMP (if other paths have it)
+            choices: ['default_weight', 'ignore_weight', 'skip_missing']
+            type: str
           compare_routerid:
             description:
               - Configures the compare_routerid.
@@ -200,6 +210,7 @@ EXAMPLES = """
 #  bestpath as-path confed
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth default-weight
 # !
 #
 - name: Delete BGP Global attributes
@@ -218,6 +229,7 @@ EXAMPLES = """
             ignore: true
             multipath_relax: false
             multipath_relax_as_set: true
+          bandwidth: default_weight
           compare_routerid: true
           med:
             confed: true
@@ -277,6 +289,7 @@ EXAMPLES = """
 #  bestpath as-path ignore
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth ignore-weight
 # !
 # router bgp 4
 #  router-id 10.2.2.4
@@ -328,6 +341,7 @@ EXAMPLES = """
             ignore: true
             multipath_relax: false
             multipath_relax_as_set: true
+          bandwidth: ignore-weight
           compare_routerid: true
           med:
             confed: true
@@ -381,6 +395,7 @@ EXAMPLES = """
 #  bestpath as-path confed
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth ignore-weight
 #  always-compare-med
 #  max-med on-startup 667 7878
 #  timers 20 30
@@ -406,6 +421,7 @@ EXAMPLES = """
 #  bestpath as-path confed
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth default-weight
 #  timers 20 30
 # !
 #
@@ -419,6 +435,7 @@ EXAMPLES = """
         bestpath:
           as_path:
             confed: true
+          bandwidth: skip_missing
           compare_routerid: true
       - bgp_as: 11
         vrf_name: 'VrfCheck2'
@@ -458,6 +475,7 @@ EXAMPLES = """
 #  log-neighbor-changes
 #  bestpath as-path confed
 #  bestpath compare-routerid
+#  bestpath bandwidth skip_missing
 #  timers 60 180
 # !
 
@@ -480,6 +498,7 @@ EXAMPLES = """
 #  bestpath as-path confed
 #  bestpath med missing-as-worst confed
 #  bestpath compare-routerid
+#  bestpath bandwidth default-weight
 #  timers 20 30
 # !
 #

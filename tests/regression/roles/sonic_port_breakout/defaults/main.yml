@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: port_breakout
 
-tests:
+sonic_port_breakout_tests:
   - name: test_case_01
     description: Configure breakout mode for ports
     state: merged
@@ -19,6 +18,7 @@ tests:
         mode: 4x10G
       - name: 1/102
         mode: 4x25G
+
   - name: test_case_02
     description: Update breakout mode for ports
     state: merged
@@ -27,11 +27,13 @@ tests:
         mode: 2x50G
       - name: 1/98
         mode: 4x10G
+
   - name: test_case_03
     description: delete specific port breakout mode
     state: deleted
     input:
       - name: 1/98
+
   - name: test_case_04
     description: Replace breakout mode for ports
     state: replaced
@@ -40,6 +42,7 @@ tests:
         mode: 4x10G
       - name: 1/98
         mode: 4x10G
+
   - name: test_case_05
     description: Override breakout mode for ports
     state: overridden
@@ -48,6 +51,7 @@ tests:
         mode: 4x10G
       - name: 1/101
         mode: 2x50G
+
   - name: test_case_06
     description: deleting all the port breakout modes
     state: deleted

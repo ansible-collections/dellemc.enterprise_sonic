@@ -128,6 +128,43 @@ class AaaFacts(object):
         if authorization_dict:
             config_dict['authorization'] = authorization_dict
 
+        # Accounting configuration handling
+        accounting_dict = {}
+        commands_acct_cfg = self.get_config(module, 'accounting/openconfig-system-ext:commands/config', 'openconfig-system-ext:config')
+        if commands_acct_cfg:
+            commands_acct_dict = {}
+            accounting_method = commands_acct_cfg.get('accounting-method')
+            accounting_record_type = commands_acct_cfg.get('accounting-record-type')
+            accounting_console_exempt = commands_acct_cfg.get('accounting-console-exempt')
+
+            if accounting_method:
+                commands_acct_dict['accounting_method'] = accounting_method
+            if accounting_record_type:
+                commands_acct_dict['accounting_record_type'] = accounting_record_type.lower().replace('_', '-')
+            if accounting_console_exempt is not None:
+                commands_acct_dict['accounting_console_exempt'] = accounting_console_exempt
+            if commands_acct_dict:
+                accounting_dict['commands_accounting'] = commands_acct_dict
+
+        session_acct_cfg = self.get_config(module, 'accounting/openconfig-system-ext:session/config', 'openconfig-system-ext:config')
+        if session_acct_cfg:
+            session_acct_dict = {}
+            accounting_method = session_acct_cfg.get('accounting-method')
+            accounting_record_type = session_acct_cfg.get('accounting-record-type')
+            accounting_console_exempt = session_acct_cfg.get('accounting-console-exempt')
+
+            if accounting_method:
+                session_acct_dict['accounting_method'] = accounting_method
+            if accounting_record_type:
+                session_acct_dict['accounting_record_type'] = accounting_record_type.lower().replace('_', '-')
+            if accounting_console_exempt is not None:
+                session_acct_dict['accounting_console_exempt'] = accounting_console_exempt
+            if session_acct_dict:
+                accounting_dict['session_accounting'] = session_acct_dict
+
+        if accounting_dict:
+            config_dict['accounting'] = accounting_dict
+
         # Name-service configuration handling
         name_service_cfg = self.get_config(module, 'openconfig-aaa-ext:name-service/config', 'openconfig-aaa-ext:config')
         if name_service_cfg:

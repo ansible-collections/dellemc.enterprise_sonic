@@ -55,7 +55,6 @@ class Bgp_neighbors_afArgs(object):  # pylint: disable=R0903
                                     'type': 'str'
                                 },
                                 'allowas_in': {
-                                    'mutually_exclusive': [['origin', 'value']],
                                     'options': {
                                         'origin': {'type': 'bool'},
                                         'value': {'type': 'int'}

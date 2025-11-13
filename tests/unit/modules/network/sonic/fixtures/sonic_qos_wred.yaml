@@ -1,10 +1,11 @@
+---
 merged_01:
   module_args:
     config:
       - name: profile1
         ecn: all
         green:
-          enable: True
+          enable: true
           min_threshold: 1000
           max_threshold: 5000
           drop_probability: 25
@@ -49,7 +50,7 @@ replaced_01:
     config:
       - name: profile1
         green:
-          enable: False
+          enable: false
           drop_probability: 80
         yellow:
           enable: False
@@ -90,7 +91,7 @@ replaced_01:
           - name: profile1
             config:
               name: profile1
-              wred-green-enable: False
+              wred-green-enable: false
               green-drop-probability: '80'
               wred-yellow-enable: False
               yellow-drop-probability: '100'
@@ -101,7 +102,7 @@ overridden_01:
       - name: profile2
         ecn: all
         green:
-          enable: True
+          enable: true
           min_threshold: 3000
           max_threshold: 9000
           drop_probability: 75
@@ -171,7 +172,7 @@ deleted_01:
       - name: profile2
         ecn: all
         green:
-          enable: True
+          enable: true
           min_threshold: 3000
           max_threshold: 9000
           drop_probability: 75

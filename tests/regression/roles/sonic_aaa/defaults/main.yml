@@ -13,6 +13,18 @@ sonic_aaa_tests:
         console_auth_local: true
         failthrough: true
         mfa_auth_method: 'rsa-securid'
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+            - logging
+          accounting_record_type: 'start-stop'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'stop-only'
+          accounting_console_exempt: true
       authorization:
         commands_auth_method:
           - local
@@ -51,6 +63,15 @@ sonic_aaa_tests:
         console_auth_local: false
         failthrough: false
         login_mfa_console: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'stop-only'
+        session_accounting:
+          accounting_method:
+            - tacacs+
+            - logging
       authorization:
         commands_auth_method:
           - tacacs+
@@ -82,6 +103,15 @@ sonic_aaa_tests:
           - cac-piv
           - local
         console_auth_local: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'stop-only'
       authorization:
         login_auth_method:
           - local
@@ -101,6 +131,17 @@ sonic_aaa_tests:
         failthrough: true
         mfa_auth_method: 'rsa-securid'
         login_mfa_console: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+          accounting_record_type: 'start-stop'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_record_type: 'start-stop'
+          accounting_console_exempt: true
       authorization:
         commands_auth_method:
           - local
@@ -140,6 +181,15 @@ sonic_aaa_tests:
         failthrough: true
         mfa_auth_method: 'rsa-securid'
         login_mfa_console: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - tacacs+
+          accounting_record_type: 'start-stop'
+        session_accounting:
+          accounting_method:
+            - logging
+          accounting_console_exempt: true
       authorization:
         commands_auth_method:
           - local
@@ -179,6 +229,19 @@ sonic_aaa_tests:
         failthrough: false
         mfa_auth_method: 'rsa-securid'
         login_mfa_console: true
+      accounting:
+        commands_accounting:
+          accounting_method:
+            - logging
+            - tacacs+
+          accounting_record_type: 'start-stop'
+          accounting_console_exempt: true
+        session_accounting:
+          accounting_method:
+            - logging
+            - tacacs+
+          accounting_record_type: 'stop-only'
+          accounting_console_exempt: true
       authorization:
         commands_auth_method:
           - tacacs+
