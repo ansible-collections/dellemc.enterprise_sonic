@@ -42,11 +42,6 @@ from ansible.module_utils.connection import ConnectionError
 
 PATCH = 'patch'
 DELETE = 'delete'
-DEFAULT_PORT = 5555
-DEFAULT_CONN_TMOUT = 20
-DEFAULT_READ_TMOUT = 120
-DEFAULT_CERT_UN_MATCH = 'username-as-is'
-DEFAULT_CERT_UN_FIELD = 'common-name-or-user-principal-name'
 
 mfa_global_std_paths = {
     'key_seed': 'key-seed',
@@ -58,6 +53,23 @@ cac_piv_global_std_paths = {
     'cert_username_field': 'cert-username-field',
     'cert_username_match': 'cert-username-match',
     'security_profile': 'cacpiv-security-profile',
+}
+
+MFA_DEFAULTS = {
+    'mfa_global': {
+        'key_seed_encrypted': True,
+        'client_secret_encrypted': True
+    },
+    'rsa_servers': {
+        'client_key_encrypted': True,
+        'server_port': 5555,
+        'connection_timeout': 20,
+        'read_timeout': 120
+    },
+    'cac_piv_global': {
+        'cert_username_field': 'common-name-or-user-principal-name',
+        'cert_username_match': 'username-as-is'
+    }
 }
 
 TEST_KEYS = [
@@ -396,14 +408,10 @@ class Mfa(ConfigBase):
                         continue
                     else:
                         config_key = key.replace('_', '-')
-                        if key == 'connection_timeout' and DEFAULT_CONN_TMOUT != value:
-                            config_dict[config_key] = value
-                        elif key == 'read_timeout' and DEFAULT_READ_TMOUT != value:
-                            config_dict[config_key] = value
-                        elif key == 'server_port' and DEFAULT_PORT != value:
-                            config_dict[config_key] = value
-                        else:
-                            config_dict[config_key] = value
+                        default_val = MFA_DEFAULTS['rsa_servers'].get(key)
+                        if key != 'client_key_encrypted' and default_val is not None and value == default_val:
+                            continue
+                        config_dict[config_key] = value
             if config_dict:
                 rsa_server_dict['hostname'] = hostname
                 rsa_server_dict['config'] = config_dict
@@ -427,7 +435,7 @@ class Mfa(ConfigBase):
                         continue
                     elif key in ['cert_username_field', 'cert_username_match']:
                         config_key = key.replace('_', '-')
-                        if not have or (DEFAULT_CERT_UN_FIELD not in value if key == 'cert_username_field' else DEFAULT_CERT_UN_MATCH not in value):
+                        if value != MFA_DEFAULTS['cac_piv_global'].get(key) or not have:
                             config_dict[config_key] = value
             if config_dict:
                 payload = {'openconfig-mfa:cac-piv-global': {'config': config_dict}}
@@ -603,24 +611,22 @@ class Mfa(ConfigBase):
         return {'path': url, 'method': DELETE}
 
     def remove_default_entries(self, data):
-        mfa_defaults = {'mfa_global': ['key_seed_encrypted', 'client_secret_encrypted'],
-                        'rsa_servers': ['client_key_encrypted', 'server_port', 'connection_timeout', 'read_timeout'],
-                        'cac_piv_global': ['cert_username_field', 'cert_username_match']}
-        for key, values in mfa_defaults.items():
-            if data.get(key):
-                if key == 'rsa_servers':
-                    for rsa_server in data[key]:
-                        for value in values:
-                            if rsa_server.get(value) in [True, DEFAULT_PORT, DEFAULT_CONN_TMOUT, DEFAULT_READ_TMOUT]:
-                                rsa_server.pop(value)
-                    if not any(data[key]):
-                        data.pop(key)
+        for section, defaults in MFA_DEFAULTS.items():
+            if section in data:
+                if section == 'rsa_servers':
+                    for rsa_server in data[section]:
+                        for key, default_val in defaults.items():
+                            if rsa_server.get(key) == default_val:
+                                rsa_server.pop(key)
+                    if not any(data[section]):
+                        data.pop(section)
                 else:
-                    for value in values:
-                        if data[key].get(value) in [True, DEFAULT_CERT_UN_FIELD, DEFAULT_CERT_UN_MATCH]:
-                            data[key].pop(value)
-                    if not data[key]:
-                        data.pop(key)
+                    for key, default_val in defaults.items():
+                        if data[section].get(key) == default_val:
+                            data[section].pop(key)
+                    if not data[section]:
+                        data.pop(section)
+
 
     def get_replaced_config(self, want, have):
         config_dict = {}
@@ -680,19 +686,18 @@ class Mfa(ConfigBase):
 
     def _post_process_generated_output(self, config):
         if "mfa_global" in config:
-            if "key_seed" in config["mfa_global"]:
-                config["mfa_global"].setdefault("key_seed_encrypted", False)
-            if "client_secret" in config["mfa_global"]:
-                config["mfa_global"].setdefault("client_secret_encrypted", False)
+            for key, default_val in MFA_DEFAULTS['mfa_global'].items():
+                config["mfa_global"].setdefault(key, default_val)
+
         if "rsa_servers" in config:
             for server in config["rsa_servers"]:
-                server.setdefault("client_key_encrypted", False)
-                server.setdefault("server_port", DEFAULT_PORT)
-                server.setdefault("connection_timeout", DEFAULT_CONN_TMOUT)
-                server.setdefault("read_timeout", DEFAULT_READ_TMOUT)
+                for key, default_val in MFA_DEFAULTS['rsa_servers'].items():
+                    server.setdefault(key, default_val)
             if not config["rsa_servers"]:
                 config.pop("rsa_servers")
+
         if "cac_piv_global" in config:
-            config["cac_piv_global"].setdefault("cert_username_field", DEFAULT_CERT_UN_FIELD)
-            config["cac_piv_global"].setdefault("cert_username_match", DEFAULT_CERT_UN_MATCH)
+            for key, default_val in MFA_DEFAULTS['cac_piv_global'].items():
+                config["cac_piv_global"].setdefault(key, default_val)
+
         return config
