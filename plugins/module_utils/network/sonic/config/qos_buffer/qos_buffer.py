@@ -139,6 +139,7 @@ class Qos_buffer(ConfigBase):
         """
         want = remove_empties(self._module.params['config'])
         have = existing_qos_buffer_facts
+
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -169,7 +170,7 @@ class Qos_buffer(ConfigBase):
         """
         diff = self.get_modify_diff(want, have)
         commands = diff
-        requests = self.get_modify_qos_buffer_request(commands)
+        requests = self.get_modify_qos_buffer_request(commands, have)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
@@ -192,8 +193,8 @@ class Qos_buffer(ConfigBase):
             commands = deepcopy(have)
             is_delete_all = True
         else:
-            del_diff = get_diff(want, have, TEST_KEYS)
-            commands = get_diff(want, del_diff, TEST_KEYS)
+            diff = get_diff(want, have, TEST_KEYS)
+            commands = get_diff(want, diff, TEST_KEYS)
 
         if commands:
             requests = self.get_delete_qos_buffer_requests(commands, is_delete_all)
@@ -204,11 +205,12 @@ class Qos_buffer(ConfigBase):
 
         return commands, requests
 
-    def get_modify_qos_buffer_request(self, commands):
+    def get_modify_qos_buffer_request(self, commands, have):
         """ Returns a list of requests to modify the QoS buffer configuration"""
         requests = []
         buffer_dict = {}
         buffer_init = commands.get('buffer_init')
+        cfg_buffer_init = have.get('buffer_init')
         buffer_pools = commands.get('buffer_pools')
         buffer_profiles = commands.get('buffer_profiles')
 
@@ -220,6 +222,8 @@ class Qos_buffer(ConfigBase):
                     self._module.fail_json(msg='Buffer must be initialized to configure buffer pools and buffer profiles.')
                 payload = {'openconfig-qos-private:input': {'operation': 'CLEAR'}}
             requests.append({'path': BUFFER_INIT_PATH, 'method': 'post', 'data': payload})
+        elif not cfg_buffer_init and (buffer_pools or buffer_profiles):
+            self._module.fail_json(msg='Buffer must be initialized to configure buffer pools and buffer profiles.')
 
         if buffer_pools:
             buffer_pool_list = []
