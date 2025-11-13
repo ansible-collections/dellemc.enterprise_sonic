@@ -46,14 +46,14 @@
   sonic_qos_wred:
     config:
       - name: profile1
-        ecn: green
+        ecn: all
         green:
           enable: true
           min_threshold: 1000
           max_threshold: 5000
           drop_probability: 25
       - name: profile2
-        ecn: green
+        ecn: all
         green:
           enable: true
           min_threshold: 12000
