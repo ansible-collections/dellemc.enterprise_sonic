@@ -10,12 +10,12 @@ merged_01:
           max_threshold: 5000
           drop_probability: 25
         red:
-          enable: True
+          enable: true
           min_threshold: 1000
           max_threshold: 5000
           drop_probability: 50
         yellow:
-          enable: True
+          enable: true
           min_threshold: 1000
           max_threshold: 5000
           drop_probability: 30
@@ -53,7 +53,7 @@ replaced_01:
           enable: false
           drop_probability: 80
         yellow:
-          enable: False
+          enable: false
           drop_probability: 100
     state: replaced
   existing_qos_wred_config:
@@ -107,12 +107,12 @@ overridden_01:
           max_threshold: 9000
           drop_probability: 75
         red:
-          enable: True
+          enable: true
           min_threshold: 4000
           max_threshold: 10000
           drop_probability: 75
         yellow:
-          enable: True
+          enable: true
           min_threshold: 3000
           max_threshold: 9000
           drop_probability: 75
@@ -177,7 +177,7 @@ deleted_01:
           max_threshold: 9000
           drop_probability: 75
         red:
-          enable: True
+          enable: true
           min_threshold: 4000
           max_threshold: 10000
           drop_probability: 75
