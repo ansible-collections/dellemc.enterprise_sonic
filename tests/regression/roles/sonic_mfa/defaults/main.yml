@@ -60,7 +60,7 @@ sonic_mfa_tests:
         cert_username_field: 'common-name'
         cert_username_match: '10digit-username'
         security_profile: 'cSecurityProfile'
- 
+
   - name: test_case_05
     description: Delete RSA server using hostname
     state: deleted
