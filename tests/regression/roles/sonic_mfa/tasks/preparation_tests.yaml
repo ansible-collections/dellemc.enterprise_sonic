@@ -13,52 +13,12 @@
   register: cmd_op
   failed_when: false
 
-- name: Crypto security profile ca-cert configurations
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: ['crypto trust-store tStore ca-cert rsa.ca.cert']
-    save: yes
-  failed_when: false
-
-- name: Crypto security profile ca-cert configurations
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: ['crypto security-profile rSecurityProfile']
-    save: yes
-  failed_when: false
-
-- name: Crypto security profile ca-cert configurations
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: ['crypto security-profile trust-store rSecurityProfile tStore']
-    save: yes
-  failed_when: false
-
 - name: Install MFA host certs
   vars:
     ansible_connection: network_cli
   dellemc.enterprise_sonic.sonic_command:
     commands: 'crypto cert install cert-file home://ciamcert.pem key-file home://ciamkey.pem'
   register: cmd_op
-  failed_when: false
-
-- name: Crypto security profile host certificate configurations
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: ['crypto security-profile mSecurityProfile']
-    save: yes
-  failed_when: false
-
-- name: Crypto security profile host certificate configurations
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: ['crypto security-profile certificate mSecurityProfile ciamcert']
-    save: yes
   failed_when: false
 
 - name: Install CAC-PIV CA cert
@@ -69,26 +29,22 @@
   register: cmd_op
   failed_when: false
 
-- name: Crypto security profile ca-cert configurations
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: ['crypto trust-store cStore ca-cert cacpiv_ca_cert']
-    save: yes
-  failed_when: false
-
-- name: Crypto security profile ca-cert configurations
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: ['crypto security-profile cSecurityProfile']
-    save: yes
-  failed_when: false
-
-- name: Crypto security profile ca-cert configurations
-  vars:
-    ansible_connection: network_cli
-  dellemc.enterprise_sonic.sonic_config:
-    commands: ['crypto security-profile trust-store cSecurityProfile cStore']
-    save: yes
+- name: "Crypto security-profile configurations"
+  sonic_pki:
+    config:
+      trust_stores:
+        - name: tStore
+          ca_name:
+            - rsa.ca.cert
+        - name: cStore
+          ca_name:
+            - cacpiv_ca_cert
+      security_profiles:
+        - profile_name: rSecurityProfile
+          trust_store: tStore
+        - profile_name: mSecurityProfile
+          certificate_name: ciamcert
+        - profile_name: cSecurityProfile
+          trust_store: cStore
+    state: merged
   failed_when: false

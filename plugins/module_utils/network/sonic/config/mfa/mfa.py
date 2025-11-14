@@ -627,7 +627,6 @@ class Mfa(ConfigBase):
                     if not data[section]:
                         data.pop(section)
 
-
     def get_replaced_config(self, want, have):
         config_dict = {}
         requests = []
