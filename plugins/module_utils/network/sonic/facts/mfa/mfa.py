@@ -56,9 +56,7 @@ class MfaFacts(object):
 
         if not data:
             mfa_cfg = self.get_all_mfa_configs(self._module)
-            data = self.update_mfa(mfa_cfg)
-
-        objs = self.render_config(self.generated_spec, data)
+            objs = self.update_mfa(mfa_cfg)
 
         ansible_facts['ansible_network_resources'].pop('mfa', None)
         facts = {}
@@ -158,7 +156,9 @@ class MfaFacts(object):
         cac_piv_global = data.get('cac-piv-global', {})
         cac_piv_global_config = cac_piv_global.get('config', {})
         cac_piv_global_dict['security_profile'] = cac_piv_global_config.get('cacpiv-security-profile')
-        cac_piv_global_dict['cert_username_field'] = cac_piv_global_config.get('cert-username-field')
-        cac_piv_global_dict['cert_username_match'] = cac_piv_global_config.get('cert-username-match')
+        if cac_piv_global_config.get('cert-username-field') is not None:
+            cac_piv_global_dict['cert_username_field'] = cac_piv_global_config.get('cert-username-field')
+        if cac_piv_global_config.get('cert-username-match') is not None:
+            cac_piv_global_dict['cert_username_match'] = cac_piv_global_config.get('cert-username-match')
 
         return cac_piv_global_dict
