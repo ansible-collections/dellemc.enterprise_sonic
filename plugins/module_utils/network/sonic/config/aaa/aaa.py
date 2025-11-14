@@ -39,9 +39,13 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 AAA_AUTHENTICATION_PATH = '/data/openconfig-system:system/aaa/authentication/config'
 AAA_AUTHORIZATION_PATH = '/data/openconfig-system:system/aaa/authorization'
+AAA_COMMANDS_ACCOUNTING_PATH = '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:commands/config'
+AAA_SESSION_ACCOUNTING_PATH = '/data/openconfig-system:system/aaa/accounting/openconfig-system-ext:session/config'
 AAA_NAME_SERVICE_PATH = '/data/openconfig-system:system/aaa/openconfig-aaa-ext:name-service/config'
 PATCH = 'patch'
 DELETE = 'delete'
+ACCOUNTING_PATHS = {'commands_accounting': AAA_COMMANDS_ACCOUNTING_PATH,
+                    'session_accounting': AAA_SESSION_ACCOUNTING_PATH}
 
 
 class Aaa(ConfigBase):
@@ -290,6 +294,26 @@ class Aaa(ConfigBase):
                     payload = {'openconfig-system:config': authentication_cfg_dict}
                     requests.append({'path': AAA_AUTHENTICATION_PATH, 'method': PATCH, 'data': payload})
 
+            # Accounting modification handling
+            accounting = commands.get('accounting')
+            if accounting:
+                for acct_key, path in ACCOUNTING_PATHS.items():
+                    acct_data = accounting.get(acct_key)
+                    if acct_data:
+                        accounting_cfg_dict = {}
+                        accounting_method = acct_data.get('accounting_method')
+                        accounting_record_type = acct_data.get('accounting_record_type')
+                        accounting_console_exempt = acct_data.get('accounting_console_exempt')
+                        if accounting_method:
+                            accounting_cfg_dict['accounting-method'] = accounting_method
+                        if accounting_record_type:
+                            accounting_cfg_dict['accounting-record-type'] = accounting_record_type.upper().replace('-', '_')
+                        if accounting_console_exempt is not None:
+                            accounting_cfg_dict['accounting-console-exempt'] = accounting_console_exempt
+                        if accounting_cfg_dict:
+                            payload = {'openconfig-system-ext:config': accounting_cfg_dict}
+                            requests.append({'path': path, 'method': PATCH, 'data': payload})
+
             # Authorization modification handling
             authorization = commands.get('authorization')
             if authorization:
@@ -341,6 +365,9 @@ class Aaa(ConfigBase):
             requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, None))
             requests.append(self.get_delete_request(AAA_AUTHORIZATION_PATH, None))
             requests.append(self.get_delete_request(AAA_NAME_SERVICE_PATH, None))
+            if commands.get('accounting'):
+                requests.append(self.get_delete_request(AAA_COMMANDS_ACCOUNTING_PATH, None))
+                requests.append(self.get_delete_request(AAA_SESSION_ACCOUNTING_PATH, None))
             return requests
 
         # Authentication deletion handling
@@ -364,6 +391,20 @@ class Aaa(ConfigBase):
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'openconfig-mfa:mfa-authentication-method'))
             if login_mfa_console is not None:
                 requests.append(self.get_delete_request(AAA_AUTHENTICATION_PATH, 'openconfig-mfa:login-mfa-console'))
+
+        # Accounting deletion handling
+        accounting = commands.get('accounting')
+        if accounting:
+            for acct_key, path in ACCOUNTING_PATHS.items():
+                acct_data = accounting.get(acct_key)
+                if acct_data:
+                    if acct_data.get('accounting_method'):
+                        requests.append(self.get_delete_request(path, 'accounting-method'))
+                    if acct_data.get('accounting_record_type'):
+                        requests.append(self.get_delete_request(path, 'accounting-record-type'))
+                    # Default is false
+                    if acct_data.get('accounting_console_exempt'):
+                        requests.append(self.get_delete_request(path, 'accounting-console-exempt'))
 
         # Authorization deletion handling
         authorization = commands.get('authorization')
@@ -446,6 +487,39 @@ class Aaa(ConfigBase):
             else:
                 cfg_dict['authentication'] = authentication
 
+        # Accounting diff handling
+        accounting = base_cfg.get('accounting')
+        if accounting:
+            accounting_dict = {}
+            for acct_type in ('commands_accounting', 'session_accounting'):
+                acct = accounting.get(acct_type)
+                if acct:
+                    accounting_method = acct.get('accounting_method')
+                    accounting_record_type = acct.get('accounting_record_type')
+                    accounting_console_exempt = acct.get('accounting_console_exempt')
+                    compare_accounting = compare_cfg.get('accounting')
+                    if compare_accounting:
+                        compare_acct = compare_accounting.get(acct_type)
+                        if compare_acct:
+                            acct_dict = {}
+                            compare_accounting_method = compare_acct.get('accounting_method')
+                            compare_accounting_record_type = compare_acct.get('accounting_record_type')
+                            compare_accounting_console_exempt = compare_acct.get('accounting_console_exempt')
+                            if accounting_method and accounting_method != compare_accounting_method:
+                                acct_dict['accounting_method'] = accounting_method
+                            if accounting_record_type and accounting_record_type != compare_accounting_record_type:
+                                acct_dict['accounting_record_type'] = accounting_record_type
+                            if accounting_console_exempt is not None and accounting_console_exempt != compare_accounting_console_exempt:
+                                acct_dict['accounting_console_exempt'] = accounting_console_exempt
+                            if acct_dict:
+                                accounting_dict[acct_type] = acct_dict
+                        else:
+                            accounting_dict[acct_type] = acct
+                    else:
+                        accounting_dict[acct_type] = acct
+            if accounting_dict:
+                cfg_dict['accounting'] = accounting_dict
+
         # Authorization diff handling
         authorization = base_cfg.get('authorization')
         if authorization:
@@ -507,15 +581,19 @@ class Aaa(ConfigBase):
         self.remove_default_entries(have)
         authentication = want.get('authentication')
         authorization = want.get('authorization')
+        accounting = want.get('accounting')
         name_service = want.get('name_service')
         cfg_authentication = have.get('authentication')
         cfg_authorization = have.get('authorization')
+        cfg_accounting = have.get('accounting')
         cfg_name_service = have.get('name_service')
 
         if authentication and cfg_authentication and authentication != cfg_authentication:
             config_dict['authentication'] = cfg_authentication
         if authorization and cfg_authorization and authorization != cfg_authorization:
             config_dict['authorization'] = cfg_authorization
+        if accounting and cfg_accounting and accounting != cfg_accounting:
+            config_dict['accounting'] = cfg_accounting
         if name_service and cfg_name_service and name_service != cfg_name_service:
             config_dict['name_service'] = cfg_name_service
 
@@ -525,6 +603,7 @@ class Aaa(ConfigBase):
         if data:
             authentication = data.get('authentication')
             authorization = data.get('authorization')
+            accounting = data.get('accounting')
             name_service = data.get('name_service')
 
             if authentication:
@@ -543,6 +622,19 @@ class Aaa(ConfigBase):
                     data['authorization'].pop('login_auth_method')
                 if not data['authorization']:
                     data.pop('authorization')
+            if accounting:
+                default_entries = {'accounting_console_exempt': False}
+                for acct_key in ('commands_accounting', 'session_accounting'):
+                    acct_data = accounting.get(acct_key)
+                    if acct_data:
+                        if 'accounting_method' in acct_data and not acct_data['accounting_method']:
+                            acct_data.pop('accounting_method')
+                        for option, value in default_entries.items():
+                            acct_data.setdefault(option, value)
+                        if acct_data == default_entries:
+                            accounting.pop(acct_key)
+                if not accounting:
+                    data.pop('accounting')
             if name_service:
                 for method in ('group', 'netgroup', 'passwd', 'shadow', 'sudoers'):
                     if method in name_service and not name_service[method]:
@@ -560,3 +652,13 @@ class Aaa(ConfigBase):
                     authentication.pop('login_mfa_console')
                 if not authentication:
                     data.pop('authentication')
+            accounting = data.get('accounting')
+            if accounting:
+                for acct_key in ('commands_accounting', 'session_accounting'):
+                    acct_data = accounting.get(acct_key)
+                    if acct_data and acct_data.get('accounting_console_exempt') is False:
+                        acct_data.pop('accounting_console_exempt')
+                        if not acct_data:
+                            accounting.pop(acct_key)
+                if not accounting:
+                    data.pop('accounting')
