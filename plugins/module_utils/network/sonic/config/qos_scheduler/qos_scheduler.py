@@ -1,12 +1,12 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
 The sonic_qos_scheduler class
-It is in this file where the current configuration (as dict)
-is compared to the provided configuration (as dict) and the command set
+It is in this file where the current configuration (as list)
+is compared to the provided configuration (as list) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
@@ -23,12 +23,11 @@ from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.u
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
-    get_replaced_config,
     remove_empties_from_list,
     update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    __DELETE_OP_DEFAULT,
     get_new_config,
     get_formatted_config_diff
 )
@@ -38,7 +37,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
-
+delete_all = False
+is_replaced = False
 QOS_SCHEDULER_PATH = '/data/openconfig-qos:qos/scheduler-policies'
 PATCH = 'patch'
 DELETE = 'delete'
@@ -46,9 +46,18 @@ TEST_KEYS = [
     {'config': {'name': ''}},
     {'schedulers': {'sequence': ''}}
 ]
-TEST_KEYS_formatted_diff = [
-    {'config': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-    {'schedulers': {'sequence': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
+
+
+def __derive_qos_scheduler_delete_op(key_set, command, exist_conf):
+    if delete_all or is_replaced:
+        return True, []
+
+    return __DELETE_OP_DEFAULT(key_set, command, exist_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'name': '', '__delete_op': __derive_qos_scheduler_delete_op}},
+    {'schedulers': {'sequence': ''}}
 ]
 
 
@@ -72,8 +81,8 @@ class Qos_scheduler(ConfigBase):
     def get_qos_scheduler_facts(self):
         """ Get the 'facts' (the current configuration)
 
-        :rtype: A dictionary
-        :returns: The current configuration as a dictionary
+        :rtype: A list
+        :returns: The current configuration as a list
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         qos_scheduler_facts = facts['ansible_network_resources'].get('qos_scheduler')
@@ -88,53 +97,47 @@ class Qos_scheduler(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_qos_scheduler_facts = self.get_qos_scheduler_facts()
         commands, requests = self.set_config(existing_qos_scheduler_facts)
-        if commands and len(requests) > 0:
+        if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_qos_scheduler_facts = self.get_qos_scheduler_facts()
-
         result['before'] = existing_qos_scheduler_facts
-        if result['changed']:
-            result['after'] = changed_qos_scheduler_facts
-
-        new_config = changed_qos_scheduler_facts
         old_config = existing_qos_scheduler_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_qos_scheduler_facts,
-                                        TEST_KEYS_formatted_diff)
+            new_config = get_new_config(commands, existing_qos_scheduler_facts, TEST_KEYS_generate_config)
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_qos_scheduler_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_qos_scheduler_facts):
         """ Collect the configuration from the args passed to the module,
-            collect the current configuration (as a dict from facts)
+            collect the current configuration (as a list from facts)
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
         want = remove_empties_from_list(self._module.params['config'])
-        have = remove_empties_from_list(existing_qos_scheduler_facts)
+        have = existing_qos_scheduler_facts
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -147,83 +150,18 @@ class Qos_scheduler(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
 
-        if state == 'overridden':
-            commands, requests = self._state_overridden(want, have)
-        elif state == 'deleted':
-            commands, requests = self._state_deleted(want, have)
-        elif state == 'merged':
+        if state == 'merged':
             commands, requests = self._state_merged(diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
-        return commands, requests
-
-    def _state_replaced(self, want, have, diff):
-        """ The command generator when state is replaced
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        self.get_error_msg(want, 'Replaced')
-        commands = []
-        requests = []
-        replaced_config = get_replaced_config(want, have, TEST_KEYS)
-
-        mod_commands = []
-        if replaced_config:
-            self.sort_lists_in_config(replaced_config)
-            self.sort_lists_in_config(have)
-            is_delete_all = replaced_config == have
-            del_requests = self.get_delete_qos_scheduler_requests(replaced_config, have, is_delete_all)
-            requests.extend(del_requests)
-            commands.extend(update_states(replaced_config, 'deleted'))
-            mod_commands = want
-        else:
-            mod_commands = diff
-
-        if mod_commands:
-            mod_request = self.get_modify_qos_scheduler_request(mod_commands)
-
-            if mod_request:
-                requests.append(mod_request)
-                commands.extend(update_states(mod_commands, 'replaced'))
-        return commands, requests
-
-    def _state_overridden(self, want, have):
-        """ The command generator when state is overridden
-
-        :rtype: A list
-        :returns: the commands necessary to migrate the current configuration
-                  to the desired configuration
-        """
-        self.get_error_msg(want, 'Overridden')
-        commands = []
-        requests = []
-        self.sort_lists_in_config(want)
-        self.sort_lists_in_config(have)
-
-        new_have = deepcopy(have)
-        self.filter_scheduler_policies(new_have)
-        if new_have and new_have != want:
-            is_delete_all = True
-            del_requests = self.get_delete_qos_scheduler_requests(new_have, None, is_delete_all)
-            requests.extend(del_requests)
-            commands.extend(update_states(new_have, 'deleted'))
-            new_have = []
-
-        if not new_have and want:
-            mod_commands = want
-            mod_request = self.get_modify_qos_scheduler_request(mod_commands)
-
-            if mod_request:
-                requests.append(mod_request)
-                commands.extend(update_states(mod_commands, 'overridden'))
-
+        elif state == 'overridden':
+            commands, requests = self._state_overridden(want, have, diff)
+        elif state == 'deleted':
+            commands, requests = self._state_deleted(want, have, diff)
         return commands, requests
 
     def _state_merged(self, diff):
@@ -236,52 +174,116 @@ class Qos_scheduler(ConfigBase):
         commands = diff
         requests = self.get_modify_qos_scheduler_request(commands)
 
-        if commands and len(requests) > 0:
+        if commands and requests:
             commands = update_states(commands, 'merged')
         else:
             commands = []
 
         return commands, requests
 
-    def _state_deleted(self, want, have):
+    def _state_replaced(self, want, have, diff):
+        """ The command generator when state is replaced
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        self.get_error_msg(want, 'Replaced')
+        global is_replaced
+        is_replaced = False
+        commands, mod_commands = [], []
+        replaced_config, requests = self.get_replaced_config(want, have)
+
+        if replaced_config:
+            is_replaced = True
+            commands.extend(update_states(replaced_config, 'deleted'))
+            mod_commands = want
+        else:
+            mod_commands = diff
+
+        if mod_commands:
+            mod_request = self.get_modify_qos_scheduler_request(mod_commands)
+
+            if mod_request:
+                requests.append(mod_request)
+                commands.extend(update_states(mod_commands, 'replaced'))
+
+        return commands, requests
+
+    def _state_overridden(self, want, have, diff):
+        """ The command generator when state is overridden
+
+        :rtype: A list
+        :returns: the commands necessary to migrate the current configuration
+                  to the desired configuration
+        """
+        global delete_all
+        self.get_error_msg(want, 'Overridden')
+        delete_all = False
+        commands, requests = [], []
+        mod_commands, mod_request = None, None
+        new_have = deepcopy(have)
+        self.filter_scheduler_policies(new_have)
+        del_commands = get_diff(new_have, want, TEST_KEYS)
+
+        if del_commands:
+            delete_all = True
+            del_requests = self.get_delete_qos_scheduler_requests(del_commands, delete_all)
+            requests.extend(del_requests)
+            commands.extend(update_states(new_have, 'deleted'))
+            mod_commands = want
+            mod_request = self.get_modify_qos_scheduler_request(mod_commands)
+        elif diff:
+            mod_commands = diff
+            mod_request = self.get_modify_qos_scheduler_request(mod_commands)
+
+        if mod_request:
+            requests.append(mod_request)
+            commands.extend(update_states(mod_commands, 'overridden'))
+
+        return commands, requests
+
+    def _state_deleted(self, want, have, diff):
         """ The command generator when state is deleted
 
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        is_delete_all = False
+        global delete_all
+        delete_all = False
+        requests = []
 
         if not want:
             commands = deepcopy(have)
-            is_delete_all = True
+            delete_all = True
             self.filter_scheduler_policies(commands)
         else:
-            commands = deepcopy(want)
+            commands = get_diff(want, diff, TEST_KEYS)
 
-        requests = self.get_delete_qos_scheduler_requests(commands, have, is_delete_all)
-
-        if commands and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
+        if commands:
+            requests = self.get_delete_qos_scheduler_requests(commands, delete_all)
+            if requests:
+                commands = update_states(commands, 'deleted')
         else:
             commands = []
+
         return commands, requests
 
     def get_modify_qos_scheduler_request(self, commands):
+        """ Returns a patch request to modify the QoS scheduler configuration"""
         request = None
 
         if commands:
             policy_list = []
             for policy in commands:
                 policy_dict = {}
-                name = policy.get('name')
+                name = policy['name']
                 schedulers = policy.get('schedulers')
                 if schedulers:
                     scheduler_list = []
                     for scheduler in schedulers:
-                        cfg_dict = {}
-                        trtc_cfg_dict = {}
-                        scheduler_dict = {}
+                        cfg_dict, trtc_cfg_dict, scheduler_dict = {}, {}, {}
                         sequence = scheduler.get('sequence')
                         scheduler_type = scheduler.get('scheduler_type')
                         weight = scheduler.get('weight')
@@ -303,13 +305,13 @@ class Qos_scheduler(ConfigBase):
                             cfg_dict['weight'] = weight
                         if meter_type:
                             cfg_dict['meter-type'] = meter_type.upper()
-                        if cir:
+                        if cir is not None:
                             trtc_cfg_dict['cir'] = str(cir)
-                        if pir:
+                        if pir is not None:
                             trtc_cfg_dict['pir'] = str(pir)
-                        if cbs:
+                        if cbs is not None:
                             trtc_cfg_dict['bc'] = cbs
-                        if pbs:
+                        if pbs is not None:
                             trtc_cfg_dict['be'] = pbs
 
                         if cfg_dict:
@@ -321,9 +323,8 @@ class Qos_scheduler(ConfigBase):
                             scheduler_list.append(scheduler_dict)
                     if scheduler_list:
                         policy_dict['schedulers'] = {'scheduler': scheduler_list}
-                if name:
-                    policy_dict['name'] = name
-                    policy_dict['config'] = {'name': name}
+                policy_dict['name'] = name
+                policy_dict['config'] = {'name': name}
                 if policy_dict:
                     policy_list.append(policy_dict)
             if policy_list:
@@ -332,93 +333,81 @@ class Qos_scheduler(ConfigBase):
 
         return request
 
-    def get_delete_qos_scheduler_requests(self, commands, have, is_delete_all):
+    def get_delete_qos_scheduler_requests(self, commands, is_delete_all):
+        """Returns a list of delete requests to delete the specified QoS scheduler configuration"""
         requests = []
-
-        if not commands:
-            return requests
 
         if is_delete_all:
             requests.append({'path': QOS_SCHEDULER_PATH, 'method': DELETE})
             return requests
 
-        config_list = []
         for policy in commands:
-            index = commands.index(policy)
             name = policy.get('name')
+            if len(policy) == 1:
+                requests.append(self.get_delete_scheduler_request(name))
+                continue
+
             schedulers = policy.get('schedulers')
 
-            for cfg_policy in have:
-                cfg_name = cfg_policy.get('name')
-                cfg_schedulers = cfg_policy.get('schedulers')
+            if schedulers:
+                for scheduler in schedulers:
+                    sequence = scheduler.get('sequence')
+                    if len(scheduler) == 1:
+                        requests.append(self.get_delete_scheduler_request(name, sequence))
+                        continue
 
-                if name == cfg_name:
-                    if schedulers:
-                        schedulers_list = []
-                        for scheduler in schedulers:
-                            sequence = scheduler.get('sequence')
-                            scheduler_type = scheduler.get('scheduler_type')
-                            weight = scheduler.get('weight')
-                            meter_type = scheduler.get('meter_type')
-                            cir = scheduler.get('cir')
-                            pir = scheduler.get('pir')
-                            cbs = scheduler.get('cbs')
-                            pbs = scheduler.get('pbs')
+                    scheduler_type = scheduler.get('scheduler_type')
+                    weight = scheduler.get('weight')
+                    meter_type = scheduler.get('meter_type')
+                    cir = scheduler.get('cir')
+                    pir = scheduler.get('pir')
+                    cbs = scheduler.get('cbs')
+                    pbs = scheduler.get('pbs')
 
-                            if cfg_schedulers:
-                                for cfg_scheduler in cfg_schedulers:
-                                    scheduler_dict = {}
-                                    cfg_sequence = cfg_scheduler.get('sequence')
-                                    cfg_scheduler_type = cfg_scheduler.get('scheduler_type')
-                                    cfg_weight = cfg_scheduler.get('weight')
-                                    cfg_meter_type = cfg_scheduler.get('meter_type')
-                                    cfg_cir = cfg_scheduler.get('cir')
-                                    cfg_pir = cfg_scheduler.get('pir')
-                                    cfg_cbs = cfg_scheduler.get('cbs')
-                                    cfg_pbs = cfg_scheduler.get('pbs')
+                    # Weight must be deleted before scheduler type
+                    if weight:
+                        requests.append(self.get_delete_scheduler_request(name, sequence, 'weight'))
+                    if scheduler_type:
+                        requests.append(self.get_delete_scheduler_request(name, sequence, 'priority'))
+                    if meter_type:
+                        requests.append(self.get_delete_scheduler_request(name, sequence, 'meter-type'))
+                    if cir is not None:
+                        requests.append(self.get_delete_scheduler_request(name, sequence, 'cir'))
+                    if pir is not None:
+                        requests.append(self.get_delete_scheduler_request(name, sequence, 'pir'))
+                    if cbs is not None:
+                        requests.append(self.get_delete_scheduler_request(name, sequence, 'bc'))
+                    if pbs is not None:
+                        requests.append(self.get_delete_scheduler_request(name, sequence, 'be'))
 
-                                    if sequence is not None and sequence == cfg_sequence:
-                                        # Weight must be deleted before scheduler type
-                                        if weight and weight == cfg_weight:
-                                            requests.append(self.get_delete_scheduler_cfg_attr(name, sequence, 'weight'))
-                                            scheduler_dict.update({'sequence': sequence, 'weight': weight})
-                                        if scheduler_type and scheduler_type == cfg_scheduler_type:
-                                            requests.append(self.get_delete_scheduler_cfg_attr(name, sequence, 'priority'))
-                                            scheduler_dict.update({'sequence': sequence, 'scheduler_type': scheduler_type})
-                                        if meter_type and meter_type == cfg_meter_type:
-                                            requests.append(self.get_delete_scheduler_cfg_attr(name, sequence, 'meter-type'))
-                                            scheduler_dict.update({'sequence': sequence, 'meter_type': meter_type})
-                                        if cir and cir == cfg_cir:
-                                            requests.append(self.get_delete_trtc_cfg_attr(name, sequence, 'cir'))
-                                            scheduler_dict.update({'sequence': sequence, 'cir': cir})
-                                        if pir and pir == cfg_pir:
-                                            requests.append(self.get_delete_trtc_cfg_attr(name, sequence, 'pir'))
-                                            scheduler_dict.update({'sequence': sequence, 'pir': pir})
-                                        if cbs and cbs == cfg_cbs:
-                                            requests.append(self.get_delete_trtc_cfg_attr(name, sequence, 'bc'))
-                                            scheduler_dict.update({'sequence': sequence, 'cbs': cbs})
-                                        if pbs and pbs == cfg_pbs:
-                                            requests.append(self.get_delete_trtc_cfg_attr(name, sequence, 'be'))
-                                            scheduler_dict.update({'sequence': sequence, 'pbs': pbs})
-                                        if not scheduler_type and not weight and not meter_type and not cir and not pir and not cbs and not pbs:
-                                            requests.append(self.get_delete_scheduler_sequence(name, sequence))
-                                            scheduler_dict.update({'sequence': sequence})
-                                        if scheduler_dict:
-                                            schedulers_list.append(scheduler_dict)
-                                        break
-                        if schedulers_list:
-                            config_list.append({'name': name, 'schedulers': schedulers_list})
-
-                    # Deletion of scheduler policy by name
-                    else:
-                        requests.append(self.get_delete_scheduler_policy(name))
-                        config_list.append({'name': name})
-                    break
-
-        commands = config_list
         return requests
 
-    def sort_lists_in_config(self, config):
+    def get_replaced_config(self, want, have):
+        """Returns the replaced QoS scheduler configuration and the corresponding delete requests"""
+        config_list, requests = [], []
+
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
+
+        if not want or not have:
+            return config_list, requests
+
+        cfg_policy_dict = {policy.get('name'): policy for policy in have}
+        for policy in want:
+            name = policy['name']
+            cfg_policy = cfg_policy_dict.get(name)
+
+            if not cfg_policy:
+                continue
+            if policy != cfg_policy:
+                requests.append(self.get_delete_scheduler_request(name))
+                config_list.append(cfg_policy)
+
+        return config_list, requests
+
+    @staticmethod
+    def sort_lists_in_config(config):
+        """Sorts the lists in the QoS scheduler configuration"""
         if config:
             config.sort(key=lambda x: x['name'])
             for policy in config:
@@ -426,6 +415,7 @@ class Qos_scheduler(ConfigBase):
                     policy['schedulers'].sort(key=lambda x: x['sequence'])
 
     def filter_scheduler_policies(self, config):
+        """Filter out reserved policy name from the QoS scheduler configuration"""
         if config:
             index = None
             for policy in config:
@@ -438,32 +428,26 @@ class Qos_scheduler(ConfigBase):
                 config = remove_empties_from_list(config)
 
     def get_error_msg(self, want, state):
+        """Return error message for replace or override on reserved policy name"""
         if want:
             for policy in want:
                 name = policy.get('name')
                 if name == 'copp-scheduler-policy':
                     self._module.fail_json(msg=state + ' not supported for copp-scheduler-policy. Use merged and/or deleted state(s).')
 
-    def get_delete_scheduler_policy(self, name):
-        url = '%s/scheduler-policy=%s' % (QOS_SCHEDULER_PATH, name)
-        request = {'path': url, 'method': DELETE}
+    @staticmethod
+    def get_delete_scheduler_request(name, sequence=None, attr=None):
+        """Returns a delete request to delete the specified QoS scheduler configuration"""
+        url = f'{QOS_SCHEDULER_PATH}/scheduler-policy={name}'
 
-        return request
+        if sequence is not None:
+            url += f'/schedulers/scheduler={sequence}'
+        if attr:
+            if attr in ('cir', 'pir', 'bc', 'be'):
+                url += f'/two-rate-three-color/config/{attr}'
+            else:
+                url += f'/config/{attr}'
 
-    def get_delete_scheduler_sequence(self, name, sequence):
-        url = '%s/scheduler-policy=%s/schedulers/scheduler=%s' % (QOS_SCHEDULER_PATH, name, sequence)
-        request = {'path': url, 'method': DELETE}
-
-        return request
-
-    def get_delete_scheduler_cfg_attr(self, name, sequence, attr):
-        url = '%s/scheduler-policy=%s/schedulers/scheduler=%s/config/%s' % (QOS_SCHEDULER_PATH, name, sequence, attr)
-        request = {'path': url, 'method': DELETE}
-
-        return request
-
-    def get_delete_trtc_cfg_attr(self, name, sequence, attr):
-        url = '%s/scheduler-policy=%s/schedulers/scheduler=%s/two-rate-three-color/config/%s' % (QOS_SCHEDULER_PATH, name, sequence, attr)
         request = {'path': url, 'method': DELETE}
 
         return request

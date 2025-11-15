@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -26,6 +26,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config
 )
+
+
+enum_dict = {
+    'ECN_ALL': 'all',
+    'ECN_NONE': 'none'
+}
 
 
 class Qos_wredFacts(object):
@@ -54,71 +60,66 @@ class Qos_wredFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        objs = []
-
         if not data:
             cfg = self.get_config(self._module)
-            data = self.update_qos_wred(cfg)
-        objs = data
+            data = self.render_config(cfg)
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+        if data:
+            params = utils.validate_config(self.argument_spec, {'config': data})
             facts['qos_wred'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def update_qos_wred(self, cfg):
-
+    def render_config(self, cfg):
+        """Transform OC data to argspec format"""
         config_list = []
-        lookup_dict = {'ECN_ALL': 'all', 'ECN_NONE': 'none'}
-        colors = ['green', 'red', 'yellow']
+        colors = ('green', 'red', 'yellow')
 
         if cfg:
-            wred_profiles = cfg.get('wred-profile')
-            if wred_profiles:
-                for profile in wred_profiles:
-                    wred_dict = {}
-                    name = profile.get('name')
-                    config = profile.get('config')
-                    if config:
-                        ecn = config.get('ecn')
-                        if ecn:
-                            wred_dict['ecn'] = lookup_dict[ecn]
+            for profile in cfg:
+                wred_dict = {}
+                name = profile.get('name')
+                config = profile.get('config')
+                if config:
+                    ecn = config.get('ecn')
+                    if ecn:
+                        wred_dict['ecn'] = enum_dict[ecn]
 
-                        for color in colors:
-                            color_dict = {}
-                            wred_enable = config.get(f'wred-{color}-enable')
-                            min_threshold = config.get(f'{color}-min-threshold')
-                            max_threshold = config.get(f'{color}-max-threshold')
-                            drop_probability = config.get(f'{color}-drop-probability')
+                    for color in colors:
+                        color_dict = {}
+                        wred_enable = config.get(f'wred-{color}-enable')
+                        min_threshold = config.get(f'{color}-min-threshold')
+                        max_threshold = config.get(f'{color}-max-threshold')
+                        drop_probability = config.get(f'{color}-drop-probability')
 
-                            if wred_enable is not None:
-                                color_dict['enable'] = wred_enable
-                            if min_threshold:
-                                color_dict['min_threshold'] = min_threshold
-                            if max_threshold:
-                                color_dict['max_threshold'] = max_threshold
-                            if drop_probability:
-                                color_dict['drop_probability'] = drop_probability
-                            if color_dict:
-                                wred_dict[color] = color_dict
+                        if wred_enable is not None:
+                            color_dict['enable'] = wred_enable
+                        if min_threshold:
+                            color_dict['min_threshold'] = min_threshold
+                        if max_threshold:
+                            color_dict['max_threshold'] = max_threshold
+                        if drop_probability is not None:
+                            color_dict['drop_probability'] = drop_probability
+                        if color_dict:
+                            wred_dict[color] = color_dict
 
-                    if name:
-                        wred_dict['name'] = name
-                    if wred_dict:
-                        config_list.append(wred_dict)
+                if name:
+                    wred_dict['name'] = name
+                if wred_dict:
+                    config_list.append(wred_dict)
 
         return config_list
 
     def get_config(self, module):
+        """Gets the list of WRED profile configurations configured on the device"""
         cfg = None
-        get_path = '/data/openconfig-qos:qos/wred-profiles'
+        get_path = '/data/openconfig-qos:qos/wred-profiles/wred-profile'
         request = {'path': get_path, 'method': 'get'}
 
         try:
             response = edit_config(module, to_request(module, request))
-            if 'openconfig-qos:wred-profiles' in response[0][1]:
-                cfg = response[0][1].get('openconfig-qos:wred-profiles', None)
+            if 'openconfig-qos:wred-profile' in response[0][1]:
+                cfg = response[0][1].get('openconfig-qos:wred-profile', None)
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
         return cfg

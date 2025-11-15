@@ -13,6 +13,7 @@ created
 from __future__ import (absolute_import, division, print_function)
 __metaclass__ = type
 
+from copy import deepcopy
 from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
@@ -26,7 +27,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
+    __MERGE_OP_DEFAULT,
     get_new_config,
     get_formatted_config_diff
 )
@@ -35,8 +36,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     to_request,
     edit_config_reboot
 )
-
-from copy import deepcopy
 
 
 QOS_BUFFER_PATH = '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
@@ -47,8 +46,19 @@ TEST_KEYS = [
     {'buffer_profiles': {'name': ''}}
 ]
 
-TEST_KEYS_formatted_diff = [
-    {'buffer_profiles': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}}
+
+def __derive_qos_buffer_merge_op(key_set, command, exist_conf):
+    if command.get('buffer_init') is False:
+        exist_conf.pop('buffer_pools', None)
+        exist_conf.pop('buffer_profiles', None)
+
+    return __MERGE_OP_DEFAULT(key_set, command, exist_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'__merge_op': __derive_qos_buffer_merge_op}},
+    {'buffer_pools': {'name': ''}},
+    {'buffer_profiles': {'name': ''}}
 ]
 
 
@@ -78,7 +88,7 @@ class Qos_buffer(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         qos_buffer_facts = facts['ansible_network_resources'].get('qos_buffer')
         if not qos_buffer_facts:
-            return []
+            return {}
         return qos_buffer_facts
 
     def execute_module(self):
@@ -88,7 +98,6 @@ class Qos_buffer(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_qos_buffer_facts = self.get_qos_buffer_facts()
@@ -100,28 +109,24 @@ class Qos_buffer(ConfigBase):
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-        changed_qos_buffer_facts = self.get_qos_buffer_facts()
-
         result['before'] = existing_qos_buffer_facts
-        if result['changed']:
-            result['after'] = changed_qos_buffer_facts
-
-        new_config = changed_qos_buffer_facts
         old_config = existing_qos_buffer_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_qos_buffer_facts,
-                                        TEST_KEYS_formatted_diff)
+            new_config = get_new_config(commands, existing_qos_buffer_facts, TEST_KEYS_generate_config)
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_qos_buffer_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_qos_buffer_facts):
@@ -134,6 +139,7 @@ class Qos_buffer(ConfigBase):
         """
         want = remove_empties(self._module.params['config'])
         have = existing_qos_buffer_facts
+
         resp = self.set_state(want, have)
         return to_list(resp)
 
@@ -146,8 +152,7 @@ class Qos_buffer(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
 
         if state == 'deleted':
@@ -165,7 +170,7 @@ class Qos_buffer(ConfigBase):
         """
         diff = self.get_modify_diff(want, have)
         commands = diff
-        requests = self.get_modify_qos_buffer_request(commands)
+        requests = self.get_modify_qos_buffer_request(commands, have)
 
         if commands and len(requests) > 0:
             commands = update_states(commands, 'merged')
@@ -188,8 +193,8 @@ class Qos_buffer(ConfigBase):
             commands = deepcopy(have)
             is_delete_all = True
         else:
-            del_diff = get_diff(want, have, TEST_KEYS)
-            commands = get_diff(want, del_diff, TEST_KEYS)
+            diff = get_diff(want, have, TEST_KEYS)
+            commands = get_diff(want, diff, TEST_KEYS)
 
         if commands:
             requests = self.get_delete_qos_buffer_requests(commands, is_delete_all)
@@ -200,10 +205,12 @@ class Qos_buffer(ConfigBase):
 
         return commands, requests
 
-    def get_modify_qos_buffer_request(self, commands):
+    def get_modify_qos_buffer_request(self, commands, have):
+        """ Returns a list of requests to modify the QoS buffer configuration"""
         requests = []
         buffer_dict = {}
         buffer_init = commands.get('buffer_init')
+        cfg_buffer_init = have.get('buffer_init')
         buffer_pools = commands.get('buffer_pools')
         buffer_profiles = commands.get('buffer_profiles')
 
@@ -211,8 +218,12 @@ class Qos_buffer(ConfigBase):
             if buffer_init:
                 payload = {'openconfig-qos-private:input': {'operation': 'INIT'}}
             else:
+                if buffer_pools or buffer_profiles:
+                    self._module.fail_json(msg='Buffer must be initialized to configure buffer pools and buffer profiles.')
                 payload = {'openconfig-qos-private:input': {'operation': 'CLEAR'}}
             requests.append({'path': BUFFER_INIT_PATH, 'method': 'post', 'data': payload})
+        elif not cfg_buffer_init and (buffer_pools or buffer_profiles):
+            self._module.fail_json(msg='Buffer must be initialized to configure buffer pools and buffer profiles.')
 
         if buffer_pools:
             buffer_pool_list = []
@@ -269,6 +280,7 @@ class Qos_buffer(ConfigBase):
         return requests
 
     def get_delete_qos_buffer_requests(self, commands, is_delete_all):
+        """Returns a list of delete requests to delete the specified QoS buffer configuration"""
         requests = []
 
         if not commands:
@@ -296,11 +308,11 @@ class Qos_buffer(ConfigBase):
                 if size:
                     self._module.fail_json(msg='Mandatory attribute size cannot be deleted')
                 if static_threshold:
-                    requests.append(self.get_delete_buffer_profile_attr(name, 'static-threshold'))
+                    requests.append(self.get_delete_buffer_profile(name, 'static-threshold'))
                 if dynamic_threshold:
-                    requests.append(self.get_delete_buffer_profile_attr(name, 'dynamic-threshold'))
+                    requests.append(self.get_delete_buffer_profile(name, 'dynamic-threshold'))
                 if pause_threshold:
-                    requests.append(self.get_delete_buffer_profile_attr(name, 'pause-threshold'))
+                    requests.append(self.get_delete_buffer_profile(name, 'pause-threshold'))
                 if not pool and not size and not static_threshold and not dynamic_threshold and not pause_threshold:
                     requests.append(self.get_delete_buffer_profile(name))
 
@@ -399,20 +411,20 @@ class Qos_buffer(ConfigBase):
         return config_dict
 
     def sort_lists_in_config(self, config):
+        """Sorts the lists in the QoS buffer configuration"""
         if config:
             if 'buffer_pools' in config and config['buffer_pools']:
                 config['buffer_pools'].sort(key=lambda x: x['name'])
             if 'buffer_profiles' in config and config['buffer_profiles']:
                 config['buffer_profiles'].sort(key=lambda x: x['name'])
 
-    def get_delete_buffer_profile(self, name):
-        url = '%s/buffer-profiles/buffer-profile=%s' % (QOS_BUFFER_PATH, name)
-        request = {'path': url, 'method': DELETE}
+    def get_delete_buffer_profile(self, name, attr=None):
+        """Returns a delete request to delete the specified buffer profile configuration"""
+        url = f'{QOS_BUFFER_PATH}/buffer-profiles/buffer-profile={name}'
 
-        return request
+        if attr:
+            url += f'/config/{attr}'
 
-    def get_delete_buffer_profile_attr(self, name, attr):
-        url = '%s/buffer-profiles/buffer-profile=%s/config/%s' % (QOS_BUFFER_PATH, name, attr)
         request = {'path': url, 'method': DELETE}
 
         return request

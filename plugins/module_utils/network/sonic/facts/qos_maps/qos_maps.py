@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -27,7 +27,66 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 
-QOS_PATH = '/data/openconfig-qos:qos'
+QOS_PATH = '/data/openconfig-qos:qos/'
+
+OC_MAP_DATA = [
+    {
+        'map': 'dscp-map',
+        'attr1': 'dscp',
+        'attr2': 'fwd-group'
+    },
+    {
+        'map': 'dot1p-map',
+        'attr1': 'dot1p',
+        'attr2': 'fwd-group'
+    },
+    {
+        'map': 'forwarding-group-queue-map',
+        'attr1': 'fwd-group',
+        'attr2': 'output-queue-index'
+    },
+    {
+        'map': 'forwarding-group-dscp-map',
+        'attr1': 'fwd-group',
+        'attr2': 'dscp'
+    },
+    {
+        'map': 'forwarding-group-dot1p-map',
+        'attr1': 'fwd-group',
+        'attr2': 'dot1p'
+    },
+    {
+        'map': 'forwarding-group-priority-group-map',
+        'attr1': 'fwd-group',
+        'attr2': 'priority-group-index'
+    },
+    {
+        'map': 'pfc-priority-queue-map',
+        'attr1': 'dot1p',
+        'attr2': 'output-queue-index'
+    },
+    {
+        'map': 'pfc-priority-priority-group-map',
+        'attr1': 'dot1p',
+        'attr2': 'priority-group-index'
+    }
+]
+
+ANS_ATTR_MAP = {
+    'dot1p': 'dot1p',
+    'dot1p-map': 'dot1p_maps',
+    'dscp': 'dscp',
+    'dscp-map': 'dscp_maps',
+    'forwarding-group-dot1p-map': 'fwd_group_dot1p_maps',
+    'forwarding-group-dscp-map': 'fwd_group_dscp_maps',
+    'forwarding-group-priority-group-map': 'fwd_group_pg_maps',
+    'forwarding-group-queue-map': 'fwd_group_queue_maps',
+    'fwd-group': 'fwd_group',
+    'output-queue-index': 'queue_index',
+    'pfc-priority-priority-group-map': 'pfc_priority_pg_maps',
+    'pfc-priority-queue-map': 'pfc_priority_queue_maps',
+    'priority-group-index': 'pg_index'
+}
 
 
 class Qos_mapsFacts(object):
@@ -56,138 +115,71 @@ class Qos_mapsFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        objs = []
-
         if not data:
-            data = self.update_qos_maps(self._module)
-        objs = data
+            data = self.render_config(self._module)
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+        if data:
+            params = utils.validate_config(self.argument_spec, {'config': data})
             facts['qos_maps'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def update_qos_maps(self, module):
-        """
-        Convert OC configuration to Ansible
-
-        :param module: QoS maps module
-        :rtype: dictionary
-        :returns: The QoS maps configuration
-        """
+    def render_config(self, module):
+        """Transform OC data to argspec format"""
         config_dict = {}
 
-        dscp_maps = self.get_config(module, 'openconfig-qos-maps-ext:dscp-maps')
-        if dscp_maps:
-            lookup_dict = {'oc_map': 'dscp-map', 'oc_attr1': 'dscp', 'oc_attr2': 'fwd-group', 'attr1': 'dscp', 'attr2': 'fwd_group',
-                           'map_name': 'dscp_maps'}
-            self.update_config(dscp_maps, lookup_dict, config_dict)
+        for map_dict in OC_MAP_DATA:
+            oc_map_name = map_dict['map']
+            oc_map_list = self.get_config(module, oc_map_name)
 
-        dot1p_maps = self.get_config(module, 'openconfig-qos-maps-ext:dot1p-maps')
-        if dot1p_maps:
-            lookup_dict = {'oc_map': 'dot1p-map', 'oc_attr1': 'dot1p', 'oc_attr2': 'fwd-group', 'attr1': 'dot1p', 'attr2': 'fwd_group',
-                           'map_name': 'dot1p_maps'}
-            self.update_config(dot1p_maps, lookup_dict, config_dict)
+            if oc_map_list:
+                config_maps_list = []
+                for oc_map_dict in oc_map_list:
+                    config_maps_dict = {'name': oc_map_dict['name']}
+                    oc_entries_name = f'{oc_map_name}-entries'
+                    oc_entries_dict = oc_map_dict.get(oc_entries_name)
 
-        fwd_group_queue_maps = self.get_config(module, 'openconfig-qos-maps-ext:forwarding-group-queue-maps')
-        if fwd_group_queue_maps:
-            lookup_dict = {'oc_map': 'forwarding-group-queue-map', 'oc_attr1': 'output-queue-index', 'oc_attr2': 'fwd-group', 'attr1': 'queue_index',
-                           'attr2': 'fwd_group', 'map_name': 'fwd_group_queue_maps'}
-            self.update_config(fwd_group_queue_maps, lookup_dict, config_dict)
+                    if oc_entries_dict:
+                        oc_entry_name = f'{oc_map_name}-entry'
+                        oc_entry_list = oc_entries_dict.get(oc_entry_name)
 
-        fwd_group_dscp_maps = self.get_config(module, 'openconfig-qos-maps-ext:forwarding-group-dscp-maps')
-        if fwd_group_dscp_maps:
-            lookup_dict = {'oc_map': 'forwarding-group-dscp-map', 'oc_attr1': 'dscp', 'oc_attr2': 'fwd-group', 'attr1': 'dscp', 'attr2': 'fwd_group',
-                           'map_name': 'fwd_group_dscp_maps'}
-            self.update_config(fwd_group_dscp_maps, lookup_dict, config_dict)
+                        if oc_entry_list:
+                            config_entries_list = []
+                            for oc_entry_dict in oc_entry_list:
+                                config_entries_dict = {}
+                                attr1 = map_dict['attr1']
+                                attr2 = map_dict['attr2']
+                                val1 = oc_entry_dict['config'].get(attr1)
+                                val2 = oc_entry_dict['config'].get(attr2)
 
-        fwd_group_dot1p_maps = self.get_config(module, 'openconfig-qos-maps-ext:forwarding-group-dot1p-maps')
-        if fwd_group_dot1p_maps:
-            lookup_dict = {'oc_map': 'forwarding-group-dot1p-map', 'oc_attr1': 'dot1p', 'oc_attr2': 'fwd-group', 'attr1': 'dot1p',
-                           'attr2': 'fwd_group', 'map_name': 'fwd_group_dot1p_maps'}
-            self.update_config(fwd_group_dot1p_maps, lookup_dict, config_dict)
+                                if val1 is not None:
+                                    config_entries_dict[ANS_ATTR_MAP[attr1]] = val1
+                                if val2 is not None:
+                                    config_entries_dict[ANS_ATTR_MAP[attr2]] = val2
+                                if config_entries_dict:
+                                    config_entries_list.append(config_entries_dict)
 
-        fwd_group_pg_maps = self.get_config(module, 'openconfig-qos-maps-ext:forwarding-group-priority-group-maps')
-        if fwd_group_pg_maps:
-            lookup_dict = {'oc_map': 'forwarding-group-priority-group-map', 'oc_attr1': 'priority-group-index', 'oc_attr2': 'fwd-group',
-                           'attr1': 'pg_index', 'attr2': 'fwd_group', 'map_name': 'fwd_group_pg_maps'}
-            self.update_config(fwd_group_pg_maps, lookup_dict, config_dict)
-
-        pfc_priority_queue_maps = self.get_config(module, 'openconfig-qos-maps-ext:pfc-priority-queue-maps')
-        if pfc_priority_queue_maps:
-            lookup_dict = {'oc_map': 'pfc-priority-queue-map', 'oc_attr1': 'dot1p', 'oc_attr2': 'output-queue-index', 'attr1': 'dot1p',
-                           'attr2': 'queue_index', 'map_name': 'pfc_priority_queue_maps'}
-            self.update_config(pfc_priority_queue_maps, lookup_dict, config_dict)
-
-        pfc_priority_pg_maps = self.get_config(module, 'openconfig-qos-maps-ext:pfc-priority-priority-group-maps')
-        if pfc_priority_pg_maps:
-            lookup_dict = {'oc_map': 'pfc-priority-priority-group-map', 'oc_attr1': 'dot1p', 'oc_attr2': 'priority-group-index', 'attr1': 'dot1p',
-                           'attr2': 'pg_index', 'map_name': 'pfc_priority_pg_maps'}
-            self.update_config(pfc_priority_pg_maps, lookup_dict, config_dict)
+                            if config_entries_list:
+                                config_maps_dict['entries'] = config_entries_list
+                    if config_maps_dict:
+                        config_maps_list.append(config_maps_dict)
+                if config_maps_list:
+                    config_dict[ANS_ATTR_MAP[oc_map_name]] = config_maps_list
 
         return config_dict
 
-    def get_config(self, module, map_path):
+    def get_config(self, module, map_name):
+        """Gets the list of configurations for the specified QoS map if present"""
         cfg = None
-        get_path = '%s/%s' % (QOS_PATH, map_path)
+        get_path = f'{QOS_PATH}openconfig-qos-maps-ext:{map_name}s/{map_name}'
         request = {'path': get_path, 'method': 'get'}
+        map_list_name = f'openconfig-qos-maps-ext:{map_name}'
 
         try:
             response = edit_config(module, to_request(module, request))
-            if map_path in response[0][1]:
-                cfg = response[0][1].get(map_path)
+            if map_list_name in response[0][1]:
+                cfg = response[0][1].get(map_list_name)
         except ConnectionError as exc:
             module.fail_json(msg=str(exc), code=exc.code)
 
         return cfg
-
-    def update_config(self, maps_cfg, lookup_dict, config_dict):
-        """
-        Get the Ansible maps list for a specified QoS map and update QoS maps config
-
-        :param maps_cfg: Dictionary of OC maps configuration for a specified QoS map
-        :param lookup_dict: Dictionary of OC and Ansible data used to process a specified QoS map
-        :param config_dict: Dictionary of configuration for QoS maps module
-        """
-        maps_list = []
-        maps = maps_cfg.get(lookup_dict['oc_map'])
-
-        if maps:
-            for m in maps:
-                map_dict = {}
-                name = m.get('name')
-                oc_map = lookup_dict['oc_map']
-                map_entries = m.get(oc_map + '-entries')
-
-                if map_entries:
-                    entries = map_entries.get(oc_map + '-entry')
-                    if entries:
-                        entries_list = []
-                        for entry in entries:
-                            entry_dict = {}
-                            entry_cfg = entry.get('config')
-                            oc_attr1 = lookup_dict['oc_attr1']
-                            oc_attr2 = lookup_dict['oc_attr2']
-                            attr1 = entry_cfg.get(oc_attr1)
-                            attr2 = entry_cfg.get(oc_attr2)
-
-                            if attr1 is not None:
-                                attr1_key = lookup_dict['attr1']
-                                entry_dict[attr1_key] = attr1
-                            if attr2 is not None:
-                                attr2_key = lookup_dict['attr2']
-                                entry_dict[attr2_key] = attr2
-                            if entry_dict:
-                                entries_list.append(entry_dict)
-
-                        if entries_list:
-                            map_dict['entries'] = entries_list
-
-                if name:
-                    map_dict['name'] = name
-                if map_dict:
-                    maps_list.append(map_dict)
-        if maps_list:
-            map_name = lookup_dict['map_name']
-            config_dict[map_name] = maps_list

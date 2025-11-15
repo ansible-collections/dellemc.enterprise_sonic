@@ -138,8 +138,8 @@ EXAMPLES = """
 #              cbs: 30000       Packets
 #              pir: 40000       Pps
 #              pbs: 35000       Packets
-#
-#
+
+
 # Using "replaced" state
 #
 # Before state:
@@ -172,8 +172,8 @@ EXAMPLES = """
 # Scheduler Policy: policy1
 #   Queue: 0
 #              weight: 12
-#
-#
+
+
 # Using "overridden" state
 # Before state:
 # -------------
@@ -221,8 +221,8 @@ EXAMPLES = """
 #              cbs: 800000      Bytes
 #              pir: 60          Kbps
 #              pbs: 900000      Bytes
-#
-#
+
+
 # Using "deleted" state
 #
 # Before state:
@@ -282,23 +282,14 @@ before:
   description: The configuration prior to the module invocation.
   returned: always
   type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
 after:
-  description: The resulting configuration module invocation.
+  description: The resulting configuration from module invocation.
   returned: when changed
   type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
 after(generated):
-  description: The generated configuration module invocation.
+  description: The generated configuration from module invocation.
   returned: when C(check_mode)
   type: list
-  sample: >
-    The configuration returned will always be in the same format
-     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always

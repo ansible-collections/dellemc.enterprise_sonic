@@ -20,7 +20,7 @@ merged_01:
           max_threshold: 5000
           drop_probability: 30
   existing_qos_wred_config:
-    - path: '/data/openconfig-qos:qos/wred-profiles'
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
       response:
         code: 200
   expected_config_requests:
@@ -57,33 +57,60 @@ replaced_01:
           drop_probability: 100
     state: replaced
   existing_qos_wred_config:
-    - path: '/data/openconfig-qos:qos/wred-profiles'
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
       response:
         code: 200
         value:
-          openconfig-qos:wred-profiles:
-            wred-profile:
-              - name: profile1
-                config:
-                  name: profile1
-                  green-min-threshold: '1000'
-                  yellow-min-threshold: '1000'
-                  red-min-threshold: '1000'
-                  green-max-threshold: '5000'
-                  yellow-max-threshold: '5000'
-                  red-max-threshold: '5000'
-                  ecn: ECN_ALL
-                  wred-green-enable: true
-                  wred-yellow-enable: true
-                  wred-red-enable: true
-                  green-drop-probability: '25'
-                  yellow-drop-probability: '30'
-                  red-drop-probability: '50'
+          openconfig-qos:wred-profile:
+            - name: profile1
+              config:
+                name: profile1
+                green-min-threshold: '1000'
+                yellow-min-threshold: '1000'
+                red-min-threshold: '1000'
+                green-max-threshold: '5000'
+                yellow-max-threshold: '5000'
+                red-max-threshold: '5000'
+                ecn: ECN_ALL
+                wred-green-enable: true
+                wred-yellow-enable: true
+                wred-red-enable: true
+                green-drop-probability: '25'
+                yellow-drop-probability: '30'
+                red-drop-probability: '50'
 
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile1'
       method: 'delete'
       data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
+      method: 'patch'
+      data:
+        openconfig-qos:wred-profile:
+          - name: profile1
+            config:
+              name: profile1
+              wred-green-enable: false
+              green-drop-probability: '80'
+              wred-yellow-enable: false
+              yellow-drop-probability: '100'
+
+replaced_02:
+  module_args:
+    config:
+      - name: profile1
+        green:
+          enable: false
+          drop_probability: 80
+        yellow:
+          enable: false
+          drop_probability: 100
+    state: replaced
+  existing_qos_wred_config:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
+      response:
+        code: 200
+  expected_config_requests:
     - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
       method: 'patch'
       data:
@@ -118,32 +145,78 @@ overridden_01:
           drop_probability: 75
     state: overridden
   existing_qos_wred_config:
-    - path: '/data/openconfig-qos:qos/wred-profiles'
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
       response:
         code: 200
         value:
-          openconfig-qos:wred-profiles:
-            wred-profile:
-              - name: profile1
-                config:
-                  name: profile1
-                  green-min-threshold: '1000'
-                  yellow-min-threshold: '1000'
-                  red-min-threshold: '1000'
-                  green-max-threshold: '5000'
-                  yellow-max-threshold: '5000'
-                  red-max-threshold: '5000'
-                  ecn: ECN_ALL
-                  wred-green-enable: true
-                  wred-yellow-enable: true
-                  wred-red-enable: true
-                  green-drop-probability: '25'
-                  yellow-drop-probability: '30'
-                  red-drop-probability: '50'
+          openconfig-qos:wred-profile:
+            - name: profile1
+              config:
+                name: profile1
+                green-min-threshold: '1000'
+                yellow-min-threshold: '1000'
+                red-min-threshold: '1000'
+                green-max-threshold: '5000'
+                yellow-max-threshold: '5000'
+                red-max-threshold: '5000'
+                ecn: ECN_ALL
+                wred-green-enable: true
+                wred-yellow-enable: true
+                wred-red-enable: true
+                green-drop-probability: '25'
+                yellow-drop-probability: '30'
+                red-drop-probability: '50'
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
       method: 'delete'
       data:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
+      method: 'patch'
+      data:
+        openconfig-qos:wred-profile:
+          - name: profile2
+            config:
+              name: profile2
+              green-min-threshold: '3000'
+              yellow-min-threshold: '3000'
+              red-min-threshold: '4000'
+              green-max-threshold: '9000'
+              yellow-max-threshold: '9000'
+              red-max-threshold: '10000'
+              ecn: ECN_ALL
+              wred-green-enable: true
+              wred-yellow-enable: true
+              wred-red-enable: true
+              green-drop-probability: '75'
+              yellow-drop-probability: '75'
+              red-drop-probability: '75'
+
+overridden_02:
+  module_args:
+    config:
+      - name: profile2
+        ecn: all
+        green:
+          enable: true
+          min_threshold: 3000
+          max_threshold: 9000
+          drop_probability: 75
+        red:
+          enable: true
+          min_threshold: 4000
+          max_threshold: 10000
+          drop_probability: 75
+        yellow:
+          enable: true
+          min_threshold: 3000
+          max_threshold: 9000
+          drop_probability: 75
+    state: overridden
+  existing_qos_wred_config:
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
+      response:
+        code: 200
+  expected_config_requests:
     - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
       method: 'patch'
       data:
@@ -183,28 +256,27 @@ deleted_01:
           drop_probability: 75
     state: deleted
   existing_qos_wred_config:
-    - path: '/data/openconfig-qos:qos/wred-profiles'
+    - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile'
       response:
         code: 200
         value:
-          openconfig-qos:wred-profiles:
-            wred-profile:
-              - name: profile1
-                config:
-                  name: profile1
-                  green-min-threshold: '1000'
-                  green-max-threshold: '5000'
-                  ecn: ECN_ALL
-                  wred-green-enable: true
-                  green-drop-probability: '25'
-              - name: profile2
-                config:
-                  name: profile2
-                  green-min-threshold: '3000'
-                  green-max-threshold: '9000'
-                  ecn: ECN_ALL
-                  wred-green-enable: true
-                  green-drop-probability: '75'
+          openconfig-qos:wred-profile:
+            - name: profile1
+              config:
+                name: profile1
+                green-min-threshold: '1000'
+                green-max-threshold: '5000'
+                ecn: ECN_ALL
+                wred-green-enable: true
+                green-drop-probability: '25'
+            - name: profile2
+              config:
+                name: profile2
+                green-min-threshold: '3000'
+                green-max-threshold: '9000'
+                ecn: ECN_ALL
+                wred-green-enable: true
+                green-drop-probability: '75'
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/wred-profiles/wred-profile=profile1'
       method: 'delete'

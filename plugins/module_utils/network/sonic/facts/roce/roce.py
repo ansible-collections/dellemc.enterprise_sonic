@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -54,21 +54,18 @@ class RoceFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-
-        objs = []
-
         if not data:
             cfg = self.get_config(self._module)
-            data = self.update_roce(cfg)
-        objs = data
+            data = self.render_config(cfg)
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+        if data:
+            params = utils.validate_config(self.argument_spec, {'config': data})
             facts['roce'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
     def get_config(self, module):
+        """Gets the 'SWITCH_LIST' configuration if present"""
         cfg = None
         get_path = '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch'
         request = {'path': get_path, 'method': 'get'}
@@ -82,18 +79,15 @@ class RoceFacts(object):
 
         return cfg
 
-    def update_roce(self, cfg):
+    def render_config(self, cfg):
+        """Transform SONiC data to argspec format"""
         config_dict = {}
 
         if cfg:
-            roce_enable = cfg[0].get('roce_enable')
+            roce_enable = cfg[0].get('roce_enable', False)
             pfc_priority = cfg[0].get('roce_pfc_priority')
 
-            if roce_enable:
-                config_dict['roce_enable'] = True
-            # Set roce_enable to false when none
-            else:
-                config_dict['roce_enable'] = False
+            config_dict['roce_enable'] = roce_enable
             if pfc_priority:
                 config_dict['pfc_priority'] = pfc_priority
 
