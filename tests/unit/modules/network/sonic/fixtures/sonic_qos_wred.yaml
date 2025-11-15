@@ -121,7 +121,7 @@ replaced_02:
               wred-green-enable: false
               green-drop-probability: '80'
               wred-yellow-enable: false
-              yellow-drop-probability: '100'   
+              yellow-drop-probability: '100'
 
 overridden_01:
   module_args:
