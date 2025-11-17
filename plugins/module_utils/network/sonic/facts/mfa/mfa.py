@@ -67,18 +67,6 @@ class MfaFacts(object):
 
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return utils.remove_empties(conf)
-
     def get_all_mfa_configs(self, module):
         """Get all MFA configurations available in chassis"""
 

@@ -14,7 +14,7 @@ __metaclass__ = type
 DOCUMENTATION = """
 ---
 module: sonic_mfa
-version_added: 3.1.0
+version_added: 4.0.0
 short_description: Manage Multi-factor authentication (MFA) configurations on SONiC.
 description:
   - This module provides configuration management of MFA

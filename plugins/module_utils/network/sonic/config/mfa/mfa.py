@@ -337,16 +337,16 @@ class Mfa(ConfigBase):
         if not commands:
             return requests
 
-        mfa_global_request = self.get_modify_mfa_global_request(commands, have)
-        rsa_global_request = self.get_modify_rsa_global_request(commands, have)
-        rsa_servers_request = self.get_modify_rsa_servers_request(commands, have)
+        mfa_global_request = self.get_modify_mfa_global_request(commands)
+        rsa_global_request = self.get_modify_rsa_global_request(commands)
+        rsa_servers_request = self.get_modify_rsa_servers_request(commands)
         cac_piv_global_request = self.get_modify_cac_piv_global_request(commands, have)
         requests.extend(filter(None, [mfa_global_request, rsa_global_request, cac_piv_global_request]))
         requests.extend(rsa_servers_request)
 
         return requests
 
-    def get_modify_mfa_global_request(self, commands, have):
+    def get_modify_mfa_global_request(self, commands):
         """Get request to modify MFA Global configurations"""
         request = None
 
@@ -365,7 +365,7 @@ class Mfa(ConfigBase):
                 request = {'path': f"{MFA_PATH}/mfa-global", 'method': PATCH, 'data': payload}
         return request
 
-    def get_modify_rsa_global_request(self, commands, have):
+    def get_modify_rsa_global_request(self, commands):
         """Get request to modify RSA Global configuration"""
         request = None
 
@@ -375,14 +375,14 @@ class Mfa(ConfigBase):
             request = {'path': f"{MFA_PATH}/rsa-global", 'method': PATCH, 'data': payload}
         return request
 
-    def get_modify_rsa_servers_request(self, commands, have):
+    def get_modify_rsa_servers_request(self, commands):
         """Get request to modify RSA Server configurations"""
 
         requests = []
 
         rsa_servers = commands.get('rsa_servers')
         if rsa_servers:
-            rsa_server_list = self.get_rsa_server_list(rsa_servers, have)
+            rsa_server_list = self.get_rsa_server_list(rsa_servers)
             for server in rsa_server_list:
                 url = f"{MFA_PATH}/rsa-servers/rsa-server={server['hostname']}"
                 payload = {'openconfig-mfa:rsa-server': [server]}
@@ -390,7 +390,7 @@ class Mfa(ConfigBase):
 
         return requests
 
-    def get_rsa_server_list(self, data, have):
+    def get_rsa_server_list(self, data):
         rsa_server_list = []
 
         for server in data:
@@ -415,9 +415,6 @@ class Mfa(ConfigBase):
             if config_dict:
                 rsa_server_dict['hostname'] = hostname
                 rsa_server_dict['config'] = config_dict
-            if len(rsa_server_dict['config']) == 1 and 'hostname' in rsa_server_dict['config']:
-                rsa_server_list = []
-            else:
                 rsa_server_list.append(rsa_server_dict)
         return rsa_server_list
 

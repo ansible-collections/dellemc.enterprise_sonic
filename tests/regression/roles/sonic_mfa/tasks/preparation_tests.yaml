@@ -30,7 +30,7 @@
   failed_when: false
 
 - name: "Crypto security-profile configurations"
-  sonic_pki:
+  dellemc.enterprise_sonic.sonic_pki:
     config:
       trust_stores:
         - name: tStore

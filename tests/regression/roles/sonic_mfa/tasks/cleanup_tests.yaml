@@ -5,7 +5,7 @@
     state: deleted
 
 - name: "Remove trust store and certificate associations"
-  sonic_pki:
+  dellemc.enterprise_sonic.sonic_pki:
     config:
       security_profiles:
         - profile_name: rSecurityProfile
@@ -18,7 +18,7 @@
   failed_when: false
 
 - name: "Delete security profiles and trust stores"
-  sonic_pki:
+  dellemc.enterprise_sonic.sonic_pki:
     config:
       security_profiles:
         - profile_name: rSecurityProfile
