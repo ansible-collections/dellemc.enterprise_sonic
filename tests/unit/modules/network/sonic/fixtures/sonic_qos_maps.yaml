@@ -43,28 +43,28 @@ merged_01:
             - dot1p: 0
               pg_index: 0
   existing_qos_maps_config:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps/dot1p-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps/forwarding-group-queue-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps/forwarding-group-dscp-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps/forwarding-group-dot1p-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps/forwarding-group-priority-group-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps/pfc-priority-queue-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps/pfc-priority-priority-group-map'
       response:
         code: 200
   expected_config_requests:
@@ -206,126 +206,118 @@ replaced_01:
               pg_index: 1
     state: replaced
   existing_qos_maps_config:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:dscp-maps:
-            dscp-map:
-              - name: dscp_map1
-                config:
-                  name: dscp_map1
-                dscp-map-entries:
-                  dscp-map-entry:
-                    - dscp: 0
-                      config:
-                        dscp: 0
-                        fwd-group: '0'
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps'
+          openconfig-qos-maps-ext:dscp-map:
+            - name: dscp_map1
+              config:
+                name: dscp_map1
+              dscp-map-entries:
+                dscp-map-entry:
+                  - dscp: 0
+                    config:
+                      dscp: 0
+                      fwd-group: '0'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps/dot1p-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:dot1p-maps:
-            dot1p-map:
-              - name: dot1p_map1
-                config:
-                  name: dot1p_map1
-                dot1p-map-entries:
-                  dot1p-map-entry:
-                    - dot1p: 0
-                      config:
-                        dot1p: 0
-                        fwd-group: '0'
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps'
+          openconfig-qos-maps-ext:dot1p-map:
+            - name: dot1p_map1
+              config:
+                name: dot1p_map1
+              dot1p-map-entries:
+                dot1p-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      fwd-group: '0'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps/forwarding-group-queue-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:forwarding-group-queue-maps:
-            forwarding-group-queue-map:
-              - name: fwd_queue_map1
-                config:
-                  name: fwd_queue_map1
-                forwarding-group-queue-map-entries:
-                  forwarding-group-queue-map-entry:
-                    - fwd-group: '0'
-                      config:
-                        fwd-group: '0'
-                        output-queue-index: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps'
+          openconfig-qos-maps-ext:forwarding-group-queue-map:
+            - name: fwd_queue_map1
+              config:
+                name: fwd_queue_map1
+              forwarding-group-queue-map-entries:
+                forwarding-group-queue-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      output-queue-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps/forwarding-group-dscp-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:forwarding-group-dscp-maps:
-            forwarding-group-dscp-map:
-              - name: fwd_dscp_map1
-                config:
-                  name: fwd_dscp_map1
-                forwarding-group-dscp-map-entries:
-                  forwarding-group-dscp-map-entry:
-                    - fwd-group: '0'
-                      config:
-                        fwd-group: '0'
-                        dscp: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps'
+          openconfig-qos-maps-ext:forwarding-group-dscp-map:
+            - name: fwd_dscp_map1
+              config:
+                name: fwd_dscp_map1
+              forwarding-group-dscp-map-entries:
+                forwarding-group-dscp-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      dscp: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps/forwarding-group-dot1p-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:forwarding-group-dot1p-maps:
-            forwarding-group-dot1p-map:
-              - name: fwd_dot1p_map1
-                config:
-                  name: fwd_dot1p_map1
-                forwarding-group-dot1p-map-entries:
-                  forwarding-group-dot1p-map-entry:
-                    - fwd-group: '0'
-                      config:
-                        fwd-group: '0'
-                        dot1p: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps'
+          openconfig-qos-maps-ext:forwarding-group-dot1p-map:
+            - name: fwd_dot1p_map1
+              config:
+                name: fwd_dot1p_map1
+              forwarding-group-dot1p-map-entries:
+                forwarding-group-dot1p-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      dot1p: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps/forwarding-group-priority-group-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:forwarding-group-priority-group-maps:
-            forwarding-group-priority-group-map:
-              - name: fwd_pg_map1
-                config:
-                  name: fwd_pg_map1
-                forwarding-group-priority-group-map-entries:
-                  forwarding-group-priority-group-map-entry:
-                    - fwd-group: '0'
-                      config:
-                        fwd-group: '0'
-                        priority-group-index: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps'
+          openconfig-qos-maps-ext:forwarding-group-priority-group-map:
+            - name: fwd_pg_map1
+              config:
+                name: fwd_pg_map1
+              forwarding-group-priority-group-map-entries:
+                forwarding-group-priority-group-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      priority-group-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps/pfc-priority-queue-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:pfc-priority-queue-maps:
-            pfc-priority-queue-map:
-              - name: pfc_queue_map1
-                config:
-                  name: pfc_queue_map1
-                pfc-priority-queue-map-entries:
-                  pfc-priority-queue-map-entry:
-                    - dot1p: 0
-                      config:
-                        dot1p: 0
-                        output-queue-index: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps'
+          openconfig-qos-maps-ext:pfc-priority-queue-map:
+            - name: pfc_queue_map1
+              config:
+                name: pfc_queue_map1
+              pfc-priority-queue-map-entries:
+                pfc-priority-queue-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      output-queue-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps/pfc-priority-priority-group-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:pfc-priority-priority-group-maps:
-            pfc-priority-priority-group-map:
-              - name: pfc_pg_map1
-                config:
-                  name: pfc_pg_map1
-                pfc-priority-priority-group-map-entries:
-                  pfc-priority-priority-group-map-entry:
-                    - dot1p: 0
-                      config:
-                        dot1p: 0
-                        priority-group-index: 0
+          openconfig-qos-maps-ext:pfc-priority-priority-group-map:
+            - name: pfc_pg_map1
+              config:
+                name: pfc_pg_map1
+              pfc-priority-priority-group-map-entries:
+                pfc-priority-priority-group-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      priority-group-index: 0
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map=dscp_map1'
       method: 'delete'
@@ -444,7 +436,125 @@ replaced_01:
                         dot1p: 1
                         priority-group-index: 1
 
+replaced_02:
+  module_args:
+    config:
+      dot1p_maps:
+        - name: dot1p_map1
+          entries:
+            - dot1p: 0
+              fwd_group: 0
+    state: replaced
+  existing_qos_maps_config:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps/dot1p-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps/forwarding-group-queue-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps/forwarding-group-dscp-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps/forwarding-group-dot1p-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps/forwarding-group-priority-group-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps/pfc-priority-queue-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps/pfc-priority-priority-group-map'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos'
+      method: 'patch'
+      data:
+        openconfig-qos:qos:
+          openconfig-qos-maps-ext:dot1p-maps:
+            dot1p-map:
+              - name: dot1p_map1
+                config:
+                  name: dot1p_map1
+                dot1p-map-entries:
+                  dot1p-map-entry:
+                    - dot1p: 0
+                      config:
+                        dot1p: 0
+                        fwd-group: '0'
+
 overridden_01:
+  module_args:
+    config:
+      dscp_maps:
+        - name: dscp_map1
+          entries:
+            - dscp: 0
+              fwd_group: 3
+      dot1p_maps:
+        - name: dot1p_map1
+          entries:
+            - dot1p: 0
+              fwd_group: 0
+    state: overridden
+  existing_qos_maps_config:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:dscp-map:
+            - name: dscp_map1
+              config:
+                name: dscp_map1
+              dscp-map-entries:
+                dscp-map-entry:
+                  - dscp: 0
+                    config:
+                      dscp: 0
+                      fwd-group: '3'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps/dot1p-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps/forwarding-group-queue-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps/forwarding-group-dscp-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps/forwarding-group-dot1p-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps/forwarding-group-priority-group-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps/pfc-priority-queue-map'
+      response:
+        code: 200
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps/pfc-priority-priority-group-map'
+      response:
+        code: 200
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos'
+      method: 'patch'
+      data:
+        openconfig-qos:qos:
+          openconfig-qos-maps-ext:dot1p-maps:
+            dot1p-map:
+              - name: dot1p_map1
+                config:
+                  name: dot1p_map1
+                dot1p-map-entries:
+                  dot1p-map-entry:
+                    - dot1p: 0
+                      config:
+                        dot1p: 0
+                        fwd-group: '0'
+
+overridden_02:
   module_args:
     config:
       dscp_maps:
@@ -454,65 +564,43 @@ overridden_01:
               fwd_group: 3
     state: overridden
   existing_qos_maps_config:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:dscp-maps:
-            dscp-map:
-              - name: dscp_map1
-                config:
-                  name: dscp_map1
-                dscp-map-entries:
-                  dscp-map-entry:
-                    - dscp: 0
-                      config:
-                        dscp: 0
-                        fwd-group: '0'
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps'
+          openconfig-qos-maps-ext:dscp-map:
+            - name: dscp_map1
+              config:
+                name: dscp_map1
+              dscp-map-entries:
+                dscp-map-entry:
+                  - dscp: 0
+                    config:
+                      dscp: 0
+                      fwd-group: '0'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps/dot1p-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps/forwarding-group-queue-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps/forwarding-group-dscp-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps/forwarding-group-dot1p-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps/forwarding-group-priority-group-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps/pfc-priority-queue-map'
       response:
         code: 200
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps/pfc-priority-priority-group-map'
       response:
         code: 200
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps'
       method: 'delete'
       data:
     - path: '/data/openconfig-qos:qos'
@@ -557,126 +645,118 @@ deleted_01:
         - name: pfc_pg_map1
     state: deleted
   existing_qos_maps_config:
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:dscp-maps:
-            dscp-map:
-              - name: dscp_map1
-                config:
-                  name: dscp_map1
-                dscp-map-entries:
-                  dscp-map-entry:
-                    - dscp: 0
-                      config:
-                        dscp: 0
-                        fwd-group: '0'
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps'
+          openconfig-qos-maps-ext:dscp-map:
+            - name: dscp_map1
+              config:
+                name: dscp_map1
+              dscp-map-entries:
+                dscp-map-entry:
+                  - dscp: 0
+                    config:
+                      dscp: 0
+                      fwd-group: '0'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps/dot1p-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:dot1p-maps:
-            dot1p-map:
-              - name: dot1p_map1
-                config:
-                  name: dot1p_map1
-                dot1p-map-entries:
-                  dot1p-map-entry:
-                    - dot1p: 0
-                      config:
-                        dot1p: 0
-                        fwd-group: '0'
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps'
+          openconfig-qos-maps-ext:dot1p-map:
+            - name: dot1p_map1
+              config:
+                name: dot1p_map1
+              dot1p-map-entries:
+                dot1p-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      fwd-group: '0'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps/forwarding-group-queue-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:forwarding-group-queue-maps:
-            forwarding-group-queue-map:
-              - name: fwd_queue_map1
-                config:
-                  name: fwd_queue_map1
-                forwarding-group-queue-map-entries:
-                  forwarding-group-queue-map-entry:
-                    - fwd-group: '0'
-                      config:
-                        fwd-group: '0'
-                        output-queue-index: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps'
+          openconfig-qos-maps-ext:forwarding-group-queue-map:
+            - name: fwd_queue_map1
+              config:
+                name: fwd_queue_map1
+              forwarding-group-queue-map-entries:
+                forwarding-group-queue-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      output-queue-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps/forwarding-group-dscp-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:forwarding-group-dscp-maps:
-            forwarding-group-dscp-map:
-              - name: fwd_dscp_map1
-                config:
-                  name: fwd_dscp_map1
-                forwarding-group-dscp-map-entries:
-                  forwarding-group-dscp-map-entry:
-                    - fwd-group: '0'
-                      config:
-                        fwd-group: '0'
-                        dscp: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps'
+          openconfig-qos-maps-ext:forwarding-group-dscp-map:
+            - name: fwd_dscp_map1
+              config:
+                name: fwd_dscp_map1
+              forwarding-group-dscp-map-entries:
+                forwarding-group-dscp-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      dscp: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps/forwarding-group-dot1p-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:forwarding-group-dot1p-maps:
-            forwarding-group-dot1p-map:
-              - name: fwd_dot1p_map1
-                config:
-                  name: fwd_dot1p_map1
-                forwarding-group-dot1p-map-entries:
-                  forwarding-group-dot1p-map-entry:
-                    - fwd-group: '0'
-                      config:
-                        fwd-group: '0'
-                        dot1p: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps'
+          openconfig-qos-maps-ext:forwarding-group-dot1p-map:
+            - name: fwd_dot1p_map1
+              config:
+                name: fwd_dot1p_map1
+              forwarding-group-dot1p-map-entries:
+                forwarding-group-dot1p-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      dot1p: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps/forwarding-group-priority-group-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:forwarding-group-priority-group-maps:
-            forwarding-group-priority-group-map:
-              - name: fwd_pg_map1
-                config:
-                  name: fwd_pg_map1
-                forwarding-group-priority-group-map-entries:
-                  forwarding-group-priority-group-map-entry:
-                    - fwd-group: '0'
-                      config:
-                        fwd-group: '0'
-                        priority-group-index: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps'
+          openconfig-qos-maps-ext:forwarding-group-priority-group-map:
+            - name: fwd_pg_map1
+              config:
+                name: fwd_pg_map1
+              forwarding-group-priority-group-map-entries:
+                forwarding-group-priority-group-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      priority-group-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps/pfc-priority-queue-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:pfc-priority-queue-maps:
-            pfc-priority-queue-map:
-              - name: pfc_queue_map1
-                config:
-                  name: pfc_queue_map1
-                pfc-priority-queue-map-entries:
-                  pfc-priority-queue-map-entry:
-                    - dot1p: 0
-                      config:
-                        dot1p: 0
-                        output-queue-index: 0
-    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps'
+          openconfig-qos-maps-ext:pfc-priority-queue-map:
+            - name: pfc_queue_map1
+              config:
+                name: pfc_queue_map1
+              pfc-priority-queue-map-entries:
+                pfc-priority-queue-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      output-queue-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps/pfc-priority-priority-group-map'
       response:
         code: 200
         value:
-          openconfig-qos-maps-ext:pfc-priority-priority-group-maps:
-            pfc-priority-priority-group-map:
-              - name: pfc_pg_map1
-                config:
-                  name: pfc_pg_map1
-                pfc-priority-priority-group-map-entries:
-                  pfc-priority-priority-group-map-entry:
-                    - dot1p: 0
-                      config:
-                        dot1p: 0
-                        priority-group-index: 0
+          openconfig-qos-maps-ext:pfc-priority-priority-group-map:
+            - name: pfc_pg_map1
+              config:
+                name: pfc_pg_map1
+              pfc-priority-priority-group-map-entries:
+                pfc-priority-priority-group-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      priority-group-index: 0
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map=dscp_map1/dscp-map-entries/dscp-map-entry=0/config/fwd-group'
       method: 'delete'
@@ -700,5 +780,148 @@ deleted_01:
       method: 'delete'
       data:
     - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps/pfc-priority-priority-group-map=pfc_pg_map1'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_qos_maps_config:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps/dscp-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:dscp-map:
+            - name: dscp_map1
+              config:
+                name: dscp_map1
+              dscp-map-entries:
+                dscp-map-entry:
+                  - dscp: 0
+                    config:
+                      dscp: 0
+                      fwd-group: '0'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps/dot1p-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:dot1p-map:
+            - name: dot1p_map1
+              config:
+                name: dot1p_map1
+              dot1p-map-entries:
+                dot1p-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      fwd-group: '0'
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps/forwarding-group-queue-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:forwarding-group-queue-map:
+            - name: fwd_queue_map1
+              config:
+                name: fwd_queue_map1
+              forwarding-group-queue-map-entries:
+                forwarding-group-queue-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      output-queue-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps/forwarding-group-dscp-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:forwarding-group-dscp-map:
+            - name: fwd_dscp_map1
+              config:
+                name: fwd_dscp_map1
+              forwarding-group-dscp-map-entries:
+                forwarding-group-dscp-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      dscp: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps/forwarding-group-dot1p-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:forwarding-group-dot1p-map:
+            - name: fwd_dot1p_map1
+              config:
+                name: fwd_dot1p_map1
+              forwarding-group-dot1p-map-entries:
+                forwarding-group-dot1p-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      dot1p: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps/forwarding-group-priority-group-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:forwarding-group-priority-group-map:
+            - name: fwd_pg_map1
+              config:
+                name: fwd_pg_map1
+              forwarding-group-priority-group-map-entries:
+                forwarding-group-priority-group-map-entry:
+                  - fwd-group: '0'
+                    config:
+                      fwd-group: '0'
+                      priority-group-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps/pfc-priority-queue-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:pfc-priority-queue-map:
+            - name: pfc_queue_map1
+              config:
+                name: pfc_queue_map1
+              pfc-priority-queue-map-entries:
+                pfc-priority-queue-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      output-queue-index: 0
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps/pfc-priority-priority-group-map'
+      response:
+        code: 200
+        value:
+          openconfig-qos-maps-ext:pfc-priority-priority-group-map:
+            - name: pfc_pg_map1
+              config:
+                name: pfc_pg_map1
+              pfc-priority-priority-group-map-entries:
+                pfc-priority-priority-group-map-entry:
+                  - dot1p: 0
+                    config:
+                      dot1p: 0
+                      priority-group-index: 0
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dscp-maps'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:dot1p-maps'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-queue-maps'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dscp-maps'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-dot1p-maps'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:forwarding-group-priority-group-maps'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-queue-maps'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/openconfig-qos-maps-ext:pfc-priority-priority-group-maps'
       method: 'delete'
       data:

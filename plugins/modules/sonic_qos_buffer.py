@@ -31,6 +31,7 @@ options:
       buffer_init:
         description:
           - Initialize QoS buffer based on system defaults
+          - Buffer must be initialized to configure I(buffer_pools) and I(buffer_profiles)
         type: bool
         version_added: 3.0.0
       buffer_pools:
