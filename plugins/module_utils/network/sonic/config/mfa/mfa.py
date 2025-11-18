@@ -237,8 +237,9 @@ class Mfa(ConfigBase):
             commands.extend(update_states(have, "deleted"))
             have = {}
 
-        if not have and want:
-            mod_commands = want
+        diff = get_diff(want, have, TEST_KEYS)
+        if diff:
+            mod_commands = diff
             mod_requests = self.get_modify_mfa_requests(mod_commands, have)
 
             if len(mod_requests) > 0:
