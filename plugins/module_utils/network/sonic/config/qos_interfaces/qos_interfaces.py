@@ -95,7 +95,7 @@ def __derive_pfc_delete_op(key_set, command, exist_conf):
 
 TEST_KEYS_generate_config = [
     {'config': {'name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'queues': {'id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'queues': {'id': ''}},
     {'pfc': {'__delete_op': __derive_pfc_delete_op}}
 ]
 
@@ -488,5 +488,7 @@ class Qos_interfaces(ConfigBase):
     def post_process_generated_config(self, configs):
         """Handle post processing for generated configuration"""
         for conf in configs:
+            if conf.get('cable_length') is None:
+                conf['cable_length'] = '40m'
             if 'queues' in conf and not conf['queues']:
                 conf.pop('queues')
