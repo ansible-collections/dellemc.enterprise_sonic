@@ -1,12 +1,12 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
 The sonic_qos_interfaces class
-It is in this file where the current configuration (as dict)
-is compared to the provided configuration (as dict) and the command set
+It is in this file where the current configuration (as list)
+is compared to the provided configuration (as list) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
@@ -27,7 +27,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     update_states
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
     __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
@@ -42,6 +41,17 @@ QOS_INTF_PATH = '/data/openconfig-qos:qos/interfaces'
 QOS_QUEUE_PATH = '/data/openconfig-qos:qos/queues'
 PATCH = 'patch'
 DELETE = 'delete'
+ANS_MAP_TO_OC_MAP = {
+    'dscp_fwd_group': 'dscp-to-forwarding-group',
+    'dot1p_fwd_group': 'dot1p-to-forwarding-group',
+    'fwd_group_dscp': 'forwarding-group-to-dscp',
+    'fwd_group_dot1p': 'forwarding-group-to-dot1p',
+    'fwd_group_queue': 'forwarding-group-to-queue',
+    'fwd_group_pg': 'forwarding-group-to-priority-group',
+    'pfc_priority_queue': 'pfc-priority-to-queue',
+    'pfc_priority_pg': 'pfc-priority-to-priority-group'
+}
+
 TEST_KEYS = [
     {'config': {'name': ''}},
     {'queues': {'id': ''}},
@@ -50,43 +60,41 @@ TEST_KEYS = [
 
 
 def __derive_pfc_delete_op(key_set, command, exist_conf):
+    """Returns new PFC configuration for delete operation"""
     new_conf = exist_conf
     asymmetric = command.get('asymmetric')
     priorities = command.get('priorities')
     watchdog_action = command.get('watchdog_action')
     watchdog_detect_time = command.get('watchdog_detect_time')
     watchdog_restore_time = command.get('watchdog_restore_time')
-    cfg_asymmetric = new_conf.get('asymmetric')
-    cfg_priorities = new_conf.get('priorities')
-    cfg_watchdog_action = new_conf.get('watchdog_action')
-    cfg_watchdog_detect_time = new_conf.get('watchdog_detect_time')
-    cfg_watchdog_restore_time = new_conf.get('watchdog_restore_time')
 
-    if asymmetric and asymmetric == cfg_asymmetric:
+    if asymmetric:
         new_conf['asymmetric'] = False
-    if watchdog_action and cfg_watchdog_action != 'drop':
+    if watchdog_action != 'drop':
         new_conf['watchdog_action'] = 'drop'
-    if watchdog_detect_time and watchdog_detect_time == cfg_watchdog_detect_time:
+    if watchdog_detect_time:
         new_conf.pop('watchdog_detect_time')
-    if watchdog_restore_time and watchdog_restore_time == cfg_watchdog_restore_time:
+    if watchdog_restore_time:
         new_conf.pop('watchdog_restore_time')
-    if priorities and cfg_priorities:
-        cfg_priority_dict = {cfg_priority.get('dot1p'): cfg_priority for cfg_priority in cfg_priorities}
+    if priorities:
+        new_priority_dict = {priority.get('dot1p'): priority for priority in new_conf['priorities']}
         for priority in priorities:
             dot1p = priority.get('dot1p')
             enable = priority.get('enable')
-            cfg_priority = cfg_priority_dict.get(dot1p)
-            if cfg_priority is None:
+            new_priority = new_priority_dict.get(dot1p)
+
+            if not new_priority:
                 continue
-            cfg_enable = cfg_priority.get('enable')
-            if enable and enable == cfg_enable:
-                cfg_priority['enable'] = False
+
+            if enable:
+                new_priority['enable'] = False
+
     return True, new_conf
 
 
-TEST_KEYS_formatted_diff = [
+TEST_KEYS_generate_config = [
     {'config': {'name': '', '__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'queues': {'id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'queues': {'id': ''}},
     {'pfc': {'__delete_op': __derive_pfc_delete_op}}
 ]
 
@@ -111,8 +119,8 @@ class Qos_interfaces(ConfigBase):
     def get_qos_interfaces_facts(self):
         """ Get the 'facts' (the current configuration)
 
-        :rtype: A dictionary
-        :returns: The current configuration as a dictionary
+        :rtype: A list
+        :returns: The current configuration as a list
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         qos_interfaces_facts = facts['ansible_network_resources'].get('qos_interfaces')
@@ -127,47 +135,41 @@ class Qos_interfaces(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_qos_interfaces_facts = self.get_qos_interfaces_facts()
         commands, requests = self.set_config(existing_qos_interfaces_facts)
-        if commands and len(requests) > 0:
+        if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_qos_interfaces_facts = self.get_qos_interfaces_facts()
-
         result['before'] = existing_qos_interfaces_facts
-        if result['changed']:
-            result['after'] = changed_qos_interfaces_facts
-
-        new_config = changed_qos_interfaces_facts
         old_config = existing_qos_interfaces_facts
+
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_qos_interfaces_facts,
-                                        TEST_KEYS_formatted_diff)
+            new_config = get_new_config(commands, existing_qos_interfaces_facts, TEST_KEYS_generate_config)
             self.post_process_generated_config(new_config)
+            self.sort_lists_in_config(new_config)
             result['after(generated)'] = new_config
+        else:
+            new_config = self.get_qos_interfaces_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
             self.sort_lists_in_config(new_config)
             self.sort_lists_in_config(old_config)
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 
-        result['warnings'] = warnings
         return result
 
     def set_config(self, existing_qos_interfaces_facts):
         """ Collect the configuration from the args passed to the module,
-            collect the current configuration (as a dict from facts)
+            collect the current configuration (as a list from facts)
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -175,25 +177,26 @@ class Qos_interfaces(ConfigBase):
         """
         want = remove_empties_from_list(self._module.params['config'])
         have = existing_qos_interfaces_facts
+        self.sort_lists_in_config(want)
+        self.sort_lists_in_config(have)
         resp = self.set_state(want, have)
         return to_list(resp)
 
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
 
-        :param want: the desired configuration as a dictionary
-        :param have: the current configuration as a dictionary
+        :param want: the desired configuration as a list
+        :param have: the current configuration as a list
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'deleted':
-            commands, requests = self._state_deleted(want, have)
+            commands, requests = self._state_deleted(want, have, diff)
         elif state == 'merged':
             commands, requests = self._state_merged(diff)
         return commands, requests
@@ -208,43 +211,46 @@ class Qos_interfaces(ConfigBase):
         commands = diff
         requests = self.get_modify_qos_interfaces_requests(commands)
 
-        if commands and len(requests) > 0:
+        if commands and requests:
             commands = update_states(commands, 'merged')
         else:
             commands = []
 
         return commands, requests
 
-    def _state_deleted(self, want, have):
+    def _state_deleted(self, want, have, diff):
         """ The command generator when state is deleted
 
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        is_delete_all = False
+        delete_all = False
+        commands, requests = [], []
 
         if not want:
             commands = deepcopy(have)
-            is_delete_all = True
+            delete_all = True
         else:
-            commands = deepcopy(want)
+            commands = get_diff(want, diff, TEST_KEYS)
 
         self.remove_default_entries(commands)
-        requests = self.get_delete_qos_interfaces_requests(commands, have, is_delete_all)
 
-        if commands and len(requests) > 0:
-            commands = update_states(commands, 'deleted')
+        if commands:
+            requests = self.get_delete_qos_interfaces_requests(commands, delete_all)
+            if requests:
+                commands = update_states(commands, 'deleted')
         else:
             commands = []
+
         return commands, requests
 
     def get_modify_qos_interfaces_requests(self, commands):
+        """ Returns two patch requests to modify QoS interfaces and queues configuration"""
         requests = []
 
         if commands:
-            intf_list = []
-            queue_list = []
+            intf_list, queue_list = [], []
             for intf in commands:
                 intf_dict = {}
                 name = intf.get('name')
@@ -262,36 +268,13 @@ class Qos_interfaces(ConfigBase):
                     intf_dict['openconfig-qos-buffer:cable-length'] = {'config': {'length': cable_length}}
                 if qos_maps:
                     map_dict = {}
-                    dscp_fwd_group = qos_maps.get('dscp_fwd_group')
-                    dot1p_fwd_group = qos_maps.get('dot1p_fwd_group')
-                    fwd_group_dscp = qos_maps.get('fwd_group_dscp')
-                    fwd_group_dot1p = qos_maps.get('fwd_group_dot1p')
-                    fwd_group_queue = qos_maps.get('fwd_group_queue')
-                    fwd_group_pg = qos_maps.get('fwd_group_pg')
-                    pfc_priority_queue = qos_maps.get('pfc_priority_queue')
-                    pfc_priority_pg = qos_maps.get('pfc_priority_pg')
-
-                    if dscp_fwd_group:
-                        map_dict['dscp-to-forwarding-group'] = dscp_fwd_group
-                    if dot1p_fwd_group:
-                        map_dict['dot1p-to-forwarding-group'] = dot1p_fwd_group
-                    if fwd_group_dscp:
-                        map_dict['forwarding-group-to-dscp'] = fwd_group_dscp
-                    if fwd_group_dot1p:
-                        map_dict['forwarding-group-to-dot1p'] = fwd_group_dot1p
-                    if fwd_group_queue:
-                        map_dict['forwarding-group-to-queue'] = fwd_group_queue
-                    if fwd_group_pg:
-                        map_dict['forwarding-group-to-priority-group'] = fwd_group_pg
-                    if pfc_priority_queue:
-                        map_dict['pfc-priority-to-queue'] = pfc_priority_queue
-                    if pfc_priority_pg:
-                        map_dict['pfc-priority-to-priority-group'] = pfc_priority_pg
+                    for ans_map in ANS_MAP_TO_OC_MAP:
+                        if qos_maps.get(ans_map):
+                            map_dict[ANS_MAP_TO_OC_MAP[ans_map]] = qos_maps[ans_map]
                     if map_dict:
                         intf_dict['openconfig-qos-maps-ext:interface-maps'] = {'config': map_dict}
                 if pfc:
-                    pfc_dict = {}
-                    watchdog_dict = {}
+                    pfc_dict, watchdog_dict = {}, {}
                     asymmetric = pfc.get('asymmetric')
                     watchdog_action = pfc.get('watchdog_action')
                     watchdog_detect_time = pfc.get('watchdog_detect_time')
@@ -351,7 +334,8 @@ class Qos_interfaces(ConfigBase):
 
         return requests
 
-    def get_delete_qos_interfaces_requests(self, commands, have, is_delete_all):
+    def get_delete_qos_interfaces_requests(self, commands, is_delete_all):
+        """Returns a list of delete requests to delete the specified QoS interfaces configuration"""
         requests = []
 
         if not commands:
@@ -362,9 +346,9 @@ class Qos_interfaces(ConfigBase):
             requests.append({'path': QOS_QUEUE_PATH, 'method': DELETE})
             return requests
 
-        config_list = []
-        cfg_intf_dict = {cfg_intf.get('name'): cfg_intf for cfg_intf in have}
         for intf in commands:
+            if len(intf) == 1:
+                self._module.fail_json(msg='Deletion of a QoS interface not supported')
             name = intf.get('name')
             scheduler_policy = intf.get('scheduler_policy')
             cable_length = intf.get('cable_length')
@@ -372,175 +356,87 @@ class Qos_interfaces(ConfigBase):
             pfc = intf.get('pfc')
             queues = intf.get('queues')
 
-            cfg_intf = cfg_intf_dict.get(name)
-            if cfg_intf is None:
-                continue
-            config_dict = {}
-            cfg_scheduler_policy = cfg_intf.get('scheduler_policy')
-            cfg_cable_length = cfg_intf.get('cable_length')
-            cfg_qos_maps = cfg_intf.get('qos_maps')
-            cfg_pfc = cfg_intf.get('pfc')
-            cfg_queues = cfg_intf.get('queues')
-
-            if scheduler_policy and scheduler_policy == cfg_scheduler_policy:
-                url = '%s/interface=%s/output/scheduler-policy' % (QOS_INTF_PATH, name)
+            if scheduler_policy:
+                url = f'{QOS_INTF_PATH}/interface={name}/output/scheduler-policy'
                 requests.append({'path': url, 'method': DELETE})
-                config_dict.update({'name': name, 'scheduler_policy': scheduler_policy})
 
-            if cable_length and cable_length == cfg_cable_length:
-                url = '%s/interface=%s/openconfig-qos-buffer:cable-length' % (QOS_INTF_PATH, name)
+            if cable_length:
+                url = f'{QOS_INTF_PATH}/interface={name}/openconfig-qos-buffer:cable-length'
                 requests.append({'path': url, 'method': DELETE})
-                config_dict.update({'name': name, 'cable_length': cable_length})
 
-            if qos_maps and cfg_qos_maps:
-                maps_dict = {}
-                dscp_fwd_group = qos_maps.get('dscp_fwd_group')
-                dot1p_fwd_group = qos_maps.get('dot1p_fwd_group')
-                fwd_group_dscp = qos_maps.get('fwd_group_dscp')
-                fwd_group_dot1p = qos_maps.get('fwd_group_dot1p')
-                fwd_group_queue = qos_maps.get('fwd_group_queue')
-                fwd_group_pg = qos_maps.get('fwd_group_pg')
-                pfc_priority_queue = qos_maps.get('pfc_priority_queue')
-                pfc_priority_pg = qos_maps.get('pfc_priority_pg')
+            if qos_maps:
+                for ans_map in ANS_MAP_TO_OC_MAP:
+                    if qos_maps.get(ans_map):
+                        requests.append(self.get_delete_map_request(name, ANS_MAP_TO_OC_MAP[ans_map]))
 
-                cfg_dscp_fwd_group = cfg_qos_maps.get('dscp_fwd_group')
-                cfg_dot1p_fwd_group = cfg_qos_maps.get('dot1p_fwd_group')
-                cfg_fwd_group_dscp = cfg_qos_maps.get('fwd_group_dscp')
-                cfg_fwd_group_dot1p = cfg_qos_maps.get('fwd_group_dot1p')
-                cfg_fwd_group_queue = cfg_qos_maps.get('fwd_group_queue')
-                cfg_fwd_group_pg = cfg_qos_maps.get('fwd_group_pg')
-                cfg_pfc_priority_queue = cfg_qos_maps.get('pfc_priority_queue')
-                cfg_pfc_priority_pg = cfg_qos_maps.get('pfc_priority_pg')
-
-                if dscp_fwd_group and dscp_fwd_group == cfg_dscp_fwd_group:
-                    requests.append(self.get_delete_map_request(name, 'dscp-to-forwarding-group'))
-                    maps_dict['dscp_fwd_group'] = dscp_fwd_group
-                if dot1p_fwd_group and dot1p_fwd_group == cfg_dot1p_fwd_group:
-                    requests.append(self.get_delete_map_request(name, 'dot1p-to-forwarding-group'))
-                    maps_dict['dot1p_fwd_group'] = dot1p_fwd_group
-                if fwd_group_dscp and fwd_group_dscp == cfg_fwd_group_dscp:
-                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-dscp'))
-                    maps_dict['fwd_group_dscp'] = fwd_group_dscp
-                if fwd_group_dot1p and fwd_group_dot1p == cfg_fwd_group_dot1p:
-                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-dot1p'))
-                    maps_dict['fwd_group_dot1p'] = fwd_group_dot1p
-                if fwd_group_queue and fwd_group_queue == cfg_fwd_group_queue:
-                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-queue'))
-                    maps_dict['fwd_group_queue'] = fwd_group_queue
-                if fwd_group_pg and fwd_group_pg == cfg_fwd_group_pg:
-                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-priority-group'))
-                    maps_dict['fwd_group_pg'] = fwd_group_pg
-                if pfc_priority_queue and pfc_priority_queue == cfg_pfc_priority_queue:
-                    requests.append(self.get_delete_map_request(name, 'pfc-priority-to-queue'))
-                    maps_dict['pfc_priority_queue'] = pfc_priority_queue
-                if pfc_priority_pg and pfc_priority_pg == cfg_pfc_priority_pg:
-                    requests.append(self.get_delete_map_request(name, 'pfc-priority-to-priority-group'))
-                    maps_dict['pfc_priority_pg'] = pfc_priority_pg
-                if maps_dict:
-                    config_dict.update({'name': name, 'qos_maps': maps_dict})
-
-            if pfc and cfg_pfc:
-                pfc_dict = {}
+            if pfc:
                 asymmetric = pfc.get('asymmetric')
                 watchdog_action = pfc.get('watchdog_action')
                 watchdog_detect_time = pfc.get('watchdog_detect_time')
                 watchdog_restore_time = pfc.get('watchdog_restore_time')
                 priorities = pfc.get('priorities')
 
-                cfg_asymmetric = cfg_pfc.get('asymmetric')
-                cfg_watchdog_action = cfg_pfc.get('watchdog_action')
-                cfg_watchdog_detect_time = cfg_pfc.get('watchdog_detect_time')
-                cfg_watchdog_restore_time = cfg_pfc.get('watchdog_restore_time')
-                cfg_priorities = cfg_pfc.get('priorities')
-
                 # default false
-                if asymmetric and asymmetric == cfg_asymmetric:
-                    url = '%s/interface=%s/pfc/config/asymmetric' % (QOS_INTF_PATH, name)
+                if asymmetric:
+                    url = f'{QOS_INTF_PATH}/interface={name}/pfc/config/asymmetric'
                     requests.append({'path': url, 'method': DELETE})
-                    pfc_dict['asymmetric'] = asymmetric
-                if watchdog_action and watchdog_action == cfg_watchdog_action:
+                if watchdog_action:
                     requests.append(self.get_delete_watchdog_request(name, 'action'))
-                    pfc_dict['watchdog_action'] = watchdog_action
-                if watchdog_detect_time and watchdog_detect_time == cfg_watchdog_detect_time:
+                if watchdog_detect_time:
                     requests.append(self.get_delete_watchdog_request(name, 'detection-time'))
-                    pfc_dict['watchdog_detect_time'] = watchdog_detect_time
-                if watchdog_restore_time and watchdog_restore_time == cfg_watchdog_restore_time:
+                if watchdog_restore_time:
                     requests.append(self.get_delete_watchdog_request(name, 'restoration-time'))
-                    pfc_dict['watchdog_restore_time'] = watchdog_restore_time
-                if priorities and cfg_priorities:
-                    priorities_list = []
-                    cfg_priority_dict = {cfg_priority.get('dot1p'): cfg_priority for cfg_priority in cfg_priorities}
+                if priorities:
                     for priority in priorities:
+                        if len(priority) == 1:
+                            self._module.fail_json(msg='Deletion of PFC priority not supported')
                         dot1p = priority.get('dot1p')
                         enable = priority.get('enable')
 
-                        cfg_priority = cfg_priority_dict.get(dot1p)
-                        if cfg_priority is None:
-                            continue
-                        cfg_enable = cfg_priority.get('enable')
-
                         # default false
-                        if enable and enable == cfg_enable:
-                            url = '%s/interface=%s/pfc/pfc-priorities/pfc-priority=%s/config/enable' % (QOS_INTF_PATH, name, dot1p)
+                        if enable:
+                            url = f'{QOS_INTF_PATH}/interface={name}/pfc/pfc-priorities/pfc-priority={dot1p}/config/enable'
                             requests.append({'path': url, 'method': DELETE})
-                            priorities_dict = {'dot1p': dot1p, 'enable': enable}
-                            priorities_list.append(priorities_dict)
-                        elif enable is None:
-                            self._module.fail_json(msg='Deletion of PFC priority not supported')
-                    if priorities_list:
-                        pfc_dict['priorities'] = priorities_list
-                if pfc_dict:
-                    config_dict.update({'name': name, 'pfc': pfc_dict})
 
-            if queues and cfg_queues:
-                queues_list = []
-                cfg_queue_dict = {cfg_queue.get('id'): cfg_queue for cfg_queue in cfg_queues}
+            if queues:
                 for queue in queues:
                     queue_id = queue.get('id')
+                    queue_name = name + ':' + str(queue_id)
+
+                    if len(queue) == 1:
+                        url = f'{QOS_QUEUE_PATH}/queue={queue_name}'
+                        requests.append({'path': url, 'method': DELETE})
+                        continue
+
                     wred_profile = queue.get('wred_profile')
 
-                    cfg_queue = cfg_queue_dict.get(queue_id)
-                    if cfg_queue is None:
-                        continue
-                    queues_dict = {}
-                    cfg_wred_profile = cfg_queue.get('wred_profile')
-                    queue_name = name + ':' + str(queue_id)
-                    if wred_profile and wred_profile == cfg_wred_profile:
-                        url = '%s/queue=%s/wred/config/wred-profile' % (QOS_QUEUE_PATH, queue_name)
+                    if wred_profile:
+                        url = f'{QOS_QUEUE_PATH}/queue={queue_name}/wred/config/wred-profile'
                         requests.append({'path': url, 'method': DELETE})
-                        queues_dict.update({'id': queue_id, 'wred_profile': wred_profile})
-                    elif not wred_profile:
-                        url = '%s/queue=%s' % (QOS_QUEUE_PATH, queue_name)
-                        requests.append({'path': url, 'method': DELETE})
-                        queues_dict['id'] = queue_id
-                    if queues_dict:
-                        queues_list.append(queues_dict)
-                if queues_list:
-                    config_dict.update({'name': name, 'queues': queues_list})
-            if config_dict:
-                config_list.append(config_dict)
-            if not scheduler_policy and not qos_maps and not pfc and not queues and not cable_length:
-                self._module.fail_json(msg='Deletion of a QoS interface not supported')
-        commands = config_list
 
         return requests
 
-    def get_delete_map_request(self, name, map_name):
-        url = '%s/interface=%s/openconfig-qos-maps-ext:interface-maps/config/%s' % (QOS_INTF_PATH, name, map_name)
+    @staticmethod
+    def get_delete_map_request(name, map_name):
+        """Returns a delete request to delete the specified QoS maps configuration"""
+        url = f'{QOS_INTF_PATH}/interface={name}/openconfig-qos-maps-ext:interface-maps/config/{map_name}'
         request = {'path': url, 'method': DELETE}
 
         return request
 
-    def get_delete_watchdog_request(self, name, attr):
-        url = '%s/interface=%s/pfc/watchdog/config/%s' % (QOS_INTF_PATH, name, attr)
+    @staticmethod
+    def get_delete_watchdog_request(name, attr):
+        """Returns a delete request to delete the specified watchdog configuration"""
+        url = f'{QOS_INTF_PATH}/interface={name}/pfc/watchdog/config/{attr}'
         request = {'path': url, 'method': DELETE}
 
         return request
 
     def remove_default_entries(self, data):
+        """Removes default entries from the QoS interfaces data"""
         if data:
             intf_pop_list = []
-            for intf in data:
+            for idx, intf in enumerate(data):
                 pfc = intf.get('pfc')
                 if pfc:
                     asymmetric = pfc.get('asymmetric')
@@ -553,11 +449,10 @@ class Qos_interfaces(ConfigBase):
                         pfc.pop('watchdog_action')
                     if priorities:
                         priority_pop_list = []
-                        for priority in priorities:
+                        for priority_idx, priority in enumerate(priorities):
                             enable = priority.get('enable')
 
                             if enable is False:
-                                priority_idx = priorities.index(priority)
                                 priority_pop_list.insert(0, priority_idx)
 
                         for priority_idx in priority_pop_list:
@@ -573,13 +468,14 @@ class Qos_interfaces(ConfigBase):
                     intf.pop('cable_length')
 
                 if 'name' in intf and (len(intf) == 1 or intf['name'] == 'CPU'):
-                    intf_idx = data.index(intf)
-                    intf_pop_list.insert(0, intf_idx)
+                    intf_pop_list.insert(0, idx)
 
-            for intf_idx in intf_pop_list:
-                data.pop(intf_idx)
+            for idx in intf_pop_list:
+                data.pop(idx)
 
-    def sort_lists_in_config(self, config):
+    @staticmethod
+    def sort_lists_in_config(config):
+        """Sorts the lists in QoS interfaces configuration"""
         if config:
             config.sort(key=lambda x: x['name'])
             for intf in config:
@@ -589,6 +485,9 @@ class Qos_interfaces(ConfigBase):
                     intf['pfc']['priorities'].sort(key=lambda x: x['dot1p'])
 
     def post_process_generated_config(self, configs):
+        """Handle post processing for generated configuration"""
         for conf in configs:
+            if conf.get('cable_length') is None:
+                conf['cable_length'] = '40m'
             if 'queues' in conf and not conf['queues']:
                 conf.pop('queues')
