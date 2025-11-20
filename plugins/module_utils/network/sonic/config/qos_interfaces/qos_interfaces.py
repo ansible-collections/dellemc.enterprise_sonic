@@ -42,6 +42,17 @@ QOS_INTF_PATH = '/data/openconfig-qos:qos/interfaces'
 QOS_QUEUE_PATH = '/data/openconfig-qos:qos/queues'
 PATCH = 'patch'
 DELETE = 'delete'
+ANS_MAP_TO_OC_MAP = {
+    'dscp_fwd_group': 'dscp-to-forwarding-group',
+    'dot1p_fwd_group': 'dot1p-to-forwarding-group',
+    'fwd_group_dscp': 'forwarding-group-to-dscp',
+    'fwd_group_dot1p': 'forwarding-group-to-dot1p',
+    'fwd_group_queue': 'forwarding-group-to-queue',
+    'fwd_group_pg': 'forwarding-group-to-priority-group',
+    'pfc_priority_queue': 'pfc-priority-to-queue',
+    'pfc_priority_pg': 'pfc-priority-to-priority-group'
+}
+
 TEST_KEYS = [
     {'config': {'name': ''}},
     {'queues': {'id': ''}},
@@ -258,31 +269,9 @@ class Qos_interfaces(ConfigBase):
                     intf_dict['openconfig-qos-buffer:cable-length'] = {'config': {'length': cable_length}}
                 if qos_maps:
                     map_dict = {}
-                    dscp_fwd_group = qos_maps.get('dscp_fwd_group')
-                    dot1p_fwd_group = qos_maps.get('dot1p_fwd_group')
-                    fwd_group_dscp = qos_maps.get('fwd_group_dscp')
-                    fwd_group_dot1p = qos_maps.get('fwd_group_dot1p')
-                    fwd_group_queue = qos_maps.get('fwd_group_queue')
-                    fwd_group_pg = qos_maps.get('fwd_group_pg')
-                    pfc_priority_queue = qos_maps.get('pfc_priority_queue')
-                    pfc_priority_pg = qos_maps.get('pfc_priority_pg')
-
-                    if dscp_fwd_group:
-                        map_dict['dscp-to-forwarding-group'] = dscp_fwd_group
-                    if dot1p_fwd_group:
-                        map_dict['dot1p-to-forwarding-group'] = dot1p_fwd_group
-                    if fwd_group_dscp:
-                        map_dict['forwarding-group-to-dscp'] = fwd_group_dscp
-                    if fwd_group_dot1p:
-                        map_dict['forwarding-group-to-dot1p'] = fwd_group_dot1p
-                    if fwd_group_queue:
-                        map_dict['forwarding-group-to-queue'] = fwd_group_queue
-                    if fwd_group_pg:
-                        map_dict['forwarding-group-to-priority-group'] = fwd_group_pg
-                    if pfc_priority_queue:
-                        map_dict['pfc-priority-to-queue'] = pfc_priority_queue
-                    if pfc_priority_pg:
-                        map_dict['pfc-priority-to-priority-group'] = pfc_priority_pg
+                    for ans_map in ANS_MAP_TO_OC_MAP:
+                        if qos_maps.get(ans_map):
+                            map_dict[ANS_MAP_TO_OC_MAP[ans_map]] = qos_maps[ans_map]
                     if map_dict:
                         intf_dict['openconfig-qos-maps-ext:interface-maps'] = {'config': map_dict}
                 if pfc:
@@ -377,31 +366,9 @@ class Qos_interfaces(ConfigBase):
                 requests.append({'path': url, 'method': DELETE})
 
             if qos_maps:
-                dscp_fwd_group = qos_maps.get('dscp_fwd_group')
-                dot1p_fwd_group = qos_maps.get('dot1p_fwd_group')
-                fwd_group_dscp = qos_maps.get('fwd_group_dscp')
-                fwd_group_dot1p = qos_maps.get('fwd_group_dot1p')
-                fwd_group_queue = qos_maps.get('fwd_group_queue')
-                fwd_group_pg = qos_maps.get('fwd_group_pg')
-                pfc_priority_queue = qos_maps.get('pfc_priority_queue')
-                pfc_priority_pg = qos_maps.get('pfc_priority_pg')
-
-                if dscp_fwd_group:
-                    requests.append(self.get_delete_map_request(name, 'dscp-to-forwarding-group'))
-                if dot1p_fwd_group:
-                    requests.append(self.get_delete_map_request(name, 'dot1p-to-forwarding-group'))
-                if fwd_group_dscp:
-                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-dscp'))
-                if fwd_group_dot1p:
-                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-dot1p'))
-                if fwd_group_queue:
-                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-queue'))
-                if fwd_group_pg:
-                    requests.append(self.get_delete_map_request(name, 'forwarding-group-to-priority-group'))
-                if pfc_priority_queue:
-                    requests.append(self.get_delete_map_request(name, 'pfc-priority-to-queue'))
-                if pfc_priority_pg:
-                    requests.append(self.get_delete_map_request(name, 'pfc-priority-to-priority-group'))
+                for ans_map in ANS_MAP_TO_OC_MAP:
+                    if qos_maps.get(ans_map):
+                        requests.append(self.get_delete_map_request(name, ANS_MAP_TO_OC_MAP[ans_map]))
 
             if pfc:
                 asymmetric = pfc.get('asymmetric')
@@ -467,7 +434,7 @@ class Qos_interfaces(ConfigBase):
         return request
 
     def remove_default_entries(self, data):
-        """Removes default entires from the QoS interfaces data"""
+        """Removes default entries from the QoS interfaces data"""
         if data:
             intf_pop_list = []
             for idx, intf in enumerate(data):
