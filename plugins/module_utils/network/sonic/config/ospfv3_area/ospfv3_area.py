@@ -130,7 +130,7 @@ class Ospfv3_area(ConfigBase):
         if self._module.check_mode:
             new_config = self.get_new_config(commands, existing_ospfv3_area_facts)
             new_config.sort(key=lambda x: (x['vrf_name'], x['area_id']))
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         elif result['changed']:
             new_config = self.get_ospfv3_area_facts()
             new_config.sort(key=lambda x: (x['vrf_name'], x['area_id']))

@@ -323,7 +323,7 @@ after:
   sample: >
     The configuration returned will always be in the same format
     as the parameters above.
-after(generated):
+after_generated:
   description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: list
@@ -331,7 +331,7 @@ after(generated):
     The configuration returned will always be in the same format
     as the parameters above.
 diff:
-  description: The difference between 'before' and 'after' (or 'after(generated)').
+  description: The difference between 'before' and 'after' (or 'after_generated').
   returned: when D(diff_mode)
   type: list
   sample: >

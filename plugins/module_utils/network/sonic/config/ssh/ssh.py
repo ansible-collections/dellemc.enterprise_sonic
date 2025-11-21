@@ -106,7 +106,7 @@ class Ssh(ConfigBase):
         if self._module.check_mode:
             result.pop('after', None)
             new_config = get_new_config(commands, existing_ssh_facts)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 

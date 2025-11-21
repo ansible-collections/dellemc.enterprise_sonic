@@ -152,7 +152,7 @@ class Dhcp_relay(ConfigBase):
             new_config = get_new_config(commands, existing_dhcp_relay_facts,
                                         TEST_KEYS_generate_config)
             new_config = self.post_process_generated_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             self.sort_lists_in_config(new_config)

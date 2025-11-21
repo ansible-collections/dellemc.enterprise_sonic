@@ -239,8 +239,8 @@ class Ospfv2(ConfigBase):
             else:
                 new_config = get_new_config(commands, existing_ospfv2_facts, TEST_KEYS_diff)
             new_config = remove_empties_from_list(new_config)
-            result['after(generated)'] = self._post_process_generated_output(new_config)
-            self.sort_lists_in_config(result['after(generated)'])
+            result['after_generated'] = self._post_process_generated_output(new_config)
+            self.sort_lists_in_config(result['after_generated'])
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)

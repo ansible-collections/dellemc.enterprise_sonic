@@ -368,7 +368,7 @@ after:
   description: The configuration resulting from module invocation.
   returned: when changed
   type: dict
-after(generated):
+after_generated:
   description: The configuration that would result from non-check-mode module invocation.
   returned: when C(check_mode)
   type: dict
