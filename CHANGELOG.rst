@@ -10,7 +10,7 @@ v3.2.0
 Release Summary
 ---------------
 
-| Release Date: 2024-10-10
+| Release Date: 2025-10-10
 |
 | This release provides an Ansible compliance change required on top of the changes included in
 | the 3.1.0 release of the enterprise_sonic Ansible network resource module collection.
