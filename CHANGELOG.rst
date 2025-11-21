@@ -30,7 +30,7 @@ v3.1.0
 Release Summary
 ---------------
 
-| Release Date: 2025-1009
+| Release Date: 2025-10-09
 |
 | This release provides Dell Enterprise SONiC Ansible Collection support for new features added with
 | the Enterprise SONiC 4.5.0 release. It also provides Ansible support for several features included
@@ -132,7 +132,7 @@ v3.0.0
 Release Summary
 ---------------
 
-| Release Date: 2024-1121
+| Release Date: 2024-11-21
 |
 | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.4.0
 | and later images. It provides a new resource module for support of the SONiC SSH client configuration
@@ -203,7 +203,7 @@ v2.5.0
 Release Summary
 ---------------
 
-| Release Date: 2024-0812
+| Release Date: 2024-08-12
 |
 | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.x images.
 | In addition to new resource modules to support previously existing functionality, it provides
@@ -320,7 +320,7 @@ v2.4.0
 Release Summary
 ---------------
 
-| Release Date: 2024-0108
+| Release Date: 2024-01-08
 | This release provides an Ansible compliance change required on top of the changes included in
 | the 2.3.0 release of the enterprise_sonic Ansible network resource module collection.
 | It addresses an issue raised by the Ansible core team with the content of the 2.3.0 release,
@@ -346,7 +346,7 @@ v2.3.0
 Release Summary
 ---------------
 
-| Release Date: 2024-0103
+| Release Date: 2024-01-03
 | This release provides the functionality enhancements listed below, along with fixes for
 | problems found in regression testing or reported by users. The main functionality enhancements
 | provided are the following items.
@@ -468,7 +468,7 @@ v2.1.0
 Release Summary
 ---------------
 
-| Release Date: 2023-0515
+| Release Date: 2023-05-15
 | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.x images.
 | In addition to new resource modules to support previously existing functionality, it provides
 | support for the "QinQ" (Vlan Mapping) function introduced with SONiC release 4.1. It also provides

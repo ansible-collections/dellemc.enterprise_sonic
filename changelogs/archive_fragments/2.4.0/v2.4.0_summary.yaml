@@ -1,6 +1,6 @@
 ---
 release_summary: |
-        | Release Date: 2024-0108
+        | Release Date: 2024-01-08
         | This release provides an Ansible compliance change required on top of the changes included in
         | the 2.3.0 release of the enterprise_sonic Ansible network resource module collection.
         | It addresses an issue raised by the Ansible core team with the content of the 2.3.0 release,
