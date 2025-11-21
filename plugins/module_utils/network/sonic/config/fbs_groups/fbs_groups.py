@@ -143,7 +143,7 @@ class Fbs_groups(ConfigBase):
             new_config = remove_empties(get_new_config(commands, existing_fbs_groups_facts, TEST_KEYS_generate_config))
             self.sort_lists_in_config(new_config)
             self.handle_default_entries(new_config, False)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             new_config = self.get_fbs_groups_facts()
             if result['changed']:

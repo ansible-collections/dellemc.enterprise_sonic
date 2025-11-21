@@ -111,7 +111,7 @@ class Ip_neighbor_interfaces(ConfigBase):
         if self._module.check_mode:
             new_config = self.get_new_config(commands, old_config)
             self.sort_lists_in_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             new_config = self.get_ip_neighbor_interfaces_facts()
             if result['changed']:

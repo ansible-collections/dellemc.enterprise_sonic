@@ -113,7 +113,7 @@ class Fbs_interfaces(ConfigBase):
         if self._module.check_mode:
             new_config = get_new_config(commands, existing_fbs_interfaces_facts, TEST_KEYS_generate_config)
             self.sort_lists_in_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             new_config = self.get_fbs_interfaces_facts()
             if result['changed']:

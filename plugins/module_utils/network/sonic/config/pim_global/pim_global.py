@@ -111,7 +111,7 @@ class Pim_global(ConfigBase):
 
         if self._module.check_mode:
             new_config = self.get_generated_config(commands, existing_pim_global_facts)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             changed_pim_global_facts = self.get_pim_global_facts()
             new_config = changed_pim_global_facts
@@ -397,7 +397,7 @@ class Pim_global(ConfigBase):
         if new_config:
             default_entries = {'ecmp_enable': False, 'ecmp_rebalance_enable': False}
             for conf in new_config:
-                # Add default values for after(generated)
+                # Add default values for after_generated
                 for option in ('ecmp_enable', 'ecmp_rebalance_enable'):
                     if option not in conf:
                         conf[option] = default_entries[option]

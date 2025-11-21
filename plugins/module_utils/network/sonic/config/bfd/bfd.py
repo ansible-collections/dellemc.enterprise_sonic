@@ -169,7 +169,7 @@ class Bfd(ConfigBase):
             new_config = get_new_config(commands, existing_bfd_facts,
                                         TEST_KEYS_generate_config)
             new_config = remove_empties(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             self.sort_lists_in_config(new_config)
