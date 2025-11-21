@@ -140,7 +140,7 @@ class Mfa(ConfigBase):
         if self._module.check_mode:
             new_commands = deepcopy(commands)
             new_config = get_new_config(new_commands, old_config, TEST_KEYS_formatted_diff)
-            result['after(generated)'] = self._post_process_generated_output(new_config)
+            result['after_generated'] = self._post_process_generated_output(new_config)
         else:
             new_config = self.get_mfa_facts()
             if result['changed']:

@@ -374,12 +374,16 @@ EXAMPLES = """
 """
 RETURN = """
 before:
-  description: The configuration prior to the model invocation.
+  description: The configuration prior to module invocation.
   returned: always
   type: dict
 after:
-  description: The resulting configuration model invocation.
+  description: The configuration resulting from module invocation.
   returned: when changed
+  type: dict
+generated_after:
+  description: The generated configuration from module invocation.
+  returned: when C(check_mode)
   type: dict
 commands:
   description: The set of commands pushed to the remote device.

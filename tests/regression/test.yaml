@@ -53,6 +53,7 @@
     - sonic_lst
     - sonic_mac
     - sonic_mclag
+    - sonic_mfa
     - sonic_mgmt_servers
     - sonic_mirroring
     - sonic_network_policy
@@ -71,8 +72,6 @@
     - sonic_port_group
     - sonic_prefix_lists
     - sonic_ptp_default_ds
-    - sonic_mirroring
-    - sonic_mfa
     - sonic_ptp_port_ds
     - sonic_qos_buffer
     - sonic_qos_interfaces
