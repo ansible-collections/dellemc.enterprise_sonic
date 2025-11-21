@@ -1,6 +1,6 @@
 ---
 release_summary: |
-        | Release Date: 2023-0515
+        | Release Date: 2023-05-15
         | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.x images.
         | In addition to new resource modules to support previously existing functionality, it provides
         | support for the "QinQ" (Vlan Mapping function introduced with SONiC release 4.1. It also provides
