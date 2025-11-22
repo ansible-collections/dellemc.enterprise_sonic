@@ -247,7 +247,7 @@ class Ldap(ConfigBase):
             existing_ldap_facts = remove_empties_from_list(existing_ldap_facts)
             new_config = self._get_generated_config(commands, existing_ldap_facts, self._module.params['state'])
             self.sort_lists_in_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             changed_ldap_facts = self.get_ldap_facts()
             new_config = changed_ldap_facts

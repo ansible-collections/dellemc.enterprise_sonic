@@ -253,7 +253,7 @@ class Ospf_area(ConfigBase):
         if self._module.check_mode:
             new_config = get_new_config(commands, existing_ospf_area_facts,
                                         TEST_KEYS_generate_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         elif result['changed']:
             new_config = self.get_ospf_area_facts()
             result['after'] = new_config

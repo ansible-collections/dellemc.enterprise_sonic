@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -56,19 +56,19 @@ class Qos_interfacesFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        objs = []
         facts = {}
 
         if not data:
-            data = self.update_qos_interfaces(self._module)
-        objs = data
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+            data = self.render_config(self._module)
+
+        if data:
+            params = utils.validate_config(self.argument_spec, {'config': data})
             facts['qos_interfaces'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
 
-    def update_qos_interfaces(self, module):
+    def render_config(self, module):
+        """Transform OC data to argspec format"""
         config_list = []
         interfaces = self.get_config(module, 'interfaces/interface', 'openconfig-qos:interface')
         queues = self.get_config(module, 'queues/queue', 'openconfig-qos:queue')
@@ -180,8 +180,10 @@ class Qos_interfacesFacts(object):
         return config_list
 
     def get_config(self, module, path, list_name):
+        """Gets the lists of QoS interfaces and queues configuration
+           configured on the device"""
         cfg = None
-        get_path = '%s/%s' % (QOS_PATH, path)
+        get_path = f'{QOS_PATH}/{path}'
         request = {'path': get_path, 'method': 'get'}
 
         try:

@@ -92,6 +92,8 @@ merged_03:
     - path: '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch/buffer_mode_lossless'
       response:
         code: 200
+        value:
+          sonic-switch:buffer_mode_lossless: true
     - path: '/data/openconfig-qos:qos/openconfig-qos-buffer:buffer'
       response:
         code: 200

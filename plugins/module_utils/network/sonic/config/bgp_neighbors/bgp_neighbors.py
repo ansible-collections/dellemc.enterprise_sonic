@@ -275,7 +275,7 @@ class Bgp_neighbors(ConfigBase):
             new_config = self.post_process_generated_config(new_config)
             new_config = remove_empties_from_list(new_config)
             new_config = sort_config(new_config, TEST_KEYS_sort_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             changed_bgp_facts = self.get_bgp_neighbors_facts()
             new_config = changed_bgp_facts

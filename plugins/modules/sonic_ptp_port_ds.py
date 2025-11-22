@@ -249,7 +249,7 @@ after:
     The configuration returned will always be in the same format
      of the parameters above.
   type: dict
-after(generated):
+after_generated:
   description: The generated configuration on module invocation.
   returned: when C(check_mode)
   type: list

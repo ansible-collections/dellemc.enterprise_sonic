@@ -13,7 +13,7 @@ merged_01:
             cbs: 30000
             pbs: 35000
   existing_qos_scheduler_config:
-    - path: '/data/openconfig-qos:qos/scheduler-policies'
+    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy'
       response:
         code: 200
   expected_config_requests:
@@ -55,61 +55,42 @@ replaced_01:
             pbs: 40000
     state: replaced
   existing_qos_scheduler_config:
-    - path: '/data/openconfig-qos:qos/scheduler-policies'
+    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy'
       response:
         code: 200
         value:
-          openconfig-qos:scheduler-policies:
-            scheduler-policy:
-              - name: 'policy1'
-                config:
-                  name: 'policy1'
-                schedulers:
-                  scheduler:
-                    - sequence: 0
+          openconfig-qos:scheduler-policy:
+            - name: 'policy1'
+              config:
+                name: 'policy1'
+              schedulers:
+                scheduler:
+                  - sequence: 0
+                    config:
+                      sequence: 0
+                      priority: 'DWRR'
+                      weight: 10
+                      meter-type: 'PACKETS'
+                    two-rate-three-color:
                       config:
-                        sequence: 0
-                        priority: 'DWRR'
-                        weight: 10
-                        meter-type: 'PACKETS'
-                      two-rate-three-color:
-                        config:
-                          cir: '32000'
-                          pir: '40000'
-                          bc: 30000
-                          be: 35000
-                    - sequence: 1
+                        cir: '32000'
+                        pir: '40000'
+                        bc: 30000
+                        be: 35000
+                  - sequence: 1
+                    config:
+                      sequence: 1
+                      priority: 'DWRR'
+                      weight: 14
+                      meter-type: 'PACKETS'
+                    two-rate-three-color:
                       config:
-                        sequence: 1
-                        priority: 'DWRR'
-                        weight: 14
-                        meter-type: 'PACKETS'
-                      two-rate-three-color:
-                        config:
-                          cir: '59000'
-                          pir: '67000'
-                          bc: 36000
-                          be: 39000
+                        cir: '59000'
+                        pir: '67000'
+                        bc: 36000
+                        be: 39000
   expected_config_requests:
-    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/config/weight'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/config/priority'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/config/meter-type'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/two-rate-three-color/config/cir'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/two-rate-three-color/config/pir'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/two-rate-three-color/config/bc'
-      method: 'delete'
-      data:
-    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/two-rate-three-color/config/be'
+    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1'
       method: 'delete'
       data:
     - path: '/data/openconfig-qos:qos/scheduler-policies'
@@ -120,6 +101,79 @@ replaced_01:
             - name: 'policy1'
               config:
                 name: 'policy1'
+              schedulers:
+                scheduler:
+                  - sequence: 0
+                    config:
+                      sequence: 0
+                      priority: 'WRR'
+                      weight: 40
+                      meter-type: 'BYTES'
+                    two-rate-three-color:
+                      config:
+                        cir: '127400'
+                        pir: '280000'
+                        bc: 37000
+                        be: 40000
+
+replaced_02:
+  module_args:
+    config:
+      - name: policy2
+        schedulers:
+          - sequence: 0
+            scheduler_type: wrr
+            weight: 40
+            meter_type: bytes
+            cir: 127400
+            pir: 280000
+            cbs: 37000
+            pbs: 40000
+    state: replaced
+  existing_qos_scheduler_config:
+    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy'
+      response:
+        code: 200
+        value:
+          openconfig-qos:scheduler-policy:
+            - name: 'policy1'
+              config:
+                name: 'policy1'
+              schedulers:
+                scheduler:
+                  - sequence: 0
+                    config:
+                      sequence: 0
+                      priority: 'DWRR'
+                      weight: 10
+                      meter-type: 'PACKETS'
+                    two-rate-three-color:
+                      config:
+                        cir: '32000'
+                        pir: '40000'
+                        bc: 30000
+                        be: 35000
+                  - sequence: 1
+                    config:
+                      sequence: 1
+                      priority: 'DWRR'
+                      weight: 14
+                      meter-type: 'PACKETS'
+                    two-rate-three-color:
+                      config:
+                        cir: '59000'
+                        pir: '67000'
+                        bc: 36000
+                        be: 39000
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/scheduler-policies'
+      method: 'patch'
+      data:
+        openconfig-qos:scheduler-policies:
+          scheduler-policy:
+            - name: 'policy2'
+              config:
+                name: 'policy2'
               schedulers:
                 scheduler:
                   - sequence: 0
@@ -149,34 +203,91 @@ overridden_01:
             pbs: 50000
     state: overridden
   existing_qos_scheduler_config:
-    - path: '/data/openconfig-qos:qos/scheduler-policies'
+    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy'
       response:
         code: 200
         value:
-          openconfig-qos:scheduler-policies:
-            scheduler-policy:
-              - name: 'copp-scheduler-policy'
-              - name: 'policy1'
-                config:
-                  name: 'policy1'
-                schedulers:
-                  scheduler:
-                    - sequence: 0
+          openconfig-qos:scheduler-policy:
+            - name: 'copp-scheduler-policy'
+            - name: 'policy1'
+              config:
+                name: 'policy1'
+              schedulers:
+                scheduler:
+                  - sequence: 0
+                    config:
+                      sequence: 0
+                      priority: 'DWRR'
+                      weight: 10
+                      meter-type: 'PACKETS'
+                    two-rate-three-color:
                       config:
-                        sequence: 0
-                        priority: 'DWRR'
-                        weight: 10
-                        meter-type: 'PACKETS'
-                      two-rate-three-color:
-                        config:
-                          cir: '32000'
-                          pir: '40000'
-                          bc: 30000
-                          be: 35000
+                        cir: '32000'
+                        pir: '40000'
+                        bc: 30000
+                        be: 35000
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/scheduler-policies'
       method: 'delete'
       data:
+    - path: '/data/openconfig-qos:qos/scheduler-policies'
+      method: 'patch'
+      data:
+        openconfig-qos:scheduler-policies:
+          scheduler-policy:
+            - name: 'policy2'
+              config:
+                name: 'policy2'
+              schedulers:
+                scheduler:
+                  - sequence: 255
+                    config:
+                      sequence: 255
+                      priority: 'STRICT'
+                      meter-type: 'BYTES'
+                    two-rate-three-color:
+                      config:
+                        cir: '40000'
+                        pir: '60000'
+                        bc: 44000
+                        be: 50000
+
+overridden_02:
+  module_args:
+    config:
+      - name: policy1
+        schedulers:
+          - sequence: 0
+            weight: 40
+            meter_type: bytes
+      - name: policy2
+        schedulers:
+          - sequence: 255
+            scheduler_type: strict
+            meter_type: bytes
+            cir: 40000
+            pir: 60000
+            cbs: 44000
+            pbs: 50000
+    state: overridden
+  existing_qos_scheduler_config:
+    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy'
+      response:
+        code: 200
+        value:
+          openconfig-qos:scheduler-policy:
+            - name: 'copp-scheduler-policy'
+            - name: 'policy1'
+              config:
+                name: 'policy1'
+              schedulers:
+                scheduler:
+                  - sequence: 0
+                    config:
+                      sequence: 0
+                      weight: 40
+                      meter-type: 'BYTES'
+  expected_config_requests:
     - path: '/data/openconfig-qos:qos/scheduler-policies'
       method: 'patch'
       data:
@@ -216,48 +327,47 @@ deleted_01:
       - name: policy2
     state: deleted
   existing_qos_scheduler_config:
-    - path: '/data/openconfig-qos:qos/scheduler-policies'
+    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy'
       response:
         code: 200
         value:
-          openconfig-qos:scheduler-policies:
-            scheduler-policy:
-              - name: 'copp-scheduler-policy'
-              - name: 'policy1'
-                config:
-                  name: 'policy1'
-                schedulers:
-                  scheduler:
-                    - sequence: 0
+          openconfig-qos:scheduler-policy:
+            - name: 'copp-scheduler-policy'
+            - name: 'policy1'
+              config:
+                name: 'policy1'
+              schedulers:
+                scheduler:
+                  - sequence: 0
+                    config:
+                      sequence: 0
+                      priority: 'DWRR'
+                      weight: 10
+                      meter-type: 'PACKETS'
+                    two-rate-three-color:
                       config:
-                        sequence: 0
-                        priority: 'DWRR'
-                        weight: 10
-                        meter-type: 'PACKETS'
-                      two-rate-three-color:
-                        config:
-                          cir: '32000'
-                          pir: '40000'
-                          bc: 30000
-                          be: 35000
-              - name: 'policy1'
-                config:
-                  name: 'policy1'
-                schedulers:
-                  scheduler:
-                    - sequence: 1
-                      config:
-                        sequence: 1
-                        priority: 'DWRR'
-              - name: 'policy2'
-                config:
-                  name: 'policy2'
-                schedulers:
-                  scheduler:
-                    - sequence: 0
-                      config:
-                        sequence: 0
-                        priority: 'STRICT'
+                        cir: '32000'
+                        pir: '40000'
+                        bc: 30000
+                        be: 35000
+            - name: 'policy1'
+              config:
+                name: 'policy1'
+              schedulers:
+                scheduler:
+                  - sequence: 1
+                    config:
+                      sequence: 1
+                      priority: 'DWRR'
+            - name: 'policy2'
+              config:
+                name: 'policy2'
+              schedulers:
+                scheduler:
+                  - sequence: 0
+                    config:
+                      sequence: 0
+                      priority: 'STRICT'
   expected_config_requests:
     - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy1/schedulers/scheduler=0/config/weight'
       method: 'delete'
@@ -281,5 +391,31 @@ deleted_01:
       method: 'delete'
       data:
     - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy=policy2'
+      method: 'delete'
+      data:
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_qos_scheduler_config:
+    - path: '/data/openconfig-qos:qos/scheduler-policies/scheduler-policy'
+      response:
+        code: 200
+        value:
+          openconfig-qos:scheduler-policy:
+            - name: 'copp-scheduler-policy'
+            - name: 'policy1'
+              config:
+                name: 'policy1'
+              schedulers:
+                scheduler:
+                  - sequence: 0
+                    config:
+                      sequence: 0
+                      weight: 40
+                      meter-type: 'BYTES'
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/scheduler-policies'
       method: 'delete'
       data:

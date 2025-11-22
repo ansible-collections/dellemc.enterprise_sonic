@@ -229,3 +229,72 @@ deleted_01:
     - path: '/data/openconfig-qos:qos/interfaces/interface=Eth1%2f5/openconfig-qos-buffer:cable-length'
       method: 'delete'
       data:
+
+deleted_02:
+  module_args:
+    config:
+    state: deleted
+  existing_qos_interfaces_config:
+    - path: '/data/openconfig-qos:qos/interfaces/interface'
+      response:
+        code: 200
+        value:
+          openconfig-qos:interface:
+            - interface-id: Eth1/5
+              config:
+                interface-id: Eth1/5
+              output:
+                scheduler-policy:
+                  config:
+                    name: policy1
+              pfc:
+                config:
+                  asymmetric: true
+                pfc-priorities:
+                  pfc-priority:
+                    - dot1p: 0
+                      config:
+                        dot1p: 0
+                        enable: true
+                watchdog:
+                  config:
+                    action: ALERT
+                    detection-time: 100
+                    restoration-time: 200
+              openconfig-qos-maps-ext:interface-maps:
+                config:
+                  dscp-to-forwarding-group: dscp_map1
+                  dot1p-to-forwarding-group: dot1p_map1
+                  forwarding-group-to-dscp: fwd_dscp_map1
+                  forwarding-group-to-dot1p: fwd_dot1p_map1
+                  forwarding-group-to-queue: fwd_queue_map1
+                  pfc-priority-to-queue: pfc_queue_map1
+                  forwarding-group-to-priority-group: fwd_pg_map1
+                  pfc-priority-to-priority-group: pfc_pg_map1
+              openconfig-qos-buffer:cable-length:
+                config:
+                  length: 5m
+    - path: '/data/openconfig-qos:qos/queues/queue'
+      response:
+        code: 200
+        value:
+          openconfig-qos:queue:
+            - name: Eth1/5:0
+              config:
+                name: Eth1/5:0
+              wred:
+                config:
+                  wred-profile: profile1
+            - name: Eth1/5:1
+              config:
+                name: Eth1/5:1
+              wred:
+                config:
+                  wred-profile: profile2
+  expected_config_requests:
+    - path: '/data/openconfig-qos:qos/interfaces'
+      method: 'delete'
+      data:
+    - path: '/data/openconfig-qos:qos/queues'
+      method: 'delete'
+      data:

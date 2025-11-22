@@ -171,7 +171,7 @@ class Vrrp(ConfigBase):
             result.pop('after', None)
             new_config = self._get_generated_config(commands, existing_vrrp_facts, self._module.params['state'])
             self.sort_lists_in_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             changed_vrrp_facts = self.get_vrrp_facts()
             new_config = changed_vrrp_facts
@@ -712,7 +712,7 @@ class Vrrp(ConfigBase):
         new_config = remove_empties_from_list(get_new_config(commands, have, TEST_KEYS_formatted_diff))
         if new_config:
             for conf in new_config:
-                # Add default values for after(generated)
+                # Add default values for after_generated
                 groups = conf.get('group', [])
                 for group in groups:
                     afi = group.get('afi')

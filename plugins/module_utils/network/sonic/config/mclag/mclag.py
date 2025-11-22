@@ -167,7 +167,7 @@ class Mclag(ConfigBase):
                                         TEST_KEYS_generate_config)
             d_id = existing_mclag_facts.get('domain_id', None)
             new_config = self.post_process_generated_config(new_config, d_id)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             self.transform_config_for_diff_check(new_config)

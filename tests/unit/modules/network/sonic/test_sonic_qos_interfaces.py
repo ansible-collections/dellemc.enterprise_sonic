@@ -64,3 +64,10 @@ class TestSonicQosInterfacesModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['deleted_01']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
+
+    def test_sonic_qos_interfaces_deleted_02(self):
+        set_module_args(self.fixture_data['deleted_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['deleted_02']['existing_qos_interfaces_config'])
+        self.initialize_config_requests(self.fixture_data['deleted_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
