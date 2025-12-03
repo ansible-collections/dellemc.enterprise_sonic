@@ -93,7 +93,7 @@ class Evpn_esi_multihome(ConfigBase):
 
         if self._module.check_mode:
             new_config = get_new_config(commands, existing_evpn_esi_multihome_facts)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             new_config = self.get_evpn_esi_multihome_facts()
             if result['changed']:

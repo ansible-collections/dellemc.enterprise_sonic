@@ -154,7 +154,7 @@ class Ospfv2_interfaces(ConfigBase):
             new_config = self._get_generated_config(new_commands, new_config, self._module.params['state'])
             self._strip_default_address(new_config)
             self._strip_default_address(old_config)
-            result['after(generated)'] = remove_empties_from_list(new_config)
+            result['after_generated'] = remove_empties_from_list(new_config)
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)

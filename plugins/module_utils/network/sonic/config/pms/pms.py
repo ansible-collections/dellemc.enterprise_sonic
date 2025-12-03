@@ -105,7 +105,7 @@ class Pms(ConfigBase):
         if self._module.check_mode:
             new_config = self.get_new_config(commands, existing_pms_facts)
             new_config.sort(key=lambda x: x['name'])
-            result['after(generated)'] = remove_empties_from_list(new_config)
+            result['after_generated'] = remove_empties_from_list(new_config)
         elif result['changed']:
             new_config = self.get_pms_facts()
             new_config.sort(key=lambda x: x['name'])

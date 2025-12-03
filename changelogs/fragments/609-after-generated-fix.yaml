@@ -1,0 +1,3 @@
+---
+minor_changes:
+  - plugins - Change all instances of 'after(generated)' to 'after_generated' to address sanity errors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/609).

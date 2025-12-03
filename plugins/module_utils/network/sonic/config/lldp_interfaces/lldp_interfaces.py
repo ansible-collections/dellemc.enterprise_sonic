@@ -198,7 +198,7 @@ class Lldp_interfaces(ConfigBase):
             result.pop('after', None)
             new_commands = remove_empties_from_list(commands)
             new_config = self.get_new_config(new_commands, existing_lldp_interfaces_facts)
-            result['after(generated)'] = self.sort_lists_in_config(new_config)
+            result['after_generated'] = self.sort_lists_in_config(new_config)
         else:
             changed_lldp_interfaces_facts = self.get_lldp_interfaces_facts()
             new_config = changed_lldp_interfaces_facts

@@ -196,7 +196,7 @@ class Interfaces(ConfigBase):
             # new_config = natsorted(new_config, key=lambda x: x['name'])
             # For time-being, use simple "sort"
             new_config.sort(key=lambda x: x['name'])
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
             old_config.sort(key=lambda x: x['name'])
 
         if self._module._diff:

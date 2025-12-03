@@ -571,7 +571,7 @@ after:
   description: The configuration resulting from module invocation.
   returned: when changed
   type: list
-after(generated):
+after_generated:
   description: The generated configuration from module invocation.
   returned: when C(check_mode)
   type: list

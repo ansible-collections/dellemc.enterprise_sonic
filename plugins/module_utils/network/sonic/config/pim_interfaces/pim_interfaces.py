@@ -112,7 +112,7 @@ class Pim_interfaces(ConfigBase):
 
         if self._module.check_mode:
             new_config = self.get_generated_config(commands, existing_pim_interfaces_facts)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             changed_pim_interfaces_facts = self.get_pim_interfaces_facts()
             new_config = changed_pim_interfaces_facts

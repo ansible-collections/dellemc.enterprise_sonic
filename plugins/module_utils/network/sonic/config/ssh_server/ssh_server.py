@@ -194,7 +194,7 @@ class Ssh_server(ConfigBase):
             new_config = get_new_config(commands, existing_ssh_server_facts,
                                         TEST_KEYS_generate_config)
 
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
 

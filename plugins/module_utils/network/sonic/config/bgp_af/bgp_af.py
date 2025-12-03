@@ -203,7 +203,7 @@ class Bgp_af(ConfigBase):
                                         TEST_KEYS_generate_config)
             new_config = remove_void_config(new_config, TEST_KEYS_sort_config)
             old_config = remove_empties_from_list(old_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             new_config = sort_config(new_config, TEST_KEYS_sort_config)
