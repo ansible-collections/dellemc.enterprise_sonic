@@ -1,0 +1,50 @@
+---
+- name: Delete old MFA configurations
+  dellemc.enterprise_sonic.sonic_mfa:
+    config: {}
+    state: deleted
+  failed_when: false
+
+- name: Install RSA CA cert
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto ca-cert install home://rsa.ca.cert.pem'
+  register: cmd_op
+  failed_when: false
+
+- name: Install MFA host certs
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto cert install cert-file home://ciamcert.pem key-file home://ciamkey.pem'
+  register: cmd_op
+  failed_when: false
+
+- name: Install CAC-PIV CA cert
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto ca-cert install home://cacpiv_ca_cert.pem'
+  register: cmd_op
+  failed_when: false
+
+- name: "Crypto security-profile configurations"
+  dellemc.enterprise_sonic.sonic_pki:
+    config:
+      trust_stores:
+        - name: tStore
+          ca_name:
+            - rsa.ca.cert
+        - name: cStore
+          ca_name:
+            - cacpiv_ca_cert
+      security_profiles:
+        - profile_name: rSecurityProfile
+          trust_store: tStore
+        - profile_name: mSecurityProfile
+          certificate_name: ciamcert
+        - profile_name: cSecurityProfile
+          trust_store: cStore
+    state: merged
+  failed_when: false
