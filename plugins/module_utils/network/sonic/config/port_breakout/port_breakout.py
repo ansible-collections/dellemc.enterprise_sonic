@@ -104,7 +104,7 @@ class Port_breakout(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, existing_port_breakout_facts,
                                         TEST_KEYS_generate_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             new_config.sort(key=lambda x: x['name'])

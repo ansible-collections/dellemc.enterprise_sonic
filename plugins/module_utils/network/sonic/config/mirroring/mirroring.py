@@ -124,7 +124,7 @@ class Mirroring(ConfigBase):
             new_config = get_new_config(commands, old_config, TEST_KEYS_generate_config)
             new_config = remove_empties(new_config)
             self.sort_mirrors(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             self.sort_mirrors(old_config)

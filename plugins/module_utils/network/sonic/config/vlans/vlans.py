@@ -114,7 +114,7 @@ class Vlans(ConfigBase):
             # This is for diff/check mode
             new_config = self.deal_with_default_entries(new_config)
             new_config.sort(key=lambda x: x['vlan_id'])
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(existing_vlans_facts,

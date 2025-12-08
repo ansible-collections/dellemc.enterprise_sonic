@@ -197,7 +197,7 @@ after:
   sample: >
     The configuration returned will always be in the same format
     of the parameters above.
-after(generated):
+after_generated:
   description: The generated configuration model invocation.
   returned: when C(check_mode)
   type: list

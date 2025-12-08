@@ -1,6 +1,6 @@
 ---
 release_summary: |
-        | Release Date: 2025-1009
+        | Release Date: 2025-10-09
         |
         | This release provides Dell Enterprise SONiC Ansible Collection support for new features added with
         | the Enterprise SONiC 4.5.0 release. It also provides Ansible support for several features included

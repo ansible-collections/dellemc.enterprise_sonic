@@ -162,7 +162,7 @@ class Ipv6_router_advertisement(ConfigBase):
         if self._module.check_mode:
             new_config = self.get_new_config(commands, old_config)
             self.sort_lists_in_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             new_config = self.get_ipv6_router_advertisement_facts()
             if result['changed']:

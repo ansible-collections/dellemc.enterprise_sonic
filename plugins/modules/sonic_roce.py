@@ -86,7 +86,7 @@ after:
   sample: >
     The configuration returned will always be in the same format
     as the parameters above.
-after(generated):
+after_generated:
   description: The generated (simulated) configuration expected from module invocation.
   returned: when C(check_mode)
   type: list

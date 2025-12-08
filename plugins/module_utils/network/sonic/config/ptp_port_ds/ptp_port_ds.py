@@ -141,7 +141,7 @@ class Ptp_port_ds(ConfigBase):
 
         if self._module.check_mode:
             new_config = self.get_generated_config(commands, existing_ptp_port_ds_facts)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             new_config = self.get_ptp_port_ds_facts()
             new_config = remove_empties_from_list(new_config)

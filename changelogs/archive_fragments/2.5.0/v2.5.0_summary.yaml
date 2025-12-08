@@ -1,6 +1,6 @@
 ---
 release_summary: |
-        | Release Date: 2024-0812
+        | Release Date: 2024-08-12
         |
         | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.x images.
         | In addition to new resource modules to support previously existing functionality, it provides
