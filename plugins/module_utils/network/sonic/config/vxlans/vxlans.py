@@ -306,10 +306,10 @@ class Vxlans(ConfigBase):
             return requests
 
         if is_delete_all:
-            requests.append({'path': VXLAN_PATH, 'method': DELETE})
             for conf in configs:
                 if conf.get('vrf_map'):
                     requests.extend(self.get_delete_vrf_map_requests(conf['vrf_map']))
+            requests.append({'path': VXLAN_PATH, 'method': DELETE})
             return requests
 
         # Need to delete in the reverse order of creation.
@@ -379,7 +379,11 @@ class Vxlans(ConfigBase):
                 vtep_ip_dict['external_ip'] = conf['external_ip']
             if conf.get('qos_mode'):
                 vtep_ip_dict['qos-mode'] = conf['qos_mode']
+                if conf['qos_mode'] == 'uniform':
+                    vtep_ip_dict['dscp'] = 0
             if conf.get('dscp') is not None:
+                if conf.get('qos_mode') == 'uniform':
+                    self._module.fail_json(msg='DSCP is only configurable when qos_mode is pipe.')
                 vtep_ip_dict['dscp'] = conf['dscp']
             if vtep_ip_dict:
                 payload = {'sonic-vxlan:VXLAN_TUNNEL': {'VXLAN_TUNNEL_LIST': [vtep_ip_dict]}}

@@ -159,8 +159,8 @@ class VxlansFacts(object):
             vxlan['source_ip'] = each_tunnel.get('src_ip')
             vxlan['primary_ip'] = each_tunnel.get('primary_ip')
             vxlan['external_ip'] = each_tunnel.get('external_ip')
-            vxlan['qos_mode'] = each_tunnel.get('qos-mode', 'pipe')
-            vxlan['dscp'] = each_tunnel.get('dscp', 0)
+            vxlan['qos_mode'] = each_tunnel.get('qos-mode')
+            vxlan['dscp'] = each_tunnel.get('dscp')
             vxlan['evpn_nvo'] = None
             evpn_nvo = next((nvo_map['name'] for nvo_map in vxlans_evpn_nvo_list if nvo_map['source_vtep'] == vxlan['name']), None)
             if evpn_nvo:

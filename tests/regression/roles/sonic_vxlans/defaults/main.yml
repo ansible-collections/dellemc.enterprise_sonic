@@ -71,7 +71,6 @@ sonic_vxlans_tests:
         primary_ip: 2.2.2.2
         external_ip: 3.3.3.3
         qos_mode: uniform
-        dscp: 1
 
   - name: test_case_03
     description: Configure vlan_map
@@ -139,7 +138,7 @@ sonic_vxlans_tests:
         primary_ip: 6.6.6.6
         external_ip: 7.7.7.7
         evpn_nvo: nvo6
-        qos_mode: uniform
+        qos_mode: pipe
         dscp: 30
         vlan_map:
           - vni: 101
@@ -165,7 +164,7 @@ sonic_vxlans_tests:
         primary_ip: 6.6.6.6
         external_ip: 7.7.7.7
         evpn_nvo: nvo6
-        qos_mode: uniform
+        qos_mode: pipe
         dscp: 30
         vlan_map:
           - vni: 101

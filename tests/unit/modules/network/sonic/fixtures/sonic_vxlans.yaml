@@ -8,7 +8,6 @@ merged_01:
         external_ip: 3.3.3.3
         evpn_nvo: nvo1
         qos_mode: uniform
-        dscp: 30
         vlan_map:
           - vni: 101
             vlan: 11
@@ -57,7 +56,7 @@ merged_01:
               primary_ip: 2.2.2.2
               external_ip: 3.3.3.3
               qos-mode: uniform
-              dscp: 30
+              dscp: 0
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP'
       method: patch
       data:
@@ -82,6 +81,8 @@ merged_02:
     config:
       - name: vteptest1
         source_ip: 1.1.1.1
+        qos_mode: pipe
+        dscp: 30
         suppress_vlan_neigh:
           - vlan_name: Vlan5
           - vlan_name: Vlan6
@@ -106,6 +107,8 @@ merged_02:
           VXLAN_TUNNEL_LIST:
             - name: vteptest1
               src_ip: 1.1.1.1
+              qos-mode: pipe
+              dscp: 30
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST'
       method: patch
       data:
@@ -194,6 +197,8 @@ deleted_01:
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
                   external_ip: 3.3.3.3
+                  qos-mode: pipe
+                  dscp: 0
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1
@@ -224,7 +229,7 @@ deleted_02:
         primary_ip: 2.2.2.2
         external_ip: 3.3.3.3
         evpn_nvo: nvo1
-        qos_mode: uniform
+        qos_mode: pipe
         dscp: 30
         vlan_map:
           - vni: 101
@@ -265,7 +270,7 @@ deleted_02:
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
                   external_ip: 3.3.3.3
-                  qos-mode: uniform
+                  qos-mode: pipe
                   dscp: 30
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
@@ -300,10 +305,6 @@ deleted_02:
       method: delete
       data: null
     - path: >-
-        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/qos-mode
-      method: delete
-      data: null
-    - path: >-
         data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/dscp
       method: delete
       data: null
@@ -322,7 +323,7 @@ deleted_03:
     config:
       - name: vteptest1
         evpn_nvo: nvo1
-        qos_mode: pipe
+        qos_mode: uniform
         dscp: 0
         vrf_map:
           - vni: 101
@@ -353,7 +354,7 @@ deleted_03:
             VXLAN_TUNNEL:
               VXLAN_TUNNEL_LIST:
                 - name: vteptest1
-                  qos-mode: pipe
+                  qos-mode: uniform
                   dscp: 0
             'sonic-vxlan:SUPPRESS_VLAN_NEIGH':
               SUPPRESS_VLAN_NEIGH_LIST:
@@ -366,6 +367,10 @@ deleted_03:
       method: delete
       data: null
     - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST=nvo1'
+      method: delete
+      data: null
+    - path: >-
+        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1/qos-mode
       method: delete
       data: null
 
@@ -402,6 +407,8 @@ deleted_04:
             VXLAN_TUNNEL:
               VXLAN_TUNNEL_LIST:
                 - name: vteptest1
+                  qos-mode: pipe
+                  dscp: 0
             'sonic-vxlan:SUPPRESS_VLAN_NEIGH':
               SUPPRESS_VLAN_NEIGH_LIST:
                 - name: Vlan5
@@ -445,6 +452,8 @@ deleted_05:
             VXLAN_TUNNEL:
               VXLAN_TUNNEL_LIST:
                 - name: vteptest1
+                  qos-mode: pipe
+                  dscp: 0
             'sonic-vxlan:SUPPRESS_VLAN_NEIGH':
               SUPPRESS_VLAN_NEIGH_LIST:
                 - name: Vlan5
@@ -462,7 +471,7 @@ deleted_05:
       method: delete
       data: null
 
-replaced_02:
+replaced_01:
   module_args:
     state: replaced
     config:
@@ -512,6 +521,8 @@ replaced_02:
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
                   external_ip: 3.3.3.3
+                  qos-mode: pipe
+                  dscp: 0
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1
@@ -594,7 +605,7 @@ replaced_02:
               vlan: Vlan22
               vni: 102
 
-replaced_03:
+replaced_02:
   module_args:
     state: replaced
     config:
@@ -631,6 +642,8 @@ replaced_03:
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
                   external_ip: 3.3.3.3
+                  qos-mode: pipe
+                  dscp: 0
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1
@@ -687,7 +700,7 @@ replaced_03:
           VXLAN_TUNNEL_LIST:
             - name: vteptest1
 
-overridden_02:
+overridden_01:
   module_args:
     state: overridden
     config:
@@ -735,6 +748,8 @@ overridden_02:
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
                   external_ip: 3.3.3.3
+                  qos-mode: pipe
+                  dscp: 0
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1
@@ -797,7 +812,7 @@ overridden_02:
               vlan: Vlan22
               vni: 102
 
-overridden_03:
+overridden_02:
   module_args:
     state: overridden
     config:
@@ -836,6 +851,8 @@ overridden_03:
                   src_ip: 1.1.1.1
                   primary_ip: 2.2.2.2
                   external_ip: 3.3.3.3
+                  qos-mode: pipe
+                  dscp: 0
             VXLAN_TUNNEL_MAP:
               VXLAN_TUNNEL_MAP_LIST:
                 - name: vteptest1

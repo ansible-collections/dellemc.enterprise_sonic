@@ -54,14 +54,15 @@ options:
       qos_mode:
         description:
           - QoS mode to use for prioritizing the network traffic within a VXLAN tunnel
-          - Default pipe
+          - Functional default is C(pipe)
         version_added: 4.0.0
         type: str
         choices: [pipe, uniform]
       dscp:
         description:
           - DSCP value of the VXLAN tunnel outer IP header, range 0-63
-          - Default 0
+          - Valid only when I(qos_mode=pipe)
+          - Functional default is 0
         version_added: 4.0.0
         type: int
       vlan_map:
