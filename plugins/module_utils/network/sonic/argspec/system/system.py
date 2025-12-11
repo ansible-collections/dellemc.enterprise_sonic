@@ -82,6 +82,16 @@ class SystemArgs(object):  # pylint: disable=R0903
                 },
                 'concurrent_session_limit': {'type': 'int'},
                 'adjust_txrx_clock_freq': {'type': 'bool'},
+                'login_exec_timeout': {'type': 'int'},
+                'banner': {
+                    'options': {
+                        'login': {'type': 'str'},
+                        'login_banner_disable': {'type': 'bool'},
+                        'motd': {'type': 'str'},
+                        'motd_banner_disable': {'type': 'bool'}
+                    },
+                    'type': 'dict'
+                },
             },
             'type': 'dict'
         },

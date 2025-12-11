@@ -14,6 +14,8 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+import time
+
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -76,6 +78,17 @@ def __derive_system_config_delete_op(key_set, command, exist_conf):
         new_conf['switching_mode'] = 'STORE_AND_FORWARD'
     if 'adjust_txrx_clock_freq' in command:
         new_conf['adjust_txrx_clock_freq'] = False
+    if 'login_exec_timeout' in command:
+        new_conf['login_exec_timeout'] = 600
+    if 'banner' in command and 'banner' in new_conf:
+        if 'login_banner_disable' in command['banner']:
+            new_conf['banner']['login_banner_disable'] = False
+        if 'motd_banner_disable' in command['banner']:
+            new_conf['banner']['motd_banner_disable'] = False
+        if 'login' in command['banner']:
+            new_conf['banner']['login'] = None
+        if 'motd' in command['banner']:
+            new_conf['banner']['motd'] = None
 
     return True, new_conf
 
@@ -155,6 +168,7 @@ class System(ConfigBase):
     def edit_config(self, requests):
         try:
             response = edit_config(self._module, to_request(self._module, requests))
+            time.sleep(10)
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
@@ -263,6 +277,11 @@ class System(ConfigBase):
             'adjust_txrx_clock_freq': False,
             'password_complexity': {
                 'min_length': 8
+            },
+            'login_exec_timeout': 600,
+            'banner': {
+                'login_banner_disable': False,
+                'motd_banner_disable': False
             }
         }
         del_request_method = {
@@ -274,6 +293,7 @@ class System(ConfigBase):
             'audit_rules': self.get_audit_rules_delete_request,
             'concurrent_session_limit': self.get_session_limit_delete_request,
             'adjust_txrx_clock_freq': self.get_adjust_txrx_clock_freq_delete_request,
+            'login_exec_timeout': self.get_login_exec_timeout_delete_request,
         }
 
         new_have = remove_empties(have)
@@ -281,7 +301,7 @@ class System(ConfigBase):
 
         options = ('hostname', 'interface_naming', 'auto_breakout', 'load_share_hash_algo',
                    'audit_rules', 'concurrent_session_limit', 'adjust_txrx_clock_freq',
-                   'switching_mode')
+                   'switching_mode', 'login_exec_timeout')
         for option in options:
             if option in new_want:
                 if new_want[option] != new_have.get(option):
@@ -331,6 +351,28 @@ class System(ConfigBase):
                     if option in have_password_complexity and have_password_complexity[option] != default_values['password_complexity'].get(option):
                         del_command['password_complexity'] = have_password_complexity
                         del_requests.extend(self.get_password_complexity_delete_request(del_command['password_complexity']))
+
+        want_banner = new_want.get('banner', {})
+        have_banner = new_have.get('banner', {})
+        if want_banner:
+            for option in ('login', 'motd', 'login_banner_disable', 'motd_banner_disable'):
+                if option in want_banner:
+                    if want_banner[option] != have_banner.get(option):
+                        add_command.setdefault('banner', {})
+                        add_command['banner'][option] = want_banner[option]
+                else:
+                    if option in have_banner and have_banner[option] != default_values['banner'].get(option):
+                        del_command.setdefault('banner', {})
+                        del_command['banner'][option] = have_banner[option]
+
+            if del_command.get('banner'):
+                del_requests.extend(self.get_banner_delete_request(del_command['banner']))
+        else:
+            if have_banner:
+                for option in ('login', 'motd', 'login_banner_disable', 'motd_banner_disable'):
+                    if option in have_banner and have_banner[option] != default_values['banner'].get(option):
+                        del_command['banner'] = have_banner
+                        del_requests.extend(self.get_banner_delete_request(del_command['banner']))
 
         if del_command:
             commands = update_states(del_command, 'deleted')
@@ -397,7 +439,40 @@ class System(ConfigBase):
         if session_limit_payload:
             request = {'path': session_limit_path, 'method': method, 'data': session_limit_payload}
             requests.append(request)
+        login_exec_timeout_path = 'data/openconfig-system:system/openconfig-system-ext:login/session/config'
+        login_exec_timeout_payload = self.build_create_login_exec_timeout_payload(commands)
+        if login_exec_timeout_payload:
+            request = {'path': login_exec_timeout_path, 'method': method, 'data': login_exec_timeout_payload}
+            requests.append(request)
+        banner_path = 'data/openconfig-system:system/openconfig-system-ext:banner/config'
+        banner_payload = self.build_create_banner_payload(commands)
+        if banner_payload:
+            request = {'path': banner_path, 'method': method, 'data': banner_payload}
+            requests.append(request)
         return requests
+
+    def build_create_banner_payload(self, commands):
+        payload = {}
+        config_dict = {}
+        if "banner" in commands and commands["banner"]:
+            if 'login' in commands["banner"] and commands["banner"]["login"] is not None:
+                config_dict['login-banner'] = commands["banner"]["login"]
+            if 'motd' in commands["banner"] and commands["banner"]["motd"] is not None:
+                config_dict['motd-banner'] = commands["banner"]["motd"]
+            if 'login_banner_disable' in commands["banner"]:
+                config_dict['login-banner-disable'] = commands["banner"]["login_banner_disable"]
+            if 'motd_banner_disable' in commands["banner"]:
+                config_dict['motd-banner-disable'] = commands["banner"]["motd_banner_disable"]
+            payload = {"openconfig-system-ext:config": config_dict}
+        return payload
+
+    def build_create_login_exec_timeout_payload(self, commands):
+        payload = {}
+        config_dict = {}
+        if "login_exec_timeout" in commands and commands["login_exec_timeout"]:
+            config_dict['exec-timeout'] = commands["login_exec_timeout"]
+            payload = {"openconfig-system-ext:config": config_dict}
+        return payload
 
     def build_create_hostname_payload(self, commands):
         payload = {}
@@ -550,6 +625,25 @@ class System(ConfigBase):
             adjust_txrx_clock_freq = data.get('adjust_txrx_clock_freq', None)
             if adjust_txrx_clock_freq:
                 new_data["adjust_txrx_clock_freq"] = adjust_txrx_clock_freq
+            login_exec_timeout = data.get('login_exec_timeout', None)
+            if login_exec_timeout is not None and login_exec_timeout != 600:
+                new_data["login_exec_timeout"] = login_exec_timeout
+            new_banner = {}
+            banner = data.get('banner', None)
+            if banner:
+                login_banner_disable = banner.get("login_banner_disable", None)
+                if login_banner_disable is not False:
+                    new_banner["login_banner_disable"] = login_banner_disable
+                motd_banner_disable = banner.get("motd_banner_disable", None)
+                if motd_banner_disable is not False:
+                    new_banner["motd_banner_disable"] = motd_banner_disable
+                login = banner.get("login", None)
+                if login is not None:
+                    new_banner["login"] = login
+                motd = banner.get("motd", None)
+                if motd is not None:
+                    new_banner["motd"] = motd
+            new_data["banner"] = new_banner
         return new_data
 
     def get_delete_all_system_request(self, have):
@@ -584,6 +678,12 @@ class System(ConfigBase):
         if "adjust_txrx_clock_freq" in have and have["adjust_txrx_clock_freq"]:
             request = self.get_adjust_txrx_clock_freq_delete_request()
             requests.append(request)
+        if "login_exec_timeout" in have:
+            request = self.get_login_exec_timeout_delete_request()
+            requests.append(request)
+        if "banner" in have:
+            request = self.get_banner_delete_request(have["banner"])
+            requests.extend(request)
         return requests
 
     def get_password_complexity_delete_request(self, password_complexity):
@@ -673,3 +773,31 @@ class System(ConfigBase):
         method = DELETE
         request = {'path': path, 'method': method}
         return request
+
+    def get_login_exec_timeout_delete_request(self):
+        path = 'data/openconfig-system:system/openconfig-system-ext:login/session/config'
+        method = PATCH
+        payload = {"openconfig-system-ext:config": {}}
+        payload['openconfig-system-ext:config'].update({"exec-timeout": 600})
+        request = {'path': path, 'method': method, 'data': payload}
+        return request
+
+    def get_banner_delete_request(self, banner):
+        requests = []
+        if 'login' in banner:
+            url = 'data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner'
+            requests.append({'path': url, 'method': DELETE})
+
+        if 'motd' in banner:
+            url = 'data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner'
+            requests.append({'path': url, 'method': DELETE})
+
+        if 'login_banner_disable' in banner:
+            url = 'data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner-disable'
+            requests.append({'path': url, 'method': DELETE})
+
+        if 'motd_banner_disable' in banner:
+            url = 'data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner-disable'
+            requests.append({'path': url, 'method': DELETE})
+
+        return requests
