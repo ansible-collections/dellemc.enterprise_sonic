@@ -216,6 +216,14 @@ deleted_01:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
+    - path: >-
+        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11
+      method: delete
+      data: null
+    - path: >-
+        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12
+      method: delete
+      data: null
     - path: 'data/sonic-vxlan:sonic-vxlan'
       method: delete
       data: null
@@ -767,6 +775,14 @@ overridden_01:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
+    - path: >-
+        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11
+      method: delete
+      data: null
+    - path: >-
+        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12
+      method: delete
+      data: null
     - path: 'data/sonic-vxlan:sonic-vxlan'
       method: delete
       data: null
@@ -868,6 +884,14 @@ overridden_02:
       method: delete
       data: null
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
+      method: delete
+      data: null
+    - path: >-
+        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11
+      method: delete
+      data: null
+    - path: >-
+        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_102_Vlan12
       method: delete
       data: null
     - path: 'data/sonic-vxlan:sonic-vxlan'

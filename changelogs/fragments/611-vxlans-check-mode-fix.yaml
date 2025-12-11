@@ -1,3 +1,0 @@
----
-bugfixes:
-  - sonic_vxlans - Fix check mode handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/611).

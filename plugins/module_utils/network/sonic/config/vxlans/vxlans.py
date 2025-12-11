@@ -309,6 +309,8 @@ class Vxlans(ConfigBase):
             for conf in configs:
                 if conf.get('vrf_map'):
                     requests.extend(self.get_delete_vrf_map_requests(conf['vrf_map']))
+                if conf.get('vlan_map'):
+                    requests.extend(self.get_delete_vlan_map_requests(conf['name'], conf['vlan_map']))
             requests.append({'path': VXLAN_PATH, 'method': DELETE})
             return requests
 
