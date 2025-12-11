@@ -17,6 +17,11 @@ merged_01:
       password_complexity:
         min_length: 10
         min_lower_case: 2
+      login_exec_timeout: 300
+      banner:
+        login: "@\r\nBanner Login Message\r\n@"
+        motd: "@\r\nBanner motd Message\r\n@"
+        login_banner_disable: true
   existing_system_config:
     - path: "data/openconfig-system:system/config"
       response:
@@ -70,6 +75,19 @@ merged_01:
           openconfig-system-ext:config:
             min-len: 8
             min-lower-case: 1
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            exec-timeout: 600
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nLogin Message\r\n@"
+            motd-banner: "@\r\nmotd Message\r\n@"
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -120,7 +138,18 @@ merged_01:
         openconfig-system-ext:config:
           min-len: 10
           min-lower-case: 2
-
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            exec-timeout: 300
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@"
+            login-banner-disable: true
 
 merged_02:
   module_args:
@@ -227,6 +256,21 @@ deleted_01:
             min-upper-case: 3
             min-special-char: 3
             min-numerals: 3
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            exec-timeout: 300
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@"
+            login-banner-disable: true
+            motd-banner-disable: true
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config"
@@ -234,6 +278,11 @@ deleted_01:
       data:
         openconfig-system:config:
           hostname: sonic
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            exec-timeout: 600
     - path: "data/openconfig-system:system/config/switching-mode"
       method: "delete"
       data:
@@ -266,6 +315,14 @@ deleted_01:
       method: 'delete'
     - path: "data/openconfig-system:system/openconfig-system-ext:login/password-attributes/config/min-numerals"
       method: 'delete'
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/login-banner-disable"
+      method: "delete"
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config/motd-banner-disable"
+      method: "delete"
 
 
 deleted_02:
@@ -361,6 +418,12 @@ replaced_01:
         min_lower_case: 2
         min_numerals: 2
         min_length: 10
+      login_exec_timeout: 100
+      banner:
+        login: "@\r\nLogin Message\r\n@"
+        motd: "@\r\nmotd Message\r\n@"
+        login_banner_disable: false
+        motd_banner_disable: false
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -419,6 +482,21 @@ replaced_01:
             min-lower-case: 1
             min-numerals: 1
             min-len: 12
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            exec-timeout: 400
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@"
+            login-banner-disable: true
+            motd-banner-disable: true
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
@@ -467,6 +545,19 @@ replaced_01:
           min-lower-case: 2
           min-numerals: 2
           min-len: 10
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            exec-timeout: 100
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nLogin Message\r\n@"
+            motd-banner: "@\r\nmotd Message\r\n@"
+            login-banner-disable: false
+            motd-banner-disable: false
 
 
 overridden_01:
@@ -486,6 +577,12 @@ overridden_01:
         min_lower_case: 3
         min_numerals: 3
         min_length: 15
+      login_exec_timeout: 200
+      banner:
+        login: "@\r\nLogin Message\r\n@"
+        motd: "@\r\nmotd Message\r\n@"
+        login_banner_disable: true
+        motd_banner_disable: true
 
   existing_system_config:
     - path: "data/openconfig-system:system/config"
@@ -544,6 +641,21 @@ overridden_01:
             min-lower-case: 2
             min-numerals: 2
             min-len: 10
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            exec-timeout: 100
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      response:
+        code: 200
+        value:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nBanner Login Message\r\n@"
+            motd-banner: "@\r\nBanner motd Message\r\n@"
+            login-banner-disable: false
+            motd-banner-disable: false
 
   expected_config_requests:
     - path: "data/openconfig-system:system/config/adjust-txrx-clock-freq"
@@ -591,3 +703,16 @@ overridden_01:
           min-lower-case: 3
           min-numerals: 3
           min-len: 15
+    - path: "data/openconfig-system:system/openconfig-system-ext:login/session/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            exec-timeout: 200
+    - path: "data/openconfig-system:system/openconfig-system-ext:banner/config"
+      method: "patch"
+      data:
+          openconfig-system-ext:config:
+            login-banner: "@\r\nLogin Message\r\n@"
+            motd-banner: "@\r\nmotd Message\r\n@"
+            login-banner-disable: true
+            motd-banner-disable: true

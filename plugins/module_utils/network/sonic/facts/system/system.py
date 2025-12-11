@@ -206,6 +206,42 @@ class SystemFacts(object):
                     data = response[0][1]['openconfig-system-ext:config']
         return data
 
+    def get_login_exec_timeout(self):
+        """Get the login timeout configured in the device"""
+        request = [{"path": "data/openconfig-system:system/openconfig-system-ext:login/session/config", "method": GET}]
+        login_exec_timeout_data = {}
+        raw_login_exec_timeout_data = {}
+        data = {}
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if ('openconfig-system-ext:config' in response[0][1]):
+                    data = response[0][1]['openconfig-system-ext:config']
+                else:
+                    data = {}
+
+        return data
+
+    def get_banner(self):
+        """Get system banner"""
+        request = [{"path": "data/openconfig-system:system/openconfig-system-ext:banner/config", "method": GET}]
+        data = {}
+        try:
+            response = edit_config(self._module, to_request(self._module, request))
+        except ConnectionError as exc:
+            self._module.fail_json(msg=str(exc), code=exc.code)
+        if response and response[0]:
+            if len(response[0]) > 1:
+                if ('openconfig-system-ext:config' in response[0][1]):
+                    data = response[0][1]['openconfig-system-ext:config']
+                else:
+                    data = {}
+        return data
+
     def populate_facts(self, connection, ansible_facts, data=None):
         """ Populate the facts for system
         :param connection: the device connection
@@ -240,6 +276,12 @@ class SystemFacts(object):
         adjust_txrx_clock_freq = self.get_adjust_txrx_clock_freq()
         if adjust_txrx_clock_freq:
             data.update(adjust_txrx_clock_freq)
+        login_exec_timeout = self.get_login_exec_timeout()
+        if login_exec_timeout:
+            data.update(login_exec_timeout)
+        banner = self.get_banner()
+        if banner:
+            data.update(banner)
         objs = []
         objs = self.render_config(self.generated_spec, data)
         facts = {}
@@ -301,5 +343,15 @@ class SystemFacts(object):
                 config['password_complexity']['min_spl_char'] = conf['min-special-char']
             if ('min-len' in conf) and (conf['min-len']):
                 config['password_complexity']['min_length'] = conf['min-len']
+            if ('exec-timeout' in conf) and (conf['exec-timeout']):
+                config['login_exec_timeout'] = conf['exec-timeout']
+            if ('login-banner-disable' in conf):
+                config['banner']['login_banner_disable'] = conf['login-banner-disable']
+            if ('motd-banner-disable' in conf):
+                config['banner']['motd_banner_disable'] = conf['motd-banner-disable']
+            if ('login-banner' in conf) and (conf['login-banner']):
+                config['banner']['login'] = conf['login-banner']
+            if ('motd-banner' in conf) and (conf['motd-banner']):
+                config['banner']['motd'] = conf['motd-banner']
 
         return utils.remove_empties(config)
