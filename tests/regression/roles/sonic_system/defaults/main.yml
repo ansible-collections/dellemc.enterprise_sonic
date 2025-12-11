@@ -137,12 +137,12 @@ sonic_system_tests:
       auto_breakout: DISABLE
       audit_rules: DETAIL
       switching_mode: CUT_THROUGH
+      # Use only on switch that support this.
+      # adjust_txrx_clock_freq: false
       login_exec_timeout: 650
       banner:
         motd: "@\r\nWelcome to SONiC OS\r\n@"
         motd_banner_disable: false
-      # Use only on switch that support this.
-      # adjust_txrx_clock_freq: false
 
   - name: test_case_09
     description: Replace different System configuration options
