@@ -459,7 +459,7 @@ EXAMPLES = """
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
-      exec_timeout : 15
+      exec_timeout: 15
     state: merged
 
 # After state:
@@ -486,7 +486,7 @@ EXAMPLES = """
 # auto-breakout
 # ip load-share hash algorithm JENKINS_HASH_HI
 # auditd-system rules basic
-#l ogin exec-timeout 15
+# login exec-timeout 15
 
 - name: Delete auto-breakout configuration on the device
   dellemc.enterprise_sonic.sonic_system:
