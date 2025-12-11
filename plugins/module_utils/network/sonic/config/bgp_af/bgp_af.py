@@ -42,8 +42,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.sort_config_util import (
-    sort_config,
-    remove_void_config
+    sort_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     convert_bgp_asn,
@@ -62,7 +61,7 @@ TEST_KEYS = [
     {'aggregate_address_config': {'prefix': ''}}
 ]
 TEST_KEYS_sort_config = [
-    {'config': {'__test_keys': ('bgp_as', 'vrf_name')}},
+    {'config': {'__test_keys': ('vrf_name', 'bgp_as')}},
     {'afis': {'__test_keys': ('afi', 'safi')}},
     {'redistribute': {'__test_keys': ('protocol',)}},
     {'route_advertise_list': {'__test_keys': ('advertise_afi',)}},
@@ -188,22 +187,17 @@ class Bgp_af(ConfigBase):
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
-
-        changed_bgp_af_facts = self.get_bgp_af_facts()
-
         result['before'] = existing_bgp_af_facts
-        if result['changed']:
-            result['after'] = changed_bgp_af_facts
 
-        new_config = changed_bgp_af_facts
         old_config = existing_bgp_af_facts
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_bgp_af_facts,
-                                        TEST_KEYS_generate_config)
-            new_config = remove_void_config(new_config, TEST_KEYS_sort_config)
-            old_config = remove_empties_from_list(old_config)
+            new_config = self.get_new_config(commands, existing_bgp_af_facts)
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
             result['after_generated'] = new_config
+        else:
+            new_config = self.get_bgp_af_facts()
+            if result['changed']:
+                result['after'] = new_config
 
         if self._module._diff:
             new_config = sort_config(new_config, TEST_KEYS_sort_config)
@@ -1636,3 +1630,27 @@ class Bgp_af(ConfigBase):
             return base_list
 
         return [item for item in base_list if item not in compare_with_list]
+
+    @staticmethod
+    def get_new_config(commands, have):
+        new_config = get_new_config(commands, have, TEST_KEYS_generate_config)
+        if not new_config:
+            return new_config
+
+        # Update default values
+        for bgp_as in new_config:
+            if bgp_as and bgp_as.get('address_family') and bgp_as['address_family'].get('afis'):
+                for address_family in bgp_as['address_family']['afis']:
+                    afi = address_family.get('afi')
+                    safi = address_family.get('safi')
+                    if afi in ('ipv4', 'ipv6') and safi == 'unicast':
+                        if afi == 'ipv4':
+                            address_family.setdefault('dampening', False)
+                        address_family.setdefault('max_path', {})
+                        address_family['max_path'].setdefault('ebgp', 1)
+                        address_family['max_path'].setdefault('ibgp', 1)
+                    elif afi == 'l2vpn' and safi == 'evpn':
+                        address_family.setdefault('dup_addr_detection', {})
+                        address_family['dup_addr_detection'].setdefault('enabled', True)
+
+        return new_config
