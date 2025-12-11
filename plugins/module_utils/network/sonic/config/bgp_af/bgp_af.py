@@ -32,8 +32,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     update_states,
-    get_diff,
-    remove_empties_from_list
+    get_diff
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG,
