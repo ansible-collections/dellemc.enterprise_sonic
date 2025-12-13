@@ -213,7 +213,7 @@ class Vxlans(ConfigBase):
 
         if del_commands:
             delete_all = True
-            del_requests = self.get_delete_vxlan_requests(del_commands, delete_all)
+            del_requests = self.get_delete_vxlan_requests(have, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             have = []
