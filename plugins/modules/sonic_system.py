@@ -147,6 +147,7 @@ options:
           -  CLI session timeout value.
           -  The range is from 0 to 3600
           -  Default is 600
+        version_added: 4.0.0
         type: int
       banner:
         description: 
