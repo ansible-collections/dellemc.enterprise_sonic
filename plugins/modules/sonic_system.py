@@ -149,7 +149,8 @@ options:
           -  Default is 600
         type: int
       banner:
-        description: The set of banner attribute configurations
+        description: 
+          - The set of banner attribute configurations
         version_added: 4.0.0
         type: dict
         suboptions:
