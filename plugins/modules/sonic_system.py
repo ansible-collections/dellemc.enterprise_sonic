@@ -158,12 +158,12 @@ options:
           login:
             description:
               - Banner message to display before login.
-              - @ banner-text(max length 4096) @, where '@' is a delimiting character
+              - c banner-text(max length 4096) c, where 'c' is a delimiting character
             type: str
           motd:
             description:
               - Banner message to display after login.
-              - @ banner-text(max length 4096) @, where '@' is a delimiting character
+              - c banner-text(max length 4096) c, where 'c' is a delimiting character
             type: str
           login_banner_disable:
             description:
