@@ -168,6 +168,7 @@ class System(ConfigBase):
     def edit_config(self, requests):
         try:
             response = edit_config(self._module, to_request(self._module, requests))
+            # Delay is introduced for the config reload to take effect
             time.sleep(10)
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)

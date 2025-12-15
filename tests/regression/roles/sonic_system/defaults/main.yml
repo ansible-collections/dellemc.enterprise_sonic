@@ -23,7 +23,7 @@ sonic_system_tests:
         min_lower_case: 2
         min_length: 10
         min_spl_char: 1
-      login_exec_timeout: 700
+      login_exec_timeout: 0
       banner:
         login: "@\r\nTest login message\r\n@"
         motd: "@\r\nTest motd message\r\n@"

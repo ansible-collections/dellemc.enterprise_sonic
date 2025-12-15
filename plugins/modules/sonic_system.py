@@ -158,10 +158,12 @@ options:
           login:
             description:
               - Banner message to display before login.
+              - @ banner-text(max length 4096) @, where '@' is a delimiting character
             type: str
           motd:
             description:
               - Banner message to display after login.
+              - @ banner-text(max length 4096) @, where '@' is a delimiting character
             type: str
           login_banner_disable:
             description:
@@ -218,8 +220,8 @@ EXAMPLES = """
       password_complexity:
         min_lower_case: 2
       banner:
-        login: banner_login_message
-        motd: banner_motd_message
+        login: "@\r\nbanner_login_message\r\n@"
+        motd: "@\r\nbanner_motd_message\r\n@"
     state: deleted
 
 # After state:
@@ -282,7 +284,7 @@ EXAMPLES = """
         min_spl_char: 2
       banner:
         login_banner_disable: true
-        motd: motd_banner_message
+        motd: "@\r\nmotd_banner_message\r\n@"
     state: merged
 
 # After state:
@@ -337,7 +339,7 @@ EXAMPLES = """
       password_complexity:
         min_lower_case: 2
       banner:
-        login: login_banner_message
+        login: "@\r\nlogin_banner_message\r\n@"
     state: replaced
 
 # After state:
@@ -422,8 +424,8 @@ EXAMPLES = """
         min_upper_case: 1
       banner:
         motd_banner_disable: true
-        login: banner_login_message
-        motd: banner_motd_message
+        login: "@\r\nbanner_login_message\r\n@"
+        motd: "@\r\nbanner_motd_message\r\n@"
         login_banner_disable: false
     state: overridden
 
