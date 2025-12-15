@@ -236,8 +236,6 @@ class SystemFacts(object):
             if len(response[0]) > 1:
                 if ('openconfig-system-ext:config' in response[0][1]):
                     data = response[0][1]['openconfig-system-ext:config']
-                else:
-                    data = {}
         return data
 
     def populate_facts(self, connection, ansible_facts, data=None):
