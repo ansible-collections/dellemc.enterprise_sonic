@@ -632,7 +632,7 @@ class System(ConfigBase):
             banner = data.get('banner', None)
             if banner:
                 login_banner_disable = banner.get("login_banner_disable", None)
-                if login_banner_disable is not False:
+                if login_banner_disable:
                     new_banner["login_banner_disable"] = login_banner_disable
                 motd_banner_disable = banner.get("motd_banner_disable", None)
                 if motd_banner_disable is not False:
