@@ -777,8 +777,7 @@ class System(ConfigBase):
     def get_login_exec_timeout_delete_request(self):
         path = 'data/openconfig-system:system/openconfig-system-ext:login/session/config'
         method = PATCH
-        payload = {"openconfig-system-ext:config": {}}
-        payload['openconfig-system-ext:config'].update({"exec-timeout": 600})
+        payload = {"openconfig-system-ext:config": {"exec-timeout": 600}}
         request = {'path': path, 'method': method, 'data': payload}
         return request
 
