@@ -469,8 +469,8 @@ class System(ConfigBase):
     def build_create_login_exec_timeout_payload(self, commands):
         payload = {}
         config_dict = {}
-        if "login_exec_timeout" in commands and commands["login_exec_timeout"]:
-            config_dict['exec-timeout'] = commands["login_exec_timeout"]
+        if commands.get("login_exec_timeout") is not None:
+            config_dict["exec-timeout"] = commands["login_exec_timeout"]
             payload = {"openconfig-system-ext:config": config_dict}
         return payload
 
