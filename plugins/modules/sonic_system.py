@@ -146,6 +146,7 @@ options:
         description:
           -  CLI session timeout value.
           -  The range is from 0 to 3600
+          -  Default is 600
         type: int
       banner:
         description: The set of banner attribute configurations
