@@ -82,6 +82,7 @@ def __derive_bgp_af_sub_config_delete_op(key_set, command, exist_conf):
     else:
         if {'advertise_afi', 'prefix'}.intersection(key_set):
             return __DELETE_SUBCONFIG_AND_LEAFS(key_set, command, new_conf)
+        # In state deleted, entire protocol is deleted if all options match
         elif not is_state_deleted and {'protocol'}.intersection(key_set):
             return __DELETE_SUBCONFIG_AND_LEAFS(key_set, command, new_conf)
         elif {'vni_number'}.intersection(key_set):
@@ -102,7 +103,7 @@ def __derive_bgp_af_delete_op(key_set, command, exist_conf):
         new_conf = []
         if exist_conf:
             new_conf = {'bgp_as': exist_conf.get('bgp_as'), 'vrf_name': exist_conf.get('vrf_name')}
-            return True, new_conf
+        return True, new_conf
 
     return __derive_bgp_af_sub_config_delete_op(key_set, command, exist_conf)
 
