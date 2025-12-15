@@ -339,7 +339,7 @@ class SystemFacts(object):
                 config['password_complexity']['min_spl_char'] = conf['min-special-char']
             if ('min-len' in conf) and (conf['min-len']):
                 config['password_complexity']['min_length'] = conf['min-len']
-            if ('exec-timeout' in conf) and (conf['exec-timeout']):
+            if conf.get('exec-timeout') is not None:
                 config['login_exec_timeout'] = conf['exec-timeout']
             if ('login-banner-disable' in conf):
                 config['banner']['login_banner_disable'] = conf['login-banner-disable']
