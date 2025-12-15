@@ -150,7 +150,7 @@ options:
         version_added: 4.0.0
         type: int
       banner:
-        description: 
+        description:
           - The set of banner attribute configurations
         version_added: 4.0.0
         type: dict
