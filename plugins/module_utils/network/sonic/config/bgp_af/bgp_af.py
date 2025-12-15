@@ -38,12 +38,12 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
     __DELETE_CONFIG_IF_NO_NON_KEY_LEAF_OR_SUBCONFIG,
     __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF,
+    __DELETE_SUBCONFIG_AND_LEAFS,
     get_new_config,
     get_formatted_config_diff
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.sort_config_util import (
-    sort_config,
-    remove_void_config
+    sort_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.bgp_utils import (
     convert_bgp_asn,
@@ -62,7 +62,7 @@ TEST_KEYS = [
     {'aggregate_address_config': {'prefix': ''}}
 ]
 TEST_KEYS_sort_config = [
-    {'config': {'__test_keys': ('bgp_as', 'vrf_name')}},
+    {'config': {'__test_keys': ('vrf_name', 'bgp_as')}},
     {'afis': {'__test_keys': ('afi', 'safi')}},
     {'redistribute': {'__test_keys': ('protocol',)}},
     {'route_advertise_list': {'__test_keys': ('advertise_afi',)}},
@@ -71,6 +71,7 @@ TEST_KEYS_sort_config = [
 ]
 
 is_delete_all = False
+is_state_deleted = False
 
 
 def __derive_bgp_af_sub_config_delete_op(key_set, command, exist_conf):
@@ -79,12 +80,29 @@ def __derive_bgp_af_sub_config_delete_op(key_set, command, exist_conf):
     if done:
         return done, new_conf
     else:
-        return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
+        if {'advertise_afi', 'prefix'}.intersection(key_set):
+            return __DELETE_SUBCONFIG_AND_LEAFS(key_set, command, new_conf)
+        # In state deleted, entire protocol is deleted if all options match
+        elif not is_state_deleted and {'protocol'}.intersection(key_set):
+            return __DELETE_SUBCONFIG_AND_LEAFS(key_set, command, new_conf)
+        elif {'vni_number'}.intersection(key_set):
+            for option in command:
+                if option in ('rt_in', 'rt_out') and new_conf.get(option) and command[option]:
+                    new_conf[option] = [item for item in new_conf[option] if item not in command[option]]
+                    if not new_conf[option]:
+                        new_conf.pop(option)
+                elif option != 'vni_number':
+                    new_conf.pop(option, None)
+            return True, new_conf
+        else:
+            return __DELETE_LEAFS_THEN_CONFIG_IF_NO_NON_KEY_LEAF(key_set, command, new_conf)
 
 
 def __derive_bgp_af_delete_op(key_set, command, exist_conf):
     if is_delete_all:
         new_conf = []
+        if exist_conf:
+            new_conf = {'bgp_as': exist_conf.get('bgp_as'), 'vrf_name': exist_conf.get('vrf_name')}
         return True, new_conf
 
     return __derive_bgp_af_sub_config_delete_op(key_set, command, exist_conf)
@@ -188,22 +206,17 @@ class Bgp_af(ConfigBase):
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
         result['commands'] = commands
-
-        changed_bgp_af_facts = self.get_bgp_af_facts()
-
         result['before'] = existing_bgp_af_facts
-        if result['changed']:
-            result['after'] = changed_bgp_af_facts
 
-        new_config = changed_bgp_af_facts
         old_config = existing_bgp_af_facts
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_bgp_af_facts,
-                                        TEST_KEYS_generate_config)
-            new_config = remove_void_config(new_config, TEST_KEYS_sort_config)
-            old_config = remove_empties_from_list(old_config)
+            new_config = self.get_new_config(commands, existing_bgp_af_facts)
+            new_config = sort_config(new_config, TEST_KEYS_sort_config)
             result['after_generated'] = new_config
+        else:
+            new_config = self.get_bgp_af_facts()
+            if result['changed']:
+                result['after'] = new_config
 
         if self._module._diff:
             new_config = sort_config(new_config, TEST_KEYS_sort_config)
@@ -334,8 +347,9 @@ class Bgp_af(ConfigBase):
                   of the provided objects
         """
         # if want is none, then delete all the bgp_afs
-        global is_delete_all
+        global is_delete_all, is_state_deleted
         is_delete_all = False
+        is_state_deleted = True
         if not want:
             commands = have
             is_delete_all = True
@@ -1407,7 +1421,8 @@ class Bgp_af(ConfigBase):
                 # Delete all address-families in BGPs that are not
                 # specified in overridden
                 if state == 'overridden':
-                    commands.append(conf)
+                    afi_command_list = [{'afi': afi_conf['afi'], 'safi': afi_conf['safi']} for afi_conf in afi_list]
+                    commands.append({'bgp_as': as_val, 'vrf_name': vrf_name, 'address_family': {'afis': afi_command_list}})
                     requests.extend(self.get_delete_single_bgp_af_request(conf, True))
                 continue
 
@@ -1426,7 +1441,7 @@ class Bgp_af(ConfigBase):
                 # Delete address-families that are not specified in overridden
                 if not match_afi_cfg:
                     if state == 'overridden':
-                        afi_command_list.append(afi_conf)
+                        afi_command_list.append({'afi': afi, 'safi': safi})
                         requests.extend(self.get_delete_single_bgp_af_request({'bgp_as': as_val, 'vrf_name': vrf_name, 'address_family': {'afis': [afi_conf]}},
                                                                               True))
                     continue
@@ -1480,7 +1495,7 @@ class Bgp_af(ConfigBase):
                             route_map = route_adv.get('route_map')
                             match_route_adv = next((adv_cfg for adv_cfg in match_route_adv_list if adv_cfg['advertise_afi'] == advertise_afi), None)
                             if not match_route_adv:
-                                route_adv_list.append(route_adv)
+                                route_adv_list.append({'advertise_afi': advertise_afi})
                                 requests.append(self.get_delete_route_advertise_list_request(vrf_name, afi, safi, advertise_afi))
                             # Delete existing route-map before configuring
                             # new route-map.
@@ -1499,7 +1514,7 @@ class Bgp_af(ConfigBase):
                             match_vni = next((vni_cfg for vni_cfg in match_vni_list if vni_cfg['vni_number'] == vni_number), None)
                             # Delete entire VNIs that are not specified
                             if not match_vni:
-                                vni_command_list.append(vni_conf)
+                                vni_command_list.append({'vni_number': vni_number})
                                 requests.append(self.get_delete_vni_request(vrf_name, afi, safi, vni_number))
                             else:
                                 vni_command = {}
@@ -1535,7 +1550,7 @@ class Bgp_af(ConfigBase):
                     if afi_conf.get('redistribute'):
                         match_redis_list = match_afi_cfg.get('redistribute')
                         if not match_redis_list:
-                            afi_command['redistribute'] = afi_conf['redistribute']
+                            afi_command['redistribute'] = [{'protocol': redis_conf['protocol']} for redis_conf in afi_conf['redistribute']]
                             requests.extend(self.get_delete_redistribute_requests(vrf_name, afi, safi, afi_conf['redistribute'], True, None))
                         else:
                             redis_command_list = []
@@ -1545,7 +1560,7 @@ class Bgp_af(ConfigBase):
                                 # Delete complete protocol redistribute
                                 # configuration if not specified
                                 if not match_redis:
-                                    redis_command_list.append(redis_conf)
+                                    redis_command_list.append({'protocol': protocol})
                                     requests.extend(self.get_delete_redistribute_requests(vrf_name, afi, safi, [redis_conf], True, None))
                                 # Delete metric, route_map for specified
                                 # protocol if they are not specified.
@@ -1605,7 +1620,7 @@ class Bgp_af(ConfigBase):
                                 match_addr = match_addr_dict.get(prefix)
 
                                 if not match_addr:
-                                    aggregate_cmd_list.append(addr)
+                                    aggregate_cmd_list.append({'prefix': prefix})
                                     requests.append(self.get_delete_aggregate_attr(vrf_name, afi, safi, prefix, None))
                                 else:
                                     aggregate_cmd = {}
@@ -1636,3 +1651,27 @@ class Bgp_af(ConfigBase):
             return base_list
 
         return [item for item in base_list if item not in compare_with_list]
+
+    @staticmethod
+    def get_new_config(commands, have):
+        new_config = get_new_config(commands, have, TEST_KEYS_generate_config)
+        if not new_config:
+            return new_config
+
+        # Update default values
+        for bgp_as in new_config:
+            if bgp_as and bgp_as.get('address_family') and bgp_as['address_family'].get('afis'):
+                for address_family in bgp_as['address_family']['afis']:
+                    afi = address_family.get('afi')
+                    safi = address_family.get('safi')
+                    if afi in ('ipv4', 'ipv6') and safi == 'unicast':
+                        if afi == 'ipv4':
+                            address_family.setdefault('dampening', False)
+                        address_family.setdefault('max_path', {})
+                        address_family['max_path'].setdefault('ebgp', 1)
+                        address_family['max_path'].setdefault('ibgp', 1)
+                    elif afi == 'l2vpn' and safi == 'evpn':
+                        address_family.setdefault('dup_addr_detection', {})
+                        address_family['dup_addr_detection'].setdefault('enabled', True)
+
+        return remove_empties_from_list(new_config)
