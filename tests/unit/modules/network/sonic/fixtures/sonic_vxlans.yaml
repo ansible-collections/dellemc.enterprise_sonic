@@ -388,6 +388,8 @@ deleted_04:
     config:
       - name: vteptest1
         evpn_nvo: nvo1
+        qos_mode: pipe
+        dscp: 0
         vrf_map:
           - vni: 101
             vrf: Vrfcheck1
@@ -434,6 +436,8 @@ deleted_04:
 deleted_05:
   module_args:
     state: deleted
+    config:
+      - name: vteptest1
   existing_vxlans_config:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST'
       response:
@@ -462,6 +466,12 @@ deleted_05:
                 - name: vteptest1
                   qos-mode: pipe
                   dscp: 0
+            VXLAN_TUNNEL_MAP:
+              VXLAN_TUNNEL_MAP_LIST:
+                - name: vteptest1
+                  mapname: map_101_Vlan11
+                  vni: 101
+                  vlan: Vlan11
             'sonic-vxlan:SUPPRESS_VLAN_NEIGH':
               SUPPRESS_VLAN_NEIGH_LIST:
                 - name: Vlan5
@@ -475,7 +485,11 @@ deleted_05:
     - path: 'data/sonic-vrf:sonic-vrf/VRF/VRF_LIST=Vrfcheck2/vni'
       method: delete
       data: null
-    - path: 'data/sonic-vxlan:sonic-vxlan'
+    - path: >-
+        data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL_MAP/VXLAN_TUNNEL_MAP_LIST=vteptest1,map_101_Vlan11
+      method: delete
+      data: null
+    - path: 'data/sonic-vxlan:sonic-vxlan/VXLAN_TUNNEL/VXLAN_TUNNEL_LIST=vteptest1'
       method: delete
       data: null
 

@@ -182,7 +182,7 @@ class Vxlans(ConfigBase):
         replaced_config = get_replaced_config(cp_want, cp_have, TEST_KEYS)
 
         if replaced_config:
-            requests.extend(self.get_delete_vxlan_requests(replaced_config, False))
+            requests.extend(self.get_delete_vxlan_requests(replaced_config, have, False))
             commands.extend(update_states(replaced_config, 'deleted'))
             mod_commands = want
         else:
@@ -213,7 +213,7 @@ class Vxlans(ConfigBase):
 
         if del_commands:
             delete_all = True
-            del_requests = self.get_delete_vxlan_requests(have, delete_all)
+            del_requests = self.get_delete_vxlan_requests(have, have, delete_all)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
             have = []
@@ -268,7 +268,7 @@ class Vxlans(ConfigBase):
             self.remove_default_entries(commands)
 
         if commands:
-            requests = self.get_delete_vxlan_requests(commands, delete_all)
+            requests = self.get_delete_vxlan_requests(commands, have, delete_all)
             if len(requests) > 0:
                 commands = update_states(commands, 'deleted')
         else:
@@ -299,12 +299,15 @@ class Vxlans(ConfigBase):
 
         return requests
 
-    def get_delete_vxlan_requests(self, configs, is_delete_all):
+    def get_delete_vxlan_requests(self, configs, have, is_delete_all):
         requests = []
 
         if not configs:
             return requests
 
+        # Need to delete in the reverse order of creation.
+        # vrf_map needs to be cleared before vlan_map
+        # vlan_map needs to be cleared before tunnel(source-ip)
         if is_delete_all:
             for conf in configs:
                 if conf.get('vrf_map'):
@@ -314,12 +317,16 @@ class Vxlans(ConfigBase):
             requests.append({'path': VXLAN_PATH, 'method': DELETE})
             return requests
 
-        # Need to delete in the reverse order of creation.
-        # vrf_map needs to be cleared before vlan_map
-        # vlan_map needs to be cleared before tunnel(source-ip)
+        have_conf_dict = {conf['name']: conf for conf in have}
         for conf in configs:
             name = conf['name']
+
             if len(conf) == 1:
+                have_conf = have_conf_dict.get(name)
+                if have_conf.get('vrf_map'):
+                    requests.extend(self.get_delete_vrf_map_requests(have_conf['vrf_map']))
+                if have_conf.get('vlan_map'):
+                    requests.extend(self.get_delete_vlan_map_requests(name, have_conf['vlan_map']))
                 requests.append(self.get_delete_tunnel_request(name))
                 continue
 
@@ -329,8 +336,8 @@ class Vxlans(ConfigBase):
             external_ip = conf.get('external_ip')
             qos_mode = conf.get('qos_mode')
             dscp = conf.get('dscp')
-            vlan_map_list = conf.get('vlan_map')
             vrf_map_list = conf.get('vrf_map')
+            vlan_map_list = conf.get('vlan_map')
             suppress_vlan_neigh_list = conf.get('suppress_vlan_neigh')
 
             if suppress_vlan_neigh_list:
@@ -339,18 +346,18 @@ class Vxlans(ConfigBase):
                 requests.extend(self.get_delete_vrf_map_requests(vrf_map_list))
             if vlan_map_list:
                 requests.extend(self.get_delete_vlan_map_requests(name, vlan_map_list))
-            if src_ip:
-                requests.append(self.get_delete_tunnel_request(name, 'src_ip'))
             if evpn_nvo:
                 requests.append(self.get_delete_evpn_request(evpn_nvo))
+            if src_ip:
+                requests.append(self.get_delete_tunnel_request(name, 'src_ip'))
             if primary_ip:
                 requests.append(self.get_delete_tunnel_request(name, 'primary_ip'))
             if external_ip:
                 requests.append(self.get_delete_tunnel_request(name, 'external_ip'))
-            if qos_mode:
-                requests.append(self.get_delete_tunnel_request(name, 'qos-mode'))
             if dscp:
                 requests.append(self.get_delete_tunnel_request(name, 'dscp'))
+            if qos_mode:
+                requests.append(self.get_delete_tunnel_request(name, 'qos-mode'))
 
         return requests
 
