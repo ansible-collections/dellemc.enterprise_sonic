@@ -323,10 +323,14 @@ class Vxlans(ConfigBase):
 
             if len(conf) == 1:
                 have_conf = have_conf_dict.get(name)
+                if have_conf.get('suppress_vlan_neigh'):
+                    requests.extend(self.get_delete_suppress_vlan_neigh_requests(have_conf['suppress_vlan_neigh']))
                 if have_conf.get('vrf_map'):
                     requests.extend(self.get_delete_vrf_map_requests(have_conf['vrf_map']))
                 if have_conf.get('vlan_map'):
                     requests.extend(self.get_delete_vlan_map_requests(name, have_conf['vlan_map']))
+                 if have_conf.get('evpn_nvo'):
+                    requests.append(self.get_delete_evpn_request(have_conf['evpn_nvo']))
                 requests.append(self.get_delete_tunnel_request(name))
                 continue
 
