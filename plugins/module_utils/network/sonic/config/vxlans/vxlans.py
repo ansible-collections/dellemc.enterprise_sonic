@@ -310,11 +310,15 @@ class Vxlans(ConfigBase):
         # vlan_map needs to be cleared before tunnel(source-ip)
         if is_delete_all:
             for conf in configs:
+                if conf.get('suppress_vlan_neigh'):
+                    requests.extend(self.get_delete_suppress_vlan_neigh_requests(conf['suppress_vlan_neigh']))
                 if conf.get('vrf_map'):
                     requests.extend(self.get_delete_vrf_map_requests(conf['vrf_map']))
                 if conf.get('vlan_map'):
                     requests.extend(self.get_delete_vlan_map_requests(conf['name'], conf['vlan_map']))
-            requests.append({'path': VXLAN_PATH, 'method': DELETE})
+                if conf.get('evpn_nvo'):
+                   requests.append(self.get_delete_evpn_request(conf['evpn_nvo']))
+                requests.append(self.get_delete_tunnel_request(conf['name']))
             return requests
 
         have_conf_dict = {conf['name']: conf for conf in have}
