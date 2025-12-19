@@ -706,7 +706,9 @@ class Mfa(ConfigBase):
                 config.pop("cac_piv_global")
         elif self._cacpiv_attr_delete:
             if "cac_piv_global" not in config:
-                config["cac_piv_global"] = {}
+                config.setdefault("cac_piv_global", {})
+
+        if "cac_piv_global" in config:
             for key, default_val in MFA_DEFAULTS['cac_piv_global'].items():
                 config["cac_piv_global"].setdefault(key, default_val)
 
