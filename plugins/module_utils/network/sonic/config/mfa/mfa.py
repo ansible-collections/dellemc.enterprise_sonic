@@ -33,8 +33,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
-    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
     get_new_config,
     get_formatted_config_diff
 )
@@ -77,9 +75,10 @@ TEST_KEYS = [
 ]
 
 TEST_KEYS_formatted_diff = [
-    {'config': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'rsa_servers': {'hostname': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+    {'config': {}},
+    {'rsa_servers': {'hostname': ''}},
 ]
+
 
 MFA_PATH = 'data/openconfig-mfa:mfa'
 
@@ -110,7 +109,7 @@ class Mfa(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         mfa_facts = facts['ansible_network_resources'].get('mfa')
         if not mfa_facts:
-            return []
+            return {}
         return mfa_facts
 
     def execute_module(self):
@@ -119,6 +118,8 @@ class Mfa(ConfigBase):
         :rtype: A dictionary
         :returns: The result from module execution
         """
+        self._cacpiv_delete_all = False
+        self._cacpiv_attr_delete = False
         result = {'changed': False}
         warnings = []
         commands = []
@@ -531,6 +532,7 @@ class Mfa(ConfigBase):
         requests = []
 
         if commands.get('cac_piv_global'):
+            self._cacpiv_delete_all = True
             request = {'path': f"{MFA_PATH}/cac-piv-global", 'method': DELETE}
             requests.append(request)
         return requests
@@ -550,11 +552,11 @@ class Mfa(ConfigBase):
 
     def get_delete_rsa_global_requests(self, want_rsa_global, have_rsa_global):
         """Get request to delete specific RSA Global configuration"""
-        commands, requests = [], []
+        commands, requests = {}, []
 
         security_profile = want_rsa_global.get('security_profile')
         if security_profile and security_profile == have_rsa_global.get('security_profile'):
-            commands.append({'security_profile': have_rsa_global.get('security_profile')})
+            commands['security_profile'] = have_rsa_global.get('security_profile')
             requests.append(self.get_delete_attr_request('rsa-security-profile', 'rsa-global'))
         return commands, requests
 
@@ -595,6 +597,7 @@ class Mfa(ConfigBase):
                 if want_value and want_value == have_value:
                     commands[cac_piv_global_option] = have_cac_piv_global.get(cac_piv_global_option)
                     requests.append(self.get_delete_attr_request(cac_piv_global_std_paths[cac_piv_global_option], 'cac-piv-global'))
+                    self._cacpiv_attr_delete = True
                 else:
                     want_cac_piv_global.pop(cac_piv_global_option)
         return commands, requests
@@ -687,13 +690,23 @@ class Mfa(ConfigBase):
                 config["mfa_global"].setdefault(key, default_val)
 
         if "rsa_servers" in config:
+            normalized = []
             for server in config["rsa_servers"]:
-                for key, default_val in MFA_DEFAULTS['rsa_servers'].items():
-                    server.setdefault(key, default_val)
+                required_ok = all(server.get(k) not in (None, "") for k in ("hostname", "client_id", "client_key"))
+                if required_ok:
+                    for k, dv in MFA_DEFAULTS['rsa_servers'].items():
+                        server.setdefault(k, dv)
+                    normalized.append(server)
+            config["rsa_servers"] = normalized
             if not config["rsa_servers"]:
                 config.pop("rsa_servers")
 
-        if "cac_piv_global" in config:
+        if self._cacpiv_delete_all:
+            if "cac_piv_global" in config and not config["cac_piv_global"]:
+                config.pop("cac_piv_global")
+        elif self._cacpiv_attr_delete:
+            if "cac_piv_global" not in config:
+                config["cac_piv_global"] = {}
             for key, default_val in MFA_DEFAULTS['cac_piv_global'].items():
                 config["cac_piv_global"].setdefault(key, default_val)
 
