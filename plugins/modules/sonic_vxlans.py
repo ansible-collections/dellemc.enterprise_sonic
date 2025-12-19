@@ -16,76 +16,99 @@ DOCUMENTATION = """
 module: sonic_vxlans
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies.
-- Supports C(check_mode).
-short_description: Manage VxLAN EVPN and its parameters
-description: 'Manages interface attributes of Enterprise SONiC interfaces.'
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
+short_description: Manage VXLAN configuration on SONiC
+description:
+  - This module provides configuration management of VXLAN for devices running SONiC
 author: Niraimadaiselvam M (@niraimadaiselvamm)
 options:
   config:
     description:
-      - A list of VxLAN configurations.
+      - A list of VXLAN configurations
     type: list
     elements: dict
     suboptions:
       name:
+        description:
+          - Name of the VXLAN
         type: str
-        description: 'The name of the VxLAN.'
         required: true
       evpn_nvo:
+        description:
+          - EVPN NVO name
         type: str
-        description: 'EVPN nvo name'
       source_ip:
-        description: 'The source IP address of the VTEP.'
+        description:
+          - Source IP address of the VTEP
         type: str
       primary_ip:
-        description: 'The vtep mclag primary ip address for this node'
+        description:
+          - The VTEP MCLAG primary IP address for this node
         type: str
       external_ip:
-        description: 'The vtep mclag external ip address for this node'
+        description:
+          - The VTEP MCLAG external IP address for this node
         version_added: 2.5.0
         type: str
+      qos_mode:
+        description:
+          - QoS mode to use for prioritizing the network traffic within a VXLAN tunnel
+          - Functional default is C(pipe)
+        version_added: 4.0.0
+        type: str
+        choices: [pipe, uniform]
+      dscp:
+        description:
+          - DSCP value of the VXLAN tunnel outer IP header, range 0-63
+          - Valid only when I(qos_mode=pipe)
+          - Functional default is 0
+        version_added: 4.0.0
+        type: int
       vlan_map:
-        description: 'The list of VNI map of VLAN.'
+        description:
+          - List of VNI VLAN map configuration
         type: list
         elements: dict
         suboptions:
           vni:
+            description:
+              - Specifies the VNI ID
             type: int
-            description: 'Specifies the VNI ID.'
             required: true
           vlan:
+            description:
+              - VLAN ID for VNI VLAN map
             type: int
-            description: 'VLAN ID for VNI VLAN map.'
       vrf_map:
-        description: 'list of VNI map of VRF.'
+        description:
+          - List of VNI VRF map configuration
         type: list
         elements: dict
         suboptions:
           vni:
+            description: Specifies the VNI ID
             type: int
-            description: 'Specifies the VNI ID.'
             required: true
           vrf:
+            description:
+              - VRF name for VNI VRF map
             type: str
-            description: 'VRF name for VNI VRF map.'
       suppress_vlan_neigh:
-        description: 'list map of VLAN names with suppress on'
+        description:
+          - List of suppress VLAN neighbor configuration
         version_added: 3.1.0
         type: list
         elements: dict
         suboptions:
           vlan_name:
+            description: Name of VLAN
             type: str
-            description: 'name of VLAN'
   state:
-    description: 'The state of the configuration after module completion.'
+    description:
+      - The state of the configuration after module completion
     type: str
-    choices:
-    - merged
-    - deleted
-    - replaced
-    - overridden
+    choices: [merged, deleted, replaced, overridden]
     default: merged
 """
 
@@ -95,7 +118,7 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # interface vxlan vteptest1
 # source-ip 1.1.1.1
@@ -107,7 +130,7 @@ EXAMPLES = """
 # suppress vlan-neigh vlan_name Vlan11
 # suppress vlan-neigh vlan_name Vlan12
 # !
-#
+
 - name: "Test vxlans deleted state 01"
   dellemc.enterprise_sonic.sonic_vxlans:
     config:
@@ -123,52 +146,55 @@ EXAMPLES = """
           - vlan_name: Vlan11
           - vlan_name: Vlan12
     state: deleted
-#
+
 # After state:
 # ------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # interface vxlan vteptest1
 # source-ip 1.1.1.1
 # map vni 102 vlan 12
 # map vni 102 vrf Vrfcheck2
 # !
-#
+
+
 # Using "deleted" state
 #
 # Before state:
 # -------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # interface vxlan vteptest1
 # source-ip 1.1.1.1
+# qos-mode pipe dscp 14
 # map vni 102 vlan 12
 # map vni 102 vrf Vrfcheck2
 # !
-#
+
 - name: "Test vxlans deleted state 02"
   dellemc.enterprise_sonic.sonic_vxlans:
     config:
     state: deleted
-#
+
 # After state:
 # ------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # !
-#
+
+
 # Using "merged" state
 #
 # Before state:
 # -------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # !
-#
+
 - name: "Test vxlans merged state 01"
   dellemc.enterprise_sonic.sonic_vxlans:
     config:
@@ -176,6 +202,8 @@ EXAMPLES = """
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
         evpn_nvo: nvo1
+        qos_mode: pipe
+        dscp: 14
         vlan_map:
           - vni: 101
             vlan: 11
@@ -190,15 +218,16 @@ EXAMPLES = """
           - vlan_name: Vlan11
           - vlan_name: Vlan12
     state: merged
-#
+
 # After state:
 # ------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # interface vxlan vteptest1
 # source-ip 1.1.1.1
 # primary-ip 2.2.2.2
+# qos-mode pipe dscp 14
 # map vni 101 vlan 11
 # map vni 102 vlan 12
 # map vni 101 vrf Vrfcheck1
@@ -206,13 +235,14 @@ EXAMPLES = """
 # suppress vlan-neigh vlan-name Vlan11
 # suppress vlan-neigh vlan-name Vlan12
 # !
-#
+
+
 # Using "overridden" state
 #
 # Before state:
 # -------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # interface vxlan vteptest1
 # source-ip 1.1.1.1
@@ -222,7 +252,7 @@ EXAMPLES = """
 # map vni 101 vrf Vrfcheck1
 # map vni 102 vrf Vrfcheck2
 # !
-#
+
 - name: "Test vxlans overridden state 01"
   dellemc.enterprise_sonic.sonic_vxlans:
     config:
@@ -237,11 +267,11 @@ EXAMPLES = """
           - vni: 101
             vrf: Vrfcheck1
     state: overridden
-#
+
 # After state:
 # ------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # interface vxlan vteptest2
 # source-ip 3.3.3.3
@@ -249,13 +279,14 @@ EXAMPLES = """
 # map vni 101 vlan 11
 # map vni 101 vrf Vrfcheck1
 # !
-#
+
+
 # Using "replaced" state
 #
 # Before state:
 # -------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # interface vxlan vteptest2
 # source-ip 3.3.3.3
@@ -263,7 +294,7 @@ EXAMPLES = """
 # map vni 101 vlan 11
 # map vni 101 vrf Vrfcheck
 # !
-#
+
 - name: "Test vxlans replaced state 01"
   dellemc.enterprise_sonic.sonic_vxlans:
     config:
@@ -273,11 +304,11 @@ EXAMPLES = """
           - vni: 101
             vlan: 12
     state: replaced
-#
+
 # After state:
 # ------------
 #
-# do show running-configuration
+# sonic# show running-configuration vxlan
 #
 # interface vxlan vteptest2
 # source-ip 5.5.5.5
@@ -286,24 +317,21 @@ EXAMPLES = """
 # map vni 101 vrf Vrfcheck1
 # !
 """
-
 RETURN = """
 before:
   description: The configuration prior to the module invocation.
   returned: always
   type: list
-  sample: >
-    The configuration returned is always in the same format
-    as the parameters above.
 after:
-  description: The resulting configuration module invocation.
+  description: The resulting configuration from module invocation.
   returned: when changed
   type: list
-  sample: >
-    The configuration returned is always in the same format
-    as the parameters above.
+after_generated:
+  description: The generated configuration from module invocation.
+  returned: when C(check_mode)
+  type: list
 commands:
-  description: The set of commands that are pushed to the remote device.
+  description: The set of commands pushed to the remote device.
   returned: always
   type: list
   sample: ['command 1', 'command 2', 'command 3']

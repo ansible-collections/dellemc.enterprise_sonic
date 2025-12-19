@@ -3,13 +3,10 @@ ansible_connection: httpapi
 
 vrf1: VrfReg1
 vrf2: VrfReg2
-
 po1: Portchannel 100
-vlan1: 105
-looopback1: Loopback 100
 po2: Portchannel 101
+vlan1: 105
 vlan2: 106
-looopback2: Loopback 101
 vlan5_name: Vlan5
 vlan6_name: Vlan6
 vlan7_name: Vlan7
@@ -60,22 +57,23 @@ tests_cli:
 
 sonic_vxlans_tests:
   - name: test_case_01
-    description: creates VXLAN properties
+    description: Create VXLAN
     state: merged
     input:
       - name: vtep1
 
   - name: test_case_02
-    description: Update VRF properties
+    description: Configure some VXLAN attributes
     state: merged
     input:
       - name: vtep1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
         external_ip: 3.3.3.3
+        qos_mode: uniform
 
   - name: test_case_03
-    description: Update VRF properties
+    description: Configure vlan_map
     state: merged
     input:
       - name: vtep1
@@ -84,7 +82,7 @@ sonic_vxlans_tests:
             vlan: "{{ vlan1 }}"
 
   - name: test_case_04
-    description: Update VRF properties
+    description: Configure vrf_map and suppress_vlan_neigh
     state: merged
     input:
       - name: vtep1
@@ -96,12 +94,14 @@ sonic_vxlans_tests:
           - vlan_name: "{{ vlan7_name }}"
 
   - name: test_case_05
-    description: Update VRF properties
+    description: Update VXLAN configuration
     state: merged
     input:
       - name: vtep1
         source_ip: 1.1.1.1
         primary_ip: 2.2.2.2
+        qos_mode: pipe
+        dscp: 14
         vlan_map:
           - vni: 102
             vlan: "{{ vlan2 }}"
@@ -112,7 +112,7 @@ sonic_vxlans_tests:
           - vlan_name: "{{ vlan5_name }}"
 
   - name: test_case_06
-    description: Override VXLAN properties
+    description: Override VXLAN configuration
     state: overridden
     input:
       - name: vtep2
@@ -130,7 +130,7 @@ sonic_vxlans_tests:
           - vlan_name: "{{ vlan7_name }}"
 
   - name: test_case_07
-    description: Replace VXLAN properties
+    description: Replace VXLAN configuration
     state: replaced
     input:
       - name: vtep2
@@ -138,6 +138,8 @@ sonic_vxlans_tests:
         primary_ip: 6.6.6.6
         external_ip: 7.7.7.7
         evpn_nvo: nvo6
+        qos_mode: pipe
+        dscp: 30
         vlan_map:
           - vni: 101
             vlan: "{{ vlan2 }}"
@@ -154,7 +156,7 @@ sonic_vxlans_tests:
           - vlan_name: "{{ vlan6_name }}"
 
   - name: test_case_08
-    description: Delete VRF properties
+    description: Delete VXLAN attributes
     state: deleted
     input:
       - name: vtep2
@@ -162,6 +164,8 @@ sonic_vxlans_tests:
         primary_ip: 6.6.6.6
         external_ip: 7.7.7.7
         evpn_nvo: nvo6
+        qos_mode: pipe
+        dscp: 30
         vlan_map:
           - vni: 101
             vlan: "{{ vlan2 }}"
@@ -177,7 +181,7 @@ sonic_vxlans_tests:
           - vlan_name: Vlan7
 
   - name: test_case_09
-    description: Delete VRF properties
+    description: Delete VXLAN
     state: deleted
     input:
       - name: vtep2
@@ -189,6 +193,6 @@ sonic_vxlans_tests:
       - name: vtep1
 
   - name: test_case_11
-    description: Delete VXLAN properties
+    description: Delete all VXLAN configuration
     state: deleted
     input: []
