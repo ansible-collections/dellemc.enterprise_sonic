@@ -53,6 +53,7 @@
     - sonic_lst
     - sonic_mac
     - sonic_mclag
+    - sonic_mfa
     - sonic_mgmt_servers
     - sonic_mirroring
     - sonic_network_policy

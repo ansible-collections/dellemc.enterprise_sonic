@@ -131,6 +131,7 @@ options:
       - br_l2pt
       - dcbx
       - mirroring
+      - mfa
       - drop_counter
       - evpn_esi_multihome
       - ssh_server

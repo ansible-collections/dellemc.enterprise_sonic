@@ -97,6 +97,7 @@ class FactsArgs(object):  # pylint: disable=R0903
         'fbs_policies',
         'ars',
         'mirroring',
+        'mfa',
         'network_policy',
         'drop_counter',
         'br_l2pt',

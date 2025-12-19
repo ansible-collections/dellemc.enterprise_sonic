@@ -1,0 +1,55 @@
+---
+- name: Delete MFA configurations
+  dellemc.enterprise_sonic.sonic_mfa:
+    config: {}
+    state: deleted
+
+- name: "Remove trust store and certificate associations"
+  dellemc.enterprise_sonic.sonic_pki:
+    config:
+      security_profiles:
+        - profile_name: rSecurityProfile
+          trust_store: tStore
+        - profile_name: mSecurityProfile
+          certificate_name: ciamcert
+        - profile_name: cSecurityProfile
+          trust_store: cStore
+    state: deleted
+  failed_when: false
+
+- name: "Delete security profiles and trust stores"
+  dellemc.enterprise_sonic.sonic_pki:
+    config:
+      security_profiles:
+        - profile_name: rSecurityProfile
+        - profile_name: mSecurityProfile
+        - profile_name: cSecurityProfile
+      trust_stores:
+        - name: tStore
+        - name: cStore
+    state: deleted
+  failed_when: false
+
+- name: Uninstall RSA CA cert
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto ca-cert delete rsa.ca.cert'
+  register: cmd_op
+  failed_when: false
+
+- name: Uninstall MFA HOST cert
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto cert delete ciamcert'
+  register: cmd_op
+  failed_when: false
+
+- name: Uninstall CAC-PIV CA cert
+  vars:
+    ansible_connection: network_cli
+  dellemc.enterprise_sonic.sonic_command:
+    commands: 'crypto ca-cert delete cacpiv_ca_cert'
+  register: cmd_op
+  failed_when: false
