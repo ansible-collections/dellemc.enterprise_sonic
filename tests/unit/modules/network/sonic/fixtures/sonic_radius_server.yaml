@@ -19,42 +19,29 @@ merged_01:
             timeout: 20
             source_interface: Eth1/2
             vrf: mgmt
+            protocol: TLS
+            security_profile: radius-sec-profile
   existing_radius_server_config:
-    - path: "data/openconfig-interfaces:interfaces"
-      response:
-        code: 200
-        value:
-          openconfig-interfaces:interfaces:
-            interface:
-              - name: 'Eth1/1'
-                config:
-                  mtu: 2000
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config"
-      response:
-        code: 200
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config"
-      response:
-        code: 200
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
       response:
         code: 200
   expected_config_requests:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config"
-      method: "patch"
+      method: patch
       data:
         openconfig-system:config:
-          auth-type: 'chap'
-          secret-key: 'chap'
+          auth-type: chap
+          secret-key: chap
           timeout: 10
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config"
-      method: "patch"
+      method: patch
       data:
         openconfig-aaa-radius-ext:config:
           nas-ip-address: 1.2.3.4
           retransmit-attempts: 3
           statistics: true
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
-      method: "patch"
+      method: patch
       data:
         openconfig-system:servers:
           server:
@@ -71,63 +58,63 @@ merged_01:
                   secret-key: local
                   retransmit-attempts: 2
                   openconfig-aaa-radius-ext:source-interface: Eth1/2
+                  protocol: TLS
+                  security-profile: radius-sec-profile
 
 deleted_01:
   module_args:
     state: deleted
   existing_radius_server_config:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
       response:
         code: 200
         value:
-          openconfig-system:config:
-            auth-type: 'chap'
-            secret-key: 'chap'
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config"
-      response:
-        code: 200
-        value:
-          openconfig-aaa-radius-ext:config:
-            nas-ip-address: 1.2.3.4
-            retransmit-attempts: 3
-            statistics: true
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - address: hostx.local
+          openconfig-system:server-group:
+            - name: RADIUS
+              config:
+                name: RADIUS
+                auth-type: chap
+                secret-key: chap
+              openconfig-aaa-radius-ext:radius:
                 config:
-                  address: hostx.local
-                  auth-type: mschapv2
-                  priority: 2
-                  vrf: mgmt
-                  timeout: 20
-                radius:
-                  config:
-                    auth-port: 52
-                    secret-key: local
-                    retransmit-attempts: 2
-                    openconfig-aaa-radius-ext:source-interface: Eth1/2
+                  nas-ip-address: 1.2.3.4
+                  retransmit-attempts: 3
+                  statistics: true
+              servers:
+                server:
+                  - address: hostx.local
+                    config:
+                      address: hostx.local
+                      auth-type: mschapv2
+                      priority: 2
+                      vrf: mgmt
+                      timeout: 20
+                    radius:
+                      config:
+                        auth-port: 52
+                        secret-key: local
+                        retransmit-attempts: 2
+                        openconfig-aaa-radius-ext:source-interface: Eth1/2
+                        protocol: TLS
+                        security-profile: radius-sec-profile
   expected_config_requests:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/auth-type"
-      method: "delete"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/secret-key"
-      method: "delete"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/nas-ip-address"
-      method: "delete"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/retransmit-attempts"
-      method: "delete"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
-      method: "delete"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
-      method: "delete"
+      method: delete
       data:
 
 deleted_02:
@@ -151,57 +138,332 @@ deleted_02:
             timeout: 20
             source_interface: Eth1/2
             vrf: mgmt
+            protocol: TLS
+            security_profile: radius-sec-profile
   existing_radius_server_config:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
       response:
         code: 200
         value:
-          openconfig-system:config:
-            auth-type: 'chap'
-            secret-key: 'chap'
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config"
-      response:
-        code: 200
-        value:
-          openconfig-aaa-radius-ext:config:
-            nas-ip-address: 1.2.3.4
-            retransmit-attempts: 3
-            statistics: true
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
-      response:
-        code: 200
-        value:
-          openconfig-system:servers:
-            server:
-              - address: hostx.local
+          openconfig-system:server-group:
+            - name: RADIUS
+              config:
+                name: RADIUS
+                auth-type: chap
+                secret-key: chap
+                timeout: 10
+              openconfig-aaa-radius-ext:radius:
                 config:
-                  address: hostx.local
-                  auth-type: mschapv2
-                  priority: 2
-                  vrf: mgmt
-                  timeout: 20
-                radius:
-                  config:
-                    auth-port: 52
-                    secret-key: local
-                    retransmit-attempts: 2
-                    openconfig-aaa-radius-ext:source-interface: Eth1/2
+                  nas-ip-address: 1.2.3.4
+                  retransmit-attempts: 3
+                  statistics: true
+              servers:
+                server:
+                  - address: hostx.local
+                    config:
+                      address: hostx.local
+                      auth-type: mschapv2
+                      priority: 2
+                      vrf: mgmt
+                      timeout: 20
+                    radius:
+                      config:
+                        auth-port: 52
+                        secret-key: local
+                        retransmit-attempts: 2
+                        openconfig-aaa-radius-ext:source-interface: Eth1/2
+                        protocol: TLS
+                        security-profile: radius-sec-profile
   expected_config_requests:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/auth-type"
-      method: "delete"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/secret-key"
-      method: "delete"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/timeout"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/nas-ip-address"
-      method: "delete"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/retransmit-attempts"
-      method: "delete"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
-      method: "delete"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/config/auth-type"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/config/priority"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/config/vrf"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/config/timeout"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/radius/config/auth-port"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/radius/config/secret-key"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/radius/config/retransmit-attempts"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/radius/config/\
+             openconfig-aaa-radius-ext:source-interface"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/radius/config/protocol"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local/radius/config/security-profile"
+      method: delete
+      data:
+
+replaced_01:
+  module_args:
+    state: replaced
+    config:
+      auth_type: chap
+  existing_radius_server_config:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
+      response:
+        code: 200
+        value:
+          openconfig-system:server-group:
+            - name: RADIUS
+              config:
+                name: RADIUS
+                auth-type: pap
+                secret-key: chap
+                timeout: 5
+              openconfig-aaa-radius-ext:radius:
+                config:
+                  nas-ip-address: 1.2.3.4
+                  retransmit-attempts: 3
+                  statistics: true
+              servers:
+                server:
+                  - address: hostx.local
+                    config:
+                      address: hostx.local
+                      auth-type: mschapv2
+                      priority: 2
+                      vrf: mgmt
+                      timeout: 20
+                    radius:
+                      config:
+                        auth-port: 52
+                        secret-key: local
+                        retransmit-attempts: 2
+                        openconfig-aaa-radius-ext:source-interface: Eth1/2
+                        protocol: TLS
+                        security-profile: radius-sec-profile
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/secret-key"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/nas-ip-address"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/retransmit-attempts"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
+      method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
-      method: "delete"
+      method: delete
       data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config"
+      method: patch
+      data:
+        openconfig-system:config:
+          auth-type: chap
+
+replaced_02:
+  module_args:
+    state: replaced
+    config:
+      servers:
+        host:
+          - name: hostx.local
+            port: 80
+  existing_radius_server_config:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
+      response:
+        code: 200
+        value:
+          openconfig-system:server-group:
+            - name: RADIUS
+              config:
+                name: RADIUS
+                auth-type: pap
+                secret-key: chap
+                timeout: 5
+              openconfig-aaa-radius-ext:radius:
+                config:
+                  nas-ip-address: 1.2.3.4
+                  retransmit-attempts: 3
+                  statistics: true
+              servers:
+                server:
+                  - address: hostx.local
+                    config:
+                      address: hostx.local
+                      auth-type: mschapv2
+                      priority: 2
+                      vrf: mgmt
+                      timeout: 20
+                    radius:
+                      config:
+                        auth-port: 1812
+                        secret-key: local
+                        retransmit-attempts: 2
+                        openconfig-aaa-radius-ext:source-interface: Eth1/2
+                        protocol: UDP
+                        security-profile: radius-sec-profile
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
+      method: patch
+      data:
+        openconfig-system:servers:
+          server:
+            - address: hostx.local
+              config:
+                address: hostx.local
+              radius:
+                config:
+                  auth-port: 80
+
+replaced_03:
+  module_args:
+    state: replaced
+    config:
+      servers:
+        host:
+          - name: hostx.local
+            port: 80
+  existing_radius_server_config:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
+      response:
+        code: 200
+        value:
+          openconfig-system:server-group:
+            - name: RADIUS
+              config:
+                name: RADIUS
+                auth-type: pap
+                secret-key: chap
+                timeout: 5
+              openconfig-aaa-radius-ext:radius:
+                config:
+                  nas-ip-address: 1.2.3.4
+                  retransmit-attempts: 3
+                  statistics: true
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
+      method: patch
+      data:
+        openconfig-system:servers:
+          server:
+            - address: hostx.local
+              config:
+                address: hostx.local
+              radius:
+                config:
+                  auth-port: 80
+
+overridden_01:
+  module_args:
+    state: overridden
+    config:
+      auth_type: chap
+  existing_radius_server_config:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
+      response:
+        code: 200
+        value:
+          openconfig-system:server-group:
+            - name: RADIUS
+              config:
+                name: RADIUS
+                auth-type: pap
+                secret-key: chap
+                timeout: 5
+              openconfig-aaa-radius-ext:radius:
+                config:
+                  nas-ip-address: 1.2.3.4
+                  retransmit-attempts: 3
+                  statistics: true
+              servers:
+                server:
+                  - address: hostx.local
+                    config:
+                      address: hostx.local
+                      auth-type: mschapv2
+                      priority: 2
+                      vrf: mgmt
+                      timeout: 20
+                    radius:
+                      config:
+                        auth-port: 1812
+                        secret-key: local
+                        retransmit-attempts: 2
+                        openconfig-aaa-radius-ext:source-interface: Eth1/2
+                        protocol: UDP
+                        security-profile: radius-sec-profile
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/secret-key"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/nas-ip-address"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/retransmit-attempts"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config"
+      method: patch
+      data:
+        openconfig-system:config:
+          auth-type: chap
+
+overridden_02:
+  module_args:
+    state: overridden
+    config:
+      servers:
+        host:
+          - name: hostx.local
+            port: 80
+  existing_radius_server_config:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
+      response:
+        code: 200
+  expected_config_requests:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers"
+      method: patch
+      data:
+        openconfig-system:servers:
+          server:
+            - address: hostx.local
+              config:
+                address: hostx.local
+              radius:
+                config:
+                  auth-port: 80
