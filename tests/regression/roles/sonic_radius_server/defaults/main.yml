@@ -81,9 +81,9 @@ sonic_radius_server_tests:
             source_interface: "{{ interface1 }}"
             vrf: VrfAnsibleTest
           - name: my-host2.dell
-            # - name: "20.20.20.20"
-            #   protocol: "TLS"
-            #   security_profile: "radius-sec-profile"
+          # - name: "20.20.20.20"
+          #   protocol: "TLS"
+          #   security_profile: "radius-sec-profile"
 
   - name: test_case_04
     description: Add new host configuration
