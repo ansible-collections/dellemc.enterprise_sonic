@@ -75,6 +75,7 @@ options:
                 description:
                   - Specifies the IP address or name of the radius server host.
                 type: str
+                required: true
               auth_type:
                 description:
                   - Specifies the authentication type of the radius server host.
@@ -148,24 +149,14 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr    : 10.11.12.13
-# statistics     : True
-# timeout        : 12
-# auth-type      : chap
-# key configured : No
-# retransmit     : 5
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# HOST                                                              AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF              SI              PROTOCOL  SEC_PROFILE         REQ-MSG-AUTH
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 10.10.10.10                                                       -         No         1812      -        -       -     -                -               TLS       rad-sec-prof        False
-# my-host1.dell                                                     chap      No         55        3        12      7     VrfAnsibleTest   Ethernet100     UDP       -                   False
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
 
 - name: Delete specified radius server configuration
   dellemc.enterprise_sonic.sonic_radius_server:
@@ -181,22 +172,10 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# statistics     : True
-# timeout        : 5
-# auth-type      : pap
-# key configured : No
-# retransmit     : 5
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# HOST                                                              AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF              SI              PROTOCOL  SEC_PROFILE         REQ-MSG-AUTH
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# my-host1.dell                                                     chap      No         55        3        12      7     VrfAnsibleTest   Ethernet100     UDP       -                   False
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
+# sonic# show running-configuration | grep radius-server
+# radius-server statistics enable
+# radius-server retransmit 5
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
 
 
 # Using "deleted" state
@@ -204,24 +183,14 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr    : 10.11.12.13
-# statistics     : True
-# timeout        : 12
-# auth-type      : chap
-# key configured : No
-# retransmit     : 5
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# HOST                                                              AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF              SI              PROTOCOL  SEC_PROFILE         REQ-MSG-AUTH
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 10.10.10.10                                                       -         No         1812      -        -       -     -                -               TLS       rad-sec-prof        False
-# my-host1.dell                                                     chap      No         55        3        12      7     VrfAnsibleTest   Ethernet100     UDP       -                   False
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
 
 - name: Delete all radius server configuration
   dellemc.enterprise_sonic.sonic_radius_server:
@@ -231,11 +200,8 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# key configured : No
+# sonic# show running-configuration | grep radius-server
+# (No radius-server configuration present)
 
 
 # Using "merged" state
@@ -243,11 +209,8 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# key configured : No
+# sonic# show running-configuration | grep radius-server
+# (No radius-server configuration present)
 
 - name: Merge radius server configuration
   dellemc.enterprise_sonic.sonic_radius_server:
@@ -275,24 +238,14 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr    : 10.11.12.13
-# statistics     : True
-# timeout        : 12
-# auth-type      : chap
-# key configured : No
-# retransmit     : 5
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# HOST                                                              AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF              SI              PROTOCOL  SEC_PROFILE         REQ-MSG-AUTH
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 10.10.10.10                                                       -         No         1812      -        -       -     -                -               TLS       rad-sec-prof        False
-# my-host1.dell                                                     chap      No         55        3        12      7     VrfAnsibleTest   Ethernet100     UDP       -                   False
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
 
 
 # Using "replaced" state
@@ -300,24 +253,14 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr    : 10.11.12.13
-# statistics     : True
-# timeout        : 12
-# auth-type      : chap
-# key configured : No
-# retransmit     : 5
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# HOST                                                              AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF              SI              PROTOCOL  SEC_PROFILE         REQ-MSG-AUTH
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 10.10.10.10                                                       -         No         1812      -        -       -     -                -               TLS       rad-sec-prof        False
-# my-host1.dell                                                     chap      No         55        3        12      7     VrfAnsibleTest   Ethernet100     UDP       -                   False
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
 
 - name: Replace specified radius server host configuration
   sonic_radius_server:
@@ -332,49 +275,28 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr    : 10.11.12.13
-# statistics     : True
-# timeout        : 12
-# auth-type      : chap
-# key configured : No
-# retransmit     : 5
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# HOST                                                              AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF              SI              PROTOCOL  SEC_PROFILE         REQ-MSG-AUTH
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 10.10.10.10                                                       -         No         1812      -        -       -     -                -               TLS       rad-sec-prof        False
-# my-host1.dell                                                     mschapv2  No         1812      -        -       -     -                -               UDP       -                   False
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
-
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-type mschapv2 source-interface Ethernet12
 
 # Using "overridden" state
 #
 # Before state:
 # -------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr    : 10.11.12.13
-# statistics     : True
-# timeout        : 12
-# auth-type      : chap
-# key configured : No
-# retransmit     : 5
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# HOST                                                              AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF              SI              PROTOCOL  SEC_PROFILE         REQ-MSG-AUTH
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 10.10.10.10                                                       -         No         1812      -        -       -     -                -               TLS       rad-sec-prof        False
-# my-host1.dell                                                     mschapv2  No         1812      -        -       -     -                -               UDP       -                   False
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-type mschapv2 source-interface Ethernet12
 
 - name: Override radius server configuration
   sonic_radius_server:
@@ -389,17 +311,8 @@ EXAMPLES = """
 # After state:
 # ------------
 #
-# sonic# show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# timeout        : 5
-# auth-type      : pap
-# key configured : No
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# HOST                                                              AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF              SI              PROTOCOL  SEC_PROFILE         REQ-MSG-AUTH
-# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# 20.20.20.20                                                       -         No         1812      -        -       -     -                -               TLS       rad-sec-prof        False
+# sonic# show running-configuration | grep radius-server
+# radius-server host 20.20.20.20 protocol TLS security-profile rad-sec-prof
 """
 
 RETURN = """

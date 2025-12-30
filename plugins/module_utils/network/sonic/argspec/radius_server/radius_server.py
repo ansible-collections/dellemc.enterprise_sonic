@@ -39,7 +39,7 @@ class Radius_serverArgs(object):  # pylint: disable=R0903
                                     'type': 'str'
                                 },
                                 'key': {'type': 'str', 'no_log': True},
-                                'name': {'type': 'str'},
+                                'name': {'required': True, 'type': 'str'},
                                 'port': {'type': 'int'},
                                 'priority': {'type': 'int'},
                                 'protocol': {

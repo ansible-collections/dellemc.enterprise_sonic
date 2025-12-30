@@ -42,6 +42,14 @@ RADIUS_SERVER_PATH = 'data/openconfig-system:system/aaa/server-groups/server-gro
 TEST_KEYS = [
     {'host': {'name': ''}},
 ]
+default_entries = {
+    'auth_type': 'pap',
+    'timeout': 5,
+    'host': {
+        'port': '1812',
+        'protocol': 'UDP'
+    }
+}
 
 
 class Radius_server(ConfigBase):
@@ -173,18 +181,17 @@ class Radius_server(ConfigBase):
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        delete_all = False
         commands, requests = [], []
 
         if not want:
             commands = deepcopy(have)
-            delete_all = True
+            self._delete_all = True
         else:
             commands = get_diff(want, diff, TEST_KEYS)
-            self.remove_default_entries(commands)
+        self.remove_default_entries(commands)
 
         if commands:
-            requests = self.get_delete_radius_server_requests(commands, delete_all)
+            requests = self.get_delete_radius_server_requests(commands)
             if requests:
                 commands = update_states(commands, 'deleted')
         else:
@@ -233,10 +240,12 @@ class Radius_server(ConfigBase):
         self.remove_default_entries(del_commands)
 
         if del_commands:
-            del_requests = self.get_delete_radius_server_requests(have, True)
+            self._delete_all = True
+            cp_have = deepcopy(have)
+            self.remove_default_entries(cp_have)
+            del_requests = self.get_delete_radius_server_requests(cp_have)
             requests.extend(del_requests)
             commands.extend(update_states(have, 'deleted'))
-            have = []
             mod_commands = want
             mod_requests = self.get_modify_radius_server_requests(mod_commands)
         elif diff:
@@ -421,7 +430,7 @@ class Radius_server(ConfigBase):
             for host in hosts:
                 url = f'{RADIUS_SERVER_PATH}/servers/server={host["name"]}'
 
-                if len(host) == 1:
+                if len(host) == 1 or self._delete_all:
                     requests.append({'path': url, 'method': DELETE})
                     continue
                 if host.get('auth_type'):
@@ -448,16 +457,11 @@ class Radius_server(ConfigBase):
 
         return requests
 
-    def get_delete_radius_server_requests(self, commands, is_delete_all):
+    def get_delete_radius_server_requests(self, commands):
         """This method returns a list of delete requests generated from commands"""
         requests = []
 
         if not commands:
-            return requests
-
-        if is_delete_all:
-            requests.append({'path': RADIUS_SERVER_PATH, 'method': DELETE})
-            self._delete_all = True
             return requests
 
         requests.extend(self.get_delete_global_params(commands))
@@ -479,23 +483,24 @@ class Radius_server(ConfigBase):
                 data.pop('auth_type')
             if data.get('timeout') == 5:
                 data.pop('timeout')
-            if data.get('servers') and data['servers'].get('host'):
-                pop_list = []
-                for idx, host in enumerate(data['servers']['host']):
-                    if len(host) == 1:
-                        continue
-                    if host.get('protocol') == 'UDP':
-                        host.pop('protocol')
-                    if host.get('port') == 1812:
-                        host.pop('port')
-                    if len(host) == 1:
-                        pop_list.insert(0, idx)
+            if not self._delete_all:
+                if data.get('servers') and data['servers'].get('host'):
+                    pop_list = []
+                    for idx, host in enumerate(data['servers']['host']):
+                        if len(host) == 1:
+                            continue
+                        if host.get('protocol') == 'UDP':
+                            host.pop('protocol')
+                        if host.get('port') == 1812:
+                            host.pop('port')
+                        if len(host) == 1:
+                            pop_list.insert(0, idx)
 
-                for idx in pop_list:
-                    data['servers']['host'].pop(idx)
+                    for idx in pop_list:
+                        data['servers']['host'].pop(idx)
 
-                if not data['servers']['host']:
-                    data.pop('servers')
+                    if not data['servers']['host']:
+                        data.pop('servers')
 
     def get_replaced_config(self, want, have):
         """This method returns the radius server configuration to be replaced and the respective delete requests"""
@@ -533,9 +538,11 @@ class Radius_server(ConfigBase):
 
         # Handle config top level replacement
         elif cp_want != cp_have:
-            requests.append({'path': RADIUS_SERVER_PATH, 'method': DELETE})
-            config_dict = cp_have
             self._delete_all = True
+            del_cmds = deepcopy(have)
+            self.remove_default_entries(del_cmds)
+            requests.extend(self.get_delete_radius_server_requests(del_cmds))
+            config_dict = cp_have
 
         return config_dict, requests
 
@@ -557,16 +564,11 @@ class Radius_server(ConfigBase):
 
     def __derive_config_delete_op(self, key_set, command, exist_conf):
         """Returns new global configuration for delete operation"""
-        if self._delete_all:
-            return True, {}
-
         new_conf = exist_conf
         for k in command:
-            if k == 'auth_type':
-                new_conf['auth_type'] = 'pap'
-            elif k == 'timeout':
-                new_conf['timeout'] = 5
-            elif k != 'servers':
+            if k in default_entries:
+                new_conf[k] = default_entries[k]
+            elif self._delete_all or k != 'servers':
                 new_conf.pop(k)
 
         return False, new_conf
@@ -578,10 +580,8 @@ class Radius_server(ConfigBase):
 
         new_conf = exist_conf
         for k in command:
-            if k == 'port':
-                new_conf['port'] = 1812
-            elif k == 'protocol':
-                new_conf['protocol'] = 'UDP'
+            if k in default_entries['host']:
+                new_conf[k] = default_entries['host'][k]
             elif k != 'name':
                 new_conf.pop(k)
 

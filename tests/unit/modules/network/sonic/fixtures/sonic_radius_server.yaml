@@ -98,7 +98,22 @@ deleted_01:
                         protocol: TLS
                         security-profile: radius-sec-profile
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/auth-type"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/secret-key"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/nas-ip-address"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/retransmit-attempts"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
       method: delete
       data:
 
@@ -250,7 +265,19 @@ replaced_01:
                         protocol: TLS
                         security-profile: radius-sec-profile
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/secret-key"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/nas-ip-address"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/retransmit-attempts"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
       method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config"
@@ -395,7 +422,19 @@ overridden_01:
                         protocol: UDP
                         security-profile: radius-sec-profile
   expected_config_requests:
-    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS"
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/secret-key"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/nas-ip-address"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/retransmit-attempts"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/statistics"
+      method: delete
+      data:
+    - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server=hostx.local"
       method: delete
       data:
     - path: "data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config"
