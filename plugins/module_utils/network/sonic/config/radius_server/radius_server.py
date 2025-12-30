@@ -42,7 +42,7 @@ RADIUS_SERVER_PATH = 'data/openconfig-system:system/aaa/server-groups/server-gro
 TEST_KEYS = [
     {'host': {'name': ''}},
 ]
-default_entries = {
+DEFAULTS = {
     'auth_type': 'pap',
     'timeout': 5,
     'host': {
@@ -479,9 +479,9 @@ class Radius_server(ConfigBase):
     def remove_default_entries(self, data):
         """This method removes default entries from the radius server configuration"""
         if data:
-            if data.get('auth_type') == 'pap':
+            if data.get('auth_type') == DEFAULTS['auth_type']:
                 data.pop('auth_type')
-            if data.get('timeout') == 5:
+            if data.get('timeout') == DEFAULTS['timeout']:
                 data.pop('timeout')
             if not self._delete_all:
                 if data.get('servers') and data['servers'].get('host'):
@@ -489,9 +489,9 @@ class Radius_server(ConfigBase):
                     for idx, host in enumerate(data['servers']['host']):
                         if len(host) == 1:
                             continue
-                        if host.get('protocol') == 'UDP':
+                        if host.get('protocol') == DEFAULTS['host']['protocol']:
                             host.pop('protocol')
-                        if host.get('port') == 1812:
+                        if host.get('port') == DEFAULTS['host']['port']:
                             host.pop('port')
                         if len(host) == 1:
                             pop_list.insert(0, idx)
@@ -550,15 +550,15 @@ class Radius_server(ConfigBase):
         """Handle post processing for generated configuration"""
         if config:
             if 'auth_type' not in config:
-                config['auth_type'] = 'pap'
+                config['auth_type'] = DEFAULTS['auth_type']
             if 'timeout' not in config:
-                config['timeout'] = 5
+                config['timeout'] = DEFAULTS['timeout']
             if config.get('servers') and config['servers'].get('host'):
                 for host in config['servers']['host']:
                     if 'protocol' not in host:
-                        host['protocol'] = 'UDP'
+                        host['protocol'] = DEFAULTS['host']['protocol']
                     if 'port' not in host:
-                        host['port'] = 1812
+                        host['port'] = DEFAULTS['host']['port']
 
         return config
 
@@ -566,8 +566,8 @@ class Radius_server(ConfigBase):
         """Returns new global configuration for delete operation"""
         new_conf = exist_conf
         for k in command:
-            if k in default_entries:
-                new_conf[k] = default_entries[k]
+            if k in DEFAULTS:
+                new_conf[k] = DEFAULTS[k]
             elif self._delete_all or k != 'servers':
                 new_conf.pop(k)
 
@@ -580,8 +580,8 @@ class Radius_server(ConfigBase):
 
         new_conf = exist_conf
         for k in command:
-            if k in default_entries['host']:
-                new_conf[k] = default_entries['host'][k]
+            if k in DEFAULTS['host']:
+                new_conf[k] = DEFAULTS['host'][k]
             elif k != 'name':
                 new_conf.pop(k)
 
