@@ -54,8 +54,11 @@ sonic_radius_server_tests:
         host:
           - name: my-host.dell
             auth_type: mschapv2
+            priority: 3
             port: 45
             timeout: 9
+            retransmit: 7
+            source_interface: "{{ interface1 }}"
             vrf: VrfAnsibleTest
             # - name: "20.20.20.20"
             #   security_profile: "radius-sec-profile"
@@ -65,7 +68,6 @@ sonic_radius_server_tests:
     state: deleted
     input:
       auth_type: mschapv2
-      key: login
       nas_ip: 10.11.12.13
       statistics: true
       timeout: 24
