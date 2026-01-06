@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2021 Red Hat
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -11,41 +11,45 @@ necessary to bring the current configuration to it's desired end-state is
 created
 """
 from __future__ import absolute_import, division, print_function
+
 __metaclass__ = type
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
-    ConfigBase,
-)
-from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import (
-    to_list,
-)
+from copy import deepcopy
+
 from ansible.module_utils.connection import ConnectionError
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import Facts
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import \
+    ConfigBase
+from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import \
+    to_list
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.facts.facts import \
+    Facts
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
-    to_request,
-    edit_config
-)
-from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
-    update_states,
-    get_diff,
-    get_replaced_config,
-    normalize_interface_name,
+    edit_config, to_request
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
-    __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF,
-    get_new_config,
-    get_formatted_config_diff
+    get_formatted_config_diff,
+    get_new_config
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    get_diff,
+    normalize_interface_name,
+    remove_empties,
+    update_states
 )
 
 PATCH = 'patch'
 DELETE = 'delete'
+RADIUS_SERVER_PATH = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS'
 TEST_KEYS = [
     {'host': {'name': ''}},
 ]
-TEST_KEYS_formatted_diff = [
-    {'config': {'__delete_op': __DELETE_LEAFS_OR_CONFIG_IF_NO_NON_KEY_LEAF}},
-    {'host': {'name': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
-]
+DEFAULTS = {
+    'auth_type': 'pap',
+    'timeout': 5,
+    'host': {
+        'port': '1812',
+        'protocol': 'UDP'
+    }
+}
 
 
 class Radius_server(ConfigBase):
@@ -64,6 +68,7 @@ class Radius_server(ConfigBase):
 
     def __init__(self, module):
         super(Radius_server, self).__init__(module)
+        self._delete_all = False
 
     def get_radius_server_facts(self):
         """ Get the 'facts' (the current configuration)
@@ -84,36 +89,32 @@ class Radius_server(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
         existing_radius_server_facts = self.get_radius_server_facts()
         commands, requests = self.set_config(existing_radius_server_facts)
-        if commands and len(requests) > 0:
+        if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_radius_server_facts = self.get_radius_server_facts()
-
         result['before'] = existing_radius_server_facts
-        if result['changed']:
-            result['after'] = changed_radius_server_facts
+        old_config = existing_radius_server_facts
 
-        new_config = changed_radius_server_facts
         if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_radius_server_facts,
-                                        TEST_KEYS_formatted_diff)
+            new_config = self.get_new_config(commands, existing_radius_server_facts)
             result['after_generated'] = new_config
-
+        else:
+            new_config = self.get_radius_server_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
-            result['diff'] = get_formatted_config_diff(existing_radius_server_facts,
-                                                       new_config,
-                                                       self._module._verbosity)
-        result['warnings'] = warnings
+            self.sort_lists_in_config(new_config)
+            self.sort_lists_in_config(old_config)
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
+
         return result
 
     def set_config(self, existing_radius_server_facts):
@@ -124,9 +125,9 @@ class Radius_server(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_empties(self._module.params['config'])
 
-        if want and want.get('servers', None) and want['servers'].get('host', None):
+        if want and want.get('servers') and want['servers'].get('host'):
             normalize_interface_name(want['servers']['host'], self._module, 'source_interface')
 
         have = existing_radius_server_facts
@@ -142,12 +143,8 @@ class Radius_server(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
-        if not want:
-            want = {}
-
         diff = get_diff(want, have, TEST_KEYS)
 
         if state == 'overridden':
@@ -155,25 +152,23 @@ class Radius_server(ConfigBase):
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have, diff)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have, diff)
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, diff):
         """ The command generator when state is merged
 
-        :param want: the additive configuration as a dictionary
-        :param obj_in_have: the current configuration as a dictionary
         :rtype: A list
         :returns: the commands necessary to merge the provided into
                   the current configuration
         """
-        commands = []
-        command = diff
-        requests = self.get_modify_radius_server_requests(command, have)
-        if command and len(requests) > 0:
-            commands = update_states([command], "merged")
+        commands = diff
+        requests = self.get_modify_radius_server_requests(commands)
+
+        if commands and requests:
+            commands = update_states(commands, 'merged')
         else:
             commands = []
 
@@ -182,54 +177,50 @@ class Radius_server(ConfigBase):
     def _state_deleted(self, want, have, diff):
         """ The command generator when state is deleted
 
-        :param want: the objects from which the configuration should be removed
-        :param obj_in_have: the current configuration as a dictionary
         :rtype: A list
         :returns: the commands necessary to remove the current configuration
                   of the provided objects
         """
-        # if want is none, then delete all the radius_serveri except admin
-        commands = []
+        commands, requests = [], []
+
         if not want:
-            command = have
+            commands = deepcopy(have)
+            self._delete_all = True
         else:
-            command = want
+            commands = get_diff(want, diff, TEST_KEYS)
+        self.remove_default_entries(commands)
 
-        requests = self.get_delete_radius_server_requests(command, have)
-
-        if command and len(requests) > 0:
-            commands = update_states([command], "deleted")
+        if commands:
+            requests = self.get_delete_radius_server_requests(commands)
+            if requests:
+                commands = update_states(commands, 'deleted')
+        else:
+            commands = []
 
         return commands, requests
 
     def _state_replaced(self, want, have, diff):
         """ The command generator when state is replaced
 
-        :param want: the desired configuration as a dictionary
-        :param have: the current configuration as a dictionary
-        :param diff: the difference between want and have
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
-        replaced_config = get_replaced_config(want, have, TEST_KEYS)
+        commands, mod_commands = [], []
+        replaced_config, requests = self.get_replaced_config(want, have)
 
-        add_commands = []
         if replaced_config:
-            del_requests = self.get_delete_radius_server_requests(replaced_config, have)
-            requests.extend(del_requests)
-            commands.extend(update_states(replaced_config, "deleted"))
-            add_commands = want
+            commands.extend(update_states(replaced_config, 'deleted'))
+            mod_commands = want
         else:
-            add_commands = diff
+            mod_commands = diff
 
-        if add_commands:
-            add_requests = self.get_modify_radius_server_requests(add_commands, have)
-            if len(add_requests) > 0:
-                requests.extend(add_requests)
-                commands.extend(update_states(add_commands, "replaced"))
+        if mod_commands:
+            mod_requests = self.get_modify_radius_server_requests(mod_commands)
+
+            if mod_requests:
+                requests.extend(mod_requests)
+                commands.extend(update_states(mod_commands, 'replaced'))
 
         return commands, requests
 
@@ -243,29 +234,33 @@ class Radius_server(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
+        mod_commands, mod_requests = None, None
+        del_commands = get_diff(have, want, TEST_KEYS)
+        self.remove_default_entries(del_commands)
 
-        r_diff = get_diff(have, want, TEST_KEYS)
-        if have and (diff or r_diff):
-            del_requests = self.get_delete_radius_server_requests(have, have)
+        if del_commands:
+            self._delete_all = True
+            cp_have = deepcopy(have)
+            self.remove_default_entries(cp_have)
+            del_requests = self.get_delete_radius_server_requests(cp_have)
             requests.extend(del_requests)
-            commands.extend(update_states(have, "deleted"))
-            have = []
+            commands.extend(update_states(have, 'deleted'))
+            mod_commands = want
+            mod_requests = self.get_modify_radius_server_requests(mod_commands)
+        elif diff:
+            mod_commands = diff
+            mod_requests = self.get_modify_radius_server_requests(mod_commands)
 
-        if not have and want:
-            want_commands = want
-            want_requests = self.get_modify_radius_server_requests(want_commands, have)
-
-            if len(want_requests) > 0:
-                requests.extend(want_requests)
-                commands.extend(update_states(want_commands, "overridden"))
+        if mod_requests:
+            requests.extend(mod_requests)
+            commands.extend(update_states(mod_commands, 'overridden'))
 
         return commands, requests
 
     def get_radius_global_payload(self, conf):
-        payload = {}
-        global_cfg = {}
+        """This method returns the patch payload for the global configuration"""
+        payload, global_cfg = {}, {}
 
         if conf.get('auth_type', None):
             global_cfg['auth-type'] = conf['auth_type']
@@ -280,45 +275,50 @@ class Radius_server(ConfigBase):
         return payload
 
     def get_radius_global_ext_payload(self, conf):
-        payload = {}
-        global_ext_cfg = {}
+        """This method returns the patch payload for the global ext configuration"""
+        payload, global_ext_cfg = {}, {}
 
-        if conf.get('nas_ip', None):
+        if conf.get('nas_ip'):
             global_ext_cfg['nas-ip-address'] = conf['nas_ip']
-        if conf.get('retransmit', None):
+        if conf.get('retransmit') is not None:
             global_ext_cfg['retransmit-attempts'] = conf['retransmit']
-        if conf.get('statistics', None):
+        if conf.get('statistics'):
             global_ext_cfg['statistics'] = conf['statistics']
-
         if global_ext_cfg:
             payload = {'openconfig-aaa-radius-ext:config': global_ext_cfg}
 
         return payload
 
     def get_radius_server_payload(self, hosts):
+        """This method returns the patch payload for the servers configuration"""
         payload = {}
         servers_load = []
+
         for host in hosts:
-            if host.get('name', None):
+            if host.get('name'):
                 host_cfg = {'address': host['name']}
-                if host.get('auth_type', None):
+                if host.get('auth_type'):
                     host_cfg['auth-type'] = host['auth_type']
-                if host.get('priority', None):
+                if host.get('priority'):
                     host_cfg['priority'] = host['priority']
-                if host.get('vrf', None):
+                if host.get('vrf'):
                     host_cfg['vrf'] = host['vrf']
-                if host.get('timeout', None):
+                if host.get('timeout'):
                     host_cfg['timeout'] = host['timeout']
 
                 radius_port_key_cfg = {}
-                if host.get('port', None):
+                if host.get('port'):
                     radius_port_key_cfg['auth-port'] = host['port']
-                if host.get('key', None):
+                if host.get('key'):
                     radius_port_key_cfg['secret-key'] = host['key']
-                if host.get('retransmit', None):
+                if host.get('retransmit') is not None:
                     radius_port_key_cfg['retransmit-attempts'] = host['retransmit']
-                if host.get('source_interface', None):
+                if host.get('source_interface'):
                     radius_port_key_cfg['openconfig-aaa-radius-ext:source-interface'] = host['source_interface']
+                if host.get('protocol'):
+                    radius_port_key_cfg['protocol'] = host['protocol']
+                if host.get('security_profile'):
+                    radius_port_key_cfg['security-profile'] = host['security_profile']
 
                 if radius_port_key_cfg:
                     consolidated_load = {'address': host['name']}
@@ -331,115 +331,270 @@ class Radius_server(ConfigBase):
 
         return payload
 
-    def get_modify_servers_request(self, command):
+    def get_modify_servers_request(self, conf):
+        """This method formulates the URL and returns a patch request for the servers configuration"""
         request = None
 
-        hosts = []
-        if command.get('servers', None) and command['servers'].get('host', None):
-            hosts = command['servers']['host']
-        if hosts:
-            url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers'
-            payload = self.get_radius_server_payload(hosts)
-            if payload:
-                request = {'path': url, 'method': PATCH, 'data': payload}
+        if conf.get('servers') and conf['servers'].get('host'):
+            hosts = conf['servers']['host']
+            if hosts:
+                url = f'{RADIUS_SERVER_PATH}/servers'
+                payload = self.get_radius_server_payload(hosts)
+                if payload:
+                    request = {'path': url, 'method': PATCH, 'data': payload}
 
         return request
 
     def get_modify_global_config_request(self, conf):
+        """This method formulates the URL and returns a patch request for the global configuration"""
         request = None
-
-        url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config'
+        url = f'{RADIUS_SERVER_PATH}/config'
         payload = self.get_radius_global_payload(conf)
+
         if payload:
             request = {'path': url, 'method': PATCH, 'data': payload}
 
         return request
 
     def get_modify_global_ext_config_request(self, conf):
+        """This method formulates the URL and returns a patch request for the global ext configuration"""
         request = None
-
-        url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config'
+        url = f'{RADIUS_SERVER_PATH}/openconfig-aaa-radius-ext:radius/config'
         payload = self.get_radius_global_ext_payload(conf)
+
         if payload:
             request = {'path': url, 'method': PATCH, 'data': payload}
 
         return request
 
-    def get_modify_radius_server_requests(self, command, have):
+    def get_modify_radius_server_requests(self, commands):
+        """This method returns a list of patch requests generated from commands"""
         requests = []
-        if not command:
+        if not commands:
             return requests
 
-        request = self.get_modify_global_config_request(command)
+        request = self.get_modify_global_config_request(commands)
         if request:
             requests.append(request)
 
-        request = self.get_modify_global_ext_config_request(command)
+        request = self.get_modify_global_ext_config_request(commands)
         if request:
             requests.append(request)
 
-        request = self.get_modify_servers_request(command)
+        request = self.get_modify_servers_request(commands)
         if request:
             requests.append(request)
 
         return requests
 
-    def get_delete_global_ext_params(self, conf, match):
-
+    def get_delete_global_ext_params(self, conf):
+        """
+        This method formulates the URL and returns a list of delete requests for
+        the global ext params configuration
+        """
         requests = []
+        url = f'{RADIUS_SERVER_PATH}/openconfig-aaa-radius-ext:radius/config/'
 
-        url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/openconfig-aaa-radius-ext:radius/config/'
-        if conf.get('nas_ip', None) and match.get('nas_ip', None):
+        if conf.get('nas_ip'):
             requests.append({'path': url + 'nas-ip-address', 'method': DELETE})
-        if conf.get('retransmit', None) and match.get('retransmit', None):
+        if conf.get('retransmit') is not None:
             requests.append({'path': url + 'retransmit-attempts', 'method': DELETE})
-        if conf.get('statistics', None) and match.get('statistics', None):
+        if conf.get('statistics'):
             requests.append({'path': url + 'statistics', 'method': DELETE})
 
         return requests
 
-    def get_delete_global_params(self, conf, match):
-
+    def get_delete_global_params(self, conf):
+        """
+        This method formulates the URL and returns a list of delete requests for
+        the global params configuration
+        """
         requests = []
+        url = f'{RADIUS_SERVER_PATH}/config/'
 
-        url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/config/'
-        if conf.get('auth_type', None) and match.get('auth_type', None) and match['auth_type'] != 'pap':
+        if conf.get('auth_type'):
             requests.append({'path': url + 'auth-type', 'method': DELETE})
-        if conf.get('key', None) and match.get('key', None):
+        if conf.get('key'):
             requests.append({'path': url + 'secret-key', 'method': DELETE})
-        if conf.get('timeout', None) and match.get('timeout', None) and match['timeout'] != 5:
+        if conf.get('timeout'):
             requests.append({'path': url + 'timeout', 'method': DELETE})
 
         return requests
 
-    def get_delete_servers(self, command, have):
+    def get_delete_servers(self, conf):
+        """This method formulates the URL and returns a list of delete requests for the servers configuration"""
         requests = []
-        url = 'data/openconfig-system:system/aaa/server-groups/server-group=RADIUS/servers/server='
 
-        mat_hosts, hosts = [], []
-        if have.get('servers', None) and have['servers'].get('host', None):
-            mat_hosts = have['servers']['host']
-
-        if command.get('servers', None):
-            if command['servers'].get('host', None):
-                hosts = command['servers']['host']
-            else:
-                hosts = mat_hosts
-
-        if mat_hosts and hosts:
+        if conf.get('servers') and conf['servers'].get('host'):
+            hosts = conf['servers']['host']
             for host in hosts:
-                if next((m_host for m_host in mat_hosts if m_host['name'] == host['name']), None):
-                    requests.append({'path': url + host['name'], 'method': DELETE})
+                url = f'{RADIUS_SERVER_PATH}/servers/server={host["name"]}'
+
+                if len(host) == 1 or self._delete_all:
+                    requests.append({'path': url, 'method': DELETE})
+                    continue
+                if host.get('auth_type'):
+                    requests.append({'path': url + '/config/auth-type', 'method': DELETE})
+                if host.get('key'):
+                    requests.append({'path': url + '/radius/config/secret-key', 'method': DELETE})
+                if host.get('priority'):
+                    requests.append({'path': url + '/config/priority', 'method': DELETE})
+                # Security profile is dependent on protocol so delete it first
+                if host.get('security_profile'):
+                    requests.append({'path': url + '/radius/config/security-profile', 'method': DELETE})
+                if host.get('protocol'):
+                    requests.append({'path': url + '/radius/config/protocol', 'method': DELETE})
+                if host.get('port'):
+                    requests.append({'path': url + '/radius/config/auth-port', 'method': DELETE})
+                if host.get('timeout'):
+                    requests.append({'path': url + '/config/timeout', 'method': DELETE})
+                if host.get('retransmit') is not None:
+                    requests.append({'path': url + '/radius/config/retransmit-attempts', 'method': DELETE})
+                if host.get('source_interface'):
+                    requests.append({'path': url + '/radius/config/openconfig-aaa-radius-ext:source-interface', 'method': DELETE})
+                if host.get('vrf'):
+                    requests.append({'path': url + '/config/vrf', 'method': DELETE})
 
         return requests
 
-    def get_delete_radius_server_requests(self, command, have):
+    def get_delete_radius_server_requests(self, commands):
+        """This method returns a list of delete requests generated from commands"""
         requests = []
-        if not command:
+
+        if not commands:
             return requests
 
-        requests.extend(self.get_delete_global_params(command, have))
-        requests.extend(self.get_delete_global_ext_params(command, have))
-        requests.extend(self.get_delete_servers(command, have))
+        requests.extend(self.get_delete_global_params(commands))
+        requests.extend(self.get_delete_global_ext_params(commands))
+        requests.extend(self.get_delete_servers(commands))
 
         return requests
+
+    @staticmethod
+    def sort_lists_in_config(config):
+        """This method sorts the lists in the radius server configuration"""
+        if config and config.get('servers') and config['servers'].get('host'):
+            config['servers']['host'].sort(key=lambda x: x['name'])
+
+    def remove_default_entries(self, data):
+        """This method removes default entries from the radius server configuration"""
+        if data:
+            if data.get('auth_type') == DEFAULTS['auth_type']:
+                data.pop('auth_type')
+            if data.get('timeout') == DEFAULTS['timeout']:
+                data.pop('timeout')
+            if not self._delete_all:
+                if data.get('servers') and data['servers'].get('host'):
+                    pop_list = []
+                    for idx, host in enumerate(data['servers']['host']):
+                        if len(host) == 1:
+                            continue
+                        if host.get('protocol') == DEFAULTS['host']['protocol']:
+                            host.pop('protocol')
+                        if host.get('port') == DEFAULTS['host']['port']:
+                            host.pop('port')
+                        if len(host) == 1:
+                            pop_list.insert(0, idx)
+
+                    for idx in pop_list:
+                        data['servers']['host'].pop(idx)
+
+                    if not data['servers']['host']:
+                        data.pop('servers')
+
+    def get_replaced_config(self, want, have):
+        """This method returns the radius server configuration to be replaced and the respective delete requests"""
+        config_dict = {}
+        requests = []
+        cp_want = deepcopy(want)
+        cp_have = deepcopy(have)
+        self.remove_default_entries(cp_want)
+        self.remove_default_entries(cp_have)
+        self.sort_lists_in_config(cp_want)
+        self.sort_lists_in_config(cp_have)
+
+        if not cp_want or not cp_have:
+            return config_dict, requests
+
+        # Handle host level replacement
+        if cp_want.get('servers') and len(cp_want) == 1:
+            if not cp_have.get('servers'):
+                return config_dict, requests
+
+            cfg_host_dict = {host['name']: host for host in cp_have['servers']['host']}
+            host_list = []
+            for host in cp_want['servers']['host']:
+                name = host['name']
+                cfg_host = cfg_host_dict.get(name)
+
+                if not cfg_host:
+                    continue
+                if host != cfg_host:
+                    url = f'{RADIUS_SERVER_PATH}/servers/server={cfg_host["name"]}'
+                    requests.append({'path': url, 'method': DELETE})
+                    host_list.append(cfg_host)
+            if host_list:
+                config_dict['servers'] = {'host': host_list}
+
+        # Handle config top level replacement
+        elif cp_want != cp_have:
+            self._delete_all = True
+            del_cmds = deepcopy(have)
+            self.remove_default_entries(del_cmds)
+            requests.extend(self.get_delete_radius_server_requests(del_cmds))
+            config_dict = cp_have
+
+        return config_dict, requests
+
+    def post_process_generated_config(self, config):
+        """Handle post processing for generated configuration"""
+        if config:
+            if 'auth_type' not in config:
+                config['auth_type'] = DEFAULTS['auth_type']
+            if 'timeout' not in config:
+                config['timeout'] = DEFAULTS['timeout']
+            if config.get('servers') and config['servers'].get('host'):
+                for host in config['servers']['host']:
+                    if 'protocol' not in host:
+                        host['protocol'] = DEFAULTS['host']['protocol']
+                    if 'port' not in host:
+                        host['port'] = DEFAULTS['host']['port']
+
+        return config
+
+    def __derive_config_delete_op(self, key_set, command, exist_conf):
+        """Returns new global configuration for delete operation"""
+        new_conf = exist_conf
+        for k in command:
+            if k in DEFAULTS:
+                new_conf[k] = DEFAULTS[k]
+            elif self._delete_all or k != 'servers':
+                new_conf.pop(k)
+
+        return False, new_conf
+
+    def __derive_host_delete_op(self, key_set, command, exist_conf):
+        """Returns new host configuration for delete operation"""
+        if self._delete_all or len(command) == 1:
+            return True, {}
+
+        new_conf = exist_conf
+        for k in command:
+            if k in DEFAULTS['host']:
+                new_conf[k] = DEFAULTS['host'][k]
+            elif k != 'name':
+                new_conf.pop(k)
+
+        return True, new_conf
+
+    def get_new_config(self, commands, have):
+        """Returns generated configuration based on commands and
+            existing configuration"""
+        key_set = [
+            {'config': {'__delete_op': self.__derive_config_delete_op}},
+            {'host': {'name': '', '__delete_op': self.__derive_host_delete_op}}
+        ]
+        new_config = self.post_process_generated_config(get_new_config(commands, have, key_set))
+        self.sort_lists_in_config(new_config)
+
+        return new_config

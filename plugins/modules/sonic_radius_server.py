@@ -16,12 +16,12 @@ DOCUMENTATION = """
 module: sonic_radius_server
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies.
-- Supports C(check_mode).
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
 author: Niraimadaiselvam M (@niraimadaiselvamm)
-short_description: Manage RADIUS server and its parameters
+short_description: Manage RADIUS server configuration on SONiC
 description:
-  - This module provides configuration management of radius server parameters on devices running Enterprise SONiC.
+  - This module provides configuration management of radius server for  devices running Enterprise SONiC.
 options:
   config:
     description:
@@ -31,12 +31,12 @@ options:
       auth_type:
         description:
           - Specifies the authentication type of the radius server.
+          - The default is C(pap).
         type: str
         choices:
           - pap
           - chap
           - mschapv2
-        default: pap
       key:
         description:
           - Specifies the key of the radius server.
@@ -52,11 +52,13 @@ options:
       timeout:
         description:
           - Specifies the timeout of the radius server.
+          - The range is 3 to 60.
+          - The default is 5.
         type: int
-        default: 5
       retransmit:
         description:
           - Specifies the re-transmit value of the radius server.
+          - The range is 0 to 10.
         type: int
       servers:
         description:
@@ -73,6 +75,7 @@ options:
                 description:
                   - Specifies the IP address or name of the radius server host.
                 type: str
+                required: true
               auth_type:
                 description:
                   - Specifies the authentication type of the radius server host.
@@ -88,20 +91,38 @@ options:
               priority:
                 description:
                   - Specifies the priority of the radius server host.
+                  - The range is 1 to 64.
                 type: int
+              protocol:
+                version_added: 4.0.0
+                description:
+                  - Specifies the protocol of the radius server host.
+                  - The functional default is C(UDP).
+                type: str
+                choices:
+                  - TLS
+                  - UDP
               port:
                 description:
                   - Specifies the port of the radius server host.
+                  - The range is 1 to 65535.
+                  - The default is 1812.
                 type: int
-                default: 1812
               timeout:
                 description:
                   - Specifies the timeout of the radius server host.
+                  - The range is 3 to 60.
                 type: int
               retransmit:
                 description:
                   - Specifies the retransmit of the radius server host.
+                  - The range is 0 to 10.
                 type: int
+              security_profile:
+                version_added: 4.0.0
+                description:
+                  - Specifies the security profile for the radius server host.
+                type: str
               source_interface:
                 description:
                   - Specifies the source interface of the radius server host.
@@ -128,52 +149,33 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr: 1.2.3.4
-# statistics : True
-# timeout    : 10
-# auth-type  : chap
-# key        : chap
-# retransmit : 3
-# --------------------------------------------------------------------------------
-# HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
-# --------------------------------------------------------------------------------
-# hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
-# myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
-#
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
 
-- name: Merge radius configurations
+- name: Delete specified radius server configuration
   dellemc.enterprise_sonic.sonic_radius_server:
     config:
       auth_type: chap
-      nas_ip: 1.2.3.4
-      statistics: true
-      timeout: 10
+      nas_ip: 10.11.12.13
+      timeout: 12
       servers:
         host:
-          - name: hostx.local
+          - name: 10.10.10.10
     state: deleted
 
 # After state:
 # ------------
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# timeout    : 5
-# auth-type  : pap
-# key        : chap
-# retransmit : 3
-# --------------------------------------------------------------------------------
-# HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
-# --------------------------------------------------------------------------------
-# myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
+#
+# sonic# show running-configuration | grep radius-server
+# radius-server statistics enable
+# radius-server retransmit 5
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
 
 
 # Using "deleted" state
@@ -181,38 +183,25 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr: 1.2.3.4
-# statistics : True
-# timeout    : 10
-# auth-type  : chap
-# key        : chap
-# retransmit : 3
-# --------------------------------------------------------------------------------
-# HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
-# --------------------------------------------------------------------------------
-# hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
-# myhost.dell     chap      local     53        3        23      3     mgmt  Ethernet24
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
-#
-- name: Merge radius configurations
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
+
+- name: Delete all radius server configuration
   dellemc.enterprise_sonic.sonic_radius_server:
     config:
     state: deleted
 
 # After state:
 # ------------
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# timeout    : 5
-# auth-type  : pap
+#
+# sonic# show running-configuration | grep radius-server
+# (No radius-server configuration present)
 
 
 # Using "merged" state
@@ -220,177 +209,131 @@ EXAMPLES = """
 # Before state:
 # -------------
 #
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-#
-- name: Merge radius configurations
+# sonic# show running-configuration | grep radius-server
+# (No radius-server configuration present)
+
+- name: Merge radius server configuration
   dellemc.enterprise_sonic.sonic_radius_server:
     config:
       auth_type: chap
-      key: chap
-      nas_ip: 1.2.3.4
+      timeout: 12
+      nas_ip: 10.11.12.13
+      retransmit: 5
       statistics: true
-      timeout: 10
-      retransmit: 3
       servers:
         host:
-          - name: hostx.local
-            auth_type: mschapv2
-            key: local
-            priority: 2
-            port: 52
-            retransmit: 2
-            timeout: 20
-            source_interface: Eth 12
-            vrf: mgmt
+          - name: my-host1.dell
+            auth_type: chap
+            priority: 3
+            vrf: VrfAnsibleTest
+            timeout: 12
+            port: 55
+            source_interface: Ethernet100
+            retransmit: 7
+          - name: "10.10.10.10"
+            protocol: "TLS"
+            security_profile: "rad-sec-prof"
     state: merged
 
 # After state:
 # ------------
 #
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# nas-ip-addr: 1.2.3.4
-# statistics : True
-# timeout    : 10
-# auth-type  : chap
-# key        : chap
-# retransmit : 3
-# --------------------------------------------------------------------------------
-# HOST            AUTH-TYPE KEY       AUTH-PORT PRIORITY TIMEOUT RTSMT VRF   SI
-# --------------------------------------------------------------------------------
-# hostx.local     mschapv2  local     52        2        20      2     mgmt  Ethernet12
-# ---------------------------------------------------------
-# RADIUS Statistics
-# ---------------------------------------------------------
-#
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
+
+
 # Using "replaced" state
 #
 # Before state:
 # -------------
 #
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# timeout           : 10
-# auth-type         : pap
-# key configured    : Yes
-# --------------------------------------------------------------------------------------
-# HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
-# --------------------------------------------------------------------------------------
-# 1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
-#
-- name: Replace radius configurations
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-port 55 timeout 12 retransmit 7 auth-type chap priority 3 vrf VrfAnsibleTest source-interface Ethernet100
+
+- name: Replace specified radius server host configuration
   sonic_radius_server:
     config:
-      auth_type: mschapv2
-      timeout: 20
       servers:
         - host:
-            name: 1.2.3.4
+            name: my-host1.dell
             auth_type: mschapv2
-            key: mschapv2
             source_interface: Ethernet12
     state: replaced
-#
+
 # After state:
 # ------------
 #
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# timeout           : 20
-# auth-type         : mschapv2
-# key configured    : No
-# --------------------------------------------------------------------------------------
-# HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
-# --------------------------------------------------------------------------------------
-# 1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
-#
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-type mschapv2 source-interface Ethernet12
+
 # Using "overridden" state
 #
 # Before state:
 # -------------
 #
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# timeout           : 10
-# auth-type         : pap
-# key configured    : Yes
-# --------------------------------------------------------------------------------------
-# HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
-# --------------------------------------------------------------------------------------
-# 1.2.3.4     pap       No         49        1         5      -     -       Ethernet0
-# 11.12.13.14 chap      Yes        49        10        5      3     -       -
-#
-- name: Override radius configurations
+# sonic# show running-configuration | grep radius-server
+# radius-server nas-ip 10.11.12.13
+# radius-server statistics enable
+# radius-server timeout 12
+# radius-server retransmit 5
+# radius-server auth-type chap
+# radius-server host 10.10.10.10 protocol TLS security-profile rad-sec-prof
+# radius-server host my-host1.dell auth-type mschapv2 source-interface Ethernet12
+
+- name: Override radius server configuration
   sonic_radius_server:
     config:
-      auth_type: mschapv2
-      key: mschapv2
-      timeout: 20
       servers:
         - host:
-            name: 1.2.3.4
-            auth_type: mschapv2
-            key: mschapv2
-            source_interface: Ethernet12
-        - host:
-            name: 10.10.11.12
-            auth_type: chap
-            timeout: 30
-            priority: 2
-            port: 49
+            name: 20.20.20.20
+            protocol: TLS
+            security_profile: rad-sec-prof
     state: overridden
-#
+
 # After state:
 # ------------
 #
-# sonic(config)# do show radius-server
-# ---------------------------------------------------------
-# RADIUS Global Configuration
-# ---------------------------------------------------------
-# timeout           : 20
-# auth-type         : mschapv2
-# key configured    : Yes
-# --------------------------------------------------------------------------------------
-# HOST        AUTH-TYPE KEY-CONFIG AUTH-PORT PRIORITY TIMEOUT RTSMT VRF     SI
-# --------------------------------------------------------------------------------------
-# 1.2.3.4      mschapv2 Yes        1812       -          -    -     -       Ethernet12
-# 10.10.11.12  chap     No         49         2          30   -     -       -
-#
+# sonic# show running-configuration | grep radius-server
+# radius-server host 20.20.20.20 protocol TLS security-profile rad-sec-prof
 """
 
 RETURN = """
 before:
   description: The configuration prior to the module invocation.
   returned: always
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
+  type: dict
 after:
   description: The resulting configuration module invocation.
   returned: when changed
-  type: list
-  sample: >
-    The configuration returned will always be in the same format
-    as the parameters above.
+  type: dict
+after_generated:
+  description: The generated configuration from module invocation.
+  returned: when C(check_mode)
+  type: dict
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
   type: list
   sample: ['command 1', 'command 2', 'command 3']
 """
-
 
 from ansible.module_utils.basic import AnsibleModule
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.radius_server.radius_server import Radius_serverArgs
