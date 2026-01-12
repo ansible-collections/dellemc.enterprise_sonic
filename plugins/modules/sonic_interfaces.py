@@ -34,6 +34,7 @@ options:
         description:
           - The name of the interface, for example, 'Eth1/15'.
           - Specify a subinterface using '.', for example, 'Eth1/15.1' or 'Ethernet4.3'.
+          - Configuration of subinterface 0 is not supported.
         type: str
         required: true
       description:

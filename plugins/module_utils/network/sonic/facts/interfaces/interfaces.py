@@ -148,6 +148,9 @@ class InterfacesFacts(object):
                 for subintf in conf['subinterfaces']['subinterface']:
                     cfg = {}
                     index = subintf['index']
+                    # Subinterface 0 cannot be configured
+                    if index == 0:
+                        continue
                     cfg['name'] = name + '.' + str(index)
 
                     if subintf.get('config'):

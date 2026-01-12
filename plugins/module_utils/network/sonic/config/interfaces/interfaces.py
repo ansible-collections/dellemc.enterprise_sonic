@@ -197,6 +197,8 @@ class Interfaces(ConfigBase):
                 subintf = self.get_subintf(cmd['name'])
 
                 if subintf:
+                    if subintf[1] == 0:
+                        self._module.fail_json(msg=f"Configuration of subinterface 0 is not supported.")
                     if diff_set:
                         self._module.fail_json(msg=f"Subinterface {cmd['name']} only supports the configuration "
                                                "of description, enabled, encapsulation, and mtu attributes.")
@@ -501,8 +503,7 @@ class Interfaces(ConfigBase):
                         commands_del.append({'name': name})
                         continue
 
-                    # Subinterface 0 cannot be deleted
-                    if subintf and subintf[1] != 0:
+                    if subintf:
                         subintf_url = (url + f'/subinterfaces/subinterface={subintf[1]}') % quote(subintf[0], safe='')
                         requests.append({'path': subintf_url, 'method': DELETE})
 
@@ -610,8 +611,7 @@ class Interfaces(ConfigBase):
                         delete_loopback = True
                         lpbk_url = url % quote(name, safe='')
                         requests_del.append({'path': lpbk_url, "method": DELETE})
-                    # Subinterface 0 cannot be deleted
-                    elif subintf and subintf[1] != 0:
+                    elif subintf:
                         delete_subintf = True
                         subintf_url = (url + f'/subinterfaces/subinterface={subintf[1]}') % quote(subintf[0], safe='')
                         requests_del.append({'path': subintf_url, 'method': DELETE})
