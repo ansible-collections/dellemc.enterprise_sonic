@@ -104,7 +104,7 @@ class Qos_pfc(ConfigBase):
         if self._module.check_mode:
             result.pop('after', None)
             new_config = get_new_config(commands, existing_qos_pfc_facts)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config,
                                                        new_config,

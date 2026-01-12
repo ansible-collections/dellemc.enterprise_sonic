@@ -1,12 +1,12 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
 The sonic_vrrp class
-It is in this file where the current configuration (as dict)
-is compared to the provided configuration (as dict) and the command set
+It is in this file where the current configuration (as list)
+is compared to the provided configuration (as list) and the command set
 necessary to bring the current configuration to it's desired end-state is
 created
 """
@@ -73,6 +73,10 @@ DEFAULT_ENTRIES = [
     ],
     [
         {'name': 'group'},
+        {'name': 'preempt_delay', 'default': 0}
+    ],
+    [
+        {'name': 'group'},
         {'name': 'advertisement_interval', 'default': 1}
     ],
     [
@@ -88,6 +92,7 @@ DEFAULT_ENTRIES = [
 DEFAULT_ATTRIBUTES = {
     'priority': 100,
     'preempt': True,
+    'preempt_delay': 0,
     'advertisement_interval': 1,
     'version': 2,
     'use_v2_checksum': False
@@ -115,6 +120,7 @@ class Vrrp(ConfigBase):
     vrrp_config_path = {
         'virtual_router_id': 'vrrp',
         'preempt': 'vrrp/vrrp-group={vrid}/config/preempt',
+        'preempt_delay': 'vrrp/vrrp-group={vrid}/config/preempt-delay',
         'use_v2_checksum': 'vrrp/vrrp-group={vrid}/config/openconfig-interfaces-ext:use-v2-checksum',
         'priority': 'vrrp/vrrp-group={vrid}/config/priority',
         'advertisement_interval': 'vrrp/vrrp-group={vrid}/config/advertisement-interval',
@@ -123,7 +129,7 @@ class Vrrp(ConfigBase):
         'track_interface': 'vrrp/vrrp-group={vrid}/openconfig-interfaces-ext:vrrp-track'
     }
 
-    vrrp_attributes = ('preempt', 'version', 'use_v2_checksum', 'priority', 'advertisement_interval', 'virtual_address', 'track_interface')
+    vrrp_attributes = ('preempt', 'preempt_delay', 'version', 'use_v2_checksum', 'priority', 'advertisement_interval', 'virtual_address', 'track_interface')
 
     def __init__(self, module):
         super(Vrrp, self).__init__(module)
@@ -131,8 +137,8 @@ class Vrrp(ConfigBase):
     def get_vrrp_facts(self):
         """ Get the 'facts' (the current configuration)
 
-        :rtype: A dictionary
-        :returns: The current configuration as a dictionary
+        :rtype: A list
+        :returns: The current configuration as a list
         """
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         vrrp_facts = facts['ansible_network_resources'].get('vrrp')
@@ -165,7 +171,7 @@ class Vrrp(ConfigBase):
             result.pop('after', None)
             new_config = self._get_generated_config(commands, existing_vrrp_facts, self._module.params['state'])
             self.sort_lists_in_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             changed_vrrp_facts = self.get_vrrp_facts()
             new_config = changed_vrrp_facts
@@ -184,7 +190,7 @@ class Vrrp(ConfigBase):
 
     def set_config(self, existing_vrrp_facts):
         """ Collect the configuration from the args passed to the module,
-            collect the current configuration (as a dict from facts)
+            collect the current configuration (as a list from facts)
 
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
@@ -207,8 +213,8 @@ class Vrrp(ConfigBase):
     def set_state(self, want, have):
         """ Select the appropriate function based on the state provided
 
-        :param want: the desired configuration as a dictionary
-        :param have: the current configuration as a dictionary
+        :param want: the desired configuration as a list
+        :param have: the current configuration as a list
         :rtype: A list
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
@@ -436,6 +442,7 @@ class Vrrp(ConfigBase):
         ip_path = IPV4_PATH if afi == 'ipv4' else IPV6_PATH
         vip_addresses = self.get_vip_addresses(group.get('virtual_address'))
         preempt = group.get('preempt')
+        preempt_delay = group.get('preempt_delay')
         advertisement_interval = group.get('advertisement_interval')
         priority = group.get('priority')
         version = group.get('version')
@@ -469,6 +476,9 @@ class Vrrp(ConfigBase):
 
         if preempt is not None:
             requests.append(update_requests('preempt', {'openconfig-if-ip:preempt': preempt}))
+
+        if preempt_delay is not None:
+            requests.append(update_requests('preempt_delay', {'openconfig-if-ip:preempt-delay': preempt_delay}))
 
         if advertisement_interval:
             requests.append(update_requests('advertisement_interval', {'openconfig-if-ip:advertisement-interval': advertisement_interval}))
@@ -632,7 +642,7 @@ class Vrrp(ConfigBase):
             if del_vip_list:
                 commands['virtual_address'] = del_vip_list
 
-        for attr in ('preempt', 'advertisement_interval', 'priority', 'version', 'use_v2_checksum'):
+        for attr in ('preempt', 'preempt_delay', 'advertisement_interval', 'priority', 'version', 'use_v2_checksum'):
             if group.get(attr) is not None and cfg_group.get(attr) is not None and group[attr] == cfg_group[attr]:
                 requests.append({'path': keypath + ip_path + self.vrrp_config_path[attr].format(vrid=virtual_router_id), 'method': DELETE})
                 commands[attr] = group[attr]
@@ -702,7 +712,7 @@ class Vrrp(ConfigBase):
         new_config = remove_empties_from_list(get_new_config(commands, have, TEST_KEYS_formatted_diff))
         if new_config:
             for conf in new_config:
-                # Add default values for after(generated)
+                # Add default values for after_generated
                 groups = conf.get('group', [])
                 for group in groups:
                     afi = group.get('afi')

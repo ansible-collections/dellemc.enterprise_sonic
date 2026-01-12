@@ -50,9 +50,9 @@ options:
           - Not applicable for Loopback interfaces.
         type: int
       encapsulation:
-        version_added: 4.0.0
         description:
           - Configure encapsulation for subinterface.
+        version_added: '4.0.0'
         type: dict
         suboptions:
           vlan_id:
@@ -111,6 +111,17 @@ options:
           - UNRELIABLE_LOS_MODE_ON
           - UNRELIABLE_LOS_MODE_OFF
           - UNRELIABLE_LOS_MODE_AUTO
+      autoneg_mode:
+        description:
+          - BAM/MSA configuration for autonegotiation
+          - Applicable only for Ethernet interfaces.
+          - auto_negotiate should be set to true to configure autoneg_mode
+          - with auto_negotiate set to true , autoneg_mode defaults to BAM
+        version_added: '4.0.0'
+        type: str
+        choices:
+          - AUTONEG_MODE_BAM
+          - AUTONEG_MODE_MSA
   state:
     description:
       - The state the configuration should be left in.
@@ -130,27 +141,31 @@ EXAMPLES = """
 # -------------
 #
 # show interface status | no-more
+show i
 # ------------------------------------------------------------------------------------------
 # Name                Description         Admin     Oper      AutoNeg     Speed        MTU
 # ------------------------------------------------------------------------------------------
 # Ethernet0           -                   up                              100000       9100
 # Ethernet4           -                   up                              100000       9100
-# Ethernet8           Ethernet-8          down                            100000       9100
-# Ethernet12          Ethernet-12         down                on          -            5000
+# Ethernet8           Ethernet-8          down                on          -            9100
+# Ethernet12          Ethernet-12         down                            100000       5000
 # Ethernet16          -                   down                            40000        9100
 #
 # show running-configuration interface Ethernet 8
 # !
 # interface Ethernet8
+#  description Ethernet8
 #  mtu 9100
-#  speed 100000
-#  fec AUTO
-#  shutdown
+#  speed auto MSA
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
 
 - name: Configure interfaces
   sonic_interfaces:
     config:
       - name: Ethernet8
+        autoneg_mode: AUTONEG_MODE_MSA
       - name: Ethernet12
       - name: Ethernet16
     state: deleted
@@ -164,16 +179,19 @@ EXAMPLES = """
 # ------------------------------------------------------------------------------------------
 # Ethernet0           -                   up                              100000       9100
 # Ethernet4           -                   up                              100000       9100
-# Ethernet8           -                   up                              100000       9100
+# Ethernet8           Ethernet-8          down                on          -            9100
 # Ethernet12          -                   up                              100000       9100
 # Ethernet16          -                   up                              100000       9100
 #
 # show running-configuration interface Ethernet 8
 # !
 # interface Ethernet8
+#  description Ethernet8
 #  mtu 9100
-#  speed 100000
-#  shutdown
+#  speed auto
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
 
 
 # Using "deleted" state
@@ -246,6 +264,7 @@ EXAMPLES = """
         encapsulation:
           vlan_id: 10
       - name: Ethernet8
+        autoneg_mode: AUTONEG_MODE_MSA
         fec: FEC_AUTO
       - name: Ethernet12
         description: 'Ethernet Twelve'
@@ -266,7 +285,7 @@ EXAMPLES = """
 # ------------------------------------------------------------------------------------------
 # Ethernet0           -                   up                              100000       9100
 # Ethernet4           -                   up                              100000       9100
-# Ethernet8           -                   down                            100000       9100
+# Ethernet8           -                   down                on          -            9100
 # Ethernet12          Ethernet Twelve     down                on          100000       9100
 # Ethernet16          Ethernet Sixteen    up                              40000        3500
 #
@@ -274,7 +293,7 @@ EXAMPLES = """
 # !
 # interface Ethernet8
 #  mtu 9100
-#  speed 100000
+#  speed auto MSA
 #  fec AUTO
 #  shutdown
 #

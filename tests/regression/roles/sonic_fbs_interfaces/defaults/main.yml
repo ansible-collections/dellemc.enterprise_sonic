@@ -1,0 +1,103 @@
+---
+ansible_connection: httpapi
+
+sonic_fbs_interfaces_tests:
+  - name: test_case_01
+    description: Initial FBS interfaces configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+
+  - name: test_case_02
+    description: Update FBS interfaces configuration
+    state: merged
+    input:
+      - name: '{{ interface1 }}'
+        ingress_policies:
+          monitoring:
+            policy_name: monitoring_policy
+          qos:
+            policy_name: qos_policy
+      - name: '{{ interface3 }}'
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+
+  - name: test_case_3
+    description: Replace FBS interfaces configuration
+    state: replaced
+    input:
+      - name: '{{ interface1 }}'
+        ingress_policies:
+          monitoring:
+            policy_name: monitoring_policy
+      - name: '{{ interface2 }}'
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+          monitoring:
+            policy_name: monitoring_policy
+          qos:
+            policy_name: qos_policy
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+      - name: '{{ interface3 }}'
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+      - name: '{{ interface4 }}'
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+          monitoring:
+            policy_name: monitoring_policy
+          qos:
+            policy_name: qos_policy
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+
+  - name: test_case_04
+    description: Delete FBS interfaces configuration
+    state: deleted
+    input:
+      - name: '{{ interface1 }}'
+      - name: '{{ interface4 }}'
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+          monitoring:
+            policy_name: monitoring_policy
+          qos:
+            policy_name: qos_policy
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+
+  - name: test_case_05
+    description: Override FBS interfaces configuration
+    state: overridden
+    input:
+      - name: '{{ interface2 }}'
+        ingress_policies:
+          forwarding:
+            policy_name: fwd_policy
+          monitoring:
+            policy_name: monitoring_policy
+          qos:
+            policy_name: qos_policy
+        egress_policies:
+          qos:
+            policy_name: qos_policy
+
+  - name: test_case_06
+    description: Delete all FBS interfaces configuration
+    state: deleted
+    input: []

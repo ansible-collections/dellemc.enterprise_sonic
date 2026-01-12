@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: dhcp_relay
 
 vrf1: "VrfReg1"
 vrf2: "VrfReg2"
@@ -65,7 +64,7 @@ preparations_tests:
         addresses:
           - address: 121::1/122
 
-tests:
+sonic_dhcp_relay_tests:
   - name: test_case_01
     description: Add DHCP and DHCPv6 relay configuration
     state: merged

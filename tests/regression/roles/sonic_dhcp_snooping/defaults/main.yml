@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_dhcp_snooping
 
 preparations_tests:
   init:
@@ -20,7 +19,7 @@ preparations_tests:
     - 'no interface portchannel 2'
     - 'no interface portchannel 3'
 
-tests:
+sonic_dhcp_snooping_tests:
   - name: test_case_01_merge_add
     description: Add DHCPv4 and DHCPv6 snooping configuration
     state: merged

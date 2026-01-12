@@ -131,7 +131,7 @@ class Bgp_as_paths(ConfigBase):
             new_config = get_new_config(commands, existing_bgp_as_paths_facts,
                                         TEST_KEYS_generate_config)
             new_config = remove_void_config(new_config, TEST_KEYS_sort_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             new_config = sort_config(new_config)

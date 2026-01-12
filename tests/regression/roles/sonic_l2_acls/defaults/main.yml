@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: l2_acls
 
-tests:
+sonic_l2_acls_tests:
   - name: test_case_01
     description: Add L2 ACL
     state: merged

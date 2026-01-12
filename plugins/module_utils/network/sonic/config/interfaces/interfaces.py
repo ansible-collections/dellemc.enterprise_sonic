@@ -72,7 +72,7 @@ port_num_regex = re.compile(r'[\d]{1,4}$')
 loopback_attribute = ('description', 'enabled')
 subintf_attribute = ('description', 'mtu', 'enabled', 'encapsulation')
 non_eth_attribute = ('description', 'mtu', 'enabled')
-eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed', 'unreliable_los')
+eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed', 'unreliable_los', 'autoneg_mode')
 
 subintf_attributes_default_value = {
     "enabled": True
@@ -86,7 +86,8 @@ eth_attributes_default_value = {
     "enabled": False,
     "auto_negotiate": False,
     "fec": 'FEC_DISABLED',
-    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO"
+    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO",
+    "autoneg_mode": "AUTONEG_MODE_BAM"
 }
 default_intf_speeds = {}
 port_group_interfaces = None
@@ -432,7 +433,8 @@ class Interfaces(ConfigBase):
             "auto_negotiate": 'auto-negotiate',
             "fec": 'openconfig-if-ethernet-ext2:port-fec',
             "advertised_speed": 'openconfig-if-ethernet-ext2:advertised-speed',
-            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los'
+            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los',
+            "autoneg_mode": 'openconfig-if-ethernet-ext2:autoneg-mode'
         }
 
         config_url = (url + eth_conf_url) % quote(intf_name, safe='')
@@ -453,6 +455,10 @@ class Interfaces(ConfigBase):
 
         if attr in ('fec'):
             payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-platform-types:' + c_attr
+            return {"path": config_url, "method": method, "data": payload}
+          
+        if attr in ('autoneg_mode'):
+            payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet-ext2:' + c_attr
             return {"path": config_url, "method": method, "data": payload}
 
         payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
@@ -658,7 +664,8 @@ class Interfaces(ConfigBase):
             "auto_negotiate": 'auto-negotiate',
             "fec": 'openconfig-if-ethernet-ext2:port-fec',
             "advertised_speed": 'openconfig-if-ethernet-ext2:advertised-speed',
-            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los'
+            "unreliable_los": 'openconfig-if-ethernet-ext2:unreliable-los',
+            "autoneg_mode": 'openconfig-if-ethernet-ext2:autoneg-mode'
         }
 
         config_url = (url + eth_conf_url) % quote(intf_name, safe='')
@@ -693,6 +700,11 @@ class Interfaces(ConfigBase):
             payload_attr = attributes_payload[attr]
             payload['openconfig-if-ethernet:config'][payload_attr] = 'UNRELIABLE_LOS_MODE_AUTO'
             return {"path": config_url, "method": PATCH, "data": payload}
+          
+        if attr in ('autoneg_mode'):
+            payload_attr = attributes_payload[attr]
+            config_url = config_url + "/" + payload_attr
+            return {"path": config_url, "method": method}
 
         payload_attr = attributes_payload[attr]
         if attr == 'auto_negotiate':
@@ -711,7 +723,7 @@ class Interfaces(ConfigBase):
             if new_ads:
                 payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
                 return {"path": config_url, "method": PATCH, "data": payload}
-
+              
             attr_url = eth_conf_url + "/" + attributes_payload[attr]
             del_config_url = (url + attr_url) % quote(intf_name, safe='')
             return {"path": del_config_url, "method": method}

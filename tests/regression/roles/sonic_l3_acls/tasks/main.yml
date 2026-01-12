@@ -1,13 +1,10 @@
 ---
-- ansible.builtin.debug:
-    msg: "sonic_l3_acls Test started ..."
-
-- name: "Preparations for {{ module_name }}"
+- name: "Preparations for test"
   ansible.builtin.include_tasks: preparation_tests.yaml
 
-- name: "Test {{ module_name }} started"
+- name: "Test started ..."
   ansible.builtin.include_tasks: tasks_template.yaml
-  loop: "{{ tests }}"
+  loop: "{{ sonic_l3_acls_tests }}"
 
-- name: "Cleanup of {{ module_name }}"
+- name: "Cleanup for test"
   ansible.builtin.include_tasks: cleanup_tests.yaml

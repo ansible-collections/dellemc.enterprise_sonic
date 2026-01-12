@@ -1,8 +1,7 @@
 ---
 ansible_connection: httpapi
-module_name: sonic_evpn_esi_multihome
 
-tests:
+sonic_evpn_esi_multihome_tests:
   - name: test_case_01
     description: Add es_activation_delay and df_election_time options
     state: merged

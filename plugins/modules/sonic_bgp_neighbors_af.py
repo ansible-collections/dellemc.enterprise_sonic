@@ -573,7 +573,7 @@ after:
   sample: >
     The configuration returned is always in the same format
     as the parameters above.
-after(generated):
+after_generated:
   description: The generated configuration module invocation.
   returned: when C(check_mode)
   type: list

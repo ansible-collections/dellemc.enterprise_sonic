@@ -1,15 +1,14 @@
 ---
+- name: Test SONiC command with prompt handling
+  sonic_command:
+    commands:
+      - command: 'image remove all'
+        prompt: '\[y/N\]:$'
+        answer: 'N'
+  register: result
 
-
-  - name: Test sonic command with prompt handling
-    sonic_command:
-       commands:
-         - command: 'image remove all'
-           prompt: '\[y/N\]:$'
-           answer: 'N'
-    register: result
-
-  - assert:
-      that:
-        - "result.changed == false"
-        - "result.stdout is defined"
+- name: Assertion
+  ansible.builtin.assert:
+    that:
+      - "result.changed == false"
+      - "result.stdout is defined"

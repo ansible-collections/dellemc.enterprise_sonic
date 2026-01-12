@@ -52,6 +52,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_fbs_classifiers
     fbs_groups:
       redirect: dellemc.enterprise_sonic.sonic_fbs_groups
+    fbs_interfaces:
+      redirect: dellemc.enterprise_sonic.sonic_fbs_interfaces
     fbs_policies:
       redirect: dellemc.enterprise_sonic.sonic_fbs_policies
     fips:
@@ -92,6 +94,8 @@ plugin_routing:
       redirect: dellemc.enterprise_sonic.sonic_mac
     mclag:
       redirect: dellemc.enterprise_sonic.sonic_mclag
+    mfa:
+      redirect: dellemc.enterprise_sonic.sonic_mfa
     mgmt_servers:
       redirect: dellemc.enterprise_sonic.sonic_mgmt_servers
     mirroring:

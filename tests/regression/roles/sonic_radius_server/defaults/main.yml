@@ -1,16 +1,9 @@
 ---
 ansible_connection: httpapi
-module_name: radius_server
 
-preparations_tests:
-  delete_radius_server:
-    - name: delete_all
-      description: Configure radius server
-      state: deleted
-      input:
-tests:
+sonic_radius_server_tests:
   - name: test_case_01
-    description: Add new host configuration
+    description: Add initial radius server configuration
     state: merged
     input:
       auth_type: chap
@@ -44,8 +37,15 @@ tests:
             port: 57
             source_interface: "{{ interface3 }}"
             retransmit: 9
+            # - name: "10.10.10.10"
+            #   protocol: "TLS"
+            #   security_profile: "rad-sec-prof"
+            # - name: "20.20.20.20"
+            #   protocol: "TLS"
+            #   security_profile: "rad-sec-prof"
+
   - name: test_case_02
-    description: Update specific params of radius server
+    description: Update specific radius server attributes
     state: merged
     input:
       auth_type: mschapv2
@@ -54,25 +54,40 @@ tests:
         host:
           - name: my-host.dell
             auth_type: mschapv2
+            priority: 3
             port: 45
             timeout: 9
+            retransmit: 7
+            source_interface: "{{ interface1 }}"
             vrf: VrfAnsibleTest
+            # - name: "20.20.20.20"
+            #   security_profile: "radius-sec-profile"
+
   - name: test_case_03
-    description: Delete all params of a radius server host
+    description: Delete specific radius server attributes
     state: deleted
     input:
-      key: login
+      auth_type: mschapv2
+      nas_ip: 10.11.12.13
+      statistics: true
       timeout: 24
+      retransmit: 5
       servers:
         host:
           - name: my-host.dell
+            auth_type: mschapv2
+            priority: 3
+            port: 45
+            timeout: 9
+            retransmit: 7
+            source_interface: "{{ interface1 }}"
+            vrf: VrfAnsibleTest
+          - name: my-host2.dell
+          # - name: "20.20.20.20"
+          #   protocol: "TLS"
+          #   security_profile: "radius-sec-profile"
+
   - name: test_case_04
-    description: Delete all hosts configurations
-    state: deleted
-    input:
-      servers:
-        host:
-  - name: test_case_05
     description: Add new host configuration
     state: merged
     input:
@@ -91,25 +106,9 @@ tests:
             port: 55
             source_interface: "{{ interface1 }}"
             retransmit: 7
-          - name: myhost2.dell
-            auth_type: pap
-            priority: 4
-            vrf: VrfAnsibleTest
-            timeout: 15
-            port: 56
-            source_interface: "{{ interface2 }}"
-            retransmit: 8
-          - name: myhost3.dell
-            auth_type: mschapv2
-            priority: 6
-            vrf: VrfAnsibleTest
-            timeout: 20
-            port: 57
-            source_interface: "{{ interface3 }}"
-            retransmit: 9
 
-  - name: test_case_06
-    description: Replace some configuration of radius servers
+  - name: test_case_05
+    description: Replace radius server configuration
     state: replaced
     input:
       auth_type: mschapv2
@@ -123,15 +122,10 @@ tests:
             port: 57
             timeout: 25
 
-  - name: test_case_07
-    description: Replace hosts of radius servers
+  - name: test_case_06
+    description: Replace radius server host configuration
     state: replaced
     input:
-      auth_type: mschapv2
-      timeout: 36
-      nas_ip: 11.11.11.22
-      retransmit: 5
-      statistics: true
       servers:
         host:
           - name: my-host.dell
@@ -140,6 +134,8 @@ tests:
             timeout: 21
             priority: 3
             source_interface: "{{ interface3 }}"
+            # protocol: "TLS"
+            # security_profile: "rad-sec-prof"
           - name: 20.21.22.23
             auth_type: pap
             port: 50
@@ -153,8 +149,8 @@ tests:
             priority: 8
             source_interface: "{{ interface1 }}"
 
-  - name: test_case_08
-    description: Override configuration of radius server
+  - name: test_case_07
+    description: Override radius server configuration
     state: overridden
     input:
       auth_type: mschapv2
@@ -170,6 +166,8 @@ tests:
             priority: 3
             retransmit: 8
             source_interface: "{{ interface2 }}"
+            # protocol: "TLS"
+            # security_profile: "radius-sec-profile"
           - name: your-host.dell
             auth_type: chap
             port: 50
@@ -177,7 +175,7 @@ tests:
             priority: 6
             source_interface: "{{ interface3 }}"
 
-test_delete_all:
-  - name: test_case_09
-    description: Delete all the configurations of radius server
+  - name: test_case_08
+    description: Delete all radius server configuration
     state: deleted
+    input: {}

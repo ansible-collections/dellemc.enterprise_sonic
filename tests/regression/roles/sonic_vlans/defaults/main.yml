@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: vlans
 
 preparations_tests:
   add_vlans_input:
@@ -12,7 +11,7 @@ preparations_tests:
     - vlan_id: 505
     - vlan_id: 506
 
-tests:
+sonic_vlans_tests:
   # merge test cases started
   - name: test_case_01
     description: Add access and trunk VLANs

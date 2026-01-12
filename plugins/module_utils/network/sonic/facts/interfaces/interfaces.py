@@ -137,6 +137,8 @@ class InterfacesFacts(object):
                     trans_cfg['fec'] = eth_conf['openconfig-if-ethernet-ext2:port-fec'].split(':', 1)[-1]
                 if 'openconfig-if-ethernet-ext2:unreliable-los' in eth_conf:
                     trans_cfg['unreliable_los'] = eth_conf['openconfig-if-ethernet-ext2:unreliable-los'].split(':', 1)[-1]
+                if 'openconfig-if-ethernet-ext2:autoneg-mode' in eth_conf:
+                    trans_cfg['autoneg_mode'] = eth_conf['openconfig-if-ethernet-ext2:autoneg-mode'].split(':', 1)[-1]
 
         if trans_cfg:
             trans_cfg_list.append(trans_cfg)

@@ -75,7 +75,7 @@ class Tacacs_server(ConfigBase):
         facts, _warnings = Facts(self._module).get_facts(self.gather_subset, self.gather_network_resources)
         tacacs_server_facts = facts['ansible_network_resources'].get('tacacs_server')
         if not tacacs_server_facts:
-            return []
+            return {}
         return tacacs_server_facts
 
     def execute_module(self):
@@ -110,7 +110,7 @@ class Tacacs_server(ConfigBase):
             result.pop('after', None)
             new_config = get_new_config(commands, existing_tacacs_server_facts,
                                         TEST_KEYS_formatted_diff)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(existing_tacacs_server_facts,

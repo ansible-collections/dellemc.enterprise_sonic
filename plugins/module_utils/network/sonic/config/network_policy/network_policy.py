@@ -116,7 +116,7 @@ class Network_policy(ConfigBase):
         if self._module.check_mode:
             new_config = remove_empties_from_list(get_new_config(commands, existing_network_policy_facts, TEST_KEYS_generate_config))
             self.sort_lists_in_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             new_config = self.get_network_policy_facts()
             if result['changed']:

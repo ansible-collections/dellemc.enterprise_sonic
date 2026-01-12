@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: users
 
 tests_single_run:
   - name: test_case_sr_01
@@ -38,7 +37,7 @@ tests_single_run:
         password: User@Dell
         update_password: on_create
 
-tests:
+sonic_users_tests:
   - name: test_case_01
     description: Configure users
     state: merged
@@ -54,7 +53,7 @@ tests:
       - name: user3
         role: admin
         password: User@Dell
-        update_password: on_create        
+        update_password: on_create
   - name: test_case_02
     description: Update user roles
     state: merged
@@ -104,14 +103,18 @@ tests:
     state: merged
     input:
       - name: user5
-        ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic        
+        ssh_key: >-
+          ssh-rsa
+          AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw==
   - name: test_case_07
     description: Delete user
     state: deleted
     input:
       - name: user4
       - name: user5
-        ssh_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw== root@sonic
+        ssh_key: >-
+          ssh-rsa
+          AAAAB3NzaC1yc2EAAAADAQABAAAAgQDHD2TJqQ/Fve+fG5i6heOJH55wgbEf+7kTtUGBUtNttQ9OXgBRrA2h2GKSyUNlyfaVijBrcr2MKwhSASvk58WnEqZhfmmhRDsdNVXPlMQuDBheIlCaXyOh+URJZCfmfeERSVO7kjRhqMmbHlpTbMDHdFgYEvHGcrHMwIZyZ6KbBw==
   - name: test_case_08
     description: Delete all users configurations
     state: deleted

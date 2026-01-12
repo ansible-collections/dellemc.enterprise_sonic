@@ -193,7 +193,7 @@ class Br_l2pt(ConfigBase):
             result.pop('after', None)
             new_commands = remove_empties_from_list(commands)
             new_config = get_new_config(commands, old_config, TEST_KEYS_generate_config)
-            result['after(generated)'] = Br_l2pt.sort_lists_in_config(remove_empty_protocols(new_config))
+            result['after_generated'] = Br_l2pt.sort_lists_in_config(remove_empty_protocols(new_config))
 
         if self._module._diff:
             result['diff'] = get_formatted_config_diff(old_config,

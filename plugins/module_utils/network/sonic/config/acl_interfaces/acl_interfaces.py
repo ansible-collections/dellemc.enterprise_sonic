@@ -128,7 +128,7 @@ class Acl_interfaces(ConfigBase):
             new_config = get_new_config(commands, existing_acl_interfaces_facts,
                                         TEST_KEYS_formatted_diff)
             self.post_process_generated_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         if self._module._diff:
             self.sort_config(new_config)
             self.sort_config(old_config)

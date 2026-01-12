@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -31,6 +31,7 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config_reboot
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
+    __MERGE_OP_DEFAULT,
     get_new_config,
     get_formatted_config_diff
 )
@@ -38,6 +39,18 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 
 ROCE_PATH = '/operations/openconfig-qos-private:qos-roce-config'
 POST = 'post'
+
+
+def __derive_roce_merge_op(key_set, command, exist_conf):
+    if command.get('roce_enable') is False:
+        exist_conf.pop('pfc_priority', None)
+
+    return __MERGE_OP_DEFAULT(key_set, command, exist_conf)
+
+
+TEST_KEYS_generate_config = [
+    {'config': {'__merge_op': __derive_roce_merge_op}}
+]
 
 
 class Roce(ConfigBase):
@@ -76,7 +89,6 @@ class Roce(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = []
         commands = []
 
         existing_roce_facts = self.get_roce_facts()
@@ -88,25 +100,21 @@ class Roce(ConfigBase):
                 except ConnectionError as exc:
                     pass
             result['changed'] = True
+
         result['commands'] = commands
-        changed_roce_facts = self.get_roce_facts()
-
         result['before'] = existing_roce_facts
-        if result['changed']:
-            result['after'] = changed_roce_facts
-
-        new_config = changed_roce_facts
         old_config = existing_roce_facts
-        if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_roce_facts)
-            result['after(generated)'] = new_config
-        if self._module._diff:
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
 
-        result['warnings'] = warnings
+        if self._module.check_mode:
+            new_config = get_new_config(commands, existing_roce_facts, TEST_KEYS_generate_config)
+            result['after_generated'] = new_config
+        else:
+            new_config = self.get_roce_facts()
+            if result['changed']:
+                result['after'] = new_config
+        if self._module._diff:
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
+
         return result
 
     def set_config(self, existing_roce_facts):
@@ -131,8 +139,7 @@ class Roce(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
+        commands, requests = [], []
         state = self._module.params['state']
         diff = get_diff(want, have)
 
@@ -158,6 +165,7 @@ class Roce(ConfigBase):
         return commands, requests
 
     def get_modify_roce_request(self, commands):
+        """ Returns a post request to modify the RoCE configuration"""
         request = None
 
         if commands:
@@ -166,6 +174,8 @@ class Roce(ConfigBase):
             roce_enable = commands.get('roce_enable')
             pfc_priority = commands.get('pfc_priority')
 
+            if roce_enable is False and pfc_priority:
+                self._module.fail_json(msg='PFC priority is only configurable when RoCE is enabled.')
             if roce_enable is not None:
                 input_dict['operation'] = bool_dict[roce_enable]
             if pfc_priority:

@@ -9,16 +9,14 @@ action_condition: "{{ 'Passed' if (action_task_output.failed == false and
                                    action_task_output.changed == true)
                                 else 'Failed'
                     }}"
-cli_test_condition: "{{ 'Passed' if(cli_tests_output.failed == false and
-                                    cli_tests_output.changed == false
-                                    )
+cli_test_condition: "{{ 'Passed' if (cli_tests_output.failed == false and
+                                    cli_tests_output.changed == false)
                                  else 'Failed'
                    }}"
 
-single_run_condition: "{{ 'Passed' if(single_run_task_output.failed == false and
+single_run_condition: "{{ 'Passed' if (single_run_task_output.failed == false and
                                         single_run_task_output.commands != empty and
-                                        single_run_task_output.changed == true
-                                       )
+                                        single_run_task_output.changed == true)
                                  else 'Failed'
                    }}"
 

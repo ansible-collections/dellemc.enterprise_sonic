@@ -1,6 +1,5 @@
 ---
 ansible_connection: httpapi
-module_name: port_group
 
 pg1: 1
 pg2: 2
@@ -8,13 +7,13 @@ pg16: 16
 pg20: 20
 
 preparations_tests:
-    delete_port_group_configurations:
-      - "no port-group {{ pg1 }} speed"
-      - "no port-group {{ pg2 }} speed"
-      - "no port-group {{ pg16 }} speed"
-      - "no port-group {{ pg20 }} speed"
+  delete_port_group_configurations:
+    - "no port-group {{ pg1 }} speed"
+    - "no port-group {{ pg2 }} speed"
+    - "no port-group {{ pg16 }} speed"
+    - "no port-group {{ pg20 }} speed"
 
-tests:
+sonic_port_group_tests:
   - name: test_case_01
     description: Configure port group speeds
     state: merged
@@ -27,17 +26,20 @@ tests:
         speed: SPEED_10GB
       - id: "{{ pg20 }}"
         speed: SPEED_25GB
+
   - name: test_case_02
     description: Delete some port group speeds
     state: deleted
     input:
       - id: "{{ pg1 }}"
       - id: "{{ pg2 }}"
+
   - name: test_case_03
     description: Set a port group to the default speed
     state: deleted
     input:
       - id: "{{ pg16 }}"
+
   - name: test_case_04
     description: Set some port group speeds
     state: merged
@@ -46,6 +48,7 @@ tests:
         speed: SPEED_10GB
       - id: "{{ pg20 }}"
         speed: SPEED_25GB
+
   - name: test_case_05
     description: Replace some port group speeds
     state: replaced
@@ -54,6 +57,7 @@ tests:
         speed: SPEED_10GB
       - id: "{{ pg20 }}"
         speed: SPEED_10GB
+
   - name: test_case_06
     description: Replace more port group speeds
     state: replaced
@@ -66,6 +70,7 @@ tests:
         speed: SPEED_10GB
       - id: "{{ pg20 }}"
         speed: SPEED_10GB
+
   - name: test_case_07
     description: Override port group speeds
     state: overridden
@@ -76,6 +81,7 @@ tests:
         speed: SPEED_10GB
       - id: "{{ pg20 }}"
         speed: SPEED_25GB
+
   - name: test_case_08
     description: Clean up - reset all port group speeds
     state: deleted

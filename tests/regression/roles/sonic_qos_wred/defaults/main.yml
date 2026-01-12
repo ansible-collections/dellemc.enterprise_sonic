@@ -1,74 +1,119 @@
 ---
 ansible_connection: httpapi
-module_name: qos_wred 
 
-tests:
+sonic_qos_wred_tests:
   - name: test_case_01
-    description: Initial configuration of WRED profiles 
+    description: Initial configuration of WRED profiles
     state: merged
     input:
       - name: profile1
-        ecn: green
+        ecn: all
         green:
-          enable: True
+          enable: true
+          min_threshold: 1000
+          max_threshold: 5000
+          drop_probability: 25
+        red:
+          enable: true
+          min_threshold: 1000
+          max_threshold: 5000
+          drop_probability: 25
+        yellow:
+          enable: true
           min_threshold: 1000
           max_threshold: 5000
           drop_probability: 25
       - name: profile2
-        ecn: green
+        ecn: none
         green:
-          enable: True
+          enable: true
           min_threshold: 12000
           max_threshold: 48000
           drop_probability: 50
-
+        red:
+          enable: true
+          min_threshold: 12000
+          max_threshold: 48000
+          drop_probability: 50
+        yellow:
+          enable: true
+          min_threshold: 12000
+          max_threshold: 48000
+          drop_probability: 50
   - name: test_case_02
     description: Update WRED profiles configuration
     state: merged
     input:
       - name: profile1
         green:
-          enable: False 
+          enable: false
           min_threshold: 1500
           max_threshold: 6500
           drop_probability: 78
+        yellow:
+          enable: false
+          min_threshold: 2500
+          max_threshold: 6000
+          drop_probability: 78
       - name: profile3
-        ecn: green
+        ecn: all
         green:
-          enable: True
+          enable: true
           min_threshold: 3000
           max_threshold: 9000
           drop_probability: 10
-
+        red:
+          enable: true
+          min_threshold: 1500
+          max_threshold: 6500
+          drop_probability: 78
   - name: test_case_03
     description: Replace WRED profiles configuration
     state: replaced
     input:
       - name: profile1
-        ecn: green
+        ecn: all
       - name: profile3
         green:
-          enable: False
+          enable: false
           min_threshold: 4000
-
+        red:
+          enable: false
+          min_threshold: 1000
+          max_threshold: 5000
   - name: test_case_04
     description: Override WRED profiles configuration
     state: overridden
     input:
       - name: profile4
-        ecn: green
+        ecn: all
         green:
-          enable: True
+          enable: true
           min_threshold: 7000
           max_threshold: 40000
           drop_probability: 13
+        red:
+          enable: true
+          min_threshold: 7000
+          max_threshold: 40000
+          drop_probability: 25
+        yellow:
+          enable: true
+          min_threshold: 7000
+          max_threshold: 40000
+          drop_probability: 30
       - name: profile5
-        ecn: green
+        ecn: none
         green:
-          enable: False
+          enable: false
           min_threshold: 1000
           max_threshold: 2000
           drop_probability: 99
+        red:
+          enable: false
+          min_threshold: 1000
+          max_threshold: 3000
+          drop_probability: 50
       - name: profile6
 
   - name: test_case_05
@@ -77,13 +122,18 @@ tests:
     input:
       - name: profile4
       - name: profile5
-        ecn: green
+        ecn: none
         green:
-          enable: False
+          enable: false
           min_threshold: 1000
           max_threshold: 2000
           drop_probability: 99
- 
+        red:
+          enable: false
+          min_threshold: 1000
+          max_threshold: 3000
+          drop_probability: 50
+
   - name: test_case_06
     description: Delete all WRED profiles configuration
     state: deleted

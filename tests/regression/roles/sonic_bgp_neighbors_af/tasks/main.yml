@@ -1,13 +1,10 @@
-- debug: msg="sonic_interfaces Test started ..."
+---
+- name: Preparations for test
+  ansible.builtin.include_tasks: preparation_tests.yaml
 
-- debug: var=interface1
+- name: Test started ...
+  ansible.builtin.include_tasks: tasks_template.yaml
+  loop: "{{ sonic_bgp_neighbors_af_tests }}"
 
-- name: Preparations test, creates VLANs
-  include_tasks: preparation_tests.yaml
-
-- name: "Test {{ module_name }} started ..."
-  include_tasks: tasks_template.yaml
-  loop: "{{ tests }}"
-
-- name: "Cleanup {{ module_name }} started ..."
-  include_tasks: cleanup_tests.yaml
+- name: Cleanup for test
+  ansible.builtin.include_tasks: cleanup_tests.yaml

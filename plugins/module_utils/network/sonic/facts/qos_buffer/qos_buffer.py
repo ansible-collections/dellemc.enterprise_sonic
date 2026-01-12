@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2024 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -53,14 +53,11 @@ class Qos_bufferFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        objs = []
-
         if not data:
-            data = self.update_qos_buffer(self._module)
-        objs = data
+            data = self.render_config(self._module)
         facts = {}
-        if objs:
-            params = utils.validate_config(self.argument_spec, {'config': objs})
+        if data:
+            params = utils.validate_config(self.argument_spec, {'config': data})
             facts['qos_buffer'] = remove_empties(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
         return ansible_facts
@@ -79,7 +76,8 @@ class Qos_bufferFacts(object):
 
         return cfg
 
-    def update_qos_buffer(self, module):
+    def render_config(self, module):
+        """Transform SONiC data to argspec format"""
         config_dict = {}
 
         path = '/data/sonic-switch:sonic-switch/SWITCH/SWITCH_LIST=switch/buffer_mode_lossless'

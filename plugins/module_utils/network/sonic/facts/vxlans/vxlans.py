@@ -18,6 +18,9 @@ from copy import deepcopy
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
 )
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties_from_list
+)
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.vxlans.vxlans import VxlansArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
     to_request,
@@ -54,9 +57,6 @@ class VxlansFacts(object):
         :rtype: dictionary
         :returns: facts
         """
-        if connection:  # just for linting purposes, remove
-            pass
-
         if not data:
             # typically data is populated from the current device configuration
             # data = connection.get('show running-config | section ^interface')
@@ -74,7 +74,7 @@ class VxlansFacts(object):
             facts['vxlans'] = []
             params = utils.validate_config(self.argument_spec, {'config': objs})
             if params:
-                facts['vxlans'].extend(params['config'])
+                facts['vxlans'].extend(remove_empties_from_list(params['config']))
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
@@ -126,15 +126,15 @@ class VxlansFacts(object):
 
     def get_all_vxlans_evpn_nvo_list(self):
         """Get all the evpn nvo list available """
-        request = [{"path": "data/sonic-vxlan:sonic-vxlan/EVPN_NVO/EVPN_NVO_LIST", "method": GET}]
+        request = [{"path": "data/sonic-vxlan:sonic-vxlan/VXLAN_EVPN_NVO/VXLAN_EVPN_NVO_LIST", "method": GET}]
         try:
             response = edit_config(self._module, to_request(self._module, request))
         except ConnectionError as exc:
             self._module.fail_json(msg=str(exc), code=exc.code)
 
         vxlans_evpn_nvo_list = []
-        if "sonic-vxlan:EVPN_NVO_LIST" in response[0][1]:
-            vxlans_evpn_nvo_list = response[0][1].get("sonic-vxlan:EVPN_NVO_LIST", [])
+        if "sonic-vxlan:VXLAN_EVPN_NVO_LIST" in response[0][1]:
+            vxlans_evpn_nvo_list = response[0][1].get("sonic-vxlan:VXLAN_EVPN_NVO_LIST", [])
 
         return vxlans_evpn_nvo_list
 
@@ -156,9 +156,11 @@ class VxlansFacts(object):
         for each_tunnel in vxlan_tunnels:
             vxlan = {}
             vxlan['name'] = each_tunnel['name']
-            vxlan['source_ip'] = each_tunnel.get('src_ip', None)
-            vxlan['primary_ip'] = each_tunnel.get('primary_ip', None)
-            vxlan["external_ip"] = each_tunnel.get('external_ip', None)
+            vxlan['source_ip'] = each_tunnel.get('src_ip')
+            vxlan['primary_ip'] = each_tunnel.get('primary_ip')
+            vxlan['external_ip'] = each_tunnel.get('external_ip')
+            vxlan['qos_mode'] = each_tunnel.get('qos-mode')
+            vxlan['dscp'] = each_tunnel.get('dscp')
             vxlan['evpn_nvo'] = None
             evpn_nvo = next((nvo_map['name'] for nvo_map in vxlans_evpn_nvo_list if nvo_map['source_vtep'] == vxlan['name']), None)
             if evpn_nvo:
@@ -180,7 +182,7 @@ class VxlansFacts(object):
 
     def fill_vrf_map(self, vxlans, vxlan_vrf_list):
         for each_vrf in vxlan_vrf_list:
-            vni = each_vrf.get('vni', None)
+            vni = each_vrf.get('vni')
             if vni is None:
                 continue
 
@@ -202,7 +204,7 @@ class VxlansFacts(object):
         suppress_vlan_neigh = {}
         suppress_vlan_neigh_list = []
         for each_suppress_vlan_neigh in suppress_vlans:
-            name = each_suppress_vlan_neigh.get('name', None)
+            name = each_suppress_vlan_neigh.get('name')
             if name is None:
                 continue
             matched_suppress_vn = None

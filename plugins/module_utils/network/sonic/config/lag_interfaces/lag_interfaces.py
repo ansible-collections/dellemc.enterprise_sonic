@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2020 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -42,6 +42,9 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_formatted_config_diff
 )
 from ansible.module_utils.connection import ConnectionError
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.interfaces_util import (
+    intf_speed_map
+)
 
 
 PATCH = 'patch'
@@ -91,8 +94,11 @@ class Lag_interfaces(ConfigBase):
             'timeout': lag_interface_config_root_path + '/lacp-individual-timeout',
         },
         'min_links': lag_interface_config_root_path + '/min-links',
-        'system_mac': lag_interface_config_root_path + '/system-mac'
+        'system_mac': lag_interface_config_root_path + '/system-mac',
+        'speed': lag_interface_config_root_path + '/openconfig-interfaces-ext:speed',
+        'adv_speed': lag_interface_config_root_path + '/openconfig-interfaces-ext:adv-speed'
     }
+
     eth_seg_path = 'data/openconfig-network-instance:network-instances/network-instance=default/evpn/ethernet-segments'
     lag_interface_eth_seg_path = eth_seg_path + '/ethernet-segment={name}'
     lag_interface_eth_seg_df_pref_path = lag_interface_eth_seg_path + '/df-election/config/preference'
@@ -137,7 +143,7 @@ class Lag_interfaces(ConfigBase):
         if self._module.check_mode:
             new_config = self.get_new_config(commands, existing_lag_interfaces_facts)
             self.sort_config(new_config)
-            result['after(generated)'] = new_config
+            result['after_generated'] = new_config
         else:
             new_config = self.get_lag_interfaces_facts()
             if result['changed']:
@@ -222,7 +228,7 @@ class Lag_interfaces(ConfigBase):
                 if del_members:
                     del_command['members'] = self.get_members_dict(del_members)
 
-                for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links', 'system_mac'):
+                for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links', 'system_mac', 'speed', 'adv_speed'):
                     if have_conf.get(option) is not None and option not in conf:
                         del_command[option] = have_conf[option]
 
@@ -324,7 +330,7 @@ class Lag_interfaces(ConfigBase):
                             if del_members:
                                 command['members'] = self.get_members_dict(del_members)
 
-                    for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links', 'system_mac'):
+                    for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links', 'system_mac', 'speed', 'adv_speed'):
                         if conf.get(option) is not None and conf[option] == have_conf.get(option):
                             command[option] = conf[option]
 
@@ -378,6 +384,11 @@ class Lag_interfaces(ConfigBase):
                     config_dict['lacp-individual'] = 'enable' if cmd['lacp_individual']['enable'] else 'disable'
                 if cmd['lacp_individual'].get('timeout') is not None:
                     config_dict['lacp-individual-timeout'] = cmd['lacp_individual']['timeout']
+            if cmd.get('speed') is not None:
+                config_dict['openconfig-interfaces-ext:speed'] = intf_speed_map[cmd['speed']]
+
+            if cmd.get('adv_speed') is not None:
+                config_dict['openconfig-interfaces-ext:adv-speed'] = str(cmd['adv_speed'])
 
             if config_dict:
                 url = self.lag_interface_config_root_path.format(name=cmd['name'])
@@ -504,6 +515,14 @@ class Lag_interfaces(ConfigBase):
             url = self.lag_interface_config_path['system_mac'].format(name=lag_name)
             requests.append({'path': url, 'method': DELETE})
 
+        if command.get('speed'):
+            url = self.lag_interface_config_path['speed'].format(name=lag_name)
+            requests.append({'path': url, 'method': DELETE})
+
+        if command.get('adv_speed'):
+            url = self.lag_interface_config_path['adv_speed'].format(name=lag_name)
+            requests.append({'path': url, 'method': DELETE})
+
         if command.get('ethernet_segment'):
             eth_seg = command['ethernet_segment']
             if eth_seg.get('esi_type'):
@@ -574,7 +593,7 @@ class Lag_interfaces(ConfigBase):
             have_obj = search_obj_in_list(conf['name'], have, 'name')
             if conf.get('mode'):
                 if have_obj and conf['mode'] != have_obj['mode'] and state == 'merged':
-                    self._module.fail_json(msg='cannot modify mode for existing portchannel: {1}'.format(conf['name']))
+                    self._module.fail_json(msg='cannot modify mode for existing portchannel: {0}'.format(conf['name']))
             elif state != 'deleted':
                 # For new LAG interface, set default mode to 'lacp'
                 if have_obj and state == 'merged':
@@ -672,6 +691,10 @@ class Lag_interfaces(ConfigBase):
 
             if 'system_mac' in command:
                 del new_conf['system_mac']
+            if 'speed' in command:
+                del new_conf['speed']
+            if 'adv_speed' in command:
+                del new_conf['adv_speed']
 
             if 'ethernet_segment' in command:
                 eth_seg = command['ethernet_segment']

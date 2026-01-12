@@ -1,0 +1,198 @@
+---
+ansible_connection: httpapi
+
+vrf1: VrfReg1
+vrf2: VrfReg2
+po1: Portchannel 100
+po2: Portchannel 101
+vlan1: 105
+vlan2: 106
+vlan5_name: Vlan5
+vlan6_name: Vlan6
+vlan7_name: Vlan7
+vlan8_name: Vlan8
+
+preparations_tests:
+  delete_vrfs:
+    - "no ip vrf {{ vrf1 }}"
+    - "no ip vrf {{ vrf2 }}"
+  delete_interfaces:
+    - "no interface Vlan {{ vlan1 }}"
+    - "no interface Vlan {{ vlan2 }}"
+    - "no interface {{ vlan5_name }}"
+    - "no interface {{ vlan6_name }}"
+    - "no interface {{ vlan7_name }}"
+    - "no interface {{ vlan8_name }}"
+  init_interfaces:
+    - "interface Vlan {{ vlan1 }}"
+    - "interface Vlan {{ vlan2 }}"
+    - "interface {{ vlan5_name }}"
+    - "interface {{ vlan6_name }}"
+    - "interface {{ vlan7_name }}"
+    - "interface {{ vlan8_name }}"
+    - "exit"
+    - "ip vrf {{ vrf1 }}"
+    - "ip vrf {{ vrf2 }}"
+
+tests_cli:
+  - name: cli_test_case_01
+    description: creates VXLAN properties
+    state: merged
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
+        external_ip: 3.3.3.3
+        evpn_nvo: nvo5
+        vlan_map:
+          - vni: 101
+            vlan: "{{ vlan1 }}"
+          - vni: 102
+            vlan: "{{ vlan2 }}"
+        vrf_map:
+          - vni: 101
+            vrf: "{{ vrf1 }}"
+          - vni: 102
+            vrf: "{{ vrf2 }}"
+
+sonic_vxlans_tests:
+  - name: test_case_01
+    description: Create VXLAN
+    state: merged
+    input:
+      - name: vtep1
+
+  - name: test_case_02
+    description: Configure some VXLAN attributes
+    state: merged
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
+        external_ip: 3.3.3.3
+        qos_mode: uniform
+
+  - name: test_case_03
+    description: Configure vlan_map
+    state: merged
+    input:
+      - name: vtep1
+        vlan_map:
+          - vni: 101
+            vlan: "{{ vlan1 }}"
+
+  - name: test_case_04
+    description: Configure vrf_map and suppress_vlan_neigh
+    state: merged
+    input:
+      - name: vtep1
+        vrf_map:
+          - vni: 101
+            vrf: "{{ vrf1 }}"
+        suppress_vlan_neigh:
+          - vlan_name: "{{ vlan6_name }}"
+          - vlan_name: "{{ vlan7_name }}"
+
+  - name: test_case_05
+    description: Update VXLAN configuration
+    state: merged
+    input:
+      - name: vtep1
+        source_ip: 1.1.1.1
+        primary_ip: 2.2.2.2
+        qos_mode: pipe
+        dscp: 14
+        vlan_map:
+          - vni: 102
+            vlan: "{{ vlan2 }}"
+        vrf_map:
+          - vni: 102
+            vrf: "{{ vrf2 }}"
+        suppress_vlan_neigh:
+          - vlan_name: "{{ vlan5_name }}"
+
+  - name: test_case_06
+    description: Override VXLAN configuration
+    state: overridden
+    input:
+      - name: vtep2
+        source_ip: 3.3.3.3
+        primary_ip: 4.4.4.4
+        external_ip: 5.5.5.5
+        evpn_nvo: nvo5
+        vlan_map:
+          - vni: 101
+            vlan: "{{ vlan1 }}"
+        vrf_map:
+          - vni: 101
+            vrf: "{{ vrf1 }}"
+        suppress_vlan_neigh:
+          - vlan_name: "{{ vlan7_name }}"
+
+  - name: test_case_07
+    description: Replace VXLAN configuration
+    state: replaced
+    input:
+      - name: vtep2
+        source_ip: 5.5.5.5
+        primary_ip: 6.6.6.6
+        external_ip: 7.7.7.7
+        evpn_nvo: nvo6
+        qos_mode: pipe
+        dscp: 30
+        vlan_map:
+          - vni: 101
+            vlan: "{{ vlan2 }}"
+          - vni: 102
+            vlan: "{{ vlan1 }}"
+        vrf_map:
+          - vni: 101
+            vrf: "{{ vrf2 }}"
+          - vni: 102
+            vrf: "{{ vrf1 }}"
+        suppress_vlan_neigh:
+          - vlan_name: "{{ vlan8_name }}"
+          - vlan_name: "{{ vlan5_name }}"
+          - vlan_name: "{{ vlan6_name }}"
+
+  - name: test_case_08
+    description: Delete VXLAN attributes
+    state: deleted
+    input:
+      - name: vtep2
+        source_ip: 5.5.5.5
+        primary_ip: 6.6.6.6
+        external_ip: 7.7.7.7
+        evpn_nvo: nvo6
+        qos_mode: pipe
+        dscp: 30
+        vlan_map:
+          - vni: 101
+            vlan: "{{ vlan2 }}"
+          - vni: 102
+            vlan: "{{ vlan1 }}"
+        vrf_map:
+          - vni: 101
+            vrf: "{{ vrf2 }}"
+          - vni: 102
+            vrf: "{{ vrf1 }}"
+        suppress_vlan_neigh:
+          - vlan_name: Vlan6
+          - vlan_name: Vlan7
+
+  - name: test_case_09
+    description: Delete VXLAN
+    state: deleted
+    input:
+      - name: vtep2
+
+  - name: test_case_10
+    description: Recreate VXLAN
+    state: merged
+    input:
+      - name: vtep1
+
+  - name: test_case_11
+    description: Delete all VXLAN configuration
+    state: deleted
+    input: []
