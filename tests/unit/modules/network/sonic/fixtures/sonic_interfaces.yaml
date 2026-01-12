@@ -235,6 +235,7 @@ deleted_02:
                     port-speed: openconfig-if-ethernet:SPEED_40GB
                     openconfig-if-ethernet-ext2:port-fec: FEC_FC
                     openconfig-if-ethernet-ext2:advertised-speed: '100000,40000'
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
                 subinterfaces:
                   subinterface:
                     - index: 1
@@ -250,7 +251,6 @@ deleted_02:
                       config:
                         index: 2
                         enabled: false
-                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
               - name: 'Loopback123'
                 config:
                   enabled: false
@@ -360,7 +360,7 @@ replaced_01:
                     openconfig-if-ethernet-ext2:advertised-speed: ''
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
-                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA
+                    openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
                 subinterfaces:
                   subinterface:

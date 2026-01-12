@@ -13,16 +13,16 @@ sonic_interfaces_tests:
         mtu: 6445
         enabled: false
         unreliable_los: UNRELIABLE_LOS_MODE_AUTO
+        # Use only on platform that support this.
+        # auto_negotiate: true
+        # autoneg_mode: AUTONEG_MODE_BAM
       - name: "{{ subinterface2 }}"
         description: Ansible subinterface2
         enabled: true
         mtu: 2000
         encapsulation:
           vlan_id: 10
-        # Use only on platform that support this.
-        # auto_negotiate: true
-        # autoneg_mode: AUTONEG_MODE_BAM
-        
+
   - name: test_case_02
     description: Update interface parameters
     state: merged
@@ -292,13 +292,13 @@ sonic_interfaces_tests:
         description: Ansible interface9
       - name: Loopback100
         description: Ansible Loopback100 replace
-      - name: "{{ subinterface2 }}"
-        description: Ansible subintf2
         # Use only on platform that support this.
         # - name: "{{ interface7 }}"
         #  auto_negotiate: true
         #  autoneg_mode: AUTONEG_MODE_MSA
-        
+      - name: "{{ subinterface2 }}"
+        description: Ansible subintf2
+
   - name: test_case_22
     description: Override interface parameters
     state: overridden
