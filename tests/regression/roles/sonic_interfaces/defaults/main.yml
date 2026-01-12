@@ -1,6 +1,8 @@
 ---
 ansible_connection: httpapi
 
+subinterface2: "{{ interface2 ~ '.3' }}"
+
 sonic_interfaces_tests:
   - name: test_case_01
     description: Update interface parameters
@@ -11,6 +13,12 @@ sonic_interfaces_tests:
         mtu: 6445
         enabled: false
         unreliable_los: UNRELIABLE_LOS_MODE_AUTO
+      - name: "{{ subinterface2 }}"
+        description: Ansible subinterface2
+        enabled: true
+        mtu: 2000
+        encapsulation:
+          vlan_id: 10
 
   - name: test_case_02
     description: Update interface parameters
@@ -36,6 +44,10 @@ sonic_interfaces_tests:
         mtu: 5222
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_ON
+      - name: "{{ subinterface2 }}"
+        description: Ansible subintf2
+        enabled: false
+        mtu: 3000
 
   - name: test_case_03
     description: Configure interface speed parameter
@@ -75,6 +87,12 @@ sonic_interfaces_tests:
         enabled:
       - name: "{{ interface9 }}"
         unreliable_los: UNRELIABLE_LOS_MODE_ON
+      - name: "{{ subinterface2 }}"
+        description: Ansible subintf2
+        enabled: false
+        mtu: 3000
+        encapsulation:
+          vlan_id: 10
 
   - name: test_case_07
     description: Update interface parameters
@@ -108,11 +126,12 @@ sonic_interfaces_tests:
         description: Ansible Loopback100
 
   - name: test_case_10
-    description: Delete loopback interfaces
+    description: Delete loopback interfaces and subinterface
     state: deleted
     input:
       - name: Loopback100   # Loopback: mtu not configurable in sonic-os
       - name: Loopback101   # Loopback: mtu not configurable in sonic-os
+      - name: "{{ subinterface2 }}"
 
   # Vlan test cases
   - name: test_case_11
@@ -148,6 +167,12 @@ sonic_interfaces_tests:
       - name: PortChannel50
         mtu: 3434
         enabled: true
+      - name: PortChannel50.3
+        description: Ansible PortChannel50.3 descr
+        enabled: false
+        mtu: 3000
+        encapsulation:
+          vlan_id: 200
       - name: PortChannel51
         description: Ansible PortChannel51 descr
         mtu: 5454
@@ -160,22 +185,40 @@ sonic_interfaces_tests:
       - name: PortChannel50
         mtu: 3434
         enabled: true
+      - name: PortChannel50.3
+        description: Ansible PortChannel50.3 descr
+        enabled: false
+        mtu: 3000
+        encapsulation:
+          vlan_id: 200
       - name: PortChannel51
         mtu: 5454
 
   - name: test_case_16
-    description: Update PortChanel interface parameters
+    description: Update PortChannel interface parameters
     state: merged
     input:
       - name: PortChannel50
         mtu: 3434
         enabled: true
+      - name: PortChannel50.3
+        description: Ansible PortChannel50.3 descr
+        enabled: true
+        mtu: 3500
+        encapsulation:
+          vlan_id: 300
       - name: PortChannel51
         description: Ansible PortChannel51 descr
         mtu: 5454
         enabled: true
 
   - name: test_case_17
+    description: Delete PortChannel subinterface
+    state: deleted
+    input:
+      - name: PortChannel50.3
+
+  - name: test_case_18
     description: Update interface description and mtu parameters
     state: merged
     input:
@@ -189,7 +232,7 @@ sonic_interfaces_tests:
         enabled: true
         unreliable_los: UNRELIABLE_LOS_MODE_ON
 
-  - name: test_case_18
+  - name: test_case_19
     description: Replace interface mtu parameter
     state: replaced
     input:
@@ -205,7 +248,7 @@ sonic_interfaces_tests:
         advertised_speed:
           - 100000
 
-  - name: test_case_19
+  - name: test_case_20
     description: Replace interface parameters
     state: replaced
     input:
@@ -223,8 +266,14 @@ sonic_interfaces_tests:
           - 40000
       - name: Loopback100
         description: Ansible Loopback100
+      - name: "{{ subinterface2 }}"
+        description: Ansible subinterface2
+        enabled: true
+        mtu: 2000
+        encapsulation:
+          vlan_id: 10
 
-  - name: test_case_20
+  - name: test_case_21
     description: Replace interface parameters
     state: replaced
     input:
@@ -232,8 +281,10 @@ sonic_interfaces_tests:
         description: Ansible interface9
       - name: Loopback100
         description: Ansible Loopback100 replace
+      - name: "{{ subinterface2 }}"
+        description: Ansible subintf2
 
-  - name: test_case_21
+  - name: test_case_22
     description: Override interface parameters
     state: overridden
     input:

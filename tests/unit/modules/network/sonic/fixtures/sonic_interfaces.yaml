@@ -6,6 +6,12 @@ merged_01:
         description: "Test Desc for eth1/1"
         enabled: false
         mtu: 1600
+      - name: Eth1/1.1
+        description: "Desc for subintf eth1/1.1"
+        enabled: true
+        mtu: 2000
+        encapsulation:
+          vlan_id: 10
       - name: Loopback1
         description: "Test Desc for Loopback1"
         enabled: false
@@ -71,12 +77,37 @@ merged_01:
       data:
         openconfig-interfaces:config:
           enabled: false
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:subinterfaces:
+          subinterface:
+            - index: 1
+              config:
+                index: 1
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/config/description"
+      method: "patch"
+      data:
+        openconfig-interfaces:description: "Desc for subintf eth1/1.1"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/config/enabled"
+      method: "patch"
+      data:
+        openconfig-interfaces:enabled: true
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/config/openconfig-interfaces-ext:mtu"
+      method: "patch"
+      data:
+        openconfig-interfaces-ext:mtu: 2000
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/openconfig-vlan:vlan/config/vlan-id"
+      method: "patch"
+      data:
+        openconfig-vlan:vlan-id: 10
 
 merged_02:
   module_args:
     config:
       - name: Eth1/15
         unreliable_los: UNRELIABLE_LOS_MODE_ON
+
     state: merged
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
@@ -119,6 +150,11 @@ deleted_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+                subinterfaces:
+                  subinterface:
+                    - index: 1
+                      config:
+                        index: 1
               - name: 'Loopback123'
                 config:
                   enabled: false
@@ -149,6 +185,9 @@ deleted_01:
           auto-negotiate: false
     - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
       method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1"
+      method: "delete"
+      data:
 
 deleted_02:
   module_args:
@@ -160,6 +199,14 @@ deleted_02:
         speed: SPEED_100GB
         advertised_speed:
           - 100000
+      - name: Eth1/1.1
+        description: "Desc for subintf eth1/1.1"
+        enabled: true
+        mtu: 2000
+        encapsulation:
+          vlan_id: 10
+      - name: Eth1/1.2
+        enabled: false
       - name: 'Loopback123'
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
@@ -177,6 +224,21 @@ deleted_02:
                     port-speed: openconfig-if-ethernet:SPEED_40GB
                     openconfig-if-ethernet-ext2:port-fec: FEC_FC
                     openconfig-if-ethernet-ext2:advertised-speed: '100000,40000'
+                subinterfaces:
+                  subinterface:
+                    - index: 1
+                      config:
+                        index: 1
+                        description: "Desc for subintf eth1/1.1"
+                        enabled: true
+                        openconfig-interfaces-ext:mtu: 2000
+                      openconfig-vlan:vlan:
+                        config:
+                          vlan-id: 10
+                    - index: 2
+                      config:
+                        index: 2
+                        enabled: false
               - name: 'Loopback123'
                 config:
                   enabled: false
@@ -213,6 +275,16 @@ deleted_02:
           openconfig-if-ethernet-ext2:advertised-speed: '40000'
     - path: "data/openconfig-interfaces:interfaces/interface=Loopback123"
       method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/config/description"
+      method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/config/openconfig-interfaces-ext:mtu"
+      method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/openconfig-vlan:vlan/config/vlan-id"
+      method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=2/config/enabled"
+      method: "patch"
+      data:
+        openconfig-interfaces:enabled: true
 
 deleted_03:
   module_args:
@@ -249,6 +321,8 @@ replaced_01:
       - name: Eth1/1
         mtu: 1600
         speed: "SPEED_40GB"
+      - name: Eth1/1.1
+        mtu: 3000
       - name: Loopback1
         description: 'Interface Loopback1'
   existing_interfaces_config:
@@ -269,6 +343,14 @@ replaced_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+                subinterfaces:
+                  subinterface:
+                    - index: 1
+                      config:
+                        index: 1
+                        description: "Desc for subintf eth1/1.1"
+                        enabled: true
+                        openconfig-interfaces-ext:mtu: 2000
               - name: 'Eth1/2'
                 config:
                   mtu: 6767
@@ -332,6 +414,12 @@ replaced_01:
       data:
         openconfig-if-ethernet:config:
           port-speed: "openconfig-if-ethernet:SPEED_40GB"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/config/description"
+      method: "delete"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1/config/openconfig-interfaces-ext:mtu"
+      method: "patch"
+      data:
+        openconfig-interfaces-ext:mtu: 3000
 
 replaced_02:
   module_args:
@@ -341,6 +429,7 @@ replaced_02:
         mtu: 2000
         speed: "SPEED_40GB"
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
+      - name: 'Eth1/15.1'
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -389,6 +478,14 @@ replaced_02:
       data:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:unreliable-los: UNRELIABLE_LOS_MODE_OFF
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/subinterfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:subinterfaces:
+          subinterface:
+            - index: 1
+              config:
+                index: 1
 
 overridden_01:
   module_args:
@@ -414,6 +511,11 @@ overridden_01:
                     auto-negotiate: true
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+                subinterfaces:
+                  subinterface:
+                    - index: 1
+                      config:
+                        index: 1
               - name: 'Eth1/2'
                 config:
                   mtu: 2000
@@ -487,6 +589,8 @@ overridden_01:
       data:
         openconfig-if-ethernet:config:
           auto-negotiate: false
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/subinterfaces/subinterface=1"
+      method: "delete"
 
 overridden_02:
   module_args:
@@ -496,6 +600,7 @@ overridden_02:
         mtu: 1600
         speed: "SPEED_40GB"
         unreliable_los: UNRELIABLE_LOS_MODE_OFF
+      - name: Eth1/15.1
   existing_interfaces_config:
     - path: "data/openconfig-interfaces:interfaces"
       response:
@@ -544,3 +649,11 @@ overridden_02:
       data:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:unreliable-los: "UNRELIABLE_LOS_MODE_OFF"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F15/subinterfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:subinterfaces:
+          subinterface:
+            - index: 1
+              config:
+                index: 1

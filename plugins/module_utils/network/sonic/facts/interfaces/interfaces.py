@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -17,6 +17,9 @@ from copy import deepcopy
 
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common import (
     utils,
+)
+from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
+    remove_empties_from_list
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.argspec.interfaces.interfaces import InterfacesArgs
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.sonic import (
@@ -70,8 +73,6 @@ class InterfacesFacts(object):
         :returns: facts
         """
         objs = []
-        if connection:  # just for linting purposes, remove
-            pass
 
         if not data:
             # typically data is populated from the current device configuration
@@ -82,40 +83,25 @@ class InterfacesFacts(object):
         self.reset_loop_backs()
 
         for conf in data:
-            if conf:
-                obj = self.render_config(self.generated_spec, conf)
-                obj = self.transform_config(obj)
+            obj = conf
+            obj = self.transform_config(obj)
         # split the config into instances of the resource
-                if obj:
-                    objs.append(obj)
+            if obj:
+                objs.extend(obj)
 
-        ansible_facts['ansible_network_resources'].pop('interfaces', None)
         facts = {}
         if objs:
-            facts['interfaces'] = []
             params = utils.validate_config(self.argument_spec, {'config': objs})
-            for cfg in params['config']:
-                facts['interfaces'].append(utils.remove_empties(cfg))
+            facts['interfaces'] = remove_empties_from_list(params['config'])
         ansible_facts['ansible_network_resources'].update(facts)
 
         return ansible_facts
 
-    def render_config(self, spec, conf):
-        """
-        Render config as dictionary structure and delete keys
-          from spec for null values
-
-        :param spec: The facts tree, generated from the argspec
-        :param conf: The configuration
-        :rtype: dictionary
-        :returns: The generated config
-        """
-        return conf
-
     def transform_config(self, conf):
+        trans_cfg_list = []
         trans_cfg = {}
         if conf.get('config') is None:
-            return trans_cfg
+            return trans_cfg_list
 
         exist_cfg = conf['config']
         is_loop_back = False
@@ -152,7 +138,30 @@ class InterfacesFacts(object):
                 if 'openconfig-if-ethernet-ext2:unreliable-los' in eth_conf:
                     trans_cfg['unreliable_los'] = eth_conf['openconfig-if-ethernet-ext2:unreliable-los'].split(':', 1)[-1]
 
-        return trans_cfg
+        if trans_cfg:
+            trans_cfg_list.append(trans_cfg)
+
+        if not is_loop_back and (name != "eth0") and (name != "Management0"):
+            if conf.get('subinterfaces') and conf['subinterfaces'].get('subinterface'):
+                for subintf in conf['subinterfaces']['subinterface']:
+                    cfg = {}
+                    index = subintf['index']
+                    cfg['name'] = name + '.' + str(index)
+
+                    if subintf.get('config'):
+                        if subintf['config'].get('enabled') is not None:
+                            cfg['enabled'] = subintf['config']['enabled']
+                        if subintf['config'].get('description'):
+                            cfg['description'] = subintf['config']['description']
+                        if subintf['config'].get('openconfig-interfaces-ext:mtu'):
+                            cfg['mtu'] = subintf['config']['openconfig-interfaces-ext:mtu']
+                    if (subintf.get('openconfig-vlan:vlan') and subintf['openconfig-vlan:vlan'].get('config')
+                            and subintf['openconfig-vlan:vlan']['config'].get('vlan-id')):
+                        cfg['encapsulation'] = {'vlan_id': subintf['openconfig-vlan:vlan']['config']['vlan-id']}
+
+                    trans_cfg_list.append(cfg)
+
+        return trans_cfg_list
 
     def reset_loop_backs(self):
         self.loop_backs = ","
