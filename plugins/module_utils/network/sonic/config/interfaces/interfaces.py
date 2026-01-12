@@ -456,7 +456,7 @@ class Interfaces(ConfigBase):
         if attr in ('fec'):
             payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-platform-types:' + c_attr
             return {"path": config_url, "method": method, "data": payload}
-          
+
         if attr in ('autoneg_mode'):
             payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet-ext2:' + c_attr
             return {"path": config_url, "method": method, "data": payload}
@@ -700,7 +700,7 @@ class Interfaces(ConfigBase):
             payload_attr = attributes_payload[attr]
             payload['openconfig-if-ethernet:config'][payload_attr] = 'UNRELIABLE_LOS_MODE_AUTO'
             return {"path": config_url, "method": PATCH, "data": payload}
-          
+
         if attr in ('autoneg_mode'):
             payload_attr = attributes_payload[attr]
             config_url = config_url + "/" + payload_attr
@@ -723,7 +723,7 @@ class Interfaces(ConfigBase):
             if new_ads:
                 payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
                 return {"path": config_url, "method": PATCH, "data": payload}
-              
+
             attr_url = eth_conf_url + "/" + attributes_payload[attr]
             del_config_url = (url + attr_url) % quote(intf_name, safe='')
             return {"path": del_config_url, "method": method}
