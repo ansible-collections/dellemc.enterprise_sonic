@@ -197,7 +197,7 @@ class Interfaces(ConfigBase):
 
                 if subintf:
                     if subintf[1] == 0:
-                        self._module.fail_json(msg=f"Configuration of subinterface 0 is not supported.")
+                        self._module.fail_json(msg="Configuration of subinterface 0 is not supported.")
                     if diff_set:
                         self._module.fail_json(msg=f"Subinterface {cmd['name']} only supports the configuration "
                                                "of description, enabled, encapsulation, and mtu attributes.")
