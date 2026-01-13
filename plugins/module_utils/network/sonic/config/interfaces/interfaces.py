@@ -86,8 +86,7 @@ eth_attributes_default_value = {
     "enabled": False,
     "auto_negotiate": False,
     "fec": 'FEC_DISABLED',
-    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO",
-    "autoneg_mode": "AUTONEG_MODE_BAM"
+    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO"
 }
 default_intf_speeds = {}
 port_group_interfaces = None
