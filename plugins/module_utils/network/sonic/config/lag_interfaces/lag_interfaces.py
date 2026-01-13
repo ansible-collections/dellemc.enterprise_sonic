@@ -625,9 +625,10 @@ class Lag_interfaces(ConfigBase):
     @staticmethod
     def get_diff(base_cfg, compare_cfg):
         compare_cfg = deepcopy(compare_cfg)
-        # Add default values, if not present
+        # Add default values (except graceful_shutdown), if not present
+        # For graceful_shutdown, configure provided value if not present
         for cfg in compare_cfg:
-            for option in ('fallback', 'fast_rate', 'graceful_shutdown', 'min_links'):
+            for option in ('fallback', 'fast_rate', 'min_links'):
                 cfg.setdefault(option, DEFAULT_VALUES[option])
 
             if cfg.get('mode') == 'lacp':

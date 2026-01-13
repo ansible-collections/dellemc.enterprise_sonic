@@ -30,6 +30,8 @@ merged_01:
       - name: PortChannel40
         fallback: true
         fast_rate: true
+      - name: PortChannel50
+        graceful_shutdown: false
       - name: PortChannel90
         speed: 40000
         members:
@@ -51,6 +53,7 @@ merged_01:
                 - name: PortChannel10
                   graceful_shutdown_mode: ENABLE
                   lacp_individual: enable
+                - name: PortChannel50
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
@@ -158,6 +161,11 @@ merged_01:
         openconfig-if-aggregate:config:
           fallback: true
           fast-rate: true
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel50/openconfig-if-aggregate:aggregation/config"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:config:
+          graceful-shutdown-mode: DISABLE
     - path: "data/openconfig-interfaces:interfaces/interface=PortChannel90/openconfig-if-aggregate:aggregation/config"
       method: "patch"
       data:
@@ -527,6 +535,8 @@ overridden_01:
         members:
           interfaces:
             - member: Eth1/23
+      - name: PortChannel40
+        graceful_shutdown: false
   existing_lag_interfaces_config:
     - path: "data/sonic-portchannel:sonic-portchannel"
       response:
@@ -544,6 +554,7 @@ overridden_01:
                   fallback: true
                   system_mac: "12:12:12:12:12:12"
                 - name: PortChannel30
+                - name: PortChannel40
             PORTCHANNEL_MEMBER:
               PORTCHANNEL_MEMBER_LIST:
                 - ifname: Eth1/4
@@ -619,3 +630,8 @@ overridden_01:
                 esi: AUTO
                 interface: PortChannel10
                 name: PortChannel10
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel40/openconfig-if-aggregate:aggregation/config"
+      method: "patch"
+      data:
+        openconfig-if-aggregate:config:
+          graceful-shutdown-mode: DISABLE
