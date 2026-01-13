@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - sonic_lag_interfaces - Fix graceful_shutdown not disabled for existing lag interfaces (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/617).
