@@ -163,7 +163,7 @@ options:
           motd:
             description:
               - Banner message to display after login.
-              - c banner-text(max length 4096) c, where 'c' is a delimiting character
+              - Format is 'c\r\n{banner text}\r\nc', where 'c' is a delimiting character
             type: str
           login_banner_disable:
             description:
