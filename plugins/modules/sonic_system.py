@@ -158,12 +158,12 @@ options:
           login:
             description:
               - Banner message to display before login.
-              - Format is 'c\r\n{banner text}\r\nc', where 'c' is a delimiting character
+              - Format is 'c\\r\\n{banner text}\\r\\nc', where 'c' is a delimiting character
             type: str
           motd:
             description:
               - Banner message to display after login.
-              - Format is 'c\r\n{banner text}\r\nc', where 'c' is a delimiting character
+              - Format is 'c\\r\\n{banner text}\\r\\nc', where 'c' is a delimiting character
             type: str
           login_banner_disable:
             description:
