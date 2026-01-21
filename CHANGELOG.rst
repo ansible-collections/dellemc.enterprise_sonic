@@ -4,6 +4,60 @@ Dellemc.Enterprise\_Sonic Release Notes
 
 .. contents:: Topics
 
+v4.0.0
+======
+
+Release Summary
+---------------
+
+| Release Date: 2026-01-22
+|
+| This release provides Dell Enterprise SONiC Ansible Collection support for new features added with
+| the Enterprise SONiC 4.5.1 release. It also provides Ansible support for several features included
+| in previous Enterprise SONiC releases, as well as bug fixes to address problems found in the
+| previous enterprise_sonic Ansible Resource Module Collection release and enhancements to address
+| requests from customers and Dell field support engineers. The changelog describes the changes made
+| to provide this new support as well as the bug fixes and enhancements.
+
+Minor Changes
+-------------
+
+- plugins - Change all instances of 'after(generated)' to 'after_generated' to address sanity errors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/609).
+- sonic_aaa - Add support for accounting options (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/559).
+- sonic_interfaces - Support for BAM/MSA configuration (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/567).
+- sonic_lag_interfaces - Add support for 'speed' and 'adv_speed' (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/572).
+- sonic_radius_server - Add support for RADIUS TLS security profile (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/615).
+- sonic_system - Add support for banner and login exec-timeout options (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/614).
+- sonic_vrrp - Add support for vrrp 'preempt_delay' option (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/571).
+- sonic_vxlans - Add support for QoS mode (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/611).
+
+Breaking Changes / Porting Guide
+--------------------------------
+
+- sonic_qos_wred - Add support for yellow and red colors (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/574).
+
+Bugfixes
+--------
+
+- ansible-core_219_compatibility - Modify the required Netcommon version and UT module param setting method for ansible-core 2.19 compatibility (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/600).
+- sonic.vxlans - Fix VXLAN config/facts handling; moving deprecated uri EVPN_NVO to current one VXLAN_EVPN_NVO (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/598).
+- sonic_bgp_af - Fix check mode behavior (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/613).
+- sonic_lag_interfaces - Fix graceful_shutdown not disabled for existing lag interfaces (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/617).
+- sonic_qos_buffer - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+- sonic_qos_interfaces - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/603).
+- sonic_qos_maps - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+- sonic_qos_scheduler - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+- sonic_qos_wred - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+- sonic_roce - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+- sonic_vxlans - Fix check mode handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/611).
+
+New Modules
+-----------
+
+- dellemc.enterprise_sonic.sonic - A dummy module for the sonic action plugin.
+- dellemc.enterprise_sonic.sonic_fbs_interfaces - Manage flow based services (FBS) interfaces configuration on SONiC.
+- dellemc.enterprise_sonic.sonic_mfa - Manage Multi-factor authentication (MFA) configurations on SONiC.
+
 v3.2.0
 ======
 
@@ -30,7 +84,7 @@ v3.1.0
 Release Summary
 ---------------
 
-| Release Date: 2025-10-09
+| Release Date: 2025-1009
 |
 | This release provides Dell Enterprise SONiC Ansible Collection support for new features added with
 | the Enterprise SONiC 4.5.0 release. It also provides Ansible support for several features included
@@ -132,7 +186,7 @@ v3.0.0
 Release Summary
 ---------------
 
-| Release Date: 2024-11-21
+| Release Date: 2024-1121
 |
 | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.4.0
 | and later images. It provides a new resource module for support of the SONiC SSH client configuration
@@ -203,7 +257,7 @@ v2.5.0
 Release Summary
 ---------------
 
-| Release Date: 2024-08-12
+| Release Date: 2024-0812
 |
 | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.x images.
 | In addition to new resource modules to support previously existing functionality, it provides
@@ -320,7 +374,7 @@ v2.4.0
 Release Summary
 ---------------
 
-| Release Date: 2024-01-08
+| Release Date: 2024-0108
 | This release provides an Ansible compliance change required on top of the changes included in
 | the 2.3.0 release of the enterprise_sonic Ansible network resource module collection.
 | It addresses an issue raised by the Ansible core team with the content of the 2.3.0 release,
@@ -346,7 +400,7 @@ v2.3.0
 Release Summary
 ---------------
 
-| Release Date: 2024-01-03
+| Release Date: 2024-0103
 | This release provides the functionality enhancements listed below, along with fixes for
 | problems found in regression testing or reported by users. The main functionality enhancements
 | provided are the following items.
@@ -468,7 +522,7 @@ v2.1.0
 Release Summary
 ---------------
 
-| Release Date: 2023-05-15
+| Release Date: 2023-0515
 | This release provides enhanced Dell Enterprise SONiC Ansible Collection support for SONiC 4.x images.
 | In addition to new resource modules to support previously existing functionality, it provides
 | support for the "QinQ" (Vlan Mapping) function introduced with SONiC release 4.1. It also provides
