@@ -40,7 +40,7 @@ Bugfixes
 --------
 
 - ansible-core_219_compatibility - Modify the required Netcommon version and UT module param setting method for ansible-core 2.19 compatibility (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/600).
-- sonic.vxlans - Fix VXLAN config/facts handling; moving deprecated uri EVPN_NVO to current one VXLAN_EVPN_NVO (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/598).
+- sonic_vxlans - Fix VXLAN config/facts handling; moving deprecated uri EVPN_NVO to current one VXLAN_EVPN_NVO (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/598).
 - sonic_bgp_af - Fix check mode behavior (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/613).
 - sonic_lag_interfaces - Fix graceful_shutdown not disabled for existing lag interfaces (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/617).
 - sonic_qos_buffer - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
