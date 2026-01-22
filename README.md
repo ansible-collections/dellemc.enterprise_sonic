@@ -57,6 +57,7 @@ Name | Description
 [**sonic_evpn_esi_multihome**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_evpn_esi_multihome)| Manage EVPN ESI multihoming configuration on SONiC
 [**sonic_fbs_classifiers**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_fbs_classifiers)| Manage flow based services (FBS) classifiers configuration on SONiC
 [**sonic_fbs_groups**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_fbs_groups)| Manage flow based services (FBS) groups configuration on SONiC
+[**sonic_fbs_interfaces**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_fbs_interfaces)| Manage flow based services (FBS) interfaces configuration on SONiC
 [**sonic_fbs_policies**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_fbs_policies)| Manage flow based services (FBS) policies configuration on SONiC
 [**sonic_fips**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_fips)| Manage FIPS configurations
 [**sonic_image_management**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_image_management)| Manage installation of Enterprise SONiC image, software patch and firmware updater.
@@ -77,6 +78,7 @@ Name | Description
 [**sonic_lst**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_lst)| Manage link state tracking (LST) configuration on SONiC
 [**sonic_mac**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_mac)| Manage MAC configuration
 [**sonic_mclag**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_mclag)| Manage multi chassis link aggregation groups domain (MCLAG) and its parameters
+[**sonic_mfa**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_mfa)| Manage Multi-factor authentication (MFA) configurations on SONiC
 [**sonic_mgmt_servers**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_mgmt_servers)| Manage management servers configuration
 [**sonic_mirroring**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_mirroring)| Manage port mirroring configuration on SONiC
 [**sonic_network_policy**](https://galaxy.ansible.com/ui/repo/published/dellemc/enterprise_sonic/content/module/sonic_network_policy)| Manage network policy configuration on SONiC

@@ -1,6 +1,5 @@
 ---
-objects:
-  role: {}
+objects: {}
 plugins:
   become: {}
   cache: {}
@@ -11,7 +10,6 @@ plugins:
       name: sonic
       version_added: null
   connection: {}
-  filter: {}
   httpapi:
     sonic:
       description: HttpApi Plugin for devices supporting Restconf SONIC API
@@ -145,6 +143,11 @@ plugins:
       name: sonic_fbs_groups
       namespace: ''
       version_added: 3.1.0
+    sonic_fbs_interfaces:
+      description: Manage flow based services (FBS) interfaces configuration on SONiC
+      name: sonic_fbs_interfaces
+      namespace: ''
+      version_added: 4.0.0
     sonic_fbs_policies:
       description: Manage flow based services (FBS) policies configuration on SONiC
       name: sonic_fbs_policies
@@ -251,6 +254,11 @@ plugins:
       name: sonic_mclag
       namespace: ''
       version_added: 1.0.0
+    sonic_mfa:
+      description: Manage Multi-factor authentication (MFA) configurations on SONiC.
+      name: sonic_mfa
+      namespace: ''
+      version_added: 4.0.0
     sonic_mgmt_servers:
       description: Manage management servers configuration on SONiC
       name: sonic_mgmt_servers
@@ -382,7 +390,7 @@ plugins:
       namespace: ''
       version_added: 2.5.0
     sonic_radius_server:
-      description: Manage RADIUS server and its parameters
+      description: Manage RADIUS server configuration on SONiC
       name: sonic_radius_server
       namespace: ''
       version_added: 1.0.0
@@ -458,13 +466,12 @@ plugins:
       namespace: ''
       version_added: 2.5.0
     sonic_vxlans:
-      description: Manage VxLAN EVPN and its parameters
+      description: Manage VXLAN configuration on SONiC
       name: sonic_vxlans
       namespace: ''
       version_added: 1.0.0
   netconf: {}
   shell: {}
   strategy: {}
-  test: {}
   vars: {}
-version: 3.2.0
+version: 4.0.0
