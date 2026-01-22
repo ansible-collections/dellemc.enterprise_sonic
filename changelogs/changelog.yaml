@@ -2135,9 +2135,6 @@ releases:
       - 617-lag-interfaces-fix-graceful-shutdown.yaml
       - v_4.0.0_summary.yaml
     modules:
-      - description: A dummy module for the sonic action plugin.
-        name: sonic
-        namespace: ''
       - description: Manage flow based services (FBS) interfaces configuration on SONiC.
         name: sonic_fbs_interfaces
         namespace: ''
