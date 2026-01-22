@@ -54,7 +54,6 @@ Bugfixes
 New Modules
 -----------
 
-- dellemc.enterprise_sonic.sonic - A dummy module for the sonic action plugin.
 - dellemc.enterprise_sonic.sonic_fbs_interfaces - Manage flow based services (FBS) interfaces configuration on SONiC.
 - dellemc.enterprise_sonic.sonic_mfa - Manage Multi-factor authentication (MFA) configurations on SONiC.
 
