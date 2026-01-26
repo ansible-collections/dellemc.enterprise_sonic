@@ -1,0 +1,11 @@
+---
+release_summary: |
+        | Release Date: 2026-01-27
+        |
+        | This release provides an Ansible compliance change required on top of the changes included in
+        | the 4.0.0 release of the enterprise_sonic Ansible network resource module collection.
+        | It also provides accompanying documentation changes in the README file. Additional details are
+        | described below.
+        |
+        | 1) Resolve Python 3.7 sanity test error.
+        | 2) Update the README file to align with Ansible Certified Collections guidelines.
