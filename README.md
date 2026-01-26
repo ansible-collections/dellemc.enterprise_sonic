@@ -145,8 +145,6 @@ Version compatibility
 
 ##### Setting Environment Variables
 
-To use the Enterprise SONiC collection in Ansible 2.9, it is required to add one of the two available environment variables.
-
 Option 1: Add the environment variable while running the playbook.
 
 
