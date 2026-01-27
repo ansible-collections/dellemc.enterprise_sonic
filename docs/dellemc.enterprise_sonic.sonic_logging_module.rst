@@ -536,4 +536,4 @@ Status
 Authors
 ~~~~~~~
 
-- M. Zhang (@mingjunzhang2019)
+- M\. Zhang (@mingjunzhang2019)

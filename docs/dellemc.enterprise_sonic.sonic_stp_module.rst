@@ -1579,4 +1579,4 @@ Status
 Authors
 ~~~~~~~
 
-- S. Talabi (@stalabi1)
+- S\. Talabi (@stalabi1)

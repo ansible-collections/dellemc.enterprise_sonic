@@ -1054,4 +1054,4 @@ Status
 Authors
 ~~~~~~~
 
-- S. Talabi (@stalabi1), Xiao Han (@Xiao_Han2)
+- S\. Talabi (@stalabi1), Xiao Han (@Xiao_Han2)
