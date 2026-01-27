@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# © Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.
+# © Copyright 2026 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -13,20 +13,16 @@ created
 from __future__ import absolute_import, division, print_function
 __metaclass__ = type
 
+
+import re
+import traceback
+from copy import deepcopy
 try:
     from urllib import quote
 except ImportError:
     from urllib.parse import quote
-
-"""
-The use of natsort causes sanity error due to it is not available in python version currently used.
-When natsort becomes available, the code here and below using it will be applied.
-from natsort import (
-    natsorted,
-    ns
-)
-"""
-from copy import deepcopy
+from ansible.module_utils._text import to_native
+from ansible.module_utils.connection import ConnectionError
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.cfg.base import (
     ConfigBase,
 )
@@ -55,10 +51,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     get_new_config,
     get_formatted_config_diff
 )
-from ansible.module_utils._text import to_native
-from ansible.module_utils.connection import ConnectionError
-import re
-import traceback
 
 LIB_IMP_ERR = None
 ERR_MSG = None
@@ -78,56 +70,26 @@ eth_conf_url = "/openconfig-if-ethernet:ethernet/config"
 
 port_num_regex = re.compile(r'[\d]{1,4}$')
 loopback_attribute = ('description', 'enabled')
+subintf_attribute = ('description', 'mtu', 'enabled', 'encapsulation')
 non_eth_attribute = ('description', 'mtu', 'enabled')
 eth_attribute = ('description', 'mtu', 'enabled', 'auto_negotiate', 'speed', 'fec', 'advertised_speed', 'unreliable_los', 'autoneg_mode')
 
+subintf_attributes_default_value = {
+    "enabled": True
+}
 non_eth_attributes_default_value = {
-    "description": '',
     "mtu": 9100,
     "enabled": True
 }
 eth_attributes_default_value = {
-    "description": '',
     "mtu": 9100,
     "enabled": False,
     "auto_negotiate": False,
     "fec": 'FEC_DISABLED',
-    "advertised_speed": [],
-    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO",
-    "autoneg_mode": "AUTONEG_MODE_BAM"
+    "unreliable_los": "UNRELIABLE_LOS_MODE_AUTO"
 }
 default_intf_speeds = {}
 port_group_interfaces = None
-
-
-def __derive_interface_config_delete_op(key_set, command, exist_conf):
-    new_conf = exist_conf
-    intf_name = command['name']
-
-    for attr in eth_attribute:
-        if attr in command:
-            if attr == "speed":
-                new_conf[attr] = default_intf_speeds[intf_name]
-            elif attr == "advertised_speed":
-                if new_conf[attr] is not None:
-                    new_conf[attr] = list(set(new_conf[attr]).difference(command[attr]))
-                    if new_conf[attr] == []:
-                        new_conf[attr] = None
-            elif attr == "auto_negotiate":
-                new_conf[attr] = False
-                if new_conf.get('advertised_speed') is not None:
-                    new_conf['advertised_speed'] = None
-            else:
-                attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
-                    else non_eth_attributes_default_value
-                new_conf[attr] = attributes_default_value[attr]
-
-    return True, new_conf
-
-
-TEST_KEYS_formatted_diff = [
-    {'config': {'name': '', '__delete_op': __derive_interface_config_delete_op}},
-]
 
 
 class Interfaces(ConfigBase):
@@ -167,43 +129,32 @@ class Interfaces(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
+        warnings = []
 
         existing_interfaces_facts = self.get_interfaces_facts()
         commands, requests = self.set_config(existing_interfaces_facts, warnings)
-        if commands and len(requests) > 0:
+        if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_interfaces_facts = self.get_interfaces_facts()
-
         result['before'] = existing_interfaces_facts
-        if result['changed']:
-            result['after'] = changed_interfaces_facts
-
-        new_config = changed_interfaces_facts
         old_config = existing_interfaces_facts
-        if self._module.check_mode:
-            result.pop('after', None)
-            new_config = get_new_config(commands, existing_interfaces_facts,
-                                        TEST_KEYS_formatted_diff)
-            # See the above comment about natsort module
-            # new_config = natsorted(new_config, key=lambda x: x['name'])
-            # For time-being, use simple "sort"
-            new_config.sort(key=lambda x: x['name'])
-            result['after_generated'] = new_config
-            old_config.sort(key=lambda x: x['name'])
 
+        if self._module.check_mode:
+            new_config = self.get_new_config(commands, existing_interfaces_facts)
+            result['after_generated'] = new_config
+        else:
+            new_config = self.get_interfaces_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
-            result['diff'] = get_formatted_config_diff(old_config,
-                                                       new_config,
-                                                       self._module._verbosity)
-        result['warnings'] = warnings
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
+
         return result
 
     def set_config(self, existing_interfaces_facts, warnings):
@@ -214,7 +165,7 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        want = self._module.params['config']
+        want = remove_empties_from_list(self._module.params['config'])
         have = existing_interfaces_facts
         self.filter_out_mgmt_interface(want, have)
 
@@ -238,17 +189,33 @@ class Interfaces(ConfigBase):
             for cmd in new_want:
                 intf = next((cfg for cfg in new_have if cfg['name'] == cmd['name']), None)
                 state = self._module.params['state']
+
+                # Validate subinterface configuration
+                cmd_keys_set = set(cmd.keys())
+                diff_set = cmd_keys_set.difference(subintf_attribute).discard('name')
+                subintf = self.get_subintf(cmd['name'])
+
+                if subintf:
+                    if subintf[1] == 0:
+                        self._module.fail_json(msg="Configuration of subinterface 0 is not supported.")
+                    if diff_set:
+                        self._module.fail_json(msg=f"Subinterface {cmd['name']} only supports the configuration "
+                                               "of description, enabled, encapsulation, and mtu attributes.")
+                elif cmd.get('encapsulation'):
+                    self._module.fail_json(msg=f"Interface {cmd['name']} does not support the configuration of "
+                                           "encapsulation. Configuration of encapsulation is only supported for subinterfaces.")
+
                 if cmd.get('advertised_speed'):
                     cmd['advertised_speed'].sort()
 
                 # Eth/VLAN/PortChannel
-                if intf is None and not cmd['name'].startswith('Loopback'):
-                    self._module.fail_json(msg='Interface {0} not found'.format(cmd['name']))
+                if intf is None and not cmd['name'].startswith('Loopback') and not subintf:
+                    self._module.fail_json(msg=f"Interface {cmd['name']} not found")
 
                 if cmd['name'].startswith('Loopback'):
                     for attr in set(eth_attribute).difference(loopback_attribute):
                         cmd.pop(attr, None)
-                elif not cmd['name'].startswith('Eth'):
+                elif not cmd['name'].startswith('Eth') and not subintf:
                     for attr in set(eth_attribute).difference(non_eth_attribute):
                         cmd.pop(attr, None)
 
@@ -291,7 +258,7 @@ class Interfaces(ConfigBase):
         elif state == 'deleted':
             commands, requests = self._state_deleted(want, have)
         elif state == 'merged':
-            commands, requests = self._state_merged(want, have, diff)
+            commands, requests = self._state_merged(have, diff)
         elif state == 'replaced':
             commands, requests = self._state_replaced(want, have)
 
@@ -307,8 +274,6 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
         commands, requests = self.get_replaced_overridden_config(want, have, "replaced")
 
         return commands, requests
@@ -322,14 +287,11 @@ class Interfaces(ConfigBase):
         :returns: the commands necessary to migrate the current configuration
                   to the desired configuration
         """
-        commands = []
-        requests = []
-
         commands, requests = self.get_replaced_overridden_config(want, have, "overridden")
 
         return commands, requests
 
-    def _state_merged(self, want, have, diff):
+    def _state_merged(self, have, diff):
         """ The command generator when state is merged
 
         :param want: the additive configuration as a dictionary
@@ -405,8 +367,14 @@ class Interfaces(ConfigBase):
             name = conf['name']
             have_conf = next((cfg for cfg in have if cfg['name'] == name), {})
 
+            # Create subinterface if it doesn't exist
+            subintf = self.get_subintf(name)
+            if subintf:
+                attribute = subintf_attribute
+                if not have_conf:
+                    requests.append(self.build_create_subinterface_request(subintf[0], subintf[1]))
             # Create Loopback incase if not available in have
-            if name.startswith('Loopback'):
+            elif name.startswith('Loopback'):
                 attribute = loopback_attribute
                 if not have_conf:
                     loopback_create_request = build_interfaces_create_request(name)
@@ -423,6 +391,43 @@ class Interfaces(ConfigBase):
                         requests.append(attr_request)
         return requests
 
+    @staticmethod
+    def get_subintf(intf_name):
+        """This method returns the base interface and subinterface number if applicable"""
+        subinterface_pattern = r"^([a-zA-Z0-9/\-]+)\.(\d+)$"
+        match = re.match(subinterface_pattern, intf_name)
+        if match:
+            base_interface = match.group(1)
+            subinterface_id = int(match.group(2))
+            return base_interface, subinterface_id
+        return []
+
+    def build_create_subinterface_request(self, base_intf, subintf_id, c_attr=None, attr=None):
+        """This method builds the subinterface request for modifcation"""
+        subintf_url = (url + '/subinterfaces') % quote(base_intf, safe='')
+        payload = {}
+
+        if not attr:
+            payload = {'openconfig-interfaces:subinterfaces': {'subinterface': [{'index': subintf_id, 'config': {'index': subintf_id}}]}}
+        if attr:
+            subintf_url += f'/subinterface={subintf_id}/'
+
+            if attr in ('description', 'enabled', 'mtu'):
+                subintf_url += 'config/'
+                if attr == 'mtu':
+                    subintf_url += 'openconfig-interfaces-ext:mtu'
+                    payload = {'openconfig-interfaces-ext:mtu': c_attr}
+                else:
+                    subintf_url += attr
+                    payload = {f'openconfig-interfaces:{attr}': c_attr}
+
+            if attr == 'encapsulation':
+                subintf_url += 'openconfig-vlan:vlan/config/vlan-id'
+                vlan_id = c_attr.get('vlan_id')
+                payload = {'openconfig-vlan:vlan-id': vlan_id}
+
+        return {'path': subintf_url, 'method': PATCH, 'data': payload}
+
     def build_create_request(self, c_attr, h_attr, intf_name, attr):
         attributes_payload = {
             "speed": 'port-speed',
@@ -437,6 +442,11 @@ class Interfaces(ConfigBase):
         payload = {'openconfig-if-ethernet:config': {}}
         payload_attr = attributes_payload.get(attr, attr)
         method = PATCH
+        subintf = self.get_subintf(intf_name)
+
+        # Handle attribute configuration for a subinterface
+        if subintf:
+            return self.build_create_subinterface_request(subintf[0], subintf[1], c_attr, attr)
 
         if attr in ('description', 'mtu', 'enabled'):
             config_url = (url + '/config') % quote(intf_name, safe='')
@@ -444,31 +454,32 @@ class Interfaces(ConfigBase):
             payload['openconfig-interfaces:config'][payload_attr] = c_attr
             return {"path": config_url, "method": method, "data": payload}
 
-        elif attr in ('fec'):
+        if attr in ('fec'):
             payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-platform-types:' + c_attr
             return {"path": config_url, "method": method, "data": payload}
-        elif attr in ('autoneg_mode'):
+
+        if attr in ('autoneg_mode'):
             payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet-ext2:' + c_attr
             return {"path": config_url, "method": method, "data": payload}
-        else:
-            payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
-            if attr == 'speed':
-                port_group_info = retrieve_port_group_info(self._module, intf_name)
-                if port_group_info.get('port_group_id'):
-                    port_group_id = port_group_info['port_group_id']
-                    valid_speeds = port_group_info['valid_speeds']
-                    self._module.fail_json(msg=("Please use the sonic_port_group module to change the speed. "
-                                                "Interface {} is in port-group ID {pg_id}. The valid speeds "
-                                                "for port-group ID {pg_id} are {}.").format(intf_name, valid_speeds, pg_id=port_group_id))
-                payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
-            if attr == 'advertised_speed':
-                c_ads = c_attr if c_attr else []
-                h_ads = h_attr if h_attr else []
-                new_ads = list(set(h_ads).union(c_ads))
-                if new_ads:
-                    payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
 
-            return {"path": config_url, "method": method, "data": payload}
+        payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
+        if attr == 'speed':
+            port_group_info = retrieve_port_group_info(self._module, intf_name)
+            if port_group_info.get('port_group_id'):
+                port_group_id = port_group_info['port_group_id']
+                valid_speeds = port_group_info['valid_speeds']
+                self._module.fail_json(msg=("Please use the sonic_port_group module to change the speed. "
+                                            f"Interface {intf_name} is in port-group ID {port_group_id}. The valid speeds "
+                                            f"for port-group ID {port_group_id} are {valid_speeds}."))
+            payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
+        if attr == 'advertised_speed':
+            c_ads = c_attr if c_attr else []
+            h_ads = h_attr if h_attr else []
+            new_ads = list(set(h_ads).union(c_ads))
+            if new_ads:
+                payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
+
+        return {"path": config_url, "method": method, "data": payload}
 
     def handle_delete_interface_config(self, commands, have, delete_all=False):
         if not commands:
@@ -478,15 +489,22 @@ class Interfaces(ConfigBase):
         # Create URL and payload
         for conf in commands:
             name = conf['name']
+            subintf = self.get_subintf(name)
             have_conf = next((cfg for cfg in have if cfg['name'] == name), None)
             if have_conf:
                 lp_key_set = set(conf.keys())
-                if name.startswith('Loopback'):
-                    if delete_all or len(lp_key_set) == 1:
-                        method = DELETE
+                if delete_all or len(lp_key_set) == 1:
+                    if name.startswith('Loopback'):
                         lpbk_url = url % quote(name, safe='')
                         request = {"path": lpbk_url, "method": DELETE}
                         requests.append(request)
+
+                        commands_del.append({'name': name})
+                        continue
+
+                    if subintf:
+                        subintf_url = (url + f'/subinterfaces/subinterface={subintf[1]}') % quote(subintf[0], safe='')
+                        requests.append({'path': subintf_url, 'method': DELETE})
 
                         commands_del.append({'name': name})
                         continue
@@ -495,7 +513,12 @@ class Interfaces(ConfigBase):
                     conf = deepcopy(have_conf)
 
                 del_cmd = {'name': name}
-                attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
+                if subintf:
+                    attribute = subintf_attribute
+                elif name.startswith('Eth'):
+                    attribute = eth_attribute
+                else:
+                    attribute = non_eth_attribute
 
                 for attr in attribute:
                     if attr in conf:
@@ -513,23 +536,28 @@ class Interfaces(ConfigBase):
                             else:
                                 del_cmd.update({attr: h_attr})
                                 requests.append(self.build_delete_request(c_attr, h_attr, name, attr))
-            if requests:
-                commands_del.append(del_cmd)
+                if requests:
+                    commands_del.append(del_cmd)
 
         return commands_del, requests
 
     def get_replaced_overridden_config(self, want, have, cur_state):
         commands, requests = [], []
-
         commands_add, commands_del = [], []
         requests_add, requests_del = [], []
 
-        delete_all = False
         for conf in want:
             name = conf['name']
             intf = next((e_intf for e_intf in have if name == e_intf['name']), {})
-            create_loopback = False
-            if name.startswith('Loopback'):
+            subintf = self.get_subintf(name)
+            create_loopback, create_subintf = False, False
+
+            if subintf:
+                attribute = subintf_attribute
+                if not intf:
+                    create_subintf = True
+                    requests.append(self.build_create_subinterface_request(subintf[0], subintf[1]))
+            elif name.startswith('Loopback'):
                 attribute = loopback_attribute
                 if not intf:
                     create_loopback = True
@@ -561,7 +589,7 @@ class Interfaces(ConfigBase):
                         del_conf[attr] = delete_ads
                         requests_del.append(self.build_delete_request(delete_ads, h_attr, name, attr))
 
-            if add_conf or create_loopback:
+            if add_conf or create_loopback or create_subintf:
                 add_conf['name'] = name
                 commands_add.append(add_conf)
 
@@ -575,12 +603,17 @@ class Interfaces(ConfigBase):
                 in_want = next((conf for conf in want if conf['name'] == name), None)
                 if not in_want:
                     del_conf = {}
-                    delete_loopback = False
+                    delete_loopback, delete_subintf = False, False
+                    subintf = self.get_subintf(name)
 
                     if name.startswith('Loopback'):
                         delete_loopback = True
                         lpbk_url = url % quote(name, safe='')
                         requests_del.append({'path': lpbk_url, "method": DELETE})
+                    elif subintf:
+                        delete_subintf = True
+                        subintf_url = (url + f'/subinterfaces/subinterface={subintf[1]}') % quote(subintf[0], safe='')
+                        requests_del.append({'path': subintf_url, 'method': DELETE})
                     else:
                         attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
                         for attr in attribute:
@@ -589,7 +622,7 @@ class Interfaces(ConfigBase):
                                 del_conf[attr] = h_attr
                                 requests_del.append(self.build_delete_request([], h_attr, name, attr))
 
-                    if del_conf or delete_loopback:
+                    if del_conf or delete_loopback or delete_subintf:
                         del_conf['name'] = name
                         commands_del.append(del_conf)
 
@@ -602,6 +635,26 @@ class Interfaces(ConfigBase):
             requests.extend(requests_add)
 
         return commands, requests
+
+    def build_delete_subinterface_request(self, base_intf, subintf_id, attr):
+        """This method builds the subinterface request for deletion"""
+        subintf_url = (url + f'/subinterfaces/subinterface={subintf_id}/') % quote(base_intf, safe='')
+
+        if attr in ('description', 'enabled', 'mtu'):
+            subintf_url += 'config/'
+            if attr == 'description':
+                subintf_url += attr
+            if attr == 'mtu':
+                subintf_url += 'openconfig-interfaces-ext:mtu'
+            elif attr == 'enabled':
+                subintf_url += attr
+                payload = {f'openconfig-interfaces:{attr}': True}
+                return {'path': subintf_url, 'method': PATCH, 'data': payload}
+
+        if attr == 'encapsulation':
+            subintf_url += 'openconfig-vlan:vlan/config/vlan-id'
+
+        return {'path': subintf_url, 'method': DELETE}
 
     def build_delete_request(self, c_attr, h_attr, intf_name, attr):
         method = DELETE
@@ -617,13 +670,18 @@ class Interfaces(ConfigBase):
         config_url = (url + eth_conf_url) % quote(intf_name, safe='')
         payload = {'openconfig-if-ethernet:config': {}}
         payload_attr = attributes_payload.get(attr, attr)
+        subintf = self.get_subintf(intf_name)
+
+        # Handle attribute deletion for a subinterface
+        if subintf:
+            return self.build_delete_subinterface_request(subintf[0], subintf[1], attr)
 
         if attr in ('description', 'mtu'):
             attr_url = "/config/" + payload_attr
             config_url = (url + attr_url) % quote(intf_name, safe='')
             return {"path": config_url, "method": method}
 
-        elif attr in ('enabled'):
+        if attr in ('enabled'):
             attr_url = "/config/" + payload_attr
             config_url = (url + attr_url) % quote(intf_name, safe='')
             attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
@@ -632,41 +690,43 @@ class Interfaces(ConfigBase):
             ena_payload[attr] = attributes_default_value[attr]
             return {"path": config_url, "method": PATCH, "data": ena_payload}
 
-        elif attr in ('fec'):
+        if attr in ('fec'):
             payload_attr = attributes_payload[attr]
             payload['openconfig-if-ethernet:config'][payload_attr] = 'FEC_DISABLED'
             return {"path": config_url, "method": PATCH, "data": payload}
 
-        elif attr in ('unreliable_los'):
+        if attr in ('unreliable_los'):
             payload_attr = attributes_payload[attr]
             payload['openconfig-if-ethernet:config'][payload_attr] = 'UNRELIABLE_LOS_MODE_AUTO'
             return {"path": config_url, "method": PATCH, "data": payload}
-        elif attr in ('autoneg_mode'):
+
+        if attr in ('autoneg_mode'):
             payload_attr = attributes_payload[attr]
             config_url = config_url + "/" + payload_attr
             return {"path": config_url, "method": method}
-        else:
-            payload_attr = attributes_payload[attr]
-            if attr == 'auto_negotiate':
-                # For auto-negotiate, we assign value to False since deleting the attribute will become None if deleted
-                # In case, if auto-negotiate is disabled, both speed and advertised_speed will have default value.
-                payload['openconfig-if-ethernet:config'][payload_attr] = False
+
+        payload_attr = attributes_payload[attr]
+        if attr == 'auto_negotiate':
+            # For auto-negotiate, we assign value to False since deleting the attribute will become None if deleted
+            # In case, if auto-negotiate is disabled, both speed and advertised_speed will have default value.
+            payload['openconfig-if-ethernet:config'][payload_attr] = False
+            return {"path": config_url, "method": PATCH, "data": payload}
+
+        if attr == 'speed':
+            attr_url = eth_conf_url + "/" + attributes_payload[attr]
+            del_config_url = (url + attr_url) % quote(intf_name, safe='')
+            return {"path": del_config_url, "method": method}
+
+        if attr == 'advertised_speed':
+            new_ads = list(set(h_attr).difference(c_attr))
+            if new_ads:
+                payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
                 return {"path": config_url, "method": PATCH, "data": payload}
 
-            if attr == 'speed':
-                attr_url = eth_conf_url + "/" + attributes_payload[attr]
-                del_config_url = (url + attr_url) % quote(intf_name, safe='')
-                return {"path": del_config_url, "method": method}
+            attr_url = eth_conf_url + "/" + attributes_payload[attr]
+            del_config_url = (url + attr_url) % quote(intf_name, safe='')
+            return {"path": del_config_url, "method": method}
 
-            if attr == 'advertised_speed':
-                new_ads = list(set(h_attr).difference(c_attr))
-                if new_ads:
-                    payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
-                    return {"path": config_url, "method": PATCH, "data": payload}
-                else:
-                    attr_url = eth_conf_url + "/" + attributes_payload[attr]
-                    del_config_url = (url + attr_url) % quote(intf_name, safe='')
-                    return {"path": del_config_url, "method": method}
         return {}
 
     # Utils
@@ -677,10 +737,13 @@ class Interfaces(ConfigBase):
                 # Incase if the port belongs to port-group, we can not able to delete the speed
                 default_val = h_attr
             return default_val
+        if self.get_subintf(intf_name) or intf_name.startswith('Loopback'):
+            attributes_default_value = subintf_attributes_default_value
+        elif intf_name.startswith('Eth'):
+            attributes_default_value = eth_attributes_default_value
         else:
-            attributes_default_value = eth_attributes_default_value if intf_name.startswith('Eth') \
-                else non_eth_attributes_default_value
-            return attributes_default_value[attr]
+            attributes_default_value = non_eth_attributes_default_value
+        return attributes_default_value.get(attr)
 
     def filter_out_mgmt_interface(self, want, have):
         if want:
@@ -703,3 +766,75 @@ class Interfaces(ConfigBase):
         if default_intf_speeds.get(intf_name) is None:
             default_intf_speeds[intf_name] = retrieve_default_intf_speed(self._module, intf_name)
         return default_intf_speeds[intf_name]
+
+    def post_process_generated_config(self, config):
+        """Handle post processing for generated configuration"""
+        for intf in config:
+            intf_name = intf['name']
+            subintf = self.get_subintf(intf_name)
+
+            if subintf or intf_name.startswith('Loopback'):
+                attributes_default_value = subintf_attributes_default_value
+            elif intf_name.startswith('Eth'):
+                attributes_default_value = eth_attributes_default_value
+            else:
+                attributes_default_value = non_eth_attributes_default_value
+
+            for attr in attributes_default_value:
+                if attr not in intf:
+                    intf[attr] = attributes_default_value[attr]
+
+        return config
+
+    def __derive_interface_config_delete_op(self, key_set, command, exist_conf):
+        """Returns new interface configuration for delete operation"""
+        new_conf = exist_conf
+        intf_name = command['name']
+        subintf = self.get_subintf(intf_name)
+
+        if len(command) == 1 and (subintf or intf_name.startswith('Loopback')):
+            return True, []
+        for attr in command:
+            if attr == 'name':
+                continue
+            if attr == "speed":
+                new_conf[attr] = default_intf_speeds[intf_name]
+            elif attr == "advertised_speed":
+                if new_conf.get("advertised_speed") is not None:
+                    new_conf[attr] = list(set(new_conf[attr]).difference(command[attr]))
+                    if not new_conf[attr]:
+                        new_conf.pop(attr)
+            elif attr == "auto_negotiate":
+                new_conf[attr] = False
+                if new_conf.get('advertised_speed') is not None:
+                    new_conf.pop('advertised_speed')
+            else:
+                if subintf or intf_name.startswith('Loopback'):
+                    attributes_default_value = subintf_attributes_default_value
+                elif intf_name.startswith('Eth'):
+                    attributes_default_value = eth_attributes_default_value
+                else:
+                    attributes_default_value = non_eth_attributes_default_value
+                if attributes_default_value.get(attr) is not None:
+                    new_conf[attr] = attributes_default_value.get(attr)
+                else:
+                    new_conf.pop(attr, None)
+
+        return True, new_conf
+
+    @staticmethod
+    def interface_sort_key(item):
+        """Splits interface name for numeric comparison"""
+        name = item.get("name", "")
+        return [int(c) if c.isdigit() else c.lower() for c in re.split(r'(\d+)', name)]
+
+    def get_new_config(self, commands, have):
+        """Returns generated configuration based on commands and
+            existing configuration"""
+        key_set = [
+            {'config': {'name': '', '__delete_op': self.__derive_interface_config_delete_op}}
+        ]
+        new_config = self.post_process_generated_config(get_new_config(commands, have, key_set))
+        new_config.sort(key=self.interface_sort_key)
+
+        return new_config
