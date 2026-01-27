@@ -143,34 +143,7 @@ Version compatibility
 > **NOTE**: Community SONiC versions that include the Management Framework container should work as well, however, this collection has not been tested nor validated 
         with community versions and is not supported.
 
-Installation of Ansible 2.11+
------------------------------
-##### Dependencies for Ansible Enterprise SONiC collection
-
-      pip3 install paramiko>=2.7
-      pip3 install jinja2>=2.8
-      pip3 install ansible-core
-
-Installation of Ansible 2.10+
------------------------------
-##### Dependencies for Ansible Enterprise SONiC collection
-
-      pip3 install paramiko>=2.7
-      pip3 install jinja2>=2.8
-      pip3 install ansible-base
-      
-      
-Installation of Ansible 2.9
----------------------------
-##### Dependencies for Ansible Enterprise SONiC collection
-
-      pip3 install paramiko>=2.7
-      pip3 install jinja2>=2.8
-      pip3 install ansible
-      
 ##### Setting Environment Variables
-
-To use the Enterprise SONiC collection in Ansible 2.9, it is required to add one of the two available environment variables.
 
 Option 1: Add the environment variable while running the playbook.
 
@@ -311,6 +284,13 @@ Sample playbooks
     sonic_sw1
     sonic_sw2
 
+Support
+-------
+
+Support is provided for all of the collection modules for Ansible version 2.17 or higher.
+
+To submit a support request for this collection, open a [GitHub issue](https://github.com/ansible-collections/dellemc.enterprise_sonic/issues) under the collection repository.
+
 Releasing, Versioning and Deprecation
 -------------------------------------
 
@@ -341,4 +321,10 @@ Communication
 
 For more information about communication, see the [Ansible communication guide](https://docs.ansible.com/ansible/devel/community/communication.html).
 
-(c) 2020-2021 Dell Inc. or its subsidiaries. All Rights Reserved.
+License Information
+-------------------
+
+This collection is published under the [GNU General Public License](https://github.com/ansible-collections/dellemc.enterprise_sonic/blob/main/LICENSE).
+
+
+© Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved.

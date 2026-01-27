@@ -4,6 +4,22 @@ Dellemc.Enterprise\_Sonic Release Notes
 
 .. contents:: Topics
 
+v4.1.0
+======
+
+Release Summary
+---------------
+
+| Release Date: 2026-01-27
+|
+| This release provides an Ansible compliance change required on top of the changes included in
+| the 4.0.0 release of the enterprise_sonic Ansible network resource module collection.
+| It also provides accompanying documentation changes in the README file. Additional details are
+| described below.
+|
+| 1) Resolve Python 3.7 sanity test error.
+| 2) Update the README file to align with Ansible Certified Collections guidelines.
+
 v4.0.0
 ======
 
@@ -40,7 +56,6 @@ Bugfixes
 --------
 
 - ansible-core_219_compatibility - Modify the required Netcommon version and UT module param setting method for ansible-core 2.19 compatibility (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/600).
-- sonic_vxlans - Fix VXLAN config/facts handling; moving deprecated uri EVPN_NVO to current one VXLAN_EVPN_NVO (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/598).
 - sonic_bgp_af - Fix check mode behavior (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/613).
 - sonic_lag_interfaces - Fix graceful_shutdown not disabled for existing lag interfaces (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/617).
 - sonic_qos_buffer - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
@@ -49,6 +64,7 @@ Bugfixes
 - sonic_qos_scheduler - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
 - sonic_qos_wred - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
 - sonic_roce - Fix check mode and refactor module code (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+- sonic_vxlans - Fix VXLAN config/facts handling; moving deprecated uri EVPN_NVO to current one VXLAN_EVPN_NVO (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/598).
 - sonic_vxlans - Fix check mode handling (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/611).
 
 New Modules
