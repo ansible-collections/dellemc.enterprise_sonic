@@ -53,7 +53,7 @@ options:
       encapsulation:
         description:
           - Configure encapsulation for subinterface.
-        version_added: '4.1.0'
+        version_added: '4.2.0'
         type: dict
         suboptions:
           vlan_id:
