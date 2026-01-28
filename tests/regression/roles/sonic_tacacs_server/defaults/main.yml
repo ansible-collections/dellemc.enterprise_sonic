@@ -6,7 +6,7 @@ preparations_tests:
     - name: delete_all
       description: Configure tacacs server
       state: deleted
-      input:
+      input: {}
 
 sonic_tacacs_server_tests:
   - name: test_case_01
@@ -152,4 +152,4 @@ sonic_tacacs_server_tests:
   - name: test_case_09
     description: Delete all the configurations of tacacs server
     state: deleted
-    input:
+    input: {}
