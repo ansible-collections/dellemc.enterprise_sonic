@@ -45,7 +45,7 @@ delete_all = False
 default_config = {
     "publickey_authentication": True,
     "ciphers": "aes128-ctr,aes192-ctr,aes256-ctr,chacha20-poly1305@openssh.com,aes128-gcm@openssh.com,aes256-gcm@openssh.com",
-    "hostkeyalgorithms": "rsa-sha2-256,rsa-sha2-512,ssh-rsa",
+    "hostkeyalgorithms": "ecdsa,rsa-sha2-256,rsa-sha2-512,ssh-rsa",
     "kexalgorithms": ("curve25519-sha256,curve25519-sha256@libssh.org,ecdh-sha2-nistp256,ecdh-sha2-nistp384,"
                       "ecdh-sha2-nistp521,diffie-hellman-group-exchange-sha256,diffie-hellman-group16-sha512,"
                       "diffie-hellman-group18-sha512,diffie-hellman-group14-sha256"),
