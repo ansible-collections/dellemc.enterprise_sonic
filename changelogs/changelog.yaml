@@ -547,7 +547,7 @@ releases:
           sonic_vxlans - Add unit tests for VxLans resource module
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/215).
       release_summary: >
-        | Release Date: 2023-0515
+        | Release Date: 2023-05-15
 
         | This release provides enhanced Dell Enterprise SONiC Ansible
         Collection support for SONiC 4.x images.
@@ -934,7 +934,7 @@ releases:
           playbook_dir
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/283).
       release_summary: >
-        | Release Date: 2024-0103
+        | Release Date: 2024-01-03
 
         | This release provides the functionality enhancements listed below,
         along with fixes for
@@ -1030,7 +1030,7 @@ releases:
           the oldest supported version
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/321).
       release_summary: >
-        | Release Date: 2024-0108
+        | Release Date: 2024-01-08
 
         | This release provides an Ansible compliance change required on top of
         the changes included in
@@ -1294,7 +1294,7 @@ releases:
           sonic_vxlans - Add support for the "external_ip" vxlan option
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/330).
       release_summary: >
-        | Release Date: 2024-0812
+        | Release Date: 2024-08-12
 
         |
 
@@ -1833,7 +1833,7 @@ releases:
           VLAN
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/533).
       release_summary: >
-        | Release Date: 2025-1009
+        | Release Date: 2025-10-09
 
         |
 
@@ -2038,10 +2038,6 @@ releases:
           and UT module param setting method for ansible-core 2.19 compatibility
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/600).
         - >-
-          sonic_vxlans - Fix VXLAN config/facts handling; moving deprecated uri
-          EVPN_NVO to current one VXLAN_EVPN_NVO
-          (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/598).
-        - >-
           sonic_bgp_af - Fix check mode behavior
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/613).
         - >-
@@ -2066,6 +2062,10 @@ releases:
         - >-
           sonic_roce - Fix check mode and refactor module code
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/602).
+        - >-
+          sonic_vxlans - Fix VXLAN config/facts handling; moving deprecated uri
+          EVPN_NVO to current one VXLAN_EVPN_NVO
+          (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/598).
         - >-
           sonic_vxlans - Fix check mode handling
           (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/611).
@@ -2142,3 +2142,30 @@ releases:
         name: sonic_mfa
         namespace: ''
     release_date: '2026-01-22'
+  4.1.0:
+    changes:
+      release_summary: >
+        | Release Date: 2026-01-27
+
+        |
+
+        | This release provides an Ansible compliance change required on top of
+        the changes included in
+
+        | the 4.0.0 release of the enterprise_sonic Ansible network resource
+        module collection.
+
+        | It also provides accompanying documentation changes in the README
+        file. Additional details are
+
+        | described below.
+
+        |
+
+        | 1) Resolve Python 3.7 sanity test error.
+
+        | 2) Update the README file to align with Ansible Certified Collections
+        guidelines.
+    fragments:
+      - v_4.1.0_summary.yaml
+    release_date: '2026-01-27'
