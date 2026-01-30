@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2025 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2026 Dell Inc. or its subsidiaries. All Rights Reserved.
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -36,7 +36,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     edit_config
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.formatted_diff_utils import (
-    __DELETE_CONFIG_IF_NO_SUBCONFIG,
     get_new_config,
     get_formatted_config_diff
 )
@@ -46,8 +45,23 @@ from ansible.module_utils.connection import ConnectionError
 TEST_KEYS = [
     {'config': {'vlan_id': ''}},
 ]
-TEST_KEYS_formatted_diff = [
-    {'config': {'vlan_id': '', '__delete_op': __DELETE_CONFIG_IF_NO_SUBCONFIG}},
+
+
+def __derive_config_delete_op(key_set, command, exist_conf):
+    """Returns new VLAN configuration for delete operation"""
+    if len(command) == 1:
+        return True, []
+    else:
+        new_conf = exist_conf
+        if command.get('description'):
+            new_conf.pop('description')
+        if command.get('autostate') is False:
+            new_conf['autostate'] = True
+        return True, new_conf
+
+
+test_keys_generate_config = [
+    {'config': {'vlan_id': '', '__delete_op': __derive_config_delete_op}},
 ]
 
 
@@ -87,40 +101,35 @@ class Vlans(ConfigBase):
         :returns: The result from module execution
         """
         result = {'changed': False}
-        warnings = list()
-
         existing_vlans_facts = self.get_vlans_facts()
         commands, requests = self.set_config(existing_vlans_facts)
-        if commands:
+
+        if commands and requests:
             if not self._module.check_mode:
                 try:
                     edit_config(self._module, to_request(self._module, requests))
                 except ConnectionError as exc:
                     self._module.fail_json(msg=str(exc), code=exc.code)
             result['changed'] = True
+
         result['commands'] = commands
-
-        changed_vlans_facts = self.get_vlans_facts()
-
         result['before'] = existing_vlans_facts
-        if result['changed']:
-            result['after'] = changed_vlans_facts
+        old_config = existing_vlans_facts
 
-        new_config = changed_vlans_facts
         if self._module.check_mode:
-            result.pop('after')
-            new_config = get_new_config(commands, existing_vlans_facts,
-                                        TEST_KEYS_formatted_diff)
-            # This is for diff/check mode
+            new_config = get_new_config(commands, existing_vlans_facts, test_keys_generate_config)
             new_config = self.deal_with_default_entries(new_config)
             new_config.sort(key=lambda x: x['vlan_id'])
             result['after_generated'] = new_config
-
+        else:
+            new_config = self.get_vlans_facts()
+            if result['changed']:
+                result['after'] = new_config
         if self._module._diff:
-            result['diff'] = get_formatted_config_diff(existing_vlans_facts,
-                                                       new_config,
-                                                       self._module._verbosity)
-        result['warnings'] = warnings
+            new_config.sort(key=lambda x: x['vlan_id'])
+            old_config.sort(key=lambda x: x['vlan_id'])
+            result['diff'] = get_formatted_config_diff(old_config, new_config, self._module._verbosity)
+
         return result
 
     def set_config(self, existing_vlans_facts):
