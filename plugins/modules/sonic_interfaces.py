@@ -16,108 +16,122 @@ DOCUMENTATION = """
 module: sonic_interfaces
 version_added: 1.0.0
 notes:
-- Tested against Enterprise SONiC Distribution by Dell Technologies.
-- Supports C(check_mode).
-short_description: Configure Interface attributes on interfaces such as, Eth, LAG, VLAN, and loopback.
-                   (create a loopback interface if it does not exist.)
-description: Configure Interface attributes such as, MTU, admin statu, and so on, on interfaces
-             such as, Eth, LAG, VLAN, and loopback. (create a loopback interface if it does not exist.)
+  - Tested against Enterprise SONiC Distribution by Dell Technologies.
+  - Supports C(check_mode).
+short_description: Manage interface configuration on SONiC
+description:
+  - This module provides configuration management of interfaces such as Eth, LAG,
+    VLAN, and loopback. (Create a loopback interface if it does not exist.)
 author: Niraimadaiselvam M(@niraimadaiselvamm)
 options:
   config:
-    description: A list of interface configurations.
+    description:
+      - A list of interface configurations.
     type: list
     elements: dict
     suboptions:
       name:
+        description:
+          - The name of the interface, for example, 'Eth1/15'.
+          - Specify a subinterface using '.', for example, 'Eth1/15.1' or 'Ethernet4.3'.
+          - Configuration of subinterface 0 is not supported.
         type: str
-        description: The name of the interface, for example, 'Eth1/15'.
         required: true
       description:
-        type: str
         description:
-        - Description about the interface.
+          - Description about the interface.
+        type: str
       enabled:
         description:
-        - Administrative state of the interface.
+          - Administrative state of the interface.
         type: bool
       mtu:
         description:
-        - MTU of the interface.
-        - Not applicable for Loopback interfaces.
+          - MTU of the interface, range 1312-9216
+          - Not applicable for Loopback interfaces.
         type: int
+      encapsulation:
+        description:
+          - Configure encapsulation for subinterface.
+        version_added: '4.2.0'
+        type: dict
+        suboptions:
+          vlan_id:
+            description:
+              - VLAN identifier, range 1-4094
+            type: int
       speed:
         description:
-        - Interface speed.
-        - Applicable only for Ethernet interfaces.
-        - Supported speeds are dependent on the type of switch.
+          - Interface speed.
+          - Applicable only for Ethernet interfaces.
+          - Supported speeds are dependent on the type of switch.
         type: str
         choices:
-        - SPEED_10MB
-        - SPEED_100MB
-        - SPEED_1GB
-        - SPEED_2500MB
-        - SPEED_5GB
-        - SPEED_10GB
-        - SPEED_20GB
-        - SPEED_25GB
-        - SPEED_40GB
-        - SPEED_50GB
-        - SPEED_100GB
-        - SPEED_200GB
-        - SPEED_400GB
-        - SPEED_800GB
+          - SPEED_10MB
+          - SPEED_100MB
+          - SPEED_1GB
+          - SPEED_2500MB
+          - SPEED_5GB
+          - SPEED_10GB
+          - SPEED_20GB
+          - SPEED_25GB
+          - SPEED_40GB
+          - SPEED_50GB
+          - SPEED_100GB
+          - SPEED_200GB
+          - SPEED_400GB
+          - SPEED_800GB
       auto_negotiate:
         description:
-        - auto-negotiate transmission parameters with peer interface.
-        - Applicable only for Ethernet interfaces.
+          - auto-negotiate transmission parameters with peer interface.
+          - Applicable only for Ethernet interfaces.
         type: bool
       advertised_speed:
         description:
-        - Advertised speeds of the interface.
-        - Applicable only for Ethernet interfaces.
-        - Supported speeds are dependent on the type of switch.
-        - Speeds may be 10, 100, 1000, 2500, 5000, 10000, 20000, 25000, 40000, 50000, 100000, 400000 or 800000.
+          - Advertised speeds of the interface.
+          - Applicable only for Ethernet interfaces.
+          - Supported speeds are dependent on the type of switch.
+          - Speeds may be 10, 100, 1000, 2500, 5000, 10000, 20000, 25000, 40000, 50000, 100000, 400000 or 800000.
         type: list
         elements: str
       fec:
         description:
-        - Interface FEC (Forward Error Correction).
-        - Applicable only for Ethernet interfaces.
+          - Interface FEC (Forward Error Correction).
+          - Applicable only for Ethernet interfaces.
         type: str
         choices:
-        - FEC_RS
-        - FEC_FC
-        - FEC_DISABLED
-        - FEC_DEFAULT
-        - FEC_AUTO
+          - FEC_RS
+          - FEC_FC
+          - FEC_DISABLED
+          - FEC_DEFAULT
+          - FEC_AUTO
       unreliable_los:
         description: Monitoring type to be used for generating a loss of service alarm.
         type: str
         choices:
-        - UNRELIABLE_LOS_MODE_ON
-        - UNRELIABLE_LOS_MODE_OFF
-        - UNRELIABLE_LOS_MODE_AUTO
+          - UNRELIABLE_LOS_MODE_ON
+          - UNRELIABLE_LOS_MODE_OFF
+          - UNRELIABLE_LOS_MODE_AUTO
       autoneg_mode:
         description:
-        - BAM/MSA configuration for autonegotiation
-        - Applicable only for Ethernet interfaces.
-        - auto_negotiate should be set to true to configure autoneg_mode
-        - with auto_negotiate set to true , autoneg_mode defaults to BAM
+          - BAM/MSA configuration for autonegotiation
+          - Applicable only for Ethernet interfaces.
+          - auto_negotiate should be set to true to configure autoneg_mode
+          - with auto_negotiate set to true , autoneg_mode defaults to BAM
         version_added: '4.0.0'
         type: str
         choices:
-        - AUTONEG_MODE_BAM
-        - AUTONEG_MODE_MSA
+          - AUTONEG_MODE_BAM
+          - AUTONEG_MODE_MSA
   state:
     description:
-    - The state the configuration should be left in.
+      - The state the configuration should be left in.
     type: str
     choices:
-    - merged
-    - replaced
-    - overridden
-    - deleted
+      - merged
+      - replaced
+      - overridden
+      - deleted
     default: merged
 """
 
@@ -133,26 +147,29 @@ EXAMPLES = """
 # ------------------------------------------------------------------------------------------
 # Ethernet0           -                   up                              100000       9100
 # Ethernet4           -                   up                              100000       9100
-# Ethernet8           Ethernet-8          down                            100000       9100
-# Ethernet12          Ethernet-12         down                on          -            5000
+# Ethernet8           Ethernet-8          down                on          -            9100
+# Ethernet12          Ethernet-12         down                            100000       5000
 # Ethernet16          -                   down                            40000        9100
 #
 # show running-configuration interface Ethernet 8
 # !
 # interface Ethernet8
+#  description Ethernet8
 #  mtu 9100
-#  speed 100000
-#  fec AUTO
-#  shutdown
-#
+#  speed auto MSA
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+
 - name: Configure interfaces
   sonic_interfaces:
     config:
       - name: Ethernet8
+        autoneg_mode: AUTONEG_MODE_MSA
       - name: Ethernet12
       - name: Ethernet16
     state: deleted
-#
+
 # After state:
 # -------------
 #
@@ -162,17 +179,21 @@ EXAMPLES = """
 # ------------------------------------------------------------------------------------------
 # Ethernet0           -                   up                              100000       9100
 # Ethernet4           -                   up                              100000       9100
-# Ethernet8           -                   up                              100000       9100
+# Ethernet8           Ethernet-8          down                on          -            9100
 # Ethernet12          -                   up                              100000       9100
 # Ethernet16          -                   up                              100000       9100
 #
 # show running-configuration interface Ethernet 8
 # !
 # interface Ethernet8
+#  description Ethernet8
 #  mtu 9100
-#  speed 100000
-#  shutdown
-#
+#  speed auto
+#  fec RS
+#  unreliable-los auto
+#  no shutdown
+
+
 # Using "deleted" state
 #
 # Before state:
@@ -187,13 +208,13 @@ EXAMPLES = """
 # Ethernet8           -                   down                            100000       9100
 # Ethernet12          -                   down                            1000         9100
 # Ethernet16          -                   down                            100000       9100
-#
+
 - name: Configure interfaces
   sonic_interfaces:
     config:
 
     state: deleted
-#
+
 # After state:
 # -------------
 #
@@ -206,9 +227,8 @@ EXAMPLES = """
 # Ethernet8           -                   up                              100000       9100
 # Ethernet12          -                   up                              100000       9100
 # Ethernet16          -                   up                              100000       9100
-#
-#
-#
+
+
 # Using "merged" state
 #
 # Before state:
@@ -231,10 +251,20 @@ EXAMPLES = """
 #  speed 100000
 #  shutdown
 #
+# sonic# show running-configuration subinterface Ethernet 5.3
+# (No subinterface Ethernet 5.3 configuration present)
+
 - name: Configure interfaces
   sonic_interfaces:
     config:
+      - name: Ethernet 5.3
+        description: 'Subinterace 5.3'
+        enabled: true
+        mtu: 2000
+        encapsulation:
+          vlan_id: 10
       - name: Ethernet8
+        autoneg_mode: AUTONEG_MODE_MSA
         fec: FEC_AUTO
       - name: Ethernet12
         description: 'Ethernet Twelve'
@@ -245,7 +275,7 @@ EXAMPLES = """
         mtu: 3500
         speed: SPEED_40GB
     state: merged
-#
+
 # After state:
 # ------------
 #
@@ -255,7 +285,7 @@ EXAMPLES = """
 # ------------------------------------------------------------------------------------------
 # Ethernet0           -                   up                              100000       9100
 # Ethernet4           -                   up                              100000       9100
-# Ethernet8           -                   down                            100000       9100
+# Ethernet8           -                   down                on          -            9100
 # Ethernet12          Ethernet Twelve     down                on          100000       9100
 # Ethernet16          Ethernet Sixteen    up                              40000        3500
 #
@@ -263,10 +293,19 @@ EXAMPLES = """
 # !
 # interface Ethernet8
 #  mtu 9100
-#  speed 100000
+#  speed auto MSA
 #  fec AUTO
 #  shutdown
 #
+# sonic# show running-configuration subinterface Ethernet 5.3
+# !
+# interface Ethernet5.3
+#  encapsulation dot1q vlan-id 10
+#  mtu 2000
+#  description "Subinterface 5.3"
+#  no shutdown
+
+
 # Using "overridden" state
 #
 # Before state:
@@ -288,7 +327,7 @@ EXAMPLES = """
 #  mtu 9100
 #  speed 100000
 #  shutdown
-#
+
 - name: Configure interfaces
   sonic_interfaces:
     config:
@@ -305,7 +344,7 @@ EXAMPLES = """
         enabled: false
         speed: SPEED_40GB
     state: overridden
-#
+
 # After state:
 # ------------
 #
@@ -326,7 +365,8 @@ EXAMPLES = """
 #  speed 100000
 #  fec AUTO
 #  no shutdown
-#
+
+
 # Using "replaced" state
 #
 # Before state:
@@ -348,7 +388,7 @@ EXAMPLES = """
 #  mtu 9100
 #  speed auto 40000
 #  shutdown
-#
+
 - name: Configure interfaces
   sonic_interfaces:
     config:
@@ -367,7 +407,7 @@ EXAMPLES = """
         enabled: false
         speed: SPEED_40GB
     state: replaced
-#
+
 # After state:
 # ------------
 #
@@ -388,340 +428,6 @@ EXAMPLES = """
 #  speed auto 100000
 #  fec AUTO
 #  shutdown
-#
-# Using "deleted" state for MSA/BAM config
-#
-# Before state:
-# -------------
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-# Ethernet8           Ethernet8                     down        no-transceiver   on        -              9100           Eth1/2
-# Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description Ethernet8
-#  mtu 9100
-#  speed auto MSA
-#  fec RS
-#  unreliable-los auto
-#  no shutdown
-#
-- name: Configure interfaces
-  sonic_interfaces:
-    config:
-      - name: Ethernet32
-        autoneg_mode: AUTONEG_MODE_MSA
-    state: deleted
-#
-# After State :
-# -------------
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-# Ethernet8           Ethernet8                     down        no-transceiver   on        -              9100           Eth1/2
-# Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description Ethernet8
-#  mtu 9100
-#  speed auto
-#  fec RS
-#  unreliable-los auto
-#  no shutdown
-#
-# Using "merged" state for MSA/BAM config
-#
-# Before state:
-# -------------
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-# Ethernet8           Ethernet8                     down        no-transceiver   on        -              9100           Eth1/2
-# Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description Ethernet8
-#  mtu 9100
-#  speed auto
-#  fec RS
-#  unreliable-los auto
-#  no shutdown
-#
-- name: Configure interfaces
-  sonic_interfaces:
-    config:
-      - name: Ethernet32
-        autoneg_mode: AUTONEG_MODE_MSA
-    state: merged
-#
-# After state:
-# -------------
-#
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-# Ethernet8           Ethernet8                     down        no-transceiver   on        -              9100           Eth1/2
-# Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description Ethernet8
-#  mtu 9100
-#  speed auto MSA
-#  fec RS
-#  unreliable-los auto
-#  no shutdown
-#
-# Using "replaced" state for MSA/BAM config
-#
-# Before state:
-# -------------
-#
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-# Ethernet8           Ethernet8                     down        admin-down       on        -              9100           Eth1/2
-# Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description Ethernet8
-#  mtu 9100
-#  speed auto MSA
-#  fec RS
-#  unreliable-los auto
-#  shutdown
-#
-- name: configure interface
-  sonic_interfaces:
-    config:
-      - name: Ethernet8
-        description: 'Ethernet eight'
-    state: replaced
-#
-# After state:
-# -------------
-#
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-# Ethernet8           Ethernet eight                down        admin-down       off       800000         9100           Eth1/2
-# Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description "Ethernet eight"
-#  mtu 9100
-#  speed 800000
-#  fec RS
-#  unreliable-los auto
-#  shutdown
-#
-# Using "replaced" state for MSA/BAM config
-#
-# Before state:
-# -------------
-#
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-# Ethernet8           Ethernet8                     down        admin-down       off       800000         9100           Eth1/2
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description Ethernet8
-#  mtu 9100
-#  speed 800000
-#  fec AUTO
-#  unreliable-los auto
-#  shutdown
-#
-- name: configure interface
-  sonic_interfaces:
-    config:
-      - name: Ethernet8
-        auto_negotiate: true
-        autoneg_mode: AUTONEG_MODE_MSA
-    state: replaced
-#
-# After state:
-# -------------
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        no-transceiver   off       800000         9100           Eth1/1
-# Ethernet8           -                             down        admin-down       on        -              9100           Eth1/2
-# Ethernet16          -                             down        no-transceiver   off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  mtu 9100
-#  speed auto MSA
-#  fec RS
-#  unreliable-los auto
-#  shutdown
-#
-# Using "overridden" state for MSA/BAM config
-#
-# Before state:
-# -------------
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        admin-down       on        -              5432           Eth1/1
-# Ethernet8           Ethernet8                     down        no-transceiver   on        -              4532           Eth1/2
-# Ethernet16          -                             down        admin-down       off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 0
-# !
-# interface Ethernet0
-#  description Ethernet0
-#  mtu 5432
-#  speed auto MSA
-#  fec RS
-#  unreliable-los auto
-#  shutdown
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description Ethernet8
-#  mtu 4532
-#  speed auto MSA
-#  fec RS
-#  unreliable-los auto
-#  no shutdown
-#
-- name: configure interface
-  dellemc.enterprise_sonic.sonic_interfaces:
-    config:
-      - name: Ethernet8
-        description: 'Ethernet eight'
-    state: overridden
-#
-# After state:
-# -------------
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           -                             down        admin-down       off       800000         9100           Eth1/1
-# Ethernet8           Ethernet eight                down        admin-down       off       800000         9100           Eth1/2
-# Ethernet16          -                             down        admin-down       off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 0
-# !
-# interface Ethernet0
-#  mtu 9100
-#  speed 800000
-#  fec RS
-#  unreliable-los auto
-#  shutdown
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description "Ethernet eight"
-#  mtu 9100
-#  speed 800000
-#  fec RS
-#  unreliable-los auto
-#  shutdown
-# sonic#
-#
-# Using "overridden" state for MSA/BAM config
-#
-# Before state:
-# -------------
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           Ethernet0                     down        admin-down       off       400000         5432           Eth1/1
-# Ethernet8           Ethernet eight                down        no-transceiver   off       800000         4352           Eth1/2
-# Ethernet16          -                             down        admin-down       off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 0
-# !
-# interface Ethernet0
-#  description Ethernet0
-#  mtu 5432
-#  speed 400000
-#  fec RS
-#  unreliable-los auto
-#  shutdown
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  description "Ethernet eight"
-#  mtu 4352
-#  speed 800000
-#  fec RS
-#  unreliable-los auto
-#  no shutdown
-- name: configure interface
-  sonic_interfaces:
-    config:
-      - name: Ethernet8
-        auto_negotiate: true
-        autoneg_mode: AUTONEG_MODE_MSA
-    state: overridden
-#
-# After state:
-# -------------
-# show interface status
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Name                Description                   Oper        Reason         AutoNeg   Speed          MTU            Alternate Name
-# --------------------------------------------------------------------------------------------------------------------------------------
-# Ethernet0           -                             down        admin-down       off       800000         9100           Eth1/1
-# Ethernet8           -                             down        admin-down       on        -              9100           Eth1/2
-# Ethernet16          -                             down        admin-down       off       800000         9100           Eth1/3
-#
-# show running-configuration interface Ethernet 0
-# !
-# interface Ethernet0
-#  mtu 9100
-#  speed 800000
-#  fec RS
-#  unreliable-los auto
-#  shutdown
-#
-# show running-configuration interface Ethernet 8
-# !
-# interface Ethernet8
-#  mtu 9100
-#  speed auto MSA
-#  fec RS
-#  unreliable-los auto
-#  shutdown
 """
 
 RETURN = """
@@ -730,15 +436,22 @@ before:
   returned: always
   type: list
   sample: >
-    The configuration returned is always in the same format
+    The configuration returned will always be in the same format
     as the parameters above.
 after:
   description: The resulting configuration module invocation.
   returned: when changed
   type: list
   sample: >
-    The configuration returned is always in the same format
+    The configuration returned will always be in the same format
     as the parameters above.
+after_generated:
+  description: The generated configuration module invocation.
+  returned: when C(check_mode)
+  type: list
+  sample: >
+    The configuration returned will always be in the same format
+     as the parameters above.
 commands:
   description: The set of commands pushed to the remote device.
   returned: always
