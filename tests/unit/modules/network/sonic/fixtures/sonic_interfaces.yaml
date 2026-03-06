@@ -7,6 +7,8 @@ merged_01:
         enabled: false
         mtu: 1600
         autoneg_mode: AUTONEG_MODE_MSA
+      - name: Eth1/2
+        speed: "SPEED_1GB"
       - name: Loopback1
         description: "Test Desc for Loopback1"
         enabled: false
@@ -29,6 +31,13 @@ merged_01:
                     auto-negotiate: false
                     openconfig-if-ethernet-ext2:port-fec: "openconfig-platform-types:FEC_DISABLED"
                     port-speed: "openconfig-if-ethernet:SPEED_25GB"
+              - name: 'Eth1/2'
+                config:
+                  mtu: 1500
+                openconfig-if-ethernet:ethernet:
+                  config:
+                    auto-negotiate: true
+                    port-speed: "openconfig-if-ethernet:SPEED_10GB"
     - path: "data/openconfig-port-group:port-groups"
       response:
         code: 200
@@ -38,6 +47,12 @@ merged_01:
               - state:
                   member-if-end: "Eth1/4"
                   member-if-start: "Eth1/1"
+    - path: "data/sonic-port:sonic-port/PORT/PORT_LIST=Eth1%2F2/valid_speeds"
+      response:
+        code: 200
+        value:
+          sonic-port:valid_speeds: "10000,1000"
+
   expected_config_requests:
     - path: "data/openconfig-interfaces:interfaces"
       method: "patch"
@@ -77,6 +92,11 @@ merged_01:
       data:
         openconfig-if-ethernet:config:
           openconfig-if-ethernet-ext2:autoneg-mode: "openconfig-if-ethernet-ext2:AUTONEG_MODE_MSA"
+    - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F2/openconfig-if-ethernet:ethernet/config"
+      method: "patch"
+      data:
+        openconfig-if-ethernet:config:
+          port-speed: "openconfig-if-ethernet:SPEED_1GB"
 
 merged_02:
   module_args:
