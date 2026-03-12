@@ -45,7 +45,6 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     retrieve_default_intf_speed,
     retrieve_port_group_info,
     retrieve_valid_intf_speed,
-    intf_speed_to_number_map,
     intf_speed_map
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
@@ -458,16 +457,16 @@ class Interfaces(ConfigBase):
             if attr == 'speed':
                 port_group_info = retrieve_port_group_info(self._module, intf_name)
                 if port_group_info.get('port_group_id'):
+                    port_group_id = port_group_info['port_group_id']
+                    valid_speeds = port_group_info['valid_speeds']
                     valid_intf_speeds = retrieve_valid_intf_speed(self._module, intf_name, if_port_group=True)
-                    if intf_speed_to_number_map.get(c_attr) not in valid_intf_speeds:
-                        port_group_id = port_group_info['port_group_id']
-                        valid_speeds = port_group_info['valid_speeds']
+                    if (len(valid_intf_speeds) <= 1) or (c_attr in valid_speeds and h_attr in valid_speeds):
                         self._module.fail_json(
                             msg=(
                                 "Please use the sonic_port_group module to change the speed. "
                                 "Interface {} is in port-group ID {pg_id}. The valid speeds "
-                                "for port-group ID {pg_id} are {}.Valid speeds for this interface are {}."
-                            ).format(intf_name, valid_speeds, valid_intf_speeds, pg_id=port_group_id)
+                                "for port-group ID {pg_id} are {}."
+                            ).format(intf_name, valid_speeds, pg_id=port_group_id)
                         )
                 payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
             if attr == 'advertised_speed':
