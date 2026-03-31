@@ -255,19 +255,38 @@ class Ospfv2Facts(object):
         for redistribute in ospf_redistribute.get("distribute-list", []):
             redistribute_dict = {}
             config = redistribute.get("config")
+            protocol = redistribute.get("protocol", "")
+            
+            # Handle protocol from redistribute level first
+            if protocol:
+                if ":" in protocol:
+                    protocol_name = protocol.split(":")[1]
+                else:
+                    protocol_name = protocol
+                if protocol_name in protocol_map:
+                    redistribute_dict['protocol'] = protocol_map[protocol_name]
+            
+            # Then handle config section if it exists
             if config:
-                protocol = config.get("protocol").split(":")[1]
-                if protocol and protocol in protocol_map:
-                    map_protocol = protocol_map[protocol]
-                    if map_protocol == "default_route":
-                        self.update_dict(redistribute_dict, 'always', config.get("always"))
-                    self.update_dict(redistribute_dict, "metric", config.get("metric"))
-                    self.update_dict(redistribute_dict, "route_map", config.get("route-map"))
-                    self.update_dict(redistribute_dict, "metric_type", config.get("metric-type"))
-                    if "metric_type" in redistribute_dict:
-                        type_val = redistribute_dict['metric_type'].split(":")[1]
-                        redistribute_dict['metric_type'] = 1 if type_val == 'TYPE_1' else 2
-                    redistribute_dict['protocol'] = map_protocol
+                # Check if protocol is also in config (override if present)
+                config_protocol = config.get("protocol")
+                if config_protocol:
+                    if ":" in config_protocol:
+                        protocol_name = config_protocol.split(":")[1]
+                    else:
+                        protocol_name = config_protocol
+                    if protocol_name in protocol_map:
+                        map_protocol = protocol_map[protocol_name]
+                        redistribute_dict['protocol'] = map_protocol
+                        if map_protocol == "default_route":
+                            self.update_dict(redistribute_dict, 'always', config.get("always"))
+                        self.update_dict(redistribute_dict, "metric", config.get("metric"))
+                        self.update_dict(redistribute_dict, "route_map", config.get("route-map"))
+                        self.update_dict(redistribute_dict, "metric_type", config.get("metric-type"))
+                        if "metric_type" in redistribute_dict:
+                            type_val = redistribute_dict['metric_type'].split(":")[1]
+                            redistribute_dict['metric_type'] = 1 if type_val == 'TYPE_1' else 2
+            
             if redistribute_dict:
                 redistribute_list.append(redistribute_dict)
         self.update_dict(return_dict, 'redistribute', redistribute_list)

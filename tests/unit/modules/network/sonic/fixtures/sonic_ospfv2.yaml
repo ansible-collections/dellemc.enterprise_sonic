@@ -11,6 +11,9 @@ merged_01:
             metric: 15
             metric_type: 2
             route_map: rmap_reg1
+          - protocol: bgp
+          - protocol: connected
+            metric: 20
         graceful_restart:
           grace_period: 100
           helper:
@@ -88,6 +91,15 @@ merged_01:
                     metric: 15
                     'openconfig-ospfv2-ext:metric-type': TYPE_2
                     route-map: rmap_reg1
+                - protocol: BGP
+                  direction: IMPORT
+                  config:
+                    protocol: BGP
+                    direction: IMPORT
+                - protocol: DIRECTLY_CONNECTED
+                  direction: IMPORT
+                  config:
+                    metric: 20
     - path: >-
         /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2
       method: patch
@@ -177,6 +189,17 @@ merged_02:
                       direction: 'openconfig-ospfv2-ext:IMPORT'
                       metric-type: 'openconfig-ospfv2-ext:TYPE_2'
                       route-map: rmap_reg1
+                  - protocol: 'openconfig-ospfv2-ext:BGP'
+                    direction: 'openconfig-ospfv2-ext:IMPORT'
+                    config:
+                      protocol: 'openconfig-ospfv2-ext:BGP'
+                      direction: 'openconfig-ospfv2-ext:IMPORT'
+                  - protocol: 'openconfig-ospfv2-ext:DIRECTLY_CONNECTED'
+                    direction: 'openconfig-ospfv2-ext:IMPORT'
+                    config:
+                      metric: 20
+                      protocol: 'openconfig-ospfv2-ext:DIRECTLY_CONNECTED'
+                      direction: 'openconfig-ospfv2-ext:IMPORT'
     - path: >-
         /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2
       response:
@@ -269,6 +292,10 @@ merged_02:
 deleted_01:
   module_args:
     config:
+      - vrf_name: default
+        redistribute:
+          - protocol: bgp
+          - protocol: connected
       - vrf_name: VrfReg2
         router_id: 20.20.20.20
         passive_interfaces:
@@ -336,6 +363,17 @@ deleted_01:
                       direction: 'openconfig-ospfv2-ext:IMPORT'
                       metric-type: 'openconfig-ospfv2-ext:TYPE_2'
                       route-map: rmap_reg2
+                  - protocol: 'openconfig-ospfv2-ext:BGP'
+                    direction: 'openconfig-ospfv2-ext:IMPORT'
+                    config:
+                      protocol: 'openconfig-ospfv2-ext:BGP'
+                      direction: 'openconfig-ospfv2-ext:IMPORT'
+                  - protocol: 'openconfig-ospfv2-ext:DIRECTLY_CONNECTED'
+                    direction: 'openconfig-ospfv2-ext:IMPORT'
+                    config:
+                      metric: 20
+                      protocol: 'openconfig-ospfv2-ext:DIRECTLY_CONNECTED'
+                      direction: 'openconfig-ospfv2-ext:IMPORT'
     - path: >-
         /data/openconfig-network-instance:network-instances/network-instance=VrfReg2/protocols/protocol=OSPF,ospfv2/ospfv2
       response:
@@ -428,6 +466,12 @@ deleted_01:
                     maximum-delay: 50
                     'openconfig-ospfv2-ext:throttle-delay': 10
   expected_config_requests:
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2/global/openconfig-ospfv2-ext:route-distribution-policies/distribute-list=BGP,IMPORT
+      method: delete
+    - path: >-
+        /data/openconfig-network-instance:network-instances/network-instance=default/protocols/protocol=OSPF,ospfv2/ospfv2/global/openconfig-ospfv2-ext:route-distribution-policies/distribute-list=DIRECTLY_CONNECTED,IMPORT
+      method: delete
     - path: >-
         /data/openconfig-network-instance:network-instances/network-instance=VrfReg1/protocols/protocol=OSPF,ospfv2/ospfv2
       method: patch
