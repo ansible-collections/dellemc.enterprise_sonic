@@ -256,7 +256,7 @@ class Ospfv2Facts(object):
             redistribute_dict = {}
             config = redistribute.get("config")
             protocol = redistribute.get("protocol", "")
-            
+
             # Handle protocol from redistribute level first
             if protocol:
                 if ":" in protocol:
@@ -265,7 +265,7 @@ class Ospfv2Facts(object):
                     protocol_name = protocol
                 if protocol_name in protocol_map:
                     redistribute_dict['protocol'] = protocol_map[protocol_name]
-            
+
             # Then handle config section if it exists
             if config:
                 # Check if protocol is also in config (override if present)
@@ -286,7 +286,7 @@ class Ospfv2Facts(object):
                         if "metric_type" in redistribute_dict:
                             type_val = redistribute_dict['metric_type'].split(":")[1]
                             redistribute_dict['metric_type'] = 1 if type_val == 'TYPE_1' else 2
-            
+
             if redistribute_dict:
                 redistribute_list.append(redistribute_dict)
         self.update_dict(return_dict, 'redistribute', redistribute_list)
