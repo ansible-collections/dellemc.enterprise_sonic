@@ -29,6 +29,9 @@ sonic_ospfv2_tests:
           - protocol: "default_route"
             always: true
             metric: 10
+          - protocol: "connected"
+            metric: 5
+          - protocol: "bgp"
         graceful_restart:
           grace_period: 100
           helper:
@@ -116,6 +119,9 @@ sonic_ospfv2_tests:
             route_map: "rmap_reg2"
           - protocol: "default_route"
             always: true
+          - protocol: "connected"
+            metric: 5
+          - protocol: "bgp"
   - name: test_case_del_02
     description: Delete entire OSPFv2 configuration for Vrf1 and Vrf2
     state: deleted
