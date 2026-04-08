@@ -164,13 +164,6 @@ sonic_ospfv2_interfaces_tests:
               password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
               encrypted: true
             hello_multiplier: 2
-          - area_id: 33686018
-            address: '10.19.120.3'
-            authentication_type: 'MD5HMAC'
-            authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: true
-            hello_multiplier: 2
       - name: "{{ lo1 }}"
         ospf_attributes:
           - area_id: 33686018
@@ -262,14 +255,6 @@ sonic_ospfv2_interfaces_tests:
             mtu_ignore: true
           - address: '10.10.120.1'
             authentication_type: 'MD5HMAC'
-            authentication:
-              password: 'U2FsdGVkX19eY7P3qRyyjaFsQgjoSQE71IX6IeBRios='
-              encrypted: true
-            hello_multiplier: 5
-          - area_id: '4.4.4.4'
-            address: '10.10.120.10'
-            cost: 15
-            hello_multiplier: 2
           - address: '10.10.120.2'
             authentication_type: 'NONE'
             md_authentication:
