@@ -372,7 +372,8 @@ class Mfa(ConfigBase):
         request = None
 
         rsa_global = commands.get('rsa_global')
-        if rsa_global and (security_profile := rsa_global.get('security_profile')):
+        if rsa_global and rsa_global.get('security_profile'):
+            security_profile = rsa_global['security_profile']
             payload = {'openconfig-mfa:rsa-global': {'config': {'rsa-security-profile': security_profile}}}
             request = {'path': f"{MFA_PATH}/rsa-global", 'method': PATCH, 'data': payload}
         return request

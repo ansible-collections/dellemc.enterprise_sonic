@@ -142,6 +142,37 @@ options:
               - Minimum number of special characters required
               - The range is from 0 to 31
             type: int
+      login_exec_timeout:
+        description:
+          -  CLI session timeout value.
+          -  The range is from 0 to 3600
+          -  Default is 600
+        version_added: 4.0.0
+        type: int
+      banner:
+        description:
+          - The set of banner attribute configurations
+        version_added: 4.0.0
+        type: dict
+        suboptions:
+          login:
+            description:
+              - Banner message to display before login.
+              - Format is 'c\\r\\n{banner text}\\r\\nc', where 'c' is a delimiting character
+            type: str
+          motd:
+            description:
+              - Banner message to display after login.
+              - Format is 'c\\r\\n{banner text}\\r\\nc', where 'c' is a delimiting character
+            type: str
+          login_banner_disable:
+            description:
+              -  Disable login banner.
+            type: bool
+          motd_banner_disable:
+            description:
+              -  Disable motd banner.
+            type: bool
   state:
     description:
       - Specifies the operation to be performed on the system parameters configured on the device.
@@ -160,6 +191,13 @@ EXAMPLES = """
 # !
 # SONIC(config)#do show running-configuration
 # !
+# banner login @
+# banner - Welcome to DELL SONiC
+# @
+# banner motd @
+# banner - Enjoy the DELL OS
+# @
+# banner motd disable
 # ip anycast-mac-address aa:bb:cc:dd:ee:ff
 # ip anycast-address enable
 # ipv6 anycast-address enable
@@ -181,6 +219,9 @@ EXAMPLES = """
       adjust_txrx_clock_freq: true
       password_complexity:
         min_lower_case: 2
+      banner:
+        login: "@\r\nbanner_login_message\r\n@"
+        motd: "@\r\nbanner_motd_message\r\n@"
     state: deleted
 
 # After state:
@@ -241,6 +282,9 @@ EXAMPLES = """
       password_complexity:
         min_upper_case: 2
         min_spl_char: 2
+      banner:
+        login_banner_disable: true
+        motd: "@\r\nmotd_banner_message\r\n@"
     state: merged
 
 # After state:
@@ -248,6 +292,10 @@ EXAMPLES = """
 # !
 # SONIC(config)#do show running-configuration
 # !
+# banner motd @
+# motd_banner_message
+# @
+# banner login disable
 # hostname SONIC
 # ip anycast-mac-address aa:bb:cc:dd:ee:ff
 # ip anycast-address enable
@@ -266,6 +314,13 @@ EXAMPLES = """
 # !
 # sonic(config)#do show running-configuration
 # !
+# banner login @
+# banner_login_message
+# @
+# banner motd @
+# @
+# banner_motd_message
+# banner motd disable
 # ip anycast-mac-address aa:bb:cc:dd:ee:ff
 # ip anycast-address enable
 # ipv6 anycast-address enable
@@ -283,6 +338,8 @@ EXAMPLES = """
       concurrent_session_limit: 5
       password_complexity:
         min_lower_case: 2
+      banner:
+        login: "@\r\nlogin_banner_message\r\n@"
     state: replaced
 
 # After state:
@@ -290,6 +347,9 @@ EXAMPLES = """
 # !
 # SONIC(config)#do show running-configuration
 # !
+# banner login @
+# login_banner_message
+# @
 # hostname SONIC
 # ipv6 anycast-address enable
 # login concurrent-session limit 5
@@ -302,6 +362,9 @@ EXAMPLES = """
 # !
 # sonic(config)#do show running-configuration
 # !
+# banner login @
+# login_banner_message
+# @
 # ip anycast-mac-address aa:bb:cc:dd:ee:ff
 # interface-naming standard
 # login concurrent-session limit 5
@@ -338,6 +401,10 @@ EXAMPLES = """
 # !
 # sonic(config)#do show running-configuration
 # !
+# banner motd @
+# banner - Enjoy the DELL OS
+# @
+# banner login disable
 # ipv6 anycast-address enable
 # ip load-share hash algorithm JENKINS_HASH_HI
 # login concurrent-session limit 5
@@ -355,6 +422,11 @@ EXAMPLES = """
       concurrent_session_limit: 4
       password_complexity:
         min_upper_case: 1
+      banner:
+        motd_banner_disable: true
+        login: "@\r\nbanner_login_message\r\n@"
+        motd: "@\r\nbanner_motd_message\r\n@"
+        login_banner_disable: false
     state: overridden
 
 # After state:
@@ -362,6 +434,13 @@ EXAMPLES = """
 # !
 # SONIC(config)#do show running-configuration
 # !
+# banner login @
+# banner_login_message
+# @
+# banner motd @
+# banner_motd_message
+# @
+# banner motd disable
 # hostname SONIC
 # ip anycast-mac-address bb:aa:cc:dd:ee:ff
 # ip anycast-address enable
@@ -386,6 +465,7 @@ EXAMPLES = """
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
+      exec_timeout: 15
     state: merged
 
 # After state:
@@ -398,6 +478,7 @@ EXAMPLES = """
 # auto-breakout
 # ip load-share hash algorithm JENKINS_HASH_HI
 # auditd-system rules basic
+# login exec-timeout 15
 
 # Using "deleted" state
 #
@@ -411,6 +492,7 @@ EXAMPLES = """
 # auto-breakout
 # ip load-share hash algorithm JENKINS_HASH_HI
 # auditd-system rules basic
+# login exec-timeout 15
 
 - name: Delete auto-breakout configuration on the device
   dellemc.enterprise_sonic.sonic_system:
@@ -419,6 +501,7 @@ EXAMPLES = """
       auto_breakout: ENABLE
       load_share_hash_algo: JENKINS_HASH_HI
       audit_rules: BASIC
+      login_exec_timeout: 15
     state: deleted
 
 # After state:
