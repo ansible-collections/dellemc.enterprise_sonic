@@ -1,0 +1,3 @@
+---
+trivial:
+  - Fix action plugins sanity failure(https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/631).

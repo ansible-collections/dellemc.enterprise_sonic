@@ -524,6 +524,7 @@ class Ospfv2(ConfigBase):
                 protocol = PROTOCOL_MAP[redistribute_list['protocol']]
                 distribute_payload = {'protocol': protocol, 'direction': DIRECTION}
                 if len(redistribute_list) == 1:
+                    distribute_payload['config'] = {'protocol': protocol, 'direction': DIRECTION}
                     payload['global']['openconfig-ospfv2-ext:route-distribution-policies']['distribute-list'].append(distribute_payload)
                 else:
                     for item in redistribute_list:

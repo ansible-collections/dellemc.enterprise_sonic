@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - sonic_vlans - Fix check mode behavior (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/620).

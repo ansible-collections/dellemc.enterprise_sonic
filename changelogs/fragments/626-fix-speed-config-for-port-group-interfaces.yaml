@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - sonic_interfaces - Fix speed config for port-group interfaces (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/626).

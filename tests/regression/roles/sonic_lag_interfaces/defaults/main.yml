@@ -63,6 +63,8 @@ sonic_lag_interfaces_tests:
         members:
           interfaces:
             - member: "{{ interface7 }}"
+      - name: "{{ sonic_lag_interfaces_test_vars.lag5 }}"
+        graceful_shutdown: false
       - name: "{{ sonic_lag_interfaces_test_vars.lag6 }}"
         speed: 40000
         members:

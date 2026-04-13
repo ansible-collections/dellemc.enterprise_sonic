@@ -1,0 +1,7 @@
+---
+trivial:
+  - sonic_ecmp_load_share - Fix regression test failures (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/623).
+  - sonic_ip_neighbor_interfaces - Fix regression test failures (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/623).
+  - sonic_tacacs_server - Fix regression test failures (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/623).
+bugfixes:
+  - sonic_ssh_server - Fix default handling for hostkeyalgorithms (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/623).
