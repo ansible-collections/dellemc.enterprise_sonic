@@ -154,7 +154,7 @@ def retrieve_default_intf_speed(module, intf_name):
     return dft_intf_speed
 
 
-def retrieve_valid_intf_speed(module, intf_name):
+def retrieve_valid_intf_speed(module, intf_name, if_port_group=False):
     """
     Use the sonic-port module to get the list of valid speeds an interface can be assigned.
 
@@ -183,7 +183,7 @@ def retrieve_valid_intf_speed(module, intf_name):
         for vs in v_speeds_list:
             v_speeds_int_list.append(int(vs))
 
-    if v_speeds_int_list:
+    if v_speeds_int_list or if_port_group:
         return v_speeds_int_list
 
     return module.fail_json(msg="Unable to retrieve valid port speeds for the interface {0}".format(intf_name))

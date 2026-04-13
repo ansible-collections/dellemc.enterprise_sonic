@@ -22,9 +22,9 @@ sonic_ip_neighbor_interfaces_tests:
             mac: 1a:2b:3c:22:22:22
         ipv6_neighbors:
           - ip: 100::100
-            mac: 4d:5e:6f:10:10:10
+            mac: 4a:5e:6f:10:10:10
           - ip: 100::200
-            mac: 4d:5e:6f:20:20:20
+            mac: 4a:5e:6f:20:20:20
 
   - name: test_case_02
     description: Update interface neighbor configurations
@@ -33,21 +33,21 @@ sonic_ip_neighbor_interfaces_tests:
       - name: '{{ interface1 }}'
         ipv4_neighbors:
           - ip: 10.1.1.1
-            mac: a1:b2:c3:dd:dd:dd
+            mac: a0:b2:c3:dd:dd:dd
           - ip: 10.1.1.3
-            mac: a1:b2:c3:ee:ee:ee
+            mac: a0:b2:c3:ee:ee:ee
         ipv6_neighbors:
           - ip: 100::200
-            mac: dd:ee:ff:22:22:22
+            mac: aa:ee:ff:22:22:22
           - ip: 100::300
-            mac: dd:ee:ff:33:33:33
+            mac: aa:ee:ff:33:33:33
       - name: '{{ interface2 }}'
         ipv4_neighbors:
           - ip: 20.1.1.1
             mac: 2a:3b:4c:11:11:11
         ipv6_neighbors:
           - ip: 200::100
-            mac: 2d:3e:4f:10:10:10
+            mac: 2a:3e:4f:10:10:10
       - name: 'Portchannel 100'
         ipv4_neighbors:
           - ip: 30.1.1.1
@@ -57,9 +57,9 @@ sonic_ip_neighbor_interfaces_tests:
       - name: 'Vlan100'
         ipv6_neighbors:
           - ip: 400:400::100
-            mac: 5d:6e:7f:10:10:10
+            mac: 5a:6e:7f:10:10:10
           - ip: 400:400::200
-            mac: 5d:6e:7f:20:20:20
+            mac: 5a:6e:7f:20:20:20
 
   - name: test_case_03
     description: Replace interface neighbor configurations
@@ -73,28 +73,28 @@ sonic_ip_neighbor_interfaces_tests:
             mac: 6a:7b:8c:22:22:22
         ipv6_neighbors:
           - ip: 200::100
-            mac: 6d:7e:8f:10:10:10
+            mac: 6a:7e:8f:10:10:10
           - ip: 200::200
-            mac: 6d:7e:8f:20:20:20
+            mac: 6a:7e:8f:20:20:20
       - name: 'Portchannel100'
         ipv6_neighbors:
           - ip: 300:300::100
-            mac: 6d:7e:8f:31:31:31
+            mac: 6a:7e:8f:31:31:31
           - ip: 300:300::200
-            mac: 6d:7e:8f:32:32:32
+            mac: 6a:7e:8f:32:32:32
       - name: 'Portchannel 101'
         ipv4_neighbors:
           - ip: 31.1.1.1
             mac: 7a:8b:9c:31:31:31
         ipv6_neighbors:
           - ip: 301:301::100
-            mac: 7d:8e:9f:31:31:31
+            mac: 7a:8e:9f:31:31:31
       - name: 'Vlan100'
         ipv4_neighbors:
           - ip: 40.1.1.1
-            mac: 7d:8e:9f:10:10:10
+            mac: 7a:8e:9f:10:10:10
           - ip: 40.1.1.2
-            mac: 7d:8e:9f:20:20:20
+            mac: 7a:8e:9f:20:20:20
 
   - name: test_case_04
     description: Override interfaces neighbor configurations
@@ -114,9 +114,9 @@ sonic_ip_neighbor_interfaces_tests:
       - name: 'Vlan101'
         ipv4_neighbors:
           - ip: 50.1.1.1
-            mac: 7d:8e:9f:50:50:50
+            mac: 7a:8e:9f:50:50:50
           - ip: 51.1.1.1
-            mac: 7d:8e:9f:51:51:51
+            mac: 7a:8e:9f:51:51:51
 
   - name: test_case_05
     description: Update interface neighbor configurations for delete
@@ -137,9 +137,9 @@ sonic_ip_neighbor_interfaces_tests:
             mac: 2a:3b:4c:21:21:21
         ipv6_neighbors:
           - ip: 200::100
-            mac: 2d:3e:4f:20:20:20
+            mac: 2a:3e:4f:20:20:20
           - ip: 210::100
-            mac: 2d:3e:4f:21:21:21
+            mac: 2a:3e:4f:21:21:21
       - name: 'Portchannel 100'
         ipv4_neighbors:
           - ip: 30.1.1.1
@@ -155,9 +155,9 @@ sonic_ip_neighbor_interfaces_tests:
       - name: 'Vlan100'
         ipv6_neighbors:
           - ip: 400:400::100
-            mac: 5d:6e:7f:10:10:10
+            mac: 5a:6e:7f:10:10:10
           - ip: 400:400::200
-            mac: 5d:6e:7f:20:20:20
+            mac: 5a:6e:7f:20:20:20
 
   - name: test_case_06
     description: Delete specific IPv6 Router Advertisement configurations

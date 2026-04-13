@@ -40,6 +40,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
     build_interfaces_create_request,
     retrieve_default_intf_speed,
     retrieve_port_group_info,
+    retrieve_valid_intf_speed,
+    intf_speed_map
 )
 from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.sonic.utils.utils import (
     get_diff,
@@ -461,6 +463,29 @@ class Interfaces(ConfigBase):
         if attr in ('autoneg_mode'):
             payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet-ext2:' + c_attr
             return {"path": config_url, "method": method, "data": payload}
+        else:
+            payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
+            if attr == 'speed':
+                port_group_info = retrieve_port_group_info(self._module, intf_name)
+                if port_group_info.get('port_group_id'):
+                    port_group_id = port_group_info['port_group_id']
+                    valid_speeds = port_group_info['valid_speeds']
+                    valid_intf_speeds = retrieve_valid_intf_speed(self._module, intf_name, if_port_group=True)
+                    if (len(valid_intf_speeds) <= 1) or (c_attr in valid_speeds and h_attr in valid_speeds):
+                        self._module.fail_json(
+                            msg=(
+                                "Please use the sonic_port_group module to change the speed. "
+                                "Interface {} is in port-group ID {pg_id}. The valid speeds "
+                                "for port-group ID {pg_id} are {}."
+                            ).format(intf_name, valid_speeds, pg_id=port_group_id)
+                        )
+                payload['openconfig-if-ethernet:config'][payload_attr] = 'openconfig-if-ethernet:' + c_attr
+            if attr == 'advertised_speed':
+                c_ads = c_attr if c_attr else []
+                h_ads = h_attr if h_attr else []
+                new_ads = list(set(h_ads).union(c_ads))
+                if new_ads:
+                    payload['openconfig-if-ethernet:config'][payload_attr] = ','.join(new_ads)
 
         payload['openconfig-if-ethernet:config'][payload_attr] = c_attr
         if attr == 'speed':
@@ -761,6 +786,10 @@ class Interfaces(ConfigBase):
         port_group_info = retrieve_port_group_info(self._module, intf_name)
         # Check if interface is in a port-group
         if port_group_info.get('port_group_id'):
+            valid_intf_speeds = retrieve_valid_intf_speed(self._module, intf_name, if_port_group=True)
+            if valid_intf_speeds:
+                dft_intf_speed = max(valid_intf_speeds)
+                return intf_speed_map.get(dft_intf_speed, "SPEED_DEFAULT")
             return "SPEED_DEFAULT"
 
         if default_intf_speeds.get(intf_name) is None:

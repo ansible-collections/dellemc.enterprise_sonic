@@ -2,6 +2,7 @@
 ansible_connection: httpapi
 
 sonic_ecmp_load_share_tests:
+  # flow_based and hash_roce_qpn are supported on specific platforms
   - name: test_case_01
     description: Intial configuration of loadshare mode
     state: merged
@@ -22,8 +23,8 @@ sonic_ecmp_load_share_tests:
       hash_algorithm: CRC_32LO
       hash_offset:
         offset: 12
-        flow_based: true
-      hash_roce_qpn: true
+      # flow_based: true
+      # hash_roce_qpn: true
       hash_seed: 8888
       ipv4:
         ipv4_ip_proto: false
@@ -39,8 +40,8 @@ sonic_ecmp_load_share_tests:
       hash_ingress_port: true
       hash_offset:
         offset: 12
-        flow_based: true
-      hash_roce_qpn: true
+      # flow_based: true
+      # hash_roce_qpn: true
       hash_seed: 8888
       ipv4:
         ipv4_dst_ip: false
@@ -71,8 +72,8 @@ sonic_ecmp_load_share_tests:
       hash_ingress_port: true
       hash_offset:
         offset: 12
-        flow_based: true
-      hash_roce_qpn: true
+      # flow_based: true
+      # hash_roce_qpn: true
       hash_seed: 8888
       ipv4:
         ipv4_dst_ip: false
@@ -92,7 +93,7 @@ sonic_ecmp_load_share_tests:
     input:
       hash_algorithm: CRC_32HI
       hash_ingress_port: true
-      hash_roce_qpn: true
+      # hash_roce_qpn: true
       hash_seed: 8888
       ipv4:
         ipv4_l4_dst_port: false
