@@ -425,10 +425,15 @@ class Ospfv2_interfaces(ConfigBase):
                             for match_attr in match.get('ospf_attributes', []):
                                 match_address = match_attr.get('address')
                                 match_area_id = match_attr.get('area_id')
-                                if match_address and match_area_id :
-                                    if match_area_id != area_id or match_address != address:
-                                        path = ospf_path + OSPF_INT_ATTRIBUTES['ospf_attributes']['area_id'].format(address)
+                                if match_area_id:
+                                    if match_area_id != area_id:
+                                        delete_address = match_address if match_address else DEFAULT_ADDRESS
+                                        path = ospf_path + OSPF_INT_ATTRIBUTES['ospf_attributes']['area_id'].format(delete_address)
                                         requests.append({'path': path, 'method': DELETE})
+                                    else:
+                                        if match_address and match_address != address:
+                                            path = ospf_path + OSPF_INT_ATTRIBUTES['ospf_attributes']['area_id'].format(match_address)
+                                            requests.append({'path': path, 'method': DELETE})
                                     break
 
                         self.update_dict(ospf_list, ospf_attr_dict, 'area_id', 'area-id')
