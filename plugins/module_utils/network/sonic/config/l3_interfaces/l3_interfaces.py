@@ -1,6 +1,6 @@
 #
 # -*- coding: utf-8 -*-
-# Copyright 2023 Dell Inc. or its subsidiaries. All Rights Reserved
+# Copyright 2026 Dell Inc. or its subsidiaries. All Rights Reserved
 # GNU General Public License v3.0+
 # (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 """
@@ -38,6 +38,8 @@ from ansible_collections.dellemc.enterprise_sonic.plugins.module_utils.network.s
 )
 
 from ansible.module_utils.connection import ConnectionError
+
+import ipaddress
 
 try:
     from urllib.parse import quote
@@ -712,6 +714,7 @@ class L3_interfaces(ConfigBase):
                     updated_want.append(updated_conf)
 
         normalize_interface_name(updated_want, self._module)
+        self.normalize_ipv6_addresses(updated_want)
         return updated_want
 
     def get_l3_interface_path(self, intf_name):
@@ -867,6 +870,18 @@ class L3_interfaces(ConfigBase):
                             nd_proxy = cfg[option]['nd_proxy']
                             if isinstance(nd_proxy, dict) and nd_proxy.get('nd_proxy_rules'):
                                 nd_proxy['nd_proxy_rules'].sort()
+
+    @staticmethod
+    def normalize_ipv6_addresses(config):
+        """Normalize IPv6 addresses to their compressed canonical form"""
+        for conf in config:
+            if conf.get('ipv6') and isinstance(conf['ipv6'], dict) and conf['ipv6'].get('addresses'):
+                for addr in conf['ipv6']['addresses']:
+                    if addr.get('address'):
+                        try:
+                            addr['address'] = str(ipaddress.ip_interface(addr['address']))
+                        except ValueError:
+                            pass
 
     @staticmethod
     def is_mgmt_interface(intf_name):
