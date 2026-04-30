@@ -875,13 +875,19 @@ class L3_interfaces(ConfigBase):
     def normalize_ipv6_addresses(config):
         """Normalize IPv6 addresses to their compressed canonical form"""
         for conf in config:
-            if conf.get('ipv6') and isinstance(conf['ipv6'], dict) and conf['ipv6'].get('addresses'):
-                for addr in conf['ipv6']['addresses']:
-                    if addr.get('address'):
-                        try:
-                            addr['address'] = str(ipaddress.ip_interface(addr['address']))
-                        except ValueError:
-                            pass
+            if conf.get('ipv6') and isinstance(conf['ipv6'], dict):
+                if conf['ipv6'].get('addresses'):
+                    for addr in conf['ipv6']['addresses']:
+                        if addr.get('address'):
+                            try:
+                                addr['address'] = str(ipaddress.ip_interface(addr['address']))
+                            except ValueError:
+                                pass
+                if conf['ipv6'].get('anycast_addresses'):
+                    conf['ipv6']['anycast_addresses'] = [
+                        str(ipaddress.ip_interface(a)) if ':' in a else a
+                        for a in conf['ipv6']['anycast_addresses']
+                    ]
 
     @staticmethod
     def is_mgmt_interface(intf_name):
