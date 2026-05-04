@@ -1,4 +1,4 @@
-# (c) 2019 Red Hat Inc.
+# Copyright 2026 Dell Inc. or its subsidiaries. All Rights Reserved.
 #
 # This file is part of Ansible
 #
@@ -79,7 +79,8 @@ class HttpApi(HttpApiBase):
             try:
                 response = self.send_request(**req)
             except ConnectionError as exc:
-                if suppr_ntf_excp and req.get('method') == 'get' and re.search("[nN]ot [fF]ound.*code': 404", str(exc)):
+                method = req.get('method', '').upper()
+                if suppr_ntf_excp and method == 'GET' and re.search(r"not found.*code': 404", str(exc), re.IGNORECASE):
                     # 'code': 404, 'error-message': 'Resource not found'
                     response = [{}, {}]
                 else:
