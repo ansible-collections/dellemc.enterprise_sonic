@@ -85,7 +85,7 @@ EXAMPLES = """
 - name: Delete specific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
-      mac-holdtime: 1080
+      mac_holdtime: 1080
     state: deleted
 
 # After State:
@@ -134,8 +134,8 @@ EXAMPLES = """
 - name: Merge specific option from evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
-      startup-delay: 300
-      es-activation-delay: 3000
+      startup_delay: 300
+      es_activation_delay: 3000
     state: merged
 
 # After State:
@@ -164,8 +164,8 @@ EXAMPLES = """
 - name: Replace evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
-      neigh-holdtime: 200
-      df-election-time: 600
+      neigh_holdtime: 200
+      df_election_time: 600
     state: replaced
 
 # After State:
@@ -193,7 +193,7 @@ EXAMPLES = """
 - name: Override evpn_esi_multihome configuration
   sonic_evpn_esi_multihome:
     config:
-      startup-delay: 200
+      startup_delay: 200
       mac_holdtime: 500
     state: overridden
 
