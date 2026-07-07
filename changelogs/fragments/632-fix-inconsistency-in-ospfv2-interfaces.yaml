@@ -1,0 +1,3 @@
+---
+bugfixes:
+  - sonic_interfaces - Fix the inconsistency in Ospfv2_interfaces area configuration to allow one area-id per interface (https://github.com/ansible-collections/dellemc.enterprise_sonic/pull/632).
