@@ -40,10 +40,10 @@ options:
 import json
 import time
 import re
+from urllib.error import HTTPError
 
 from ansible.module_utils._text import to_text
 from ansible.module_utils.connection import ConnectionError
-from ansible.module_utils.six.moves.urllib.error import HTTPError
 from ansible.plugins.httpapi import HttpApiBase
 from ansible_collections.ansible.netcommon.plugins.module_utils.network.common.utils import to_list
 
