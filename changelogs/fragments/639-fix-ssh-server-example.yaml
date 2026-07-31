@@ -1,0 +1,2 @@
+bugfixes:
+  - sonic_ssh_server - correct the replaced-state example module, options, and server commands.
