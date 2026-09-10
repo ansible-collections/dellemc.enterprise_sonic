@@ -185,6 +185,75 @@ sonic_interfaces_tests:
         mtu: 5454
         enabled: true
 
+  # PortChannel auto-creation test cases (fix for issue #637)
+  # PortChannel100 does NOT exist before these tests (not pre-created in preparation).
+  # sonic_interfaces must create it via the openconfig-interfaces REST API (LACP by default).
+  - name: test_case_po_create_01
+    description: >
+      Create a new PortChannel (not pre-existing) and set its attributes using
+      sonic_interfaces. The module must issue the interface creation REST call
+      followed by attribute PATCH calls. Creates a LACP PortChannel by default.
+    state: merged
+    input:
+      - name: PortChannel100
+        description: "uplink"
+        mtu: 9216
+        enabled: true
+
+  - name: test_case_po_create_02
+    description: >
+      Idempotency check — re-apply the same PortChannel100 configuration.
+      No changes should be made (changed=false).
+    state: merged
+    input:
+      - name: PortChannel100
+        description: "uplink"
+        mtu: 9216
+        enabled: true
+
+  - name: test_case_po_create_03
+    description: Update PortChannel100 mtu and description (already exists from po_create_01)
+    state: merged
+    input:
+      - name: PortChannel100
+        description: "uplink updated"
+        mtu: 4096
+        enabled: true
+
+  - name: test_case_po_create_04
+    description: Delete PortChannel100 attributes (revert to defaults)
+    state: deleted
+    input:
+      - name: PortChannel100
+        description: "uplink updated"
+        mtu: 4096
+
+  - name: test_case_po_create_05
+    description: >
+      Replace state on a non-existent PortChannel — module must create it.
+    state: replaced
+    input:
+      - name: PortChannel100
+        description: "uplink replaced"
+        mtu: 8192
+        enabled: true
+
+  - name: test_case_po_create_06
+    description: Delete PortChannel100 to prepare for overridden test
+    state: deleted
+    input:
+      - name: PortChannel100
+
+  - name: test_case_po_create_07
+    description: >
+      Overridden state on a non-existent PortChannel — module must create it.
+    state: overridden
+    input:
+      - name: PortChannel100
+        description: "uplink overridden"
+        mtu: 9100
+        enabled: true
+
   - name: test_case_17
     description: Update interface description and mtu parameters
     state: merged

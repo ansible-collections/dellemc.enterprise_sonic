@@ -244,7 +244,7 @@ class Interfaces(ConfigBase):
                     cmd['advertised_speed'].sort()
 
                 # Eth/VLAN/PortChannel
-                if intf is None and not cmd['name'].startswith('Loopback'):
+                if intf is None and not cmd['name'].startswith(('Loopback', 'PortChannel')):
                     self._module.fail_json(msg='Interface {0} not found'.format(cmd['name']))
 
                 if cmd['name'].startswith('Loopback'):
@@ -407,13 +407,16 @@ class Interfaces(ConfigBase):
             name = conf['name']
             have_conf = next((cfg for cfg in have if cfg['name'] == name), {})
 
-            # Create Loopback incase if not available in have
+            # Create Loopback or PortChannel interface if not already present
             if name.startswith('Loopback'):
                 attribute = loopback_attribute
                 if not have_conf:
                     loopback_create_request = build_interfaces_create_request(name)
                     requests.append(loopback_create_request)
             else:
+                if name.startswith('PortChannel') and not have_conf:
+                    po_create_request = build_interfaces_create_request(name)
+                    requests.append(po_create_request)
                 attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
 
             for attr in attribute:
@@ -537,12 +540,16 @@ class Interfaces(ConfigBase):
             name = conf['name']
             intf = next((e_intf for e_intf in have if name == e_intf['name']), {})
             create_loopback = False
+            create_portchannel = False
             if name.startswith('Loopback'):
                 attribute = loopback_attribute
                 if not intf:
                     create_loopback = True
                     requests.append(build_interfaces_create_request(name))
             else:
+                if name.startswith('PortChannel') and not intf:
+                    create_portchannel = True
+                    requests.append(build_interfaces_create_request(name))
                 attribute = eth_attribute if name.startswith('Eth') else non_eth_attribute
 
             add_conf, del_conf = {}, {}
@@ -569,7 +576,7 @@ class Interfaces(ConfigBase):
                         del_conf[attr] = delete_ads
                         requests_del.append(self.build_delete_request(delete_ads, h_attr, name, attr))
 
-            if add_conf or create_loopback:
+            if add_conf or create_loopback or create_portchannel:
                 add_conf['name'] = name
                 commands_add.append(add_conf)
 

@@ -116,3 +116,36 @@ class TestSonicInterfacesModule(TestSonicModule):
         self.initialize_config_requests(self.fixture_data['overridden_02']['expected_config_requests'])
         result = self.execute_module(changed=True)
         self.validate_config_requests()
+
+    # PortChannel auto-creation tests (fix for issue #637)
+    def test_sonic_interfaces_merged_po_create_01(self):
+        """Merged: PortChannel not in have — module must create it (LACP by default)."""
+        set_module_args(self.fixture_data['merged_po_create_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_po_create_01']['existing_interfaces_config'])
+        self.initialize_config_requests(self.fixture_data['merged_po_create_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_interfaces_merged_po_create_02(self):
+        """Merged: one PortChannel exists, one does not — only missing one is created."""
+        set_module_args(self.fixture_data['merged_po_create_02']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['merged_po_create_02']['existing_interfaces_config'])
+        self.initialize_config_requests(self.fixture_data['merged_po_create_02']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_interfaces_replaced_po_create_01(self):
+        """Replaced: PortChannel not in have — module must create it (LACP by default)."""
+        set_module_args(self.fixture_data['replaced_po_create_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['replaced_po_create_01']['existing_interfaces_config'])
+        self.initialize_config_requests(self.fixture_data['replaced_po_create_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()
+
+    def test_sonic_interfaces_overridden_po_create_01(self):
+        """Overridden: PortChannel not in have — module must create it (LACP by default)."""
+        set_module_args(self.fixture_data['overridden_po_create_01']['module_args'])
+        self.initialize_facts_get_requests(self.fixture_data['overridden_po_create_01']['existing_interfaces_config'])
+        self.initialize_config_requests(self.fixture_data['overridden_po_create_01']['expected_config_requests'])
+        result = self.execute_module(changed=True)
+        self.validate_config_requests()

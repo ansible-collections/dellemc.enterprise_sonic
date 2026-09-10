@@ -539,6 +539,204 @@ overridden_01:
     - path: "data/openconfig-interfaces:interfaces/interface=Eth1%2F1/openconfig-if-ethernet:ethernet/config/openconfig-if-ethernet-ext2:autoneg-mode"
       method: "delete"
 
+# PortChannel auto-creation test cases (fix for issue #637)
+# When a PortChannel does not exist in 'have', sonic_interfaces must create it
+# via a PATCH to data/openconfig-interfaces:interfaces (same as Loopback).
+# The payload carries no mode field, so SONiC defaults to LACP.
+
+merged_po_create_01:
+  module_args:
+    state: merged
+    config:
+      - name: PortChannel100
+        description: "uplink"
+        mtu: 9216
+        enabled: true
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/1'
+                config:
+                  mtu: 9100
+                  description: ''
+                  enabled: true
+  expected_config_requests:
+    # PortChannel100 does not exist: create it first (LACP by default)
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: PortChannel100
+              config:
+                name: PortChannel100
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          description: "uplink"
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 9216
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          enabled: true
+
+merged_po_create_02:
+  module_args:
+    state: merged
+    config:
+      - name: PortChannel100
+        description: "uplink"
+        mtu: 9216
+        enabled: true
+      - name: PortChannel101
+        mtu: 1500
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              # PortChannel100 already exists; PortChannel101 does not
+              - name: 'PortChannel100'
+                config:
+                  mtu: 9100
+                  description: ''
+                  enabled: false
+  expected_config_requests:
+    # PortChannel100 exists — only update changed attributes
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          description: "uplink"
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 9216
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          enabled: true
+    # PortChannel101 does not exist — create it first (LACP by default)
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: PortChannel101
+              config:
+                name: PortChannel101
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel101/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 1500
+
+replaced_po_create_01:
+  module_args:
+    state: replaced
+    config:
+      - name: PortChannel100
+        description: "uplink"
+        mtu: 9216
+        enabled: true
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/1'
+                config:
+                  mtu: 9100
+                  description: ''
+                  enabled: true
+  expected_config_requests:
+    # PortChannel100 does not exist — create it first (LACP by default)
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: PortChannel100
+              config:
+                name: PortChannel100
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          description: "uplink"
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 9216
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          enabled: true
+
+overridden_po_create_01:
+  module_args:
+    state: overridden
+    config:
+      - name: PortChannel100
+        description: "uplink"
+        mtu: 9216
+        enabled: true
+  existing_interfaces_config:
+    - path: "data/openconfig-interfaces:interfaces"
+      response:
+        code: 200
+        value:
+          openconfig-interfaces:interfaces:
+            interface:
+              - name: 'Eth1/1'
+                config:
+                  mtu: 9100
+                  description: ''
+                  enabled: true
+  expected_config_requests:
+    # PortChannel100 does not exist — create it first (LACP by default)
+    - path: "data/openconfig-interfaces:interfaces"
+      method: "patch"
+      data:
+        openconfig-interfaces:interfaces:
+          interface:
+            - name: PortChannel100
+              config:
+                name: PortChannel100
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          description: "uplink"
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          mtu: 9216
+    - path: "data/openconfig-interfaces:interfaces/interface=PortChannel100/config"
+      method: "patch"
+      data:
+        openconfig-interfaces:config:
+          enabled: true
+
 overridden_02:
   module_args:
     state: overridden
