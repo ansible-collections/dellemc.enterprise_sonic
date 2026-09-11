@@ -19,9 +19,19 @@ notes:
 - Tested against Enterprise SONiC Distribution by Dell Technologies.
 - Supports C(check_mode).
 short_description: Configure Interface attributes on interfaces such as, Eth, LAG, VLAN, and loopback.
-                   (create a loopback interface if it does not exist.)
-description: Configure Interface attributes such as, MTU, admin statu, and so on, on interfaces
-             such as, Eth, LAG, VLAN, and loopback. (create a loopback interface if it does not exist.)
+                   (create a loopback or PortChannel interface if it does not exist.)
+description:
+- Configure Interface attributes such as, MTU, admin status, and so on, on interfaces
+  such as, Eth, LAG, VLAN, and loopback.
+- Creates a Loopback interface if it does not already exist.
+- Creates a PortChannel (LAG) interface if it does not already exist. The PortChannel
+  is created as a LACP port-channel by default (no mode is specified in the REST payload;
+  use the M(dellemc.enterprise_sonic.sonic_lag_interfaces) module to change the mode
+  to static or to add member interfaces).
+- When configuring MTU or speed on Ethernet interfaces that will become LAG members,
+  apply this module before adding the interfaces to the PortChannel with
+  M(dellemc.enterprise_sonic.sonic_lag_interfaces). SONiC rejects speed changes on
+  active LAG members and requires member MTU to match the PortChannel MTU.
 author: Niraimadaiselvam M(@niraimadaiselvamm)
 options:
   config:
@@ -722,6 +732,69 @@ EXAMPLES = """
 #  fec RS
 #  unreliable-los auto
 #  shutdown
+#
+# Using "merged" state to create a PortChannel and configure LAG member interfaces
+# (fix for issue #637 — PortChannel auto-creation)
+#
+# Before state:
+# -------------
+# PortChannel100 does not exist on the device.
+# Eth1/47 and Eth1/48 are plain Ethernet interfaces (not yet in any LAG).
+#
+# Recommended workflow:
+#   Step 1 — Create PortChannel100 and configure MTU/description on it and on the
+#             member interfaces using sonic_interfaces. The PortChannel is created as
+#             a LACP port-channel by default.
+#   Step 2 — Add the member interfaces to the PortChannel using sonic_lag_interfaces.
+#             MTU already matches (set in Step 1), so SONiC accepts the membership.
+#
+- name: "Step 1: Create PortChannel100 and configure member interface attributes"
+  sonic_interfaces:
+    config:
+      - name: PortChannel100
+        description: "uplink"
+        mtu: 9216
+        enabled: true
+      - name: Eth1/47
+        description: "link1"
+        mtu: 9216
+        auto_negotiate: true
+        enabled: true
+      - name: Eth1/48
+        description: "link2"
+        mtu: 9216
+        auto_negotiate: true
+        enabled: true
+    state: merged
+#
+- name: "Step 2: Add member interfaces to PortChannel100"
+  sonic_lag_interfaces:
+    config:
+      - name: PortChannel100
+        members:
+          interfaces:
+            - member: Eth1/47
+            - member: Eth1/48
+    state: merged
+#
+# After state:
+# ------------
+#
+# show running-configuration interface PortChannel 100
+# !
+# interface PortChannel100
+#  description uplink
+#  mtu 9216
+#  no shutdown
+#
+# show running-configuration interface Eth 1/47
+# !
+# interface Eth1/47
+#  description link1
+#  mtu 9216
+#  speed auto
+#  channel-group 100
+#  no shutdown
 """
 
 RETURN = """

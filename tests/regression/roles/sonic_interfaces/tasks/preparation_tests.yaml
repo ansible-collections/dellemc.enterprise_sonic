@@ -54,3 +54,7 @@
       - name: PortChannel51
     state: merged
   failed_when: false
+
+# PortChannel100 is intentionally NOT pre-created here.
+# The test_case_po_create_* cases validate that sonic_interfaces can create
+# a PortChannel from scratch (fix for issue #637).

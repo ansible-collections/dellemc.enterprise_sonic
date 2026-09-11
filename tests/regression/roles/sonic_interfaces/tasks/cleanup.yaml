@@ -12,6 +12,7 @@
     config:
       - name: PortChannel50
       - name: PortChannel51
+      - name: PortChannel100
     state: deleted
   failed_when: false
 
