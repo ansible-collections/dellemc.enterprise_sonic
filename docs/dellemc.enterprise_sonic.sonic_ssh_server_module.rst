@@ -398,26 +398,26 @@ Examples
     # Before state:
     # -------------
     #
-    # sonic# show running-configuration | grep "ip ssh client"
-    # ip ssh client ciphers aes192-ctr,chacha20-poly1305@openssh.com
-    # ip ssh client kexalgorithms curve25519-sha256,diffie-hellman-group16-sha512
-    # ip ssh client macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
+    # sonic# show running-configuration | grep "ip ssh server"
+    # ip ssh server ciphers aes192-ctr,chacha20-poly1305@openssh.com
+    # ip ssh server kexalgorithms curve25519-sha256,diffie-hellman-group16-sha512
+    # ip ssh server macs umac-128-etm@openssh.com,hmac-sha2-256-etm@openssh.com
     # sonic#
 
     - name: Replace SSH configurations
-      dellemc.enterprise_sonic.sonic_ssh:
+      dellemc.enterprise_sonic.sonic_ssh_server:
         config:
           server_globals:
-            cipher: 'aes256-ctr'
-            kex: 'curve25519-sha256,diffie-hellman-group16-sha512'
+            ciphers: 'aes256-ctr'
+            kexalgorithms: 'curve25519-sha256,diffie-hellman-group16-sha512'
         state: replaced
 
     # After state:
     # ------------
     #
-    # sonic# show running-configuration | grep "ip ssh client"
-    # ip ssh client ciphers aes256-ctr
-    # ip ssh client kexalgorithms curve25519-sha256,diffie-hellman-group16-sha512
+    # sonic# show running-configuration | grep "ip ssh server"
+    # ip ssh server ciphers aes256-ctr
+    # ip ssh server kexalgorithms curve25519-sha256,diffie-hellman-group16-sha512
     # sonic#
 
 
